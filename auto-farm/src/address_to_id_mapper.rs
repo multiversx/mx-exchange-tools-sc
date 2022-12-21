@@ -1,0 +1,128 @@
+use core::marker::PhantomData;
+
+use elrond_wasm::{
+    api::StorageMapperApi, storage::StorageKey, storage_clear, storage_get, storage_get_len,
+    storage_set,
+};
+
+elrond_wasm::imports!();
+
+static ID_SUFFIX: &[u8] = b"userId";
+static ADDRESS_SUFFIX: &[u8] = b"addr";
+static LAST_ID_SUFFIX: &[u8] = b"lastId";
+
+pub type AddressId = u64;
+pub const NULL_ID: AddressId = 0;
+
+pub struct AddressToIdMapper<SA>
+where
+    SA: StorageMapperApi,
+{
+    _phantom_api: PhantomData<SA>,
+    base_key: StorageKey<SA>,
+}
+
+impl<SA> StorageMapper<SA> for AddressToIdMapper<SA>
+where
+    SA: StorageMapperApi,
+{
+    fn new(base_key: StorageKey<SA>) -> Self {
+        AddressToIdMapper {
+            _phantom_api: PhantomData,
+            base_key,
+        }
+    }
+}
+
+impl<SA> AddressToIdMapper<SA>
+where
+    SA: StorageMapperApi,
+{
+    pub fn contains_id(&self, id: AddressId) -> bool {
+        let key = self.id_to_address_key(id);
+        storage_get_len(key.as_ref()) != 0
+    }
+
+    pub fn get_id(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let key = self.address_to_id_key(address);
+        storage_get(key.as_ref())
+    }
+
+    pub fn get_address(&self, id: AddressId) -> Option<ManagedAddress<SA>> {
+        let key = self.id_to_address_key(id);
+        if storage_get_len(key.as_ref()) == 0 {
+            return None;
+        }
+
+        let addr = storage_get(key.as_ref());
+        Some(addr)
+    }
+
+    pub fn get_id_or_insert(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let addr_to_id_key = self.address_to_id_key(address);
+        let current_id = storage_get(addr_to_id_key.as_ref());
+        if current_id != 0 {
+            return current_id;
+        }
+
+        let new_id = self.get_last_id() + 1;
+        storage_set(addr_to_id_key.as_ref(), &new_id);
+        storage_set(self.id_to_address_key(new_id).as_ref(), address);
+
+        self.set_last_id(new_id);
+
+        new_id
+    }
+
+    pub fn remove_by_id(&self, id: AddressId) -> Option<ManagedAddress<SA>> {
+        let address = self.get_address(id)?;
+        self.remove_entry(id, &address);
+
+        Some(address)
+    }
+
+    pub fn remove_by_address(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let current_id = self.get_id(address);
+        if current_id != 0 {
+            self.remove_entry(current_id, address);
+        }
+
+        current_id
+    }
+
+    fn remove_entry(&self, id: AddressId, address: &ManagedAddress<SA>) {
+        storage_clear(self.address_to_id_key(address).as_ref());
+        storage_clear(self.id_to_address_key(id).as_ref());
+    }
+
+    fn id_to_address_key(&self, id: AddressId) -> StorageKey<SA> {
+        let mut item_key = self.base_key.clone();
+        item_key.append_bytes(ID_SUFFIX);
+        item_key.append_item(&id);
+
+        item_key
+    }
+
+    fn address_to_id_key(&self, address: &ManagedAddress<SA>) -> StorageKey<SA> {
+        let mut item_key = self.base_key.clone();
+        item_key.append_bytes(ADDRESS_SUFFIX);
+        item_key.append_item(address);
+
+        item_key
+    }
+
+    fn last_id_key(&self) -> StorageKey<SA> {
+        let mut item_key = self.base_key.clone();
+        item_key.append_bytes(LAST_ID_SUFFIX);
+
+        item_key
+    }
+
+    pub fn get_last_id(&self) -> AddressId {
+        storage_get(self.last_id_key().as_ref())
+    }
+
+    fn set_last_id(&self, last_id: AddressId) {
+        storage_set(self.last_id_key().as_ref(), &last_id);
+    }
+}

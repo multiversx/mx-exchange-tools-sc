@@ -20,3 +20,5 @@ farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+pausable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
