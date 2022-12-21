@@ -1,0 +1,22 @@
+[package]
+name = "auto-farm"
+version = "0.0.0"
+authors = [ "you",]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies.elrond-wasm]
+version = "=0.38.0"
+
+[dev-dependencies.elrond-wasm-debug]
+version = "=0.38.0"
+
+[dependencies]
+common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
