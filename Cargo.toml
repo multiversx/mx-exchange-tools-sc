@@ -1,0 +1,5 @@
+[workspace]
+members = [
+  "auto-farm",
+  "auto-farm/meta"
+]
