@@ -28,12 +28,14 @@ pub trait UserFarmActionsModule:
             let farm_id = self.farm_for_farm_token(&farm_token.token_identifier).get();
             let opt_farm_addr = farms_mapper.get_address(farm_id);
             if opt_farm_addr.is_none() {
+                new_user_farm_tokens.push(farm_token);
                 continue;
             }
 
             let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
             let farm_state = self.get_farm_state(&farm_addr);
             if farm_state != State::Active {
+                new_user_farm_tokens.push(farm_token);
                 continue;
             }
 
