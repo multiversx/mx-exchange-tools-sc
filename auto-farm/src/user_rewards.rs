@@ -123,6 +123,14 @@ pub trait UserRewardsModule:
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
 {
+    #[endpoint(userClaimRewards)]
+    fn user_claim_rewards(&self) -> PaymentsVec<Self::Api> {
+        let caller = self.blockchain().get_caller();
+        let user_id = self.user_ids().get_id_or_insert(&caller);
+        let rewards_mapper = self.user_rewards(user_id);
+        self.claim_common(caller, rewards_mapper)
+    }
+
     fn add_user_rewards(
         &self,
         user: ManagedAddress,

@@ -16,6 +16,37 @@ pub trait FeesModule:
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
 {
+    #[endpoint(claimFees)]
+    fn claim_fees(&self) -> PaymentsVec<Self::Api> {
+        self.require_caller_proxy_claim_address();
+
+        let caller = self.blockchain().get_caller();
+        let accumulated_fees_mapper = self.accumulated_fees();
+        self.claim_common(caller, accumulated_fees_mapper)
+    }
+
+    fn claim_common(
+        &self,
+        user: ManagedAddress,
+        mapper: SingleValueMapper<RewardsWrapper<Self::Api>>,
+    ) -> PaymentsVec<Self::Api> {
+        if mapper.is_empty() {
+            return PaymentsVec::new();
+        }
+
+        let rewards_wrapper = mapper.take();
+        let mut output_payments = rewards_wrapper.other_tokens.into_payments();
+        if let Some(locked_tokens) = rewards_wrapper.opt_locked_tokens {
+            output_payments.push(locked_tokens);
+        }
+
+        if !output_payments.is_empty() {
+            self.send().direct_multi(&user, &output_payments);
+        }
+
+        output_payments
+    }
+
     fn take_fees(&self, user: ManagedAddress, rewards_wrapper: &mut RewardsWrapper<Self::Api>) {
         let accumulated_fees_mapper = self.accumulated_fees();
         let mut fees_wrapper = if !accumulated_fees_mapper.is_empty() {
