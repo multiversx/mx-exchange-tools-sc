@@ -96,11 +96,9 @@ pub trait FeesModule:
         }
 
         let proxy_addr = self.proxy_claim_address().get();
-        self.deduct_energy_from_sender(user, &ManagedVec::from_single_item(fee_tokens.clone()));
-        self.add_energy_to_destination(
-            proxy_addr.clone(),
-            &ManagedVec::from_single_item(fee_tokens.clone()),
-        );
+        let fee_tokens_vec = ManagedVec::from_single_item(fee_tokens.clone());
+        self.deduct_energy_from_sender(user, &fee_tokens_vec);
+        self.add_energy_to_destination(proxy_addr.clone(), &fee_tokens_vec);
 
         self.merge_wrapped_locked_tokens(proxy_addr, fees_wrapper, fee_tokens);
     }

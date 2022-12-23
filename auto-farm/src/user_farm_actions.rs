@@ -83,5 +83,5 @@ pub trait UserFarmActionsModule:
     }
 
     #[proxy]
-    fn farm_proxy(&self, sc_address: ManagedAddress) -> farm::Proxy<Self::Api>;
+    fn farm_proxy(&self, sc_address: ManagedAddress) -> farm_with_locked_rewards::Proxy<Self::Api>;
 }

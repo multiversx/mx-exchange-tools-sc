@@ -51,4 +51,16 @@ pub trait AutoFarm:
         self.energy_factory_address()
             .set_if_empty(energy_factory_address);
     }
+
+    #[only_owner]
+    #[endpoint(changeProxyClaimAddress)]
+    fn change_proxy_claim_address(&self, new_proxy_claim_address: ManagedAddress) {
+        let old_claim_address = self.proxy_claim_address().replace(&new_proxy_claim_address);
+        let unclaimed_tokens = self.accumulated_fees().get();
+        if let Some(locked_tokens) = unclaimed_tokens.opt_locked_tokens {
+            let tokens_vec = ManagedVec::from_single_item(locked_tokens);
+            self.deduct_energy_from_sender(old_claim_address, &tokens_vec);
+            self.add_energy_to_destination(new_proxy_claim_address, &tokens_vec);
+        }
+    }
 }

@@ -6,7 +6,7 @@ use crate::address_to_id_mapper::AddressId;
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, PartialEq, Debug)]
 pub struct RewardsWrapper<M: ManagedTypeApi> {
     pub opt_locked_tokens: Option<EsdtTokenPayment<M>>,
     pub other_tokens: UniquePayments<M>,
@@ -22,7 +22,7 @@ impl<M: ManagedTypeApi> Default for RewardsWrapper<M> {
     }
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
 pub struct UniquePayments<M: ManagedTypeApi> {
     payments: PaymentsVec<M>,
 }
@@ -131,6 +131,12 @@ pub trait UserRewardsModule:
         self.claim_common(caller, rewards_mapper)
     }
 
+    #[view(getUserRewards)]
+    fn get_user_rewards_view(&self, user: ManagedAddress) -> RewardsWrapper<Self::Api> {
+        let user_id = self.user_ids().get_id_or_insert(&user);
+        self.user_rewards(user_id).get()
+    }
+
     fn add_user_rewards(
         &self,
         user: ManagedAddress,
@@ -163,7 +169,6 @@ pub trait UserRewardsModule:
         });
     }
 
-    #[view(getUserRewards)]
     #[storage_mapper("userRewards")]
     fn user_rewards(&self, user_id: AddressId) -> SingleValueMapper<RewardsWrapper<Self::Api>>;
 }
