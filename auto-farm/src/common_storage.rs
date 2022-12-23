@@ -2,6 +2,8 @@ use crate::address_to_id_mapper::AddressToIdMapper;
 
 elrond_wasm::imports!();
 
+pub const MAX_PERCENTAGE: u64 = 10_000;
+
 #[elrond_wasm::module]
 pub trait CommonStorageModule {
     fn require_caller_proxy_claim_address(&self) {
