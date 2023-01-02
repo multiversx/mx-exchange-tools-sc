@@ -25,11 +25,13 @@ pub trait UserFarmActionsModule:
         self.require_caller_proxy_claim_address();
 
         let farms_mapper = self.farm_ids();
-        let user_id = self.user_ids().get_id_or_insert(&user);
-        let user_tokens_mapper = self.user_farm_tokens(user_id);
+        let user_id = self.user_ids().get_id(&user);
+        self.require_valid_id(user_id);
 
         let locked_token_id = self.get_locked_token_id();
+        let user_tokens_mapper = self.user_farm_tokens(user_id);
         let user_farm_tokens = user_tokens_mapper.get();
+
         let mut new_user_farm_tokens = PaymentsVec::new();
         let mut locked_rewards = UniquePayments::new();
         let mut other_token_rewards = UniquePayments::new();

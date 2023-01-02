@@ -13,11 +13,12 @@ pub trait FarmsWhitelistModule:
         for farm_addr in farms {
             self.require_sc_address(&farm_addr);
 
-            let new_id = farms_mapper.get_id_or_insert(&farm_addr);
-            if new_id == NULL_ID {
+            let existing_id = farms_mapper.get_id(&farm_addr);
+            if existing_id != NULL_ID {
                 continue;
             }
 
+            let new_id = farms_mapper.get_id_or_insert(&farm_addr);
             let farm_config = self.get_farm_config(&farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id)
                 .set(new_id);
