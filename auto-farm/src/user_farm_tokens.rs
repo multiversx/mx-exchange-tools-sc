@@ -31,7 +31,9 @@ pub trait UserFarmTokensModule:
     #[endpoint(withdrawFarmTokens)]
     fn withdraw_farm_tokens(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let user_id = self.user_ids().get_id_or_insert(&caller);
+        let user_id = self.user_ids().get_id(&caller);
+        self.require_valid_id(user_id);
+
         let tokens = self.user_farm_tokens(user_id).take();
         if !tokens.is_empty() {
             self.send().direct_multi(&caller, &tokens);
@@ -42,8 +44,12 @@ pub trait UserFarmTokensModule:
 
     #[view(getUserFarmTokens)]
     fn get_user_farm_tokens_view(&self, user: ManagedAddress) -> PaymentsVec<Self::Api> {
-        let user_id = self.user_ids().get_id_or_insert(&user);
-        self.user_farm_tokens(user_id).get()
+        let user_id = self.user_ids().get_id(&user);
+        if user_id != NULL_ID {
+            self.user_farm_tokens(user_id).get()
+        } else {
+            PaymentsVec::new()
+        }
     }
 
     #[storage_mapper("userFarmTokens")]
