@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
 use mergeable::Mergeable;
 
-use crate::address_to_id_mapper::AddressId;
+use crate::address_to_id_mapper::{AddressId, NULL_ID};
 
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
@@ -126,20 +126,27 @@ pub trait UserRewardsModule:
     #[endpoint(userClaimRewards)]
     fn user_claim_rewards(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let user_id = self.user_ids().get_id_or_insert(&caller);
+        let user_id = self.user_ids().get_id(&caller);
+        self.require_valid_id(user_id);
+
         let rewards_mapper = self.user_rewards(user_id);
         self.claim_common(caller, rewards_mapper)
     }
 
     #[view(getUserRewards)]
     fn get_user_rewards_view(&self, user: ManagedAddress) -> RewardsWrapper<Self::Api> {
-        let user_id = self.user_ids().get_id_or_insert(&user);
-        self.user_rewards(user_id).get()
+        let user_id = self.user_ids().get_id(&user);
+        if user_id != NULL_ID {
+            self.user_rewards(user_id).get()
+        } else {
+            RewardsWrapper::default()
+        }
     }
 
     fn add_user_rewards(
         &self,
         user: ManagedAddress,
+        user_id: AddressId,
         locked_tokens: UniquePayments<Self::Api>,
         other_tokens: UniquePayments<Self::Api>,
     ) {
@@ -151,7 +158,6 @@ pub trait UserRewardsModule:
         };
         self.take_fees(user.clone(), &mut rew_wrapper);
 
-        let user_id = self.user_ids().get_id_or_insert(&user);
         let rewards_mapper = self.user_rewards(user_id);
         if rewards_mapper.is_empty() {
             rewards_mapper.set(rew_wrapper);

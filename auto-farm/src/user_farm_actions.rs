@@ -60,7 +60,7 @@ pub trait UserFarmActionsModule:
             }
         }
 
-        self.add_user_rewards(user, locked_rewards, other_token_rewards);
+        self.add_user_rewards(user, user_id, locked_rewards, other_token_rewards);
 
         user_tokens_mapper.set(&new_user_farm_tokens);
     }
