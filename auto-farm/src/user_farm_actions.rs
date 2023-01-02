@@ -19,9 +19,10 @@ pub trait UserFarmActionsModule:
         self.require_caller_proxy_claim_address();
 
         let farms_mapper = self.farm_ids();
-        let user_id = self.user_ids().get_id_or_insert(&user);
-        let user_tokens_mapper = self.user_farm_tokens(user_id);
+        let user_id = self.user_ids().get_id(&user);
+        self.require_valid_id(user_id);
 
+        let user_tokens_mapper = self.user_farm_tokens(user_id);
         let user_tokens = user_tokens_mapper.get();
         let mut new_user_farm_tokens = PaymentsVec::new();
         for farm_token in &user_tokens {
