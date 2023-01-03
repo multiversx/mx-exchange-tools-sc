@@ -70,7 +70,7 @@ pub trait FeesModule:
             }
         }
 
-        rewards_wrapper.other_tokens = UniquePayments::new_from_payments(remaining_user_tokens);
+        rewards_wrapper.other_tokens = UniquePayments::new_from_unique_payments(remaining_user_tokens);
         accumulated_fees_mapper.set(fees_wrapper);
     }
 

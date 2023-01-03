@@ -28,6 +28,10 @@ farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev =
 # Other SCs
 pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 energy-factory = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+fees-collector = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
+
+# Other SCs - different repos
+metabonding = { git = "https://github.com/ElrondNetwork/sc-metabonding-rs", rev = "e1531a5" }
 
 # Common modules/types
 common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
