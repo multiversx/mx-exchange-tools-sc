@@ -16,9 +16,14 @@ features = [ "esdt-token-payment-legacy-decode" ]
 version = "=0.38.0"
 
 [dependencies]
-common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
-farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
-farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
-farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
-pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
-utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+energy-factory = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+energy-query = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+lkmex-transfer = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+legacy_token_decode_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+mergeable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
