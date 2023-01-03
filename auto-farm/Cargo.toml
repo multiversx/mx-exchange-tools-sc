@@ -10,6 +10,7 @@ path = "src/lib.rs"
 
 [dependencies.elrond-wasm]
 version = "=0.38.0"
+features = [ "esdt-token-payment-legacy-decode" ]
 
 [dev-dependencies.elrond-wasm-debug]
 version = "=0.38.0"
@@ -20,3 +21,4 @@ farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
 pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }
+utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "6e88456" }

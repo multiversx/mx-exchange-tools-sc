@@ -5,15 +5,24 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            9
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:  11
 
 #![no_std]
 
 elrond_wasm_node::wasm_endpoints! {
     auto_farm
     (
+        addFarms
+        removeFarms
+        getFarmForFarmToken
+        getFarmsForFarmingToken
+        getFarmConfig
+        depositFarmTokens
+        withdrawFarmTokens
+        getUserFarmTokens
+        claimAllFarmRewards
     )
 }
 
