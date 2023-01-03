@@ -35,7 +35,7 @@ pub trait FeesCollectorActionsModule:
         }
 
         let merged_rewards = UniquePayments::new_from_payments(rewards);
-        let user_id = self.user_ids().get_id(&user);
+        let user_id = self.user_ids().get_id_or_insert(&user);
         self.add_user_rewards(user, user_id, locked_tokens, merged_rewards);
     }
 

@@ -43,6 +43,9 @@ lkmex-transfer = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d
 
 [dev-dependencies]
 num-bigint = "0.4.2"
+num-traits = "0.2"
+hex = "0.4"
+hex-literal = "0.3.4"
 
 # Dependencies needed for tests
 simple-lock = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }

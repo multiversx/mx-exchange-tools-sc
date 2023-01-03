@@ -71,8 +71,21 @@ where
         let rust_zero = rust_biguint!(0);
         let mut b_mock = BlockchainStateWrapper::new();
         let owner = b_mock.create_user_account(&rust_zero);
-        let first_user = b_mock.create_user_account(&rust_zero);
-        let second_user = b_mock.create_user_account(&rust_zero);
+
+        // needed for metabonding signatures
+
+        // address:user1 from mandos
+        let first_user = Address::from(hex_literal::hex!(
+            "75736572315F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
+        ));
+        b_mock.create_user_account_fixed_address(&first_user, &rust_zero);
+
+        // address:user2 from mandos
+        let second_user = Address::from(hex_literal::hex!(
+            "75736572325F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
+        ));
+        b_mock.create_user_account_fixed_address(&second_user, &rust_zero);
+
         let third_user = b_mock.create_user_account(&rust_zero);
         let first_farm_wrapper = b_mock.create_sc_account(
             &rust_zero,
