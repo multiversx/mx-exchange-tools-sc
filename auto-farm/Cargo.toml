@@ -12,18 +12,39 @@ path = "src/lib.rs"
 version = "=0.38.0"
 features = [ "esdt-token-payment-legacy-decode" ]
 
+[dependencies.elrond-wasm-modules]
+version = "=0.38.0"
+
 [dev-dependencies.elrond-wasm-debug]
 version = "=0.38.0"
 
+# Farm dependencies
 [dependencies]
-common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm-with-locked-rewards = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+
+# Other SCs
 pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
-utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 energy-factory = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
-energy-query = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
-lkmex-transfer = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
-legacy_token_decode_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+
+# Common modules/types
+common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
 mergeable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+energy-query = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+legacy_token_decode_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+lkmex-transfer = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+# Dependencies needed for tests
+simple-lock = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm-boosted-yields = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+config = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+locking_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+farm_token = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+pausable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
+sc_whitelist_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "5d679b1" }
