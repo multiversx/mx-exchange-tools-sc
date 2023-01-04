@@ -4,13 +4,14 @@ elrond_wasm::imports!();
 
 pub mod address_to_id_mapper;
 pub mod common_storage;
+pub mod farm_actions;
 pub mod farm_external_storage_read;
 pub mod farms_whitelist;
 pub mod fees;
 pub mod fees_collector_actions;
 pub mod locked_token_merging;
 pub mod metabonding_actions;
-pub mod user_farm_actions;
+pub mod registration;
 pub mod user_farm_tokens;
 pub mod user_rewards;
 
@@ -21,8 +22,9 @@ pub trait AutoFarm:
     farms_whitelist::FarmsWhitelistModule
     + farm_external_storage_read::FarmExternalStorageReadModule
     + common_storage::CommonStorageModule
+    + registration::RegistrationModule
     + user_farm_tokens::UserFarmTokensModule
-    + user_farm_actions::UserFarmActionsModule
+    + farm_actions::FarmActionsModule
     + metabonding_actions::MetabondingActionsModule
     + fees_collector_actions::FeesCollectorActionsModule
     + user_rewards::UserRewardsModule

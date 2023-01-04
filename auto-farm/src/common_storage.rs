@@ -1,4 +1,4 @@
-use crate::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
+use crate::address_to_id_mapper::AddressToIdMapper;
 
 elrond_wasm::imports!();
 
@@ -13,10 +13,6 @@ pub trait CommonStorageModule {
             caller == proxy_claim_address,
             "Only the proxy can claim in user's place"
         );
-    }
-
-    fn require_valid_id(&self, id: AddressId) {
-        require!(id != NULL_ID, "Unknown user");
     }
 
     #[storage_mapper("userIds")]

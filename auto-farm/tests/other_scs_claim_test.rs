@@ -6,6 +6,7 @@ use crate::{
     farm_with_locked_rewards_setup::FarmSetup,
     fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID},
 };
+use auto_farm::registration::RegistrationModule;
 use auto_farm::{
     common_storage::MAX_PERCENTAGE,
     fees::FeesModule,
@@ -79,6 +80,12 @@ fn metabonding_claim_through_auto_farm_test() {
     let sig_first_user_week_2 = hex_literal::hex!("b4aadf08eea4cc7c636922511943edbab2ff6ef2558528e0e7b03c7448367989fe860ac091be4d942304f04c86b1eaa0501f36e02819a3c628b4c53f3d3ac801");
 
     let first_user_addr = farm_setup.first_user.clone();
+    b_mock
+        .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
+
     b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut claim_args = MultiValueEncoded::new();
@@ -241,6 +248,20 @@ fn fees_collector_claim_through_auto_farm_test() {
 
     let first_user_addr = farm_setup.first_user.clone();
     let second_user_addr = farm_setup.second_user.clone();
+
+    farm_setup
+        .b_mock
+        .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
+
+    farm_setup
+        .b_mock
+        .execute_tx(&second_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
 
     farm_setup.set_user_energy(&first_user_addr, 1_000, 5, 500);
     farm_setup.set_user_energy(&second_user_addr, 9_000, 5, 500);

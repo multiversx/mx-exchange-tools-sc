@@ -18,7 +18,7 @@ pub trait FarmsWhitelistModule:
                 continue;
             }
 
-            let new_id = farms_mapper.get_id_or_insert(&farm_addr);
+            let new_id = farms_mapper.insert_new(&farm_addr);
             let farm_config = self.get_farm_config(&farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id)
                 .set(new_id);

@@ -29,14 +29,20 @@ pub trait UserFarmTokensModule:
     }
 
     #[endpoint(withdrawFarmTokens)]
-    fn withdraw_farm_tokens(&self) -> PaymentsVec<Self::Api> {
+    fn withdraw_farm_tokens_endpoint(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let user_id = self.user_ids().get_id(&caller);
-        self.require_valid_id(user_id);
+        let user_id = self.user_ids().get_id_non_zero(&caller);
+        self.withdraw_farm_tokens(&caller, user_id)
+    }
 
+    fn withdraw_farm_tokens(
+        &self,
+        user: &ManagedAddress,
+        user_id: AddressId,
+    ) -> PaymentsVec<Self::Api> {
         let tokens = self.user_farm_tokens(user_id).take();
         if !tokens.is_empty() {
-            self.send().direct_multi(&caller, &tokens);
+            self.send().direct_multi(user, &tokens);
         }
 
         tokens
