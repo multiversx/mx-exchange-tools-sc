@@ -133,12 +133,19 @@ pub trait UserRewardsModule:
     + utils::UtilsModule
 {
     #[endpoint(userClaimRewards)]
-    fn user_claim_rewards(&self) -> PaymentsVec<Self::Api> {
+    fn user_claim_rewards_endpoint(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
+        self.user_claim_rewards(caller, user_id)
+    }
 
+    fn user_claim_rewards(
+        &self,
+        user: ManagedAddress,
+        user_id: AddressId,
+    ) -> PaymentsVec<Self::Api> {
         let rewards_mapper = self.user_rewards(user_id);
-        self.claim_common(caller, rewards_mapper)
+        self.claim_common(user, rewards_mapper)
     }
 
     #[view(getUserRewards)]

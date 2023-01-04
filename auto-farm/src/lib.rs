@@ -11,6 +11,7 @@ pub mod fees;
 pub mod fees_collector_actions;
 pub mod locked_token_merging;
 pub mod metabonding_actions;
+pub mod registration;
 pub mod user_farm_tokens;
 pub mod user_rewards;
 
@@ -21,6 +22,7 @@ pub trait AutoFarm:
     farms_whitelist::FarmsWhitelistModule
     + farm_external_storage_read::FarmExternalStorageReadModule
     + common_storage::CommonStorageModule
+    + registration::RegistrationModule
     + user_farm_tokens::UserFarmTokensModule
     + farm_actions::FarmActionsModule
     + metabonding_actions::MetabondingActionsModule
@@ -74,11 +76,5 @@ pub trait AutoFarm:
             self.deduct_energy_from_sender(old_claim_address, &tokens_vec);
             self.add_energy_to_destination(new_proxy_claim_address, &tokens_vec);
         }
-    }
-
-    #[endpoint]
-    fn register(&self) {
-        let caller = self.blockchain().get_caller();
-        let _ = self.user_ids().insert_new(&caller);
     }
 }
