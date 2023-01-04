@@ -32,9 +32,8 @@ pub trait RegistrationModule:
         let claimed_rewards = self.user_claim_rewards(caller, user_id);
         let _ = ids_mapper.remove_by_id(user_id);
 
-        let mut results = ManagedVec::new();
+        let mut results = farm_tokens;
         results.append_vec(claimed_rewards);
-        results.append_vec(farm_tokens);
 
         results
     }
