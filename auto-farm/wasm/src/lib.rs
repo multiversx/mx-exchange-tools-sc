@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           17
+// Endpoints:                           19
 // Async Callback (empty):               1
-// Total number of exported functions:  19
+// Total number of exported functions:  21
 
 #![no_std]
 
@@ -24,6 +24,8 @@ elrond_wasm_node::wasm_endpoints! {
         withdrawFarmTokens
         getUserFarmTokens
         claimAllFarmRewards
+        claimMetabondingRewards
+        claimFeesCollectorRewards
         userClaimRewards
         getUserRewards
         claimFees

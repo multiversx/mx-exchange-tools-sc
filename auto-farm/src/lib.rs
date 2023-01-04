@@ -7,7 +7,9 @@ pub mod common_storage;
 pub mod farm_external_storage_read;
 pub mod farms_whitelist;
 pub mod fees;
+pub mod fees_collector_actions;
 pub mod locked_token_merging;
+pub mod metabonding_actions;
 pub mod user_farm_actions;
 pub mod user_farm_tokens;
 pub mod user_rewards;
@@ -21,6 +23,8 @@ pub trait AutoFarm:
     + common_storage::CommonStorageModule
     + user_farm_tokens::UserFarmTokensModule
     + user_farm_actions::UserFarmActionsModule
+    + metabonding_actions::MetabondingActionsModule
+    + fees_collector_actions::FeesCollectorActionsModule
     + user_rewards::UserRewardsModule
     + fees::FeesModule
     + locked_token_merging::LockedTokenMergingModule
@@ -39,17 +43,25 @@ pub trait AutoFarm:
         proxy_claim_address: ManagedAddress,
         fee_percentage: u64,
         energy_factory_address: ManagedAddress,
+        metabonding_sc_address: ManagedAddress,
+        fees_collector_sc_address: ManagedAddress,
     ) {
         require!(
             fee_percentage > 0 && fee_percentage < MAX_PERCENTAGE,
             "Invalid fees percentage"
         );
         self.require_sc_address(&energy_factory_address);
+        self.require_sc_address(&metabonding_sc_address);
+        self.require_sc_address(&fees_collector_sc_address);
 
         self.proxy_claim_address().set_if_empty(proxy_claim_address);
         self.fee_percentage().set(fee_percentage);
         self.energy_factory_address()
             .set_if_empty(energy_factory_address);
+        self.metabonding_sc_address()
+            .set_if_empty(metabonding_sc_address);
+        self.fees_collector_sc_address()
+            .set_if_empty(fees_collector_sc_address);
     }
 
     #[only_owner]

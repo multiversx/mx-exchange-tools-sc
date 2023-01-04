@@ -22,10 +22,10 @@ use crate::farm_with_locked_rewards_setup::{FarmSetup, FARM_TOKEN_ID, LOCKED_REW
 
 mod farm_with_locked_rewards_setup;
 
+const FEE_PERCENTAGE: u64 = 1_000; // 10%
+
 const FIRST_FARM_INDEX: usize = 0;
 const SECOND_FARM_INDEX: usize = 1;
-
-const FEE_PERCENTAGE: u64 = 1_000; // 10%
 
 #[test]
 fn user_enter_and_claim_two_farms_test() {
@@ -156,6 +156,8 @@ fn claim_rewards_through_auto_farm() {
                 managed_address!(&proxy_address),
                 FEE_PERCENTAGE,
                 managed_address!(&energy_factory_addr),
+                managed_address!(&energy_factory_addr), // unused here
+                managed_address!(&energy_factory_addr), // unused here
             );
 
             let mut args = MultiValueEncoded::new();

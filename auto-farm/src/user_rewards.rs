@@ -43,8 +43,17 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
     }
 
     #[inline]
-    pub fn new_from_payments(payments: PaymentsVec<M>) -> Self {
+    pub fn new_from_unique_payments(payments: PaymentsVec<M>) -> Self {
         UniquePayments { payments }
+    }
+
+    pub fn new_from_payments(payments: PaymentsVec<M>) -> Self {
+        let mut merged_payments = Self::new();
+        for p in &payments {
+            merged_payments.add_payment(p);
+        }
+
+        merged_payments
     }
 
     pub fn add_payment(&mut self, new_payment: EsdtTokenPayment<M>) {
