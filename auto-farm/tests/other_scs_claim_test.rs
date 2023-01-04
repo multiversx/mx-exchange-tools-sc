@@ -80,6 +80,12 @@ fn metabonding_claim_through_auto_farm_test() {
 
     let first_user_addr = farm_setup.first_user.clone();
     b_mock
+        .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
+
+    b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut claim_args = MultiValueEncoded::new();
             claim_args.push(
@@ -241,6 +247,20 @@ fn fees_collector_claim_through_auto_farm_test() {
 
     let first_user_addr = farm_setup.first_user.clone();
     let second_user_addr = farm_setup.second_user.clone();
+
+    farm_setup
+        .b_mock
+        .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
+
+    farm_setup
+        .b_mock
+        .execute_tx(&second_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.register();
+        })
+        .assert_ok();
 
     farm_setup.set_user_energy(&first_user_addr, 1_000, 5, 500);
     farm_setup.set_user_energy(&second_user_addr, 9_000, 5, 500);

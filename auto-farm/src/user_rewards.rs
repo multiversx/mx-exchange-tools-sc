@@ -135,8 +135,7 @@ pub trait UserRewardsModule:
     #[endpoint(userClaimRewards)]
     fn user_claim_rewards(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let user_id = self.user_ids().get_id(&caller);
-        self.require_valid_id(user_id);
+        let user_id = self.user_ids().get_id_non_zero(&caller);
 
         let rewards_mapper = self.user_rewards(user_id);
         self.claim_common(caller, rewards_mapper)

@@ -19,6 +19,7 @@ pub trait FeesCollectorActionsModule:
     fn claim_fees_collector_rewards(&self, user: ManagedAddress) {
         self.require_caller_proxy_claim_address();
 
+        let user_id = self.user_ids().get_id_non_zero(&user);
         let mut rewards = self.call_fees_collector_claim(user.clone());
         let rewards_len = rewards.len();
         if rewards_len == 0 {
@@ -35,7 +36,6 @@ pub trait FeesCollectorActionsModule:
         }
 
         let merged_rewards = UniquePayments::new_from_payments(rewards);
-        let user_id = self.user_ids().get_id_or_insert(&user);
         self.add_user_rewards(user, user_id, locked_tokens, merged_rewards);
     }
 

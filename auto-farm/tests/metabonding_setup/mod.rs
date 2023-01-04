@@ -54,11 +54,7 @@ where
     b_mock
         .execute_tx(&owner_addr, &mb_wrapper, &rust_zero, |sc| {
             let signer_addr = managed_address!(&Address::from(&SIGNER_ADDRESS));
-            sc.init(
-                signer_addr.clone(),
-                OptionalValue::None,
-                OptionalValue::None,
-            );
+            sc.init(signer_addr, OptionalValue::None, OptionalValue::None);
         })
         .assert_ok();
 

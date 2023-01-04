@@ -11,8 +11,8 @@ use energy_query::Energy;
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::LockedTokenAttributes;
 
+use auto_farm::farm_actions::FarmActionsModule;
 use auto_farm::fees::FeesModule;
-use auto_farm::user_farm_actions::UserFarmActionsModule;
 use auto_farm::user_farm_tokens::UserFarmTokensModule;
 use auto_farm::user_rewards::{UniquePayments, UserRewardsModule};
 use auto_farm::AutoFarm;

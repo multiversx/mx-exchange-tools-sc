@@ -48,6 +48,24 @@ where
         storage_get(key.as_ref())
     }
 
+    pub fn get_id_non_zero(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let id = self.get_id(address);
+        if id == NULL_ID {
+            SA::error_api_impl().signal_error(b"Unknown user");
+        }
+
+        id
+    }
+
+    pub fn insert_new(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let existing_id = self.get_id(address);
+        if existing_id != NULL_ID {
+            SA::error_api_impl().signal_error(b"User already registered");
+        }
+
+        self.insert_user(address)
+    }
+
     pub fn get_address(&self, id: AddressId) -> Option<ManagedAddress<SA>> {
         let key = self.id_to_address_key(id);
         if storage_get_len(key.as_ref()) == 0 {
@@ -65,13 +83,7 @@ where
             return current_id;
         }
 
-        let new_id = self.get_last_id() + 1;
-        storage_set(addr_to_id_key.as_ref(), &new_id);
-        storage_set(self.id_to_address_key(new_id).as_ref(), address);
-
-        self.set_last_id(new_id);
-
-        new_id
+        self.insert_user(address)
     }
 
     pub fn remove_by_id(&self, id: AddressId) -> Option<ManagedAddress<SA>> {
@@ -88,6 +100,16 @@ where
         }
 
         current_id
+    }
+
+    fn insert_user(&self, address: &ManagedAddress<SA>) -> AddressId {
+        let new_id = self.get_last_id() + 1;
+        storage_set(self.address_to_id_key(address).as_ref(), &new_id);
+        storage_set(self.id_to_address_key(new_id).as_ref(), address);
+
+        self.set_last_id(new_id);
+
+        new_id
     }
 
     fn remove_entry(&self, id: AddressId, address: &ManagedAddress<SA>) {

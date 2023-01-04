@@ -6,7 +6,7 @@ use crate::{farm_external_storage_read::State, user_rewards::UniquePayments};
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
-pub trait UserFarmActionsModule:
+pub trait FarmActionsModule:
     crate::common_storage::CommonStorageModule
     + crate::farms_whitelist::FarmsWhitelistModule
     + crate::farm_external_storage_read::FarmExternalStorageReadModule
@@ -25,8 +25,7 @@ pub trait UserFarmActionsModule:
         self.require_caller_proxy_claim_address();
 
         let farms_mapper = self.farm_ids();
-        let user_id = self.user_ids().get_id(&user);
-        self.require_valid_id(user_id);
+        let user_id = self.user_ids().get_id_non_zero(&user);
 
         let locked_token_id = self.get_locked_token_id();
         let user_tokens_mapper = self.user_farm_tokens(user_id);

@@ -4,13 +4,13 @@ elrond_wasm::imports!();
 
 pub mod address_to_id_mapper;
 pub mod common_storage;
+pub mod farm_actions;
 pub mod farm_external_storage_read;
 pub mod farms_whitelist;
 pub mod fees;
 pub mod fees_collector_actions;
 pub mod locked_token_merging;
 pub mod metabonding_actions;
-pub mod user_farm_actions;
 pub mod user_farm_tokens;
 pub mod user_rewards;
 
@@ -22,7 +22,7 @@ pub trait AutoFarm:
     + farm_external_storage_read::FarmExternalStorageReadModule
     + common_storage::CommonStorageModule
     + user_farm_tokens::UserFarmTokensModule
-    + user_farm_actions::UserFarmActionsModule
+    + farm_actions::FarmActionsModule
     + metabonding_actions::MetabondingActionsModule
     + fees_collector_actions::FeesCollectorActionsModule
     + user_rewards::UserRewardsModule
@@ -74,5 +74,11 @@ pub trait AutoFarm:
             self.deduct_energy_from_sender(old_claim_address, &tokens_vec);
             self.add_energy_to_destination(new_proxy_claim_address, &tokens_vec);
         }
+    }
+
+    #[endpoint]
+    fn register(&self) {
+        let caller = self.blockchain().get_caller();
+        let _ = self.user_ids().insert_new(&caller);
     }
 }
