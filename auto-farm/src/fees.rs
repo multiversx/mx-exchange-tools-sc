@@ -1,8 +1,8 @@
 use common_structs::PaymentsVec;
 
-use crate::{
-    common::common_storage::MAX_PERCENTAGE,
-    user_tokens::user_rewards::{RewardsWrapper, UniquePayments},
+use crate::common::{
+    common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper,
+    unique_payments::UniquePayments,
 };
 
 elrond_wasm::imports!();

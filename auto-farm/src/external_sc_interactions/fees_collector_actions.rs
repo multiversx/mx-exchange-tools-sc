@@ -1,6 +1,6 @@
 use common_structs::PaymentsVec;
 
-use crate::user_tokens::user_rewards::UniquePayments;
+use crate::common::unique_payments::UniquePayments;
 
 elrond_wasm::imports!();
 

@@ -2,8 +2,8 @@ use common_structs::PaymentsVec;
 use farm::base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper};
 
 use crate::{
+    common::unique_payments::UniquePayments,
     external_sc_interactions::farm_external_storage_read::State,
-    user_tokens::user_rewards::UniquePayments,
 };
 
 elrond_wasm::imports!();
