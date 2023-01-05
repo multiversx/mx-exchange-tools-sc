@@ -6,6 +6,7 @@ elrond_wasm::imports!();
 pub trait FarmsWhitelistModule:
     crate::external_storage_read::farm_storage_read::FarmStorageReadModule + utils::UtilsModule
 {
+    /// Can also be used for farm-staking contracts.
     #[only_owner]
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {

@@ -26,6 +26,7 @@ pub trait AutoFarm:
     + whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
     + external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    + external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + user_tokens::user_rewards::UserRewardsModule
     + fees::FeesModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
