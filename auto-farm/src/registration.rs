@@ -4,13 +4,13 @@ elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait RegistrationModule:
-    crate::common_storage::CommonStorageModule
-    + crate::user_rewards::UserRewardsModule
+    crate::common::common_storage::CommonStorageModule
+    + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::fees::FeesModule
-    + crate::locked_token_merging::LockedTokenMergingModule
-    + crate::farms_whitelist::FarmsWhitelistModule
-    + crate::farm_external_storage_read::FarmExternalStorageReadModule
-    + crate::user_farm_tokens::UserFarmTokensModule
+    + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
+    + crate::whitelists::farms_whitelist::FarmsWhitelistModule
+    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule

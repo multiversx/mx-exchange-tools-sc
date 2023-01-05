@@ -2,34 +2,28 @@
 
 elrond_wasm::imports!();
 
-pub mod address_to_id_mapper;
-pub mod common_storage;
-pub mod farm_actions;
-pub mod farm_external_storage_read;
-pub mod farms_whitelist;
+pub mod common;
+pub mod external_sc_interactions;
 pub mod fees;
-pub mod fees_collector_actions;
-pub mod locked_token_merging;
-pub mod metabonding_actions;
 pub mod registration;
-pub mod user_farm_tokens;
-pub mod user_rewards;
+pub mod user_tokens;
+pub mod whitelists;
 
-use common_storage::MAX_PERCENTAGE;
+use common::common_storage::MAX_PERCENTAGE;
 
 #[elrond_wasm::contract]
 pub trait AutoFarm:
-    farms_whitelist::FarmsWhitelistModule
-    + farm_external_storage_read::FarmExternalStorageReadModule
-    + common_storage::CommonStorageModule
+    whitelists::farms_whitelist::FarmsWhitelistModule
+    + external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + common::common_storage::CommonStorageModule
     + registration::RegistrationModule
-    + user_farm_tokens::UserFarmTokensModule
-    + farm_actions::FarmActionsModule
-    + metabonding_actions::MetabondingActionsModule
-    + fees_collector_actions::FeesCollectorActionsModule
-    + user_rewards::UserRewardsModule
+    + user_tokens::user_farm_tokens::UserFarmTokensModule
+    + external_sc_interactions::farm_actions::FarmActionsModule
+    + external_sc_interactions::metabonding_actions::MetabondingActionsModule
+    + external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule
+    + external_sc_interactions::locked_token_merging::LockedTokenMergingModule
+    + user_tokens::user_rewards::UserRewardsModule
     + fees::FeesModule
-    + locked_token_merging::LockedTokenMergingModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule

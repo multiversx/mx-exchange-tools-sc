@@ -1,4 +1,4 @@
-use crate::address_to_id_mapper::AddressToIdMapper;
+use super::address_to_id_mapper::AddressToIdMapper;
 
 elrond_wasm::imports!();
 

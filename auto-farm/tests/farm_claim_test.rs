@@ -1,4 +1,4 @@
-use auto_farm::common_storage::MAX_PERCENTAGE;
+use auto_farm::common::common_storage::MAX_PERCENTAGE;
 use common_structs::FarmTokenAttributes;
 use elrond_wasm::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
 use elrond_wasm_debug::{
@@ -11,12 +11,14 @@ use energy_query::Energy;
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::LockedTokenAttributes;
 
-use auto_farm::farm_actions::FarmActionsModule;
+use auto_farm::external_sc_interactions::farm_actions::FarmActionsModule;
 use auto_farm::fees::FeesModule;
-use auto_farm::user_farm_tokens::UserFarmTokensModule;
-use auto_farm::user_rewards::{UniquePayments, UserRewardsModule};
+use auto_farm::user_tokens::user_farm_tokens::UserFarmTokensModule;
+use auto_farm::user_tokens::user_rewards::{UniquePayments, UserRewardsModule};
 use auto_farm::AutoFarm;
-use auto_farm::{farms_whitelist::FarmsWhitelistModule, user_rewards::RewardsWrapper};
+use auto_farm::{
+    user_tokens::user_rewards::RewardsWrapper, whitelists::farms_whitelist::FarmsWhitelistModule,
+};
 
 use crate::farm_with_locked_rewards_setup::{FarmSetup, FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID};
 

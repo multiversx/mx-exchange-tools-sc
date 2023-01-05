@@ -1,17 +1,17 @@
 use common_structs::PaymentsVec;
 
-use crate::user_rewards::UniquePayments;
+use crate::user_tokens::user_rewards::UniquePayments;
 
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait FeesCollectorActionsModule:
-    crate::common_storage::CommonStorageModule
-    + crate::user_rewards::UserRewardsModule
+    crate::common::common_storage::CommonStorageModule
+    + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::fees::FeesModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
-    + crate::locked_token_merging::LockedTokenMergingModule
+    + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
 {

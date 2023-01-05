@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
 use energy_factory::token_merging::ProxyTrait as _;
 
-use crate::user_rewards::RewardsWrapper;
+use crate::user_tokens::user_rewards::RewardsWrapper;
 
 use mergeable::Mergeable;
 

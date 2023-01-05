@@ -1,10 +1,11 @@
-use crate::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
+use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
 
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait FarmsWhitelistModule:
-    crate::farm_external_storage_read::FarmExternalStorageReadModule + utils::UtilsModule
+    crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + utils::UtilsModule
 {
     #[only_owner]
     #[endpoint(addFarms)]

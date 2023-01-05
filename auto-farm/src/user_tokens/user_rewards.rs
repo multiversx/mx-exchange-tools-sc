@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
 use mergeable::Mergeable;
 
-use crate::address_to_id_mapper::{AddressId, NULL_ID};
+use crate::common::address_to_id_mapper::{AddressId, NULL_ID};
 
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
@@ -124,9 +124,9 @@ impl<M: ManagedTypeApi> Mergeable<M> for UniquePayments<M> {
 
 #[elrond_wasm::module]
 pub trait UserRewardsModule:
-    crate::common_storage::CommonStorageModule
+    crate::common::common_storage::CommonStorageModule
     + crate::fees::FeesModule
-    + crate::locked_token_merging::LockedTokenMergingModule
+    + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule

@@ -8,11 +8,11 @@ use crate::{
 };
 use auto_farm::registration::RegistrationModule;
 use auto_farm::{
-    common_storage::MAX_PERCENTAGE,
+    common::common_storage::MAX_PERCENTAGE,
+    external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
+    external_sc_interactions::metabonding_actions::MetabondingActionsModule,
     fees::FeesModule,
-    fees_collector_actions::FeesCollectorActionsModule,
-    metabonding_actions::MetabondingActionsModule,
-    user_rewards::{RewardsWrapper, UniquePayments, UserRewardsModule},
+    user_tokens::user_rewards::{RewardsWrapper, UniquePayments, UserRewardsModule},
     AutoFarm,
 };
 use elrond_wasm::types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded};
