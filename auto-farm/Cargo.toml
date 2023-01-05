@@ -20,26 +20,26 @@ version = "=0.38.0"
 
 # Farm dependencies
 [dependencies]
-farm = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-farm-with-locked-rewards = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-farm-staking = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-farm-staking-proxy = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
+farm = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm-with-locked-rewards = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm-staking = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
 
 # Other SCs
-pair = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-energy-factory = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-fees-collector = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
+pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+fees-collector = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
 
 # Other SCs - different repos
-metabonding = { git = "https://github.com/ElrondNetwork/sc-metabonding-rs", rev = "e753c72" }
+metabonding = { git = "https://github.com/multiversx/mx-metabonding-sc", rev = "7a1dd32" }
 
 # Common modules/types
-common_structs = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-mergeable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-utils = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-energy-query = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-legacy_token_decode_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-lkmex-transfer = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
+common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+mergeable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+utils = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -48,10 +48,10 @@ hex = "0.4"
 hex-literal = "0.3.4"
 
 # Dependencies needed for tests
-simple-lock = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-farm-boosted-yields = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-config = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-locking_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-farm_token = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-pausable = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
-sc_whitelist_module = { git = "https://github.com/ElrondNetwork/sc-dex-rs", rev = "8bd3773" }
+simple-lock = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm-boosted-yields = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+config = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }

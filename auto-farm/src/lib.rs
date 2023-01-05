@@ -4,6 +4,7 @@ elrond_wasm::imports!();
 
 pub mod common;
 pub mod external_sc_interactions;
+pub mod external_storage_read;
 pub mod fees;
 pub mod registration;
 pub mod user_tokens;
@@ -14,7 +15,7 @@ use common::common_storage::MAX_PERCENTAGE;
 #[elrond_wasm::contract]
 pub trait AutoFarm:
     whitelists::farms_whitelist::FarmsWhitelistModule
-    + external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + external_storage_read::farm_storage_read::FarmStorageReadModule
     + common::common_storage::CommonStorageModule
     + registration::RegistrationModule
     + user_tokens::user_farm_tokens::UserFarmTokensModule
@@ -22,6 +23,9 @@ pub trait AutoFarm:
     + external_sc_interactions::metabonding_actions::MetabondingActionsModule
     + external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule
     + external_sc_interactions::locked_token_merging::LockedTokenMergingModule
+    + whitelists::metastaking_whitelist::MetastakingWhitelistModule
+    + user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
+    + external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + user_tokens::user_rewards::UserRewardsModule
     + fees::FeesModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule

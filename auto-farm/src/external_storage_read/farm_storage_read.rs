@@ -18,7 +18,7 @@ pub struct FarmConfig<M: ManagedTypeApi> {
 }
 
 #[elrond_wasm::module]
-pub trait FarmExternalStorageReadModule: utils::UtilsModule {
+pub trait FarmStorageReadModule: utils::UtilsModule {
     #[view(getFarmConfig)]
     fn get_farm_config(&self, farm_address: &ManagedAddress) -> FarmConfig<Self::Api> {
         let state = self.farm_state().get_from_address(farm_address);

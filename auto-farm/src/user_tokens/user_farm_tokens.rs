@@ -8,7 +8,7 @@ elrond_wasm::imports!();
 pub trait UserFarmTokensModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule
-    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + utils::UtilsModule
 {
     #[payable("*")]

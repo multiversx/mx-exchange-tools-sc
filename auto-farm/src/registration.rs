@@ -9,8 +9,11 @@ pub trait RegistrationModule:
     + crate::fees::FeesModule
     + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule
-    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
+    + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
+    + crate::user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
+    + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -29,10 +32,12 @@ pub trait RegistrationModule:
         let user_id = ids_mapper.get_id_non_zero(&caller);
 
         let farm_tokens = self.withdraw_farm_tokens(&caller, user_id);
+        let ms_tokens = self.withdraw_metastaking_tokens(&caller, user_id);
         let claimed_rewards = self.user_claim_rewards(caller, user_id);
         let _ = ids_mapper.remove_by_id(user_id);
 
         let mut results = farm_tokens;
+        results.append_vec(ms_tokens);
         results.append_vec(claimed_rewards);
 
         results

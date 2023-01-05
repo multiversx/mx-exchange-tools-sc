@@ -56,7 +56,7 @@ fn register_test() {
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
         })
-        .assert_user_error("User already registered");
+        .assert_user_error("Address already registered");
 
     // unregister
     farm_setup
@@ -74,7 +74,7 @@ fn register_test() {
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             let _ = sc.withdraw_all_and_unregister();
         })
-        .assert_user_error("Unknown user");
+        .assert_user_error("Unknown address");
 
     // register again - ok
     farm_setup

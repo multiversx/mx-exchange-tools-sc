@@ -11,7 +11,7 @@ static ID_SUFFIX: &[u8] = b"userId";
 static ADDRESS_SUFFIX: &[u8] = b"addr";
 static LAST_ID_SUFFIX: &[u8] = b"lastId";
 
-pub type AddressId = u64;
+pub type AddressId = u32;
 pub const NULL_ID: AddressId = 0;
 
 pub struct AddressToIdMapper<SA>
@@ -51,7 +51,7 @@ where
     pub fn get_id_non_zero(&self, address: &ManagedAddress<SA>) -> AddressId {
         let id = self.get_id(address);
         if id == NULL_ID {
-            SA::error_api_impl().signal_error(b"Unknown user");
+            SA::error_api_impl().signal_error(b"Unknown address");
         }
 
         id
@@ -60,7 +60,7 @@ where
     pub fn insert_new(&self, address: &ManagedAddress<SA>) -> AddressId {
         let existing_id = self.get_id(address);
         if existing_id != NULL_ID {
-            SA::error_api_impl().signal_error(b"User already registered");
+            SA::error_api_impl().signal_error(b"Address already registered");
         }
 
         self.insert_user(address)
@@ -77,8 +77,7 @@ where
     }
 
     pub fn get_id_or_insert(&self, address: &ManagedAddress<SA>) -> AddressId {
-        let addr_to_id_key = self.address_to_id_key(address);
-        let current_id = storage_get(addr_to_id_key.as_ref());
+        let current_id = storage_get(self.address_to_id_key(address).as_ref());
         if current_id != 0 {
             return current_id;
         }
@@ -95,7 +94,7 @@ where
 
     pub fn remove_by_address(&self, address: &ManagedAddress<SA>) -> AddressId {
         let current_id = self.get_id(address);
-        if current_id != 0 {
+        if current_id != NULL_ID {
             self.remove_entry(current_id, address);
         }
 
@@ -145,6 +144,10 @@ where
     }
 
     fn set_last_id(&self, last_id: AddressId) {
+        if last_id == 0 {
+            SA::error_api_impl().signal_error(b"ID Overflow");
+        }
+
         storage_set(self.last_id_key().as_ref(), &last_id);
     }
 }
