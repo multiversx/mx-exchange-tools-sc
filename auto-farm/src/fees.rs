@@ -1,16 +1,16 @@
 use common_structs::PaymentsVec;
 
-use crate::{
-    common_storage::MAX_PERCENTAGE,
-    user_rewards::{RewardsWrapper, UniquePayments},
+use crate::common::{
+    common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper,
+    unique_payments::UniquePayments,
 };
 
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait FeesModule:
-    crate::common_storage::CommonStorageModule
-    + crate::locked_token_merging::LockedTokenMergingModule
+    crate::common::common_storage::CommonStorageModule
+    + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -70,7 +70,8 @@ pub trait FeesModule:
             }
         }
 
-        rewards_wrapper.other_tokens = UniquePayments::new_from_unique_payments(remaining_user_tokens);
+        rewards_wrapper.other_tokens =
+            UniquePayments::new_from_unique_payments(remaining_user_tokens);
         accumulated_fees_mapper.set(fees_wrapper);
     }
 

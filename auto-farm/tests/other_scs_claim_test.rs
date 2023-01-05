@@ -6,14 +6,15 @@ use crate::{
     farm_with_locked_rewards_setup::FarmSetup,
     fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID},
 };
-use auto_farm::registration::RegistrationModule;
 use auto_farm::{
-    common_storage::MAX_PERCENTAGE,
-    fees::FeesModule,
-    fees_collector_actions::FeesCollectorActionsModule,
-    metabonding_actions::MetabondingActionsModule,
-    user_rewards::{RewardsWrapper, UniquePayments, UserRewardsModule},
-    AutoFarm,
+    common::common_storage::MAX_PERCENTAGE,
+    external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
+    external_sc_interactions::metabonding_actions::MetabondingActionsModule, fees::FeesModule,
+    user_tokens::user_rewards::UserRewardsModule, AutoFarm,
+};
+use auto_farm::{
+    common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments},
+    registration::RegistrationModule,
 };
 use elrond_wasm::types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded};
 use elrond_wasm_debug::{

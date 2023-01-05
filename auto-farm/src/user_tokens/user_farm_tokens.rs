@@ -1,14 +1,14 @@
 use common_structs::PaymentsVec;
 
-use crate::address_to_id_mapper::{AddressId, NULL_ID};
+use crate::common::address_to_id_mapper::{AddressId, NULL_ID};
 
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait UserFarmTokensModule:
-    crate::common_storage::CommonStorageModule
-    + crate::farms_whitelist::FarmsWhitelistModule
-    + crate::farm_external_storage_read::FarmExternalStorageReadModule
+    crate::common::common_storage::CommonStorageModule
+    + crate::whitelists::farms_whitelist::FarmsWhitelistModule
+    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
     + utils::UtilsModule
 {
     #[payable("*")]

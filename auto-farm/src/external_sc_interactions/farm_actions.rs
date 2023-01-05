@@ -1,21 +1,24 @@
 use common_structs::PaymentsVec;
 use farm::base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper};
 
-use crate::{farm_external_storage_read::State, user_rewards::UniquePayments};
+use crate::{
+    common::unique_payments::UniquePayments,
+    external_sc_interactions::farm_external_storage_read::State,
+};
 
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait FarmActionsModule:
-    crate::common_storage::CommonStorageModule
-    + crate::farms_whitelist::FarmsWhitelistModule
-    + crate::farm_external_storage_read::FarmExternalStorageReadModule
-    + crate::user_farm_tokens::UserFarmTokensModule
-    + crate::user_rewards::UserRewardsModule
+    crate::common::common_storage::CommonStorageModule
+    + crate::whitelists::farms_whitelist::FarmsWhitelistModule
+    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
+    + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::fees::FeesModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
-    + crate::locked_token_merging::LockedTokenMergingModule
+    + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
 {

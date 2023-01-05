@@ -1,4 +1,6 @@
-use auto_farm::{common_storage::CommonStorageModule, registration::RegistrationModule, AutoFarm};
+use auto_farm::common::common_storage::CommonStorageModule;
+use auto_farm::registration::RegistrationModule;
+use auto_farm::AutoFarm;
 use elrond_wasm_debug::{managed_address, rust_biguint};
 use farm_with_locked_rewards_setup::FarmSetup;
 
