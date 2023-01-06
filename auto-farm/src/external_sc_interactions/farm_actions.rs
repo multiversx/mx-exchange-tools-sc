@@ -3,7 +3,7 @@ use farm::base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper};
 
 use crate::{
     common::unique_payments::UniquePayments,
-    external_sc_interactions::farm_external_storage_read::State,
+    external_storage_read::farm_storage_read::State,
 };
 
 elrond_wasm::imports!();
@@ -12,7 +12,7 @@ elrond_wasm::imports!();
 pub trait FarmActionsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule
-    + crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
+    + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
     + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::fees::FeesModule

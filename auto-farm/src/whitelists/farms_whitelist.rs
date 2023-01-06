@@ -4,20 +4,15 @@ elrond_wasm::imports!();
 
 #[elrond_wasm::module]
 pub trait FarmsWhitelistModule:
-    crate::external_sc_interactions::farm_external_storage_read::FarmExternalStorageReadModule
-    + utils::UtilsModule
+    crate::external_storage_read::farm_storage_read::FarmStorageReadModule + utils::UtilsModule
 {
+    /// Can also be used for farm-staking contracts.
     #[only_owner]
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
         let farms_mapper = self.farm_ids();
         for farm_addr in farms {
             self.require_sc_address(&farm_addr);
-
-            let existing_id = farms_mapper.get_id(&farm_addr);
-            if existing_id != NULL_ID {
-                continue;
-            }
 
             let new_id = farms_mapper.insert_new(&farm_addr);
             let farm_config = self.get_farm_config(&farm_addr);
