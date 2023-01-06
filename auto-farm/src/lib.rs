@@ -27,6 +27,7 @@ pub trait AutoFarm:
     + user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
     + external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + external_sc_interactions::metastaking_actions::MetastakingActionsModule
+    + external_sc_interactions::multi_contract_interactions::MultiContractInteractionsModule
     + user_tokens::user_rewards::UserRewardsModule
     + fees::FeesModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule

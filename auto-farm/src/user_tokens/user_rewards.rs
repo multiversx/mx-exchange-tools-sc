@@ -3,8 +3,7 @@ use mergeable::Mergeable;
 
 use crate::common::{
     address_to_id_mapper::{AddressId, NULL_ID},
-    rewards_wrapper::RewardsWrapper,
-    unique_payments::UniquePayments,
+    rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
 };
 
 elrond_wasm::imports!();
@@ -37,12 +36,12 @@ pub trait UserRewardsModule:
     }
 
     #[view(getUserRewards)]
-    fn get_user_rewards_view(&self, user: ManagedAddress) -> RewardsWrapper<Self::Api> {
+    fn get_user_rewards_view(&self, user: ManagedAddress) -> MergedRewardsWrapper<Self::Api> {
         let user_id = self.user_ids().get_id(&user);
         if user_id != NULL_ID {
             self.user_rewards(user_id).get()
         } else {
-            RewardsWrapper::default()
+            MergedRewardsWrapper::default()
         }
     }
 
@@ -50,34 +49,36 @@ pub trait UserRewardsModule:
         &self,
         user: ManagedAddress,
         user_id: AddressId,
-        locked_tokens: UniquePayments<Self::Api>,
-        other_tokens: UniquePayments<Self::Api>,
+        rew_wrapper: RewardsWrapper<Self::Api>,
     ) {
         let opt_merged_locked_tokens =
-            self.merge_locked_tokens(user.clone(), locked_tokens.into_payments());
-        let mut rew_wrapper = RewardsWrapper {
+            self.merge_locked_tokens(user.clone(), rew_wrapper.locked_tokens.into_payments());
+        let mut merged_rew_wrapper = MergedRewardsWrapper {
             opt_locked_tokens: opt_merged_locked_tokens,
-            other_tokens,
+            other_tokens: rew_wrapper.other_tokens,
         };
-        self.take_fees(user.clone(), &mut rew_wrapper);
+        self.take_fees(user.clone(), &mut merged_rew_wrapper);
 
         let rewards_mapper = self.user_rewards(user_id);
         if rewards_mapper.is_empty() {
-            rewards_mapper.set(rew_wrapper);
+            rewards_mapper.set(merged_rew_wrapper);
             return;
         }
 
         rewards_mapper.update(|existing_wrapper| {
-            if let Some(new_locked_tokens) = rew_wrapper.opt_locked_tokens {
+            if let Some(new_locked_tokens) = merged_rew_wrapper.opt_locked_tokens {
                 self.merge_wrapped_locked_tokens(user, existing_wrapper, new_locked_tokens);
             }
 
             existing_wrapper
                 .other_tokens
-                .merge_with(rew_wrapper.other_tokens);
+                .merge_with(merged_rew_wrapper.other_tokens);
         });
     }
 
     #[storage_mapper("userRewards")]
-    fn user_rewards(&self, user_id: AddressId) -> SingleValueMapper<RewardsWrapper<Self::Api>>;
+    fn user_rewards(
+        &self,
+        user_id: AddressId,
+    ) -> SingleValueMapper<MergedRewardsWrapper<Self::Api>>;
 }

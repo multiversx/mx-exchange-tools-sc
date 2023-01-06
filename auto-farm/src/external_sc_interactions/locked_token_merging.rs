@@ -3,7 +3,7 @@ use energy_factory::token_merging::ProxyTrait as _;
 
 use mergeable::Mergeable;
 
-use crate::common::rewards_wrapper::RewardsWrapper;
+use crate::common::rewards_wrapper::MergedRewardsWrapper;
 
 elrond_wasm::imports!();
 
@@ -12,7 +12,7 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
     fn merge_wrapped_locked_tokens(
         &self,
         user: ManagedAddress,
-        wrapper: &mut RewardsWrapper<Self::Api>,
+        wrapper: &mut MergedRewardsWrapper<Self::Api>,
         new_locked_tokens: EsdtTokenPayment,
     ) {
         let opt_existing_fees = wrapper.opt_locked_tokens.as_mut();

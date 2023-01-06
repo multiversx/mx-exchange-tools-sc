@@ -7,13 +7,15 @@ use crate::{
     fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID},
 };
 use auto_farm::{
-    common::common_storage::MAX_PERCENTAGE,
+    common::{common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper},
     external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
-    external_sc_interactions::metabonding_actions::MetabondingActionsModule, fees::FeesModule,
-    user_tokens::user_rewards::UserRewardsModule, AutoFarm,
+    external_sc_interactions::metabonding_actions::MetabondingActionsModule,
+    fees::FeesModule,
+    user_tokens::user_rewards::UserRewardsModule,
+    AutoFarm,
 };
 use auto_farm::{
-    common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments},
+    common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
 use elrond_wasm::types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded};
@@ -109,7 +111,13 @@ fn metabonding_claim_through_auto_farm_test() {
                     .into(),
             );
 
-            sc.claim_metabonding_rewards(managed_address!(&first_user_addr), claim_args);
+            let mut rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
+            sc.claim_metabonding_rewards(
+                &managed_address!(&first_user_addr),
+                claim_args,
+                &mut rew_wrapper,
+            );
+            sc.add_user_rewards(managed_address!(&first_user_addr), 1, rew_wrapper);
 
             // taken from metabonding test
             let total_rewards_week1 = managed_biguint!(83_333_333 + 41_666_666);
@@ -117,7 +125,7 @@ fn metabonding_claim_through_auto_farm_test() {
 
             // check fees
             let accumulated_fees = sc.accumulated_fees().get();
-            let mut expected_fees = RewardsWrapper::<DebugApi> {
+            let mut expected_fees = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
                 other_tokens: UniquePayments::new(),
             };
@@ -144,7 +152,7 @@ fn metabonding_claim_through_auto_farm_test() {
 
             // check user rewards
             let user_rewards = sc.get_user_rewards_view(managed_address!(&first_user_addr));
-            let mut expected_user_rewards = RewardsWrapper::<DebugApi> {
+            let mut expected_user_rewards = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
                 other_tokens: UniquePayments::new(),
             };
@@ -271,8 +279,20 @@ fn fees_collector_claim_through_auto_farm_test() {
     farm_setup
         .b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            sc.claim_fees_collector_rewards(managed_address!(&first_user_addr));
-            sc.claim_fees_collector_rewards(managed_address!(&second_user_addr));
+            let mut first_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
+            let mut second_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
+
+            sc.claim_fees_collector_rewards(
+                &managed_address!(&first_user_addr),
+                &mut first_rew_wrapper,
+            );
+            sc.claim_fees_collector_rewards(
+                &managed_address!(&second_user_addr),
+                &mut second_rew_wrapper,
+            );
+
+            sc.add_user_rewards(managed_address!(&first_user_addr), 1, first_rew_wrapper);
+            sc.add_user_rewards(managed_address!(&second_user_addr), 2, second_rew_wrapper);
         })
         .assert_ok();
 
@@ -283,10 +303,15 @@ fn fees_collector_claim_through_auto_farm_test() {
     farm_setup
         .b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            sc.claim_fees_collector_rewards(managed_address!(&first_user_addr));
+            let mut first_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
+            sc.claim_fees_collector_rewards(
+                &managed_address!(&first_user_addr),
+                &mut first_rew_wrapper,
+            );
+            sc.add_user_rewards(managed_address!(&first_user_addr), 1, first_rew_wrapper);
 
             let accumulated_fees = sc.accumulated_fees().get();
-            let mut expected_fees = RewardsWrapper::<DebugApi> {
+            let mut expected_fees = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
                 other_tokens: UniquePayments::new(),
             };
@@ -330,7 +355,7 @@ fn fees_collector_claim_through_auto_farm_test() {
 
             // check user rewards
             let user_rewards = sc.get_user_rewards_view(managed_address!(&first_user_addr));
-            let mut expected_user_rewards = RewardsWrapper::<DebugApi> {
+            let mut expected_user_rewards = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
                 other_tokens: UniquePayments::new(),
             };

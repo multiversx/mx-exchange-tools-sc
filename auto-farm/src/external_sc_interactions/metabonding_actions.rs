@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
 use metabonding::claim::{ClaimArgPair, ProxyTrait as _};
 
-use crate::common::unique_payments::UniquePayments;
+use crate::common::rewards_wrapper::RewardsWrapper;
 
 elrond_wasm::imports!();
 
@@ -16,22 +16,20 @@ pub trait MetabondingActionsModule:
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
 {
-    #[endpoint(claimMetabondingRewards)]
     fn claim_metabonding_rewards(
         &self,
-        user: ManagedAddress,
+        user: &ManagedAddress,
         claim_args: MultiValueEncoded<ClaimArgPair<Self::Api>>,
+        rew_wrapper: &mut RewardsWrapper<Self::Api>,
     ) {
-        self.require_caller_proxy_claim_address();
-
-        let user_id = self.user_ids().get_id_non_zero(&user);
-        let rewards = self.call_metabonding_claim(user.clone(), claim_args);
-        if rewards.is_empty() {
+        if claim_args.is_empty() {
             return;
         }
 
-        let merged_rewards = UniquePayments::new_from_payments(rewards);
-        self.add_user_rewards(user, user_id, UniquePayments::new(), merged_rewards);
+        let rewards = self.call_metabonding_claim(user.clone(), claim_args);
+        for rew in &rewards {
+            rew_wrapper.other_tokens.add_payment(rew);
+        }
     }
 
     fn call_metabonding_claim(
