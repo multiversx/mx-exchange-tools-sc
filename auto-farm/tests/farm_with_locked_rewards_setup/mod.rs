@@ -28,7 +28,7 @@ use simple_lock::locked_token::LockedTokenModule;
 pub static REWARD_TOKEN_ID: &[u8] = b"MEX-123456";
 pub static LOCKED_REWARD_TOKEN_ID: &[u8] = b"LOCKED-123456";
 pub static LEGACY_LOCKED_TOKEN_ID: &[u8] = b"LEGACY-123456";
-pub static FARMING_TOKEN_ID: &[u8] = b"LPTOK-123456";
+pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
 pub static FARM_TOKEN_ID: &[&[u8]] = &[b"FIRFARM-123456", b"SECFARM-123456"];
 const DIV_SAFETY: u64 = 1_000_000_000_000;
 const PER_BLOCK_REWARD_AMOUNT: u64 = 1_000;
@@ -138,7 +138,7 @@ where
             b_mock
                 .execute_tx(&owner, farm_wrapper, &rust_zero, |sc| {
                     let reward_token_id = managed_token_id!(REWARD_TOKEN_ID);
-                    let farming_token_id = managed_token_id!(FARMING_TOKEN_ID);
+                    let farming_token_id = managed_token_id!(FARMING_TOKEN_ID[i]);
                     let division_safety_constant = managed_biguint!(DIV_SAFETY);
                     let pair_address = managed_address!(&Address::zero());
 
@@ -196,8 +196,24 @@ where
             let farming_token_roles = [EsdtLocalRole::Burn];
             b_mock.set_esdt_local_roles(
                 farm_wrapper.address_ref(),
-                FARMING_TOKEN_ID,
+                FARMING_TOKEN_ID[i],
                 &farming_token_roles[..],
+            );
+
+            b_mock.set_esdt_balance(
+                &first_user,
+                FARMING_TOKEN_ID[i],
+                &rust_biguint!(FARMING_TOKEN_BALANCE),
+            );
+            b_mock.set_esdt_balance(
+                &second_user,
+                FARMING_TOKEN_ID[i],
+                &rust_biguint!(FARMING_TOKEN_BALANCE),
+            );
+            b_mock.set_esdt_balance(
+                &third_user,
+                FARMING_TOKEN_ID[i],
+                &rust_biguint!(FARMING_TOKEN_BALANCE),
             );
         }
 
@@ -211,22 +227,6 @@ where
             energy_factory_wrapper.address_ref(),
             LOCKED_REWARD_TOKEN_ID,
             &locked_reward_token_roles[..],
-        );
-
-        b_mock.set_esdt_balance(
-            &first_user,
-            FARMING_TOKEN_ID,
-            &rust_biguint!(FARMING_TOKEN_BALANCE),
-        );
-        b_mock.set_esdt_balance(
-            &second_user,
-            FARMING_TOKEN_ID,
-            &rust_biguint!(FARMING_TOKEN_BALANCE),
-        );
-        b_mock.set_esdt_balance(
-            &third_user,
-            FARMING_TOKEN_ID,
-            &rust_biguint!(FARMING_TOKEN_BALANCE),
         );
 
         b_mock
@@ -277,7 +277,7 @@ where
             .execute_esdt_transfer(
                 user,
                 &self.farm_wrappers[farm_index],
-                FARMING_TOKEN_ID,
+                FARMING_TOKEN_ID[farm_index],
                 0,
                 &rust_biguint!(farming_token_amount),
                 |sc| {

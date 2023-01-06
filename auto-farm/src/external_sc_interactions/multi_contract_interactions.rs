@@ -1,6 +1,6 @@
 use metabonding::claim::ClaimArgPair;
 
-use crate::common::rewards_wrapper::RewardsWrapper;
+use crate::common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments};
 
 elrond_wasm::imports!();
 
@@ -54,6 +54,37 @@ pub trait MultiContractInteractionsModule:
         self.claim_all_farm_rewards(&user, user_id, &mut rew_wrapper);
         self.claim_all_metastaking_rewards(&user, user_id, &mut rew_wrapper);
 
-        self.add_user_rewards(user, user_id, rew_wrapper);
+        self.add_user_rewards(user.clone(), user_id, rew_wrapper);
+
+        let user_rewards_mapper = self.user_rewards(user_id);
+        let user_farm_tokens_mapper = self.user_farm_tokens(user_id);
+
+        let mut user_wrapped_rewards = user_rewards_mapper.get();
+        let mut user_rewards = user_wrapped_rewards.other_tokens.into_payments();
+        let mut user_farm_tokens = user_farm_tokens_mapper.get();
+        let user_farm_ids = self.get_farm_ids_for_farm_tokens(&user_farm_tokens);
+
+        let mut i = 0;
+        let mut len = user_rewards.len();
+        while i < len {
+            let current_payment = user_rewards.get(i);
+            let compound_result = self.compound_staking_rewards_with_existing_farm_position(
+                &user,
+                &mut user_farm_tokens,
+                &user_farm_ids,
+                current_payment,
+            );
+            if compound_result.is_err() {
+                i += 1;
+                continue;
+            }
+
+            user_rewards.remove(i);
+            len -= 1;
+        }
+
+        user_wrapped_rewards.other_tokens = UniquePayments::new_from_unique_payments(user_rewards);
+        user_rewards_mapper.set(user_wrapped_rewards);
+        user_farm_tokens_mapper.set(user_farm_tokens);
     }
 }
