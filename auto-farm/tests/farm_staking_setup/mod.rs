@@ -1,22 +1,13 @@
-
 use elrond_wasm::storage::mappers::StorageTokenWrapper;
 use elrond_wasm::types::{EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 
 use elrond_wasm_debug::{
-    managed_biguint, managed_token_id, rust_biguint, testing_framework::*,
-    DebugApi,
+    managed_biguint, managed_token_id, rust_biguint, testing_framework::*, DebugApi,
 };
 
 use config::*;
 
-
-
-
-
 use farm_staking::custom_rewards::CustomRewardsModule;
-
-
-
 
 use farm_staking::*;
 use farm_token::FarmTokenModule;

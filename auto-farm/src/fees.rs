@@ -47,7 +47,11 @@ pub trait FeesModule:
         output_payments
     }
 
-    fn take_fees(&self, user: ManagedAddress, rewards_wrapper: &mut MergedRewardsWrapper<Self::Api>) {
+    fn take_fees(
+        &self,
+        user: ManagedAddress,
+        rewards_wrapper: &mut MergedRewardsWrapper<Self::Api>,
+    ) {
         let accumulated_fees_mapper = self.accumulated_fees();
         let mut fees_wrapper = if !accumulated_fees_mapper.is_empty() {
             accumulated_fees_mapper.get()
