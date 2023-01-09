@@ -20,6 +20,7 @@ pub trait MultiContractInteractionsModule:
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + crate::user_tokens::user_rewards::UserRewardsModule
+    + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + crate::fees::FeesModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule

@@ -9,6 +9,7 @@ pub trait UserFarmTokensModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule
     + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
+    + super::withdraw_tokens::WithdrawTokensModule
     + utils::UtilsModule
 {
     #[payable("*")]
@@ -28,24 +29,20 @@ pub trait UserFarmTokensModule:
         });
     }
 
-    #[endpoint(withdrawFarmTokens)]
-    fn withdraw_farm_tokens_endpoint(&self) -> PaymentsVec<Self::Api> {
+    #[endpoint(withdrawAllFarmTokens)]
+    fn withdraw_all_farm_tokens_endpoint(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
-        self.withdraw_farm_tokens(&caller, user_id)
+        let tokens_mapper = self.user_farm_tokens(user_id);
+        self.withdraw_all_tokens(&caller, &tokens_mapper)
     }
 
-    fn withdraw_farm_tokens(
-        &self,
-        user: &ManagedAddress,
-        user_id: AddressId,
-    ) -> PaymentsVec<Self::Api> {
-        let tokens = self.user_farm_tokens(user_id).take();
-        if !tokens.is_empty() {
-            self.send().direct_multi(user, &tokens);
-        }
-
-        tokens
+    #[endpoint(withdrawSpecificFarmTokens)]
+    fn withdraw_specific_farm_tokens_endpoint(&self, tokens_to_withdraw: PaymentsVec<Self::Api>) {
+        let caller = self.blockchain().get_caller();
+        let user_id = self.user_ids().get_id_non_zero(&caller);
+        let tokens_mapper = self.user_farm_tokens(user_id);
+        self.withdraw_specific_tokens(&caller, &tokens_mapper, &tokens_to_withdraw);
     }
 
     #[view(getUserFarmTokens)]

@@ -9,6 +9,7 @@ pub trait UserMetastakingTokensModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    + super::withdraw_tokens::WithdrawTokensModule
     + utils::UtilsModule
 {
     #[payable("*")]
@@ -30,24 +31,23 @@ pub trait UserMetastakingTokensModule:
         });
     }
 
-    #[endpoint(withdrawMetastakingTokens)]
-    fn withdraw_metastaking_tokens_endpoint(&self) -> PaymentsVec<Self::Api> {
+    #[endpoint(withdrawAllMetastakingTokens)]
+    fn withdraw_all_metastaking_tokens_endpoint(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
-        self.withdraw_metastaking_tokens(&caller, user_id)
+        let tokens_mapper = self.user_metastaking_tokens(user_id);
+        self.withdraw_all_tokens(&caller, &tokens_mapper)
     }
 
-    fn withdraw_metastaking_tokens(
+    #[endpoint(withdrawSpecificMetastakingTokens)]
+    fn withdraw_specific_metastaking_tokens_endpoint(
         &self,
-        user: &ManagedAddress,
-        user_id: AddressId,
-    ) -> PaymentsVec<Self::Api> {
-        let tokens = self.user_metastaking_tokens(user_id).take();
-        if !tokens.is_empty() {
-            self.send().direct_multi(user, &tokens);
-        }
-
-        tokens
+        tokens_to_withdraw: PaymentsVec<Self::Api>,
+    ) {
+        let caller = self.blockchain().get_caller();
+        let user_id = self.user_ids().get_id_non_zero(&caller);
+        let tokens_mapper = self.user_metastaking_tokens(user_id);
+        self.withdraw_specific_tokens(&caller, &tokens_mapper, &tokens_to_withdraw);
     }
 
     #[view(getUserMetastakingTokens)]

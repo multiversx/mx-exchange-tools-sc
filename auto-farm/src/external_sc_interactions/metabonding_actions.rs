@@ -9,6 +9,7 @@ elrond_wasm::imports!();
 pub trait MetabondingActionsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::user_tokens::user_rewards::UserRewardsModule
+    + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + crate::fees::FeesModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
