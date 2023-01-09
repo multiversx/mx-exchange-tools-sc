@@ -87,14 +87,12 @@ pub trait FarmActionsModule:
             return Result::Err(());
         }
 
-        let existing_farm_index = unsafe { opt_existing_farm_index.unwrap_unchecked() };
-        let opt_farm_addr = self
-            .farm_ids()
-            .get_address(existing_farm_index as AddressId);
+        let opt_farm_addr = self.farm_ids().get_address(farm_id);
         if opt_farm_addr.is_none() {
             return Result::Err(());
         }
 
+        let existing_farm_index = unsafe { opt_existing_farm_index.unwrap_unchecked() };
         let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
         let existing_farm_pos = user_farm_tokens.get(existing_farm_index);
         let new_farm_token = self.call_enter_farm_staking_with_additional_tokens(
