@@ -1,6 +1,6 @@
 use common_structs::PaymentsVec;
 
-use crate::common::unique_payments::UniquePayments;
+use crate::common::rewards_wrapper::RewardsWrapper;
 
 elrond_wasm::imports!();
 
@@ -15,11 +15,11 @@ pub trait FeesCollectorActionsModule:
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
 {
-    #[endpoint(claimFeesCollectorRewards)]
-    fn claim_fees_collector_rewards(&self, user: ManagedAddress) {
-        self.require_caller_proxy_claim_address();
-
-        let user_id = self.user_ids().get_id_non_zero(&user);
+    fn claim_fees_collector_rewards(
+        &self,
+        user: &ManagedAddress,
+        rew_wrapper: &mut RewardsWrapper<Self::Api>,
+    ) {
         let mut rewards = self.call_fees_collector_claim(user.clone());
         let rewards_len = rewards.len();
         if rewards_len == 0 {
@@ -27,16 +27,15 @@ pub trait FeesCollectorActionsModule:
         }
 
         // locked token rewards, if any, are always in the last position
-        let locked_token_id = self.get_locked_token_id();
         let last_payment = rewards.get(rewards_len - 1);
-        let mut locked_tokens = UniquePayments::new();
-        if last_payment.token_identifier == locked_token_id {
-            locked_tokens.add_payment(last_payment);
+        if &last_payment.token_identifier == rew_wrapper.get_locked_token_id() {
+            rew_wrapper.locked_tokens.add_payment(last_payment);
             rewards.remove(rewards_len - 1);
         }
 
-        let merged_rewards = UniquePayments::new_from_payments(rewards);
-        self.add_user_rewards(user, user_id, locked_tokens, merged_rewards);
+        for rew in &rewards {
+            rew_wrapper.other_tokens.add_payment(rew);
+        }
     }
 
     fn call_fees_collector_claim(&self, user: ManagedAddress) -> PaymentsVec<Self::Api> {

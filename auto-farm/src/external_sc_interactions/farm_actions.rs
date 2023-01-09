@@ -2,7 +2,7 @@ use common_structs::PaymentsVec;
 use farm::base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper};
 
 use crate::{
-    common::unique_payments::UniquePayments,
+    common::{address_to_id_mapper::AddressId, rewards_wrapper::RewardsWrapper},
     external_storage_read::farm_storage_read::State,
 };
 
@@ -22,21 +22,20 @@ pub trait FarmActionsModule:
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
 {
-    /// Arg: user to claim rewards for
-    #[endpoint(claimAllFarmRewards)]
-    fn claim_all_farm_rewards(&self, user: ManagedAddress) {
-        self.require_caller_proxy_claim_address();
-
+    fn claim_all_farm_rewards(
+        &self,
+        user: &ManagedAddress,
+        user_id: AddressId,
+        rew_wrapper: &mut RewardsWrapper<Self::Api>,
+    ) {
         let farms_mapper = self.farm_ids();
-        let user_id = self.user_ids().get_id_non_zero(&user);
-
-        let locked_token_id = self.get_locked_token_id();
         let user_tokens_mapper = self.user_farm_tokens(user_id);
         let user_farm_tokens = user_tokens_mapper.get();
+        if user_farm_tokens.is_empty() {
+            return;
+        }
 
         let mut new_user_farm_tokens = PaymentsVec::new();
-        let mut locked_rewards = UniquePayments::new();
-        let mut other_token_rewards = UniquePayments::new();
         for farm_token in &user_farm_tokens {
             let farm_id = self.farm_for_farm_token(&farm_token.token_identifier).get();
             let opt_farm_addr = farms_mapper.get_address(farm_id);
@@ -55,14 +54,8 @@ pub trait FarmActionsModule:
             let claim_result = self.call_farm_claim(farm_addr, user.clone(), farm_token);
             new_user_farm_tokens.push(claim_result.new_farm_token);
 
-            if claim_result.rewards.token_identifier == locked_token_id {
-                locked_rewards.add_payment(claim_result.rewards);
-            } else {
-                other_token_rewards.add_payment(claim_result.rewards);
-            }
+            rew_wrapper.add_tokens(claim_result.rewards);
         }
-
-        self.add_user_rewards(user, user_id, locked_rewards, other_token_rewards);
 
         user_tokens_mapper.set(&new_user_farm_tokens);
     }

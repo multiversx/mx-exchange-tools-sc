@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
 
 use crate::common::{
-    common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper,
+    common_storage::MAX_PERCENTAGE, rewards_wrapper::MergedRewardsWrapper,
     unique_payments::UniquePayments,
 };
 
@@ -28,7 +28,7 @@ pub trait FeesModule:
     fn claim_common(
         &self,
         user: ManagedAddress,
-        mapper: SingleValueMapper<RewardsWrapper<Self::Api>>,
+        mapper: SingleValueMapper<MergedRewardsWrapper<Self::Api>>,
     ) -> PaymentsVec<Self::Api> {
         if mapper.is_empty() {
             return PaymentsVec::new();
@@ -47,12 +47,12 @@ pub trait FeesModule:
         output_payments
     }
 
-    fn take_fees(&self, user: ManagedAddress, rewards_wrapper: &mut RewardsWrapper<Self::Api>) {
+    fn take_fees(&self, user: ManagedAddress, rewards_wrapper: &mut MergedRewardsWrapper<Self::Api>) {
         let accumulated_fees_mapper = self.accumulated_fees();
         let mut fees_wrapper = if !accumulated_fees_mapper.is_empty() {
             accumulated_fees_mapper.get()
         } else {
-            RewardsWrapper::default()
+            MergedRewardsWrapper::default()
         };
 
         let fee_percentage = self.fee_percentage().get();
@@ -78,8 +78,8 @@ pub trait FeesModule:
     fn add_locked_token_fees(
         &self,
         user: ManagedAddress,
-        fees_wrapper: &mut RewardsWrapper<Self::Api>,
-        rewards_wrapper: &mut RewardsWrapper<Self::Api>,
+        fees_wrapper: &mut MergedRewardsWrapper<Self::Api>,
+        rewards_wrapper: &mut MergedRewardsWrapper<Self::Api>,
         fee_percentage: u64,
     ) {
         let opt_new_locked_tokens = rewards_wrapper.opt_locked_tokens.as_mut();
@@ -129,5 +129,5 @@ pub trait FeesModule:
 
     #[view(getAccumulatedFees)]
     #[storage_mapper("accumulatedFees")]
-    fn accumulated_fees(&self) -> SingleValueMapper<RewardsWrapper<Self::Api>>;
+    fn accumulated_fees(&self) -> SingleValueMapper<MergedRewardsWrapper<Self::Api>>;
 }

@@ -1,4 +1,4 @@
-use auto_farm::common::rewards_wrapper::RewardsWrapper;
+use auto_farm::common::rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper};
 use auto_farm::common::{common_storage::MAX_PERCENTAGE, unique_payments::UniquePayments};
 use common_structs::FarmTokenAttributes;
 use elrond_wasm::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
@@ -252,7 +252,9 @@ fn claim_rewards_through_auto_farm() {
     farm_setup
         .b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            sc.claim_all_farm_rewards(managed_address!(&first_user));
+            let mut rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_REWARD_TOKEN_ID));
+            sc.claim_all_farm_rewards(&managed_address!(&first_user), 1, &mut rew_wrapper);
+            sc.add_user_rewards(managed_address!(&first_user), 1, rew_wrapper);
 
             // check new user farm tokens
             let user_farm_tokens = sc.get_user_farm_tokens_view(managed_address!(&first_user));
@@ -271,7 +273,7 @@ fn claim_rewards_through_auto_farm() {
 
             // check user rewards
             let user_rewards = sc.get_user_rewards_view(managed_address!(&first_user));
-            let expected_user_rewards = RewardsWrapper::<DebugApi> {
+            let expected_user_rewards = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: Some(EsdtTokenPayment::new(
                     managed_token_id!(LOCKED_REWARD_TOKEN_ID),
                     1,
@@ -283,7 +285,7 @@ fn claim_rewards_through_auto_farm() {
 
             // check fees
             let accumulated_fees = sc.accumulated_fees().get();
-            let expected_fees = RewardsWrapper::<DebugApi> {
+            let expected_fees = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: Some(EsdtTokenPayment::new(
                     managed_token_id!(LOCKED_REWARD_TOKEN_ID),
                     1,
