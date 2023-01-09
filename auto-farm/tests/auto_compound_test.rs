@@ -157,7 +157,7 @@ fn auto_compound_test() {
         .execute_esdt_transfer(
             &first_user_addr,
             &farm_staking_wrapper,
-            &FIRST_TOKEN_ID,
+            FIRST_TOKEN_ID,
             0,
             &farm_in_amount,
             |sc| {
@@ -298,8 +298,6 @@ fn auto_compound_test() {
 
             assert_eq!(user_rewards, expected_user_rewards);
 
-            // 90000000100000036
-            // 90000000099999996
             let actual_farm_staking_tokens = sc.user_farm_tokens(1).get();
             let expected_farm_staking_tokens = ManagedVec::from_single_item(EsdtTokenPayment::new(
                 managed_token_id!(STAKING_FARM_TOKEN_ID),
