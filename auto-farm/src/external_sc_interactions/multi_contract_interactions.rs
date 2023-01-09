@@ -1,8 +1,11 @@
-use metabonding::claim::ClaimArgPair;
-
 use crate::common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments};
 
+use super::metabonding_actions::SingleMetabondingClaimArg;
+
 elrond_wasm::imports!();
+
+pub type ClaimAllArgType<M> =
+    MultiValue2<ManagedAddress<M>, ManagedVec<M, SingleMetabondingClaimArg<M>>>;
 
 #[elrond_wasm::module]
 pub trait MultiContractInteractionsModule:
@@ -30,30 +33,43 @@ pub trait MultiContractInteractionsModule:
     /// Claims rewards from fees collector, metabonding, and farms
     /// Then, compounds rewards into farms where possible
     ///
-    /// Args: User to claim for + args required for metabonding claim
-    /// Arguments are pairs of:
+    /// Args: Pairs of user to claim for + args required for metabonding claim
+    /// Metabonding arguments are a vec of structs, each struct entry containing the following fields:
     /// week: number,
     /// user_delegation_amount: BigUint,
     /// user_lkmex_staked_amount: BigUint,
     /// signature: 120 bytes
     ///
-    /// Leave list empty for no metabonding claim
+    /// Note: For the vec, it has to be prended with its length on 4 bytes.
+    /// Even if left empty, it still needs to be prepended by its length,
+    /// in this case, 4 bytes of 0.
     #[endpoint(claimAllRewardsAndCompound)]
     fn claim_all_rewards_and_compound(
         &self,
-        user: ManagedAddress,
-        metabonding_claim_args: MultiValueEncoded<ClaimArgPair<Self::Api>>,
+        claim_args: MultiValueEncoded<ClaimAllArgType<Self::Api>>,
     ) {
         self.require_caller_proxy_claim_address();
 
-        let user_id = self.user_ids().get_id_non_zero(&user);
         let locked_token_id = self.get_locked_token_id();
+        for user_claim_args_pair in claim_args {
+            let (user, metabonding_claim_args) = user_claim_args_pair.into_tuple();
+            self.claim_all_single_user(&user, metabonding_claim_args, locked_token_id.clone());
+        }
+    }
+
+    fn claim_all_single_user(
+        &self,
+        user: &ManagedAddress,
+        metabonding_claim_args: ManagedVec<SingleMetabondingClaimArg<Self::Api>>,
+        locked_token_id: TokenIdentifier,
+    ) {
+        let user_id = self.user_ids().get_id_non_zero(user);
         let mut rew_wrapper = RewardsWrapper::new(locked_token_id);
 
-        self.claim_metabonding_rewards(&user, metabonding_claim_args, &mut rew_wrapper);
-        self.claim_fees_collector_rewards(&user, &mut rew_wrapper);
-        self.claim_all_farm_rewards(&user, user_id, &mut rew_wrapper);
-        self.claim_all_metastaking_rewards(&user, user_id, &mut rew_wrapper);
+        self.claim_metabonding_rewards(user, metabonding_claim_args, &mut rew_wrapper);
+        self.claim_fees_collector_rewards(user, &mut rew_wrapper);
+        self.claim_all_farm_rewards(user, user_id, &mut rew_wrapper);
+        self.claim_all_metastaking_rewards(user, user_id, &mut rew_wrapper);
 
         self.add_user_rewards(user.clone(), user_id, rew_wrapper);
 
@@ -70,7 +86,7 @@ pub trait MultiContractInteractionsModule:
         while i < len {
             let current_payment = user_rewards.get(i);
             let compound_result = self.compound_staking_rewards_with_existing_farm_position(
-                &user,
+                user,
                 &mut user_farm_tokens,
                 &user_farm_ids,
                 current_payment,

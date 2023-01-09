@@ -226,10 +226,9 @@ fn auto_compound_test() {
     farm_setup
         .b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            sc.claim_all_rewards_and_compound(
-                managed_address!(&first_user_addr),
-                MultiValueEncoded::new(),
-            );
+            let mut mb_claim_args = MultiValueEncoded::new();
+            mb_claim_args.push((managed_address!(&first_user_addr), ManagedVec::new()).into());
+            sc.claim_all_rewards_and_compound(mb_claim_args);
 
             let accumulated_fees = sc.accumulated_fees().get();
             let mut expected_fees = MergedRewardsWrapper::<DebugApi> {

@@ -9,7 +9,9 @@ use crate::{
 use auto_farm::{
     common::{common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper},
     external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
-    external_sc_interactions::metabonding_actions::MetabondingActionsModule,
+    external_sc_interactions::metabonding_actions::{
+        MetabondingActionsModule, SingleMetabondingClaimArg,
+    },
     fees::FeesModule,
     user_tokens::user_rewards::UserRewardsModule,
     AutoFarm,
@@ -18,7 +20,7 @@ use auto_farm::{
     common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
-use elrond_wasm::types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded};
+use elrond_wasm::types::{EsdtTokenPayment, ManagedVec};
 use elrond_wasm_debug::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::BlockchainStateWrapper, DebugApi,
@@ -91,25 +93,19 @@ fn metabonding_claim_through_auto_farm_test() {
 
     b_mock
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            let mut claim_args = MultiValueEncoded::new();
-            claim_args.push(
-                (
-                    1usize,
-                    managed_biguint!(25_000),
-                    managed_biguint!(0),
-                    (&sig_first_user_week_1).into(),
-                )
-                    .into(),
-            );
-            claim_args.push(
-                (
-                    2usize,
-                    managed_biguint!(25_000),
-                    managed_biguint!(0),
-                    (&sig_first_user_week_2).into(),
-                )
-                    .into(),
-            );
+            let mut claim_args = ManagedVec::new();
+            claim_args.push(SingleMetabondingClaimArg {
+                week: 1,
+                user_delegation_amount: managed_biguint!(25_000),
+                user_lkmex_amount: managed_biguint!(0),
+                signature: (&sig_first_user_week_1).into(),
+            });
+            claim_args.push(SingleMetabondingClaimArg {
+                week: 2,
+                user_delegation_amount: managed_biguint!(25_000),
+                user_lkmex_amount: managed_biguint!(0),
+                signature: (&sig_first_user_week_2).into(),
+            });
 
             let mut rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
             sc.claim_metabonding_rewards(
