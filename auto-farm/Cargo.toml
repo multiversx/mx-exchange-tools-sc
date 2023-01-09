@@ -20,26 +20,26 @@ version = "=0.38.0"
 
 # Farm dependencies
 [dependencies]
-farm = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-farm-with-locked-rewards = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-farm-staking = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+farm = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-with-locked-rewards = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-staking = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 
 # Other SCs
-pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-fees-collector = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+fees-collector = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 
 # Other SCs - different repos
-metabonding = { git = "https://github.com/multiversx/mx-metabonding-sc", rev = "7a1dd32" }
+metabonding = { git = "https://github.com/multiversx/mx-metabonding-sc", rev = "1d7e06c" }
 
 # Common modules/types
-common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-mergeable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-utils = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+mergeable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+utils = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -48,10 +48,10 @@ hex = "0.4"
 hex-literal = "0.3.4"
 
 # Dependencies needed for tests
-simple-lock = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-farm-boosted-yields = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-config = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
-sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "6f8aeda" }
+simple-lock = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-boosted-yields = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+config = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }

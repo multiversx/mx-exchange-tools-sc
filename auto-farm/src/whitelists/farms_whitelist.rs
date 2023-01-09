@@ -1,3 +1,5 @@
+use common_structs::PaymentsVec;
+
 use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
 
 elrond_wasm::imports!();
@@ -18,9 +20,13 @@ pub trait FarmsWhitelistModule:
             let farm_config = self.get_farm_config(&farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id)
                 .set(new_id);
-            let _ = self
-                .farms_for_farming_token(&farm_config.farming_token_id)
-                .insert(new_id);
+
+            let farming_token_mapper = self.farm_for_farming_token(&farm_config.farming_token_id);
+            require!(
+                farming_token_mapper.is_empty(),
+                "Farming token already associated with another farm"
+            );
+            farming_token_mapper.set(new_id);
         }
     }
 
@@ -36,9 +42,8 @@ pub trait FarmsWhitelistModule:
 
             let farm_config = self.get_farm_config(&farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id).clear();
-            let _ = self
-                .farms_for_farming_token(&farm_config.farming_token_id)
-                .swap_remove(&prev_id);
+            self.farm_for_farming_token(&farm_config.farming_token_id)
+                .clear();
         }
     }
 
@@ -51,21 +56,26 @@ pub trait FarmsWhitelistModule:
         self.farm_ids().get_address(farm_id).into()
     }
 
-    #[view(getFarmsForFarmingToken)]
-    fn get_farms_for_farming_token_view(
+    #[view(getFarmForFarmingToken)]
+    fn get_farm_for_farming_token_view(
         &self,
         farming_token_id: TokenIdentifier,
-    ) -> MultiValueEncoded<ManagedAddress> {
-        let ids_mapper = self.farm_ids();
-        let mut results = MultiValueEncoded::new();
-        for farm_id in self.farms_for_farming_token(&farming_token_id).iter() {
-            let opt_farm_addr = ids_mapper.get_address(farm_id);
-            if let Some(farm_addr) = opt_farm_addr {
-                results.push(farm_addr);
-            }
+    ) -> OptionalValue<ManagedAddress> {
+        let farm_id = self.farm_for_farming_token(&farming_token_id).get();
+        self.farm_ids().get_address(farm_id).into()
+    }
+
+    fn get_farm_ids_for_farm_tokens(
+        &self,
+        user_farm_tokens: &PaymentsVec<Self::Api>,
+    ) -> ManagedVec<AddressId> {
+        let mut ids = ManagedVec::new();
+        for farm_token in user_farm_tokens {
+            let farm_id = self.farm_for_farm_token(&farm_token.token_identifier).get();
+            ids.push(farm_id);
         }
 
-        results
+        ids
     }
 
     #[storage_mapper("farmIds")]
@@ -74,9 +84,9 @@ pub trait FarmsWhitelistModule:
     #[storage_mapper("farmForFarmToken")]
     fn farm_for_farm_token(&self, farm_token_id: &TokenIdentifier) -> SingleValueMapper<AddressId>;
 
-    #[storage_mapper("farmsForFarmingToken")]
-    fn farms_for_farming_token(
+    #[storage_mapper("farmForFarmingToken")]
+    fn farm_for_farming_token(
         &self,
         farming_token_id: &TokenIdentifier,
-    ) -> UnorderedSetMapper<AddressId>;
+    ) -> SingleValueMapper<AddressId>;
 }

@@ -1,8 +1,15 @@
 use common_structs::PaymentsVec;
-use farm::base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper};
+use farm::{
+    base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper},
+    EnterFarmResultType,
+};
+use farm_staking::stake_farm::ProxyTrait as _;
 
 use crate::{
-    common::{address_to_id_mapper::AddressId, rewards_wrapper::RewardsWrapper},
+    common::{
+        address_to_id_mapper::{AddressId, NULL_ID},
+        rewards_wrapper::RewardsWrapper,
+    },
     external_storage_read::farm_storage_read::State,
 };
 
@@ -60,6 +67,64 @@ pub trait FarmActionsModule:
         user_tokens_mapper.set(&new_user_farm_tokens);
     }
 
+    /// user_farm_ids contains the associated farm_id for each token in user_farm_tokens
+    fn compound_staking_rewards_with_existing_farm_position(
+        &self,
+        user: &ManagedAddress,
+        user_farm_tokens: &mut PaymentsVec<Self::Api>,
+        user_farm_ids: &ManagedVec<AddressId>,
+        new_tokens: EsdtTokenPayment,
+    ) -> Result<(), ()> {
+        let farm_id = self
+            .farm_for_farming_token(&new_tokens.token_identifier)
+            .get();
+        if farm_id == NULL_ID {
+            return Result::Err(());
+        }
+
+        let opt_existing_farm_index = user_farm_ids.find(&farm_id);
+        if opt_existing_farm_index.is_none() {
+            return Result::Err(());
+        }
+
+        let opt_farm_addr = self.farm_ids().get_address(farm_id);
+        if opt_farm_addr.is_none() {
+            return Result::Err(());
+        }
+
+        let existing_farm_index = unsafe { opt_existing_farm_index.unwrap_unchecked() };
+        let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
+        let existing_farm_pos = user_farm_tokens.get(existing_farm_index);
+        let new_farm_token = self.call_enter_farm_staking_with_additional_tokens(
+            farm_addr,
+            user.clone(),
+            existing_farm_pos,
+            new_tokens,
+        );
+        let _ = user_farm_tokens.set(existing_farm_index, &new_farm_token);
+
+        Result::Ok(())
+    }
+
+    fn call_enter_farm_staking_with_additional_tokens(
+        &self,
+        farm_addr: ManagedAddress,
+        user: ManagedAddress,
+        farm_token: EsdtTokenPayment,
+        new_tokens: EsdtTokenPayment,
+    ) -> EsdtTokenPayment {
+        let raw_results: EnterFarmResultType<Self::Api> = self
+            .farm_staking_proxy(farm_addr)
+            .stake_farm_endpoint(user)
+            .with_esdt_transfer(new_tokens)
+            .with_esdt_transfer(farm_token)
+            .execute_on_dest_context();
+
+        // since we already claimed, there are no boosted rewards
+        let (new_farm_token, _) = raw_results.into_tuple();
+        new_farm_token
+    }
+
     fn call_farm_claim(
         &self,
         farm_addr: ManagedAddress,
@@ -81,4 +146,7 @@ pub trait FarmActionsModule:
 
     #[proxy]
     fn farm_proxy(&self, sc_address: ManagedAddress) -> farm_with_locked_rewards::Proxy<Self::Api>;
+
+    #[proxy]
+    fn farm_staking_proxy(&self, sc_address: ManagedAddress) -> farm_staking::Proxy<Self::Api>;
 }
