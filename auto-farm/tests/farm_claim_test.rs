@@ -1,6 +1,7 @@
 use auto_farm::common::rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper};
 use auto_farm::common::{common_storage::MAX_PERCENTAGE, unique_payments::UniquePayments};
 use common_structs::FarmTokenAttributes;
+use elrond_wasm::elrond_codec::Empty;
 use elrond_wasm::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
 use elrond_wasm_debug::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, tx_mock::TxTokenTransfer,
@@ -322,4 +323,156 @@ fn claim_rewards_through_auto_farm() {
             assert_eq!(proxy_energy, expected_proxy_energy);
         })
         .assert_ok();
+}
+
+#[test]
+fn withdraw_specific_farm_tokens_test() {
+    let _ = DebugApi::dummy();
+    let mut farm_setup = FarmSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+    );
+
+    farm_setup.b_mock.set_block_epoch(2);
+
+    // setup auto-farm SC
+    let rust_zero = rust_biguint!(0);
+    let proxy_address = farm_setup.b_mock.create_user_account(&rust_zero);
+    let auto_farm_wrapper = farm_setup.b_mock.create_sc_account(
+        &rust_zero,
+        Some(&farm_setup.owner),
+        auto_farm::contract_obj,
+        "auto farm",
+    );
+    let energy_factory_addr = farm_setup.energy_factory_wrapper.address_ref().clone();
+    let mut farms = Vec::new();
+    for farm_wrapper in &farm_setup.farm_wrappers {
+        farms.push(farm_wrapper.address_ref().clone());
+    }
+
+    farm_setup
+        .b_mock
+        .execute_tx(&farm_setup.owner, &auto_farm_wrapper, &rust_zero, |sc| {
+            sc.init(
+                managed_address!(&proxy_address),
+                FEE_PERCENTAGE,
+                managed_address!(&energy_factory_addr),
+                managed_address!(&energy_factory_addr), // unused here
+                managed_address!(&energy_factory_addr), // unused here
+            );
+
+            let mut args = MultiValueEncoded::new();
+            for farm in &farms {
+                args.push(managed_address!(farm));
+            }
+            sc.add_farms(args);
+        })
+        .assert_ok();
+
+    // whitelist auto-farm SC in farms
+    for farm_wrapper in &farm_setup.farm_wrappers {
+        farm_setup
+            .b_mock
+            .execute_tx(&farm_setup.owner, farm_wrapper, &rust_zero, |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(auto_farm_wrapper.address_ref()));
+            })
+            .assert_ok();
+    }
+
+    // whitelist auto-farm SC in energy factory
+    farm_setup
+        .b_mock
+        .execute_tx(
+            &farm_setup.owner,
+            &farm_setup.energy_factory_wrapper,
+            &rust_zero,
+            |sc| {
+                sc.add_to_token_transfer_whitelist(
+                    ManagedVec::from_single_item(managed_address!(auto_farm_wrapper.address_ref()))
+                        .into(),
+                );
+            },
+        )
+        .assert_ok();
+
+    // first enter farm
+    let first_farm_token_amount = 100_000_000;
+    let first_user = farm_setup.first_user.clone();
+    farm_setup.set_user_energy(&first_user, 1_000, 2, 1);
+    farm_setup.enter_farm(FIRST_FARM_INDEX, &first_user, first_farm_token_amount);
+
+    // second enter farm
+    let second_farm_token_amount = 50_000_000;
+    farm_setup.enter_farm(SECOND_FARM_INDEX, &first_user, second_farm_token_amount);
+
+    // user deposit farm tokens
+    let farm_tokens = [
+        TxTokenTransfer {
+            token_identifier: FARM_TOKEN_ID[FIRST_FARM_INDEX].to_vec(),
+            nonce: 1,
+            value: rust_biguint!(first_farm_token_amount),
+        },
+        TxTokenTransfer {
+            token_identifier: FARM_TOKEN_ID[SECOND_FARM_INDEX].to_vec(),
+            nonce: 1,
+            value: rust_biguint!(second_farm_token_amount),
+        },
+    ];
+    farm_setup
+        .b_mock
+        .execute_esdt_multi_transfer(&first_user, &auto_farm_wrapper, &farm_tokens, |sc| {
+            sc.deposit_farm_tokens();
+        })
+        .assert_ok();
+
+    // user withdraw 1/2 of first token, and 1/4 of second token
+    farm_setup
+        .b_mock
+        .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
+            let mut tokens_to_withdraw = ManagedVec::new();
+            tokens_to_withdraw.push(EsdtTokenPayment::new(
+                managed_token_id!(FARM_TOKEN_ID[FIRST_FARM_INDEX]),
+                1,
+                managed_biguint!(first_farm_token_amount / 2),
+            ));
+            tokens_to_withdraw.push(EsdtTokenPayment::new(
+                managed_token_id!(FARM_TOKEN_ID[SECOND_FARM_INDEX]),
+                1,
+                managed_biguint!(second_farm_token_amount / 4),
+            ));
+
+            sc.withdraw_specific_farm_tokens_endpoint(tokens_to_withdraw);
+
+            // check remaining farm tokens storage
+            let user_farm_tokens = sc.get_user_farm_tokens_view(managed_address!(&first_user));
+            let mut expected_user_farm_tokens = ManagedVec::new();
+            expected_user_farm_tokens.push(EsdtTokenPayment::new(
+                managed_token_id!(FARM_TOKEN_ID[FIRST_FARM_INDEX]),
+                1,
+                managed_biguint!(first_farm_token_amount / 2),
+            ));
+            expected_user_farm_tokens.push(EsdtTokenPayment::new(
+                managed_token_id!(FARM_TOKEN_ID[SECOND_FARM_INDEX]),
+                1,
+                managed_biguint!(second_farm_token_amount * 3 / 4),
+            ));
+            assert_eq!(user_farm_tokens, expected_user_farm_tokens);
+        })
+        .assert_ok();
+
+    // check user received the tokens
+    farm_setup.b_mock.check_nft_balance::<Empty>(
+        &first_user,
+        FARM_TOKEN_ID[FIRST_FARM_INDEX],
+        1,
+        &rust_biguint!(first_farm_token_amount / 2),
+        None,
+    );
+    farm_setup.b_mock.check_nft_balance::<Empty>(
+        &first_user,
+        FARM_TOKEN_ID[SECOND_FARM_INDEX],
+        1,
+        &rust_biguint!(second_farm_token_amount / 4),
+        None,
+    );
 }

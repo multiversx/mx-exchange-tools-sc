@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           27
+// Endpoints:                           29
 // Async Callback (empty):               1
-// Total number of exported functions:  29
+// Total number of exported functions:  31
 
 #![no_std]
 
@@ -18,19 +18,21 @@ elrond_wasm_node::wasm_endpoints! {
         addFarms
         removeFarms
         getFarmForFarmToken
-        getFarmsForFarmingToken
+        getFarmForFarmingToken
         getFarmConfig
         register
         withdrawAllAndUnregister
         depositFarmTokens
-        withdrawFarmTokens
+        withdrawAllFarmTokens
+        withdrawSpecificFarmTokens
         getUserFarmTokens
         addMetastakingScs
         removeMetastakingScs
-        getMetastakingScForDualYieldToken
-        getMetastakingScsForLpFarmToken
+        getMetastakingForDualYieldToken
+        getMetastakingForLpFarmToken
         depositMetastakingTokens
-        withdrawMetastakingTokens
+        withdrawAllMetastakingTokens
+        withdrawSpecificMetastakingTokens
         getUserMetastakingTokens
         getMetastakingConfig
         claimAllRewardsAndCompound

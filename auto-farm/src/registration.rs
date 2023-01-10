@@ -14,6 +14,7 @@ pub trait RegistrationModule:
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + crate::user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -31,8 +32,8 @@ pub trait RegistrationModule:
         let ids_mapper = self.user_ids();
         let user_id = ids_mapper.get_id_non_zero(&caller);
 
-        let farm_tokens = self.withdraw_farm_tokens(&caller, user_id);
-        let ms_tokens = self.withdraw_metastaking_tokens(&caller, user_id);
+        let farm_tokens = self.withdraw_all_tokens(&caller, &self.user_farm_tokens(user_id));
+        let ms_tokens = self.withdraw_all_tokens(&caller, &self.user_metastaking_tokens(user_id));
         let claimed_rewards = self.user_claim_rewards(caller, user_id);
         let _ = ids_mapper.remove_by_id(user_id);
 

@@ -22,6 +22,7 @@ pub trait FarmActionsModule:
     + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
     + crate::user_tokens::user_rewards::UserRewardsModule
+    + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + crate::fees::FeesModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
