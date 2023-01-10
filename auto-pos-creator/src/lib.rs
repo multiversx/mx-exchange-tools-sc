@@ -2,6 +2,7 @@
 
 elrond_wasm::imports!();
 
+pub mod common;
 pub mod configs;
 pub mod external_sc_interactions;
 
@@ -15,6 +16,7 @@ pub trait AutoPosCreator:
     + configs::auto_farm_config::AutoFarmConfigModule
     + configs::pairs_config::PairsConfigModule
     + external_sc_interactions::pair_actions::PairActionsModule
+    + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::multi_contract_interactions::MultiContractInteractionsModule
 {
     /// Auto-farm SC is only used to read the farms and metastaking addresses from it.
