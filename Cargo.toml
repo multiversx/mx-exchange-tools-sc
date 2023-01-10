@@ -1,5 +1,7 @@
 [workspace]
 members = [
   "auto-farm",
-  "auto-farm/meta"
+  "auto-farm/meta",
+  "auto-pos-creator",
+  "auto-pos-creator/meta"
 ]
