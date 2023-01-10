@@ -17,6 +17,7 @@ pub trait AutoPosCreator:
     + configs::pairs_config::PairsConfigModule
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
+    + external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + external_sc_interactions::multi_contract_interactions::MultiContractInteractionsModule
 {
     /// Auto-farm SC is only used to read the farms and metastaking addresses from it.
