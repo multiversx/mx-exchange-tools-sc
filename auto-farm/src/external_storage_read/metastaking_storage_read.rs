@@ -9,6 +9,7 @@ pub struct MetastakingConfig<M: ManagedTypeApi> {
 
 #[elrond_wasm::module]
 pub trait MetastakingStorageReadModule: utils::UtilsModule {
+    #[label("metastaking-whitelist-endpoints")]
     #[view(getMetastakingConfig)]
     fn get_metastaking_config(
         &self,

@@ -9,6 +9,7 @@ pub trait FarmsWhitelistModule:
     crate::external_storage_read::farm_storage_read::FarmStorageReadModule + utils::UtilsModule
 {
     /// Can also be used for farm-staking contracts.
+    #[label("farm-whitelist-endpoints")]
     #[only_owner]
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
@@ -30,6 +31,7 @@ pub trait FarmsWhitelistModule:
         }
     }
 
+    #[label("farm-whitelist-endpoints")]
     #[only_owner]
     #[endpoint(removeFarms)]
     fn remove_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
@@ -47,6 +49,7 @@ pub trait FarmsWhitelistModule:
         }
     }
 
+    #[label("farm-whitelist-endpoints")]
     #[view(getFarmForFarmToken)]
     fn get_farm_for_farm_token_view(
         &self,
@@ -56,6 +59,7 @@ pub trait FarmsWhitelistModule:
         self.farm_ids().get_address(farm_id).into()
     }
 
+    #[label("farm-whitelist-endpoints")]
     #[view(getFarmForFarmingToken)]
     fn get_farm_for_farming_token_view(
         &self,

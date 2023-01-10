@@ -7,6 +7,7 @@ pub trait MetastakingWhitelistModule:
     crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + utils::UtilsModule
 {
+    #[label("metastaking-whitelist-endpoints")]
     #[only_owner]
     #[endpoint(addMetastakingScs)]
     fn add_metastaking_scs(&self, scs: MultiValueEncoded<ManagedAddress>) {
@@ -23,6 +24,7 @@ pub trait MetastakingWhitelistModule:
         }
     }
 
+    #[label("metastaking-whitelist-endpoints")]
     #[only_owner]
     #[endpoint(removeMetastakingScs)]
     fn remove_metastaking_scs(&self, scs: MultiValueEncoded<ManagedAddress>) {
@@ -41,6 +43,7 @@ pub trait MetastakingWhitelistModule:
         }
     }
 
+    #[label("metastaking-whitelist-endpoints")]
     #[view(getMetastakingForDualYieldToken)]
     fn get_metastaking_for_dual_yield_token_view(
         &self,
@@ -52,6 +55,7 @@ pub trait MetastakingWhitelistModule:
         self.metastaking_ids().get_address(ms_id).into()
     }
 
+    #[label("metastaking-whitelist-endpoints")]
     #[view(getMetastakingForLpFarmToken)]
     fn get_metastaking_for_lp_farm_token(
         &self,

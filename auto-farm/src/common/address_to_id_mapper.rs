@@ -1,8 +1,9 @@
 use core::marker::PhantomData;
 
 use elrond_wasm::{
-    api::StorageMapperApi, storage::StorageKey, storage_clear, storage_get, storage_get_len,
-    storage_set,
+    api::StorageMapperApi,
+    storage::{storage_get_from_address, storage_get_len_from_address, StorageKey},
+    storage_clear, storage_get, storage_get_len, storage_set,
 };
 
 elrond_wasm::imports!();
@@ -10,6 +11,8 @@ elrond_wasm::imports!();
 static ID_SUFFIX: &[u8] = b"userId";
 static ADDRESS_SUFFIX: &[u8] = b"addr";
 static LAST_ID_SUFFIX: &[u8] = b"lastId";
+
+static UNKNOW_ADDR_ERR_MSG: &[u8] = b"Unknown address";
 
 pub type AddressId = u32;
 pub const NULL_ID: AddressId = 0;
@@ -48,10 +51,32 @@ where
         storage_get(key.as_ref())
     }
 
+    pub fn get_id_at_address(
+        &self,
+        sc_address: &ManagedAddress<SA>,
+        address_to_find: &ManagedAddress<SA>,
+    ) -> AddressId {
+        let key = self.address_to_id_key(address_to_find);
+        storage_get_from_address(sc_address.as_ref(), key.as_ref())
+    }
+
     pub fn get_id_non_zero(&self, address: &ManagedAddress<SA>) -> AddressId {
         let id = self.get_id(address);
         if id == NULL_ID {
-            SA::error_api_impl().signal_error(b"Unknown address");
+            SA::error_api_impl().signal_error(UNKNOW_ADDR_ERR_MSG);
+        }
+
+        id
+    }
+
+    pub fn get_id_at_address_non_zero(
+        &self,
+        sc_address: &ManagedAddress<SA>,
+        address_to_find: &ManagedAddress<SA>,
+    ) -> AddressId {
+        let id = self.get_id_at_address(sc_address, address_to_find);
+        if id == NULL_ID {
+            SA::error_api_impl().signal_error(UNKNOW_ADDR_ERR_MSG);
         }
 
         id
@@ -73,6 +98,20 @@ where
         }
 
         let addr = storage_get(key.as_ref());
+        Some(addr)
+    }
+
+    pub fn get_address_at_address(
+        &self,
+        sc_address: &ManagedAddress<SA>,
+        id: AddressId,
+    ) -> Option<ManagedAddress<SA>> {
+        let key = self.id_to_address_key(id);
+        if storage_get_len_from_address(sc_address.as_ref(), key.as_ref()) == 0 {
+            return None;
+        }
+
+        let addr = storage_get_from_address(sc_address.as_ref(), key.as_ref());
         Some(addr)
     }
 

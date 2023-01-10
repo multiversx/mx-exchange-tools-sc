@@ -18,6 +18,28 @@ version = "=0.38.0"
 [dev-dependencies.elrond-wasm-debug]
 version = "=0.38.0"
 
+# Local dependencies
+[dependencies]
+auto-farm = { path = "../auto-farm" }
+
+# Farm dependencies
+farm = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-with-locked-rewards = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-staking = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+
+# Other SCs
+pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+
+# Common modules/types
+common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+mergeable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+utils = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 num-traits = "0.2"
