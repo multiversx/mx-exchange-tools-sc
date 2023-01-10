@@ -31,14 +31,16 @@ impl<M: SendApi> PaymentsWraper<M> {
 
     pub fn send_and_return(self, to: &ManagedAddress<M>) -> PaymentsVec<M> {
         if self.payments.is_empty() {
-            let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
-                to,
-                &self.payments,
-                0,
-                &ManagedBuffer::new(),
-                &ManagedArgBuffer::new(),
-            );
+            return self.payments;
         }
+
+        let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
+            to,
+            &self.payments,
+            0,
+            &ManagedBuffer::new(),
+            &ManagedArgBuffer::new(),
+        );
 
         self.payments
     }
