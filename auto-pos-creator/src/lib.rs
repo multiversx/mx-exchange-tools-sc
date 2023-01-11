@@ -5,6 +5,7 @@ elrond_wasm::imports!();
 pub mod common;
 pub mod configs;
 pub mod external_sc_interactions;
+pub mod multi_contract_interactions;
 
 #[elrond_wasm::contract]
 pub trait AutoPosCreator:
@@ -18,7 +19,8 @@ pub trait AutoPosCreator:
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::metastaking_actions::MetastakingActionsModule
-    + external_sc_interactions::multi_contract_interactions::MultiContractInteractionsModule
+    + multi_contract_interactions::create_pos::CreatePosModule
+    + multi_contract_interactions::exit_pos::ExitPosModule
 {
     /// Auto-farm SC is only used to read the farms and metastaking addresses from it.
     /// This way, we don't need to duplicate the setup in this SC as well
