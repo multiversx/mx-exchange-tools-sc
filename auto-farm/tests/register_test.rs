@@ -2,9 +2,7 @@ use auto_farm::common::common_storage::CommonStorageModule;
 use auto_farm::registration::RegistrationModule;
 use auto_farm::AutoFarm;
 use elrond_wasm_debug::{managed_address, rust_biguint};
-use farm_with_locked_rewards_setup::FarmSetup;
-
-use tests_common::farm_with_locked_rewards_setup::*;
+use tests_common::farm_with_locked_rewards_setup::FarmSetup;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
 

@@ -1,4 +1,4 @@
-#![cfg(test)]
+#![cfg(feature = "enable-tests-common")]
 
 use elrond_wasm::storage::mappers::StorageTokenWrapper;
 use elrond_wasm::types::{EsdtLocalRole, ManagedAddress, MultiValueEncoded};

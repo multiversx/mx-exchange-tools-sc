@@ -20,9 +20,9 @@ use auto_farm::user_tokens::user_rewards::UserRewardsModule;
 use auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule;
 use auto_farm::AutoFarm;
 
-use crate::farm_with_locked_rewards_setup::{FarmSetup, FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID};
-
-use tests_common::farm_with_locked_rewards_setup::*;
+use tests_common::farm_with_locked_rewards_setup::{
+    FarmSetup, FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID,
+};
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
 

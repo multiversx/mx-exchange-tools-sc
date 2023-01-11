@@ -57,4 +57,4 @@ pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564
 sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 
 # Common test code
-tests-common = { path = "../tests-common" }
+tests-common = { path = "../tests-common", features = ["enable-tests-common"] }
