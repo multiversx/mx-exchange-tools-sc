@@ -1,11 +1,7 @@
-pub mod farm_with_locked_rewards_setup;
 pub mod fees_collector_setup;
 pub mod metabonding_setup;
 
-use crate::{
-    farm_with_locked_rewards_setup::FarmSetup,
-    fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID},
-};
+use crate::fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID};
 use auto_farm::{
     common::{common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper},
     external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
@@ -29,6 +25,7 @@ use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use fees_collector_setup::setup_fees_collector;
 use metabonding_setup::*;
 use sc_whitelist_module::SCWhitelistModule;
+use tests_common::farm_with_locked_rewards_setup::FarmSetup;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
 

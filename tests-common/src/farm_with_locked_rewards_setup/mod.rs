@@ -1,4 +1,4 @@
-#![cfg(test)]
+#![cfg(feature = "enable-tests-common")]
 
 use config::ConfigModule;
 use elrond_wasm::{
