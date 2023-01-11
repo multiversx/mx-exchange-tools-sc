@@ -1,7 +1,10 @@
 use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
 
-use crate::common::payments_wrapper::PaymentsWraper;
+use crate::{
+    common::payments_wrapper::PaymentsWraper,
+    external_sc_interactions::pair_actions::DoubleSwapResult,
+};
 
 elrond_wasm::imports!();
 
@@ -62,6 +65,41 @@ pub trait CreatePosModule:
         output_payments.push(ms_tokens);
 
         output_payments.send_and_return(&caller)
+    }
+
+    fn buy_half_each_token(
+        &self,
+        input_tokens: EsdtTokenPayment,
+        dest_pair: &ManagedAddress,
+    ) -> DoubleSwapResult<Self::Api> {
+        require!(input_tokens.token_nonce == 0, "Only fungible ESDT accepted");
+        self.require_sc_address(dest_pair);
+
+        let dest_pair_config = self.get_pair_config(dest_pair);
+        let tokens_to_pair_mapper = self.pair_address_for_tokens(
+            &dest_pair_config.first_token_id,
+            &dest_pair_config.second_token_id,
+        );
+        require!(!tokens_to_pair_mapper.is_empty(), "Unknown pair SC");
+
+        let first_amount = &input_tokens.amount / 2u32;
+        let second_amount = &input_tokens.amount - &first_amount;
+
+        let first_swap_tokens = self.perform_tokens_swap(
+            input_tokens.token_identifier.clone(),
+            first_amount,
+            dest_pair_config.first_token_id,
+        );
+        let second_swap_tokens = self.perform_tokens_swap(
+            input_tokens.token_identifier,
+            second_amount,
+            dest_pair_config.second_token_id,
+        );
+
+        DoubleSwapResult {
+            first_swap_tokens,
+            second_swap_tokens,
+        }
     }
 
     fn try_enter_farm_with_lp(
