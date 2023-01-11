@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use elrond_wasm::storage::mappers::StorageTokenWrapper;
 use elrond_wasm::types::{EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 

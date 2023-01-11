@@ -22,7 +22,7 @@ use auto_farm::AutoFarm;
 
 use crate::farm_with_locked_rewards_setup::{FarmSetup, FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID};
 
-mod farm_with_locked_rewards_setup;
+use tests_common::farm_with_locked_rewards_setup::*;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
 

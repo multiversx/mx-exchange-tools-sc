@@ -1,5 +1,5 @@
 [package]
-name = "auto-farm"
+name = "tests-common"
 version = "0.0.0"
 authors = [ "you",]
 edition = "2018"
@@ -28,10 +28,6 @@ farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev
 # Other SCs
 pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-fees-collector = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Other SCs - different repos
-metabonding = { git = "https://github.com/multiversx/mx-metabonding-sc", rev = "1d7e06c" }
 
 # Common modules/types
 common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
@@ -55,6 +51,3 @@ locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "
 farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Common test code
-tests-common = { path = "../tests-common" }

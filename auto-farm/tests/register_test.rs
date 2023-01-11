@@ -4,7 +4,7 @@ use auto_farm::AutoFarm;
 use elrond_wasm_debug::{managed_address, rust_biguint};
 use farm_with_locked_rewards_setup::FarmSetup;
 
-pub mod farm_with_locked_rewards_setup;
+use tests_common::farm_with_locked_rewards_setup::*;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
 

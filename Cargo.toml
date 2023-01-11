@@ -3,5 +3,6 @@ members = [
   "auto-farm",
   "auto-farm/meta",
   "auto-pos-creator",
-  "auto-pos-creator/meta"
+  "auto-pos-creator/meta",
+  "tests-common"
 ]

@@ -26,15 +26,14 @@ use elrond_wasm_debug::{
 };
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use farm_staking::stake_farm::StakeFarmModule;
-use farm_staking_setup::{setup_farm_staking, STAKING_FARM_TOKEN_ID, USER_TOTAL_RIDE_TOKENS};
-use farm_with_locked_rewards_setup::FarmSetup;
 use fees_collector_setup::{
     setup_fees_collector, FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID,
 };
 use sc_whitelist_module::SCWhitelistModule;
 
-mod farm_staking_setup;
-mod farm_with_locked_rewards_setup;
+use tests_common::farm_staking_setup::*;
+use tests_common::farm_with_locked_rewards_setup::*;
+
 mod fees_collector_setup;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%

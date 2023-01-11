@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use config::ConfigModule;
 use elrond_wasm::{
     elrond_codec::multi_types::OptionalValue,
