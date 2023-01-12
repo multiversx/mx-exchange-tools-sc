@@ -5,15 +5,18 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            3
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:   5
 
 #![no_std]
 
 elrond_wasm_node::wasm_endpoints! {
     auto_pos_creator
     (
+        addPairsToWhitelist
+        removePairsFromWhitelist
+        createPosFromSingleToken
     )
 }
 

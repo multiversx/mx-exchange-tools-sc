@@ -15,10 +15,6 @@ elrond_wasm_node::wasm_endpoints! {
     auto_farm
     (
         changeProxyClaimAddress
-        addFarms
-        removeFarms
-        getFarmForFarmToken
-        getFarmForFarmingToken
         getFarmConfig
         register
         withdrawAllAndUnregister
@@ -26,10 +22,6 @@ elrond_wasm_node::wasm_endpoints! {
         withdrawAllFarmTokens
         withdrawSpecificFarmTokens
         getUserFarmTokens
-        addMetastakingScs
-        removeMetastakingScs
-        getMetastakingForDualYieldToken
-        getMetastakingForLpFarmToken
         depositMetastakingTokens
         withdrawAllMetastakingTokens
         withdrawSpecificMetastakingTokens
@@ -43,6 +35,14 @@ elrond_wasm_node::wasm_endpoints! {
         getAccumulatedFees
         setEnergyFactoryAddress
         getEnergyFactoryAddress
+        addFarms
+        removeFarms
+        getFarmForFarmToken
+        getFarmForFarmingToken
+        addMetastakingScs
+        removeMetastakingScs
+        getMetastakingForDualYieldToken
+        getMetastakingForLpFarmToken
     )
 }
 

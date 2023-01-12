@@ -1,0 +1,4 @@
+[contracts.full]
+name = "auto-pos-creator"
+add-unlabelled = true
+add-labels = []

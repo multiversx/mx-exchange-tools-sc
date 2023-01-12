@@ -1,0 +1,4 @@
+[contracts.full]
+name = "auto-farm"
+add-unlabelled = true
+add-labels = [ "farm-whitelist-endpoints", "metastaking-whitelist-endpoints"]
