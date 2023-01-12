@@ -4,11 +4,6 @@ elrond_wasm::imports!();
 
 pub const MIN_AMOUNT_OUT: u32 = 1;
 
-pub struct DoubleSwapResult<M: ManagedTypeApi> {
-    pub first_swap_tokens: EsdtTokenPayment<M>,
-    pub second_swap_tokens: EsdtTokenPayment<M>,
-}
-
 pub struct PairAddLiqResult<M: ManagedTypeApi> {
     pub lp_tokens: EsdtTokenPayment<M>,
     pub first_tokens_remaining: EsdtTokenPayment<M>,
@@ -19,6 +14,8 @@ pub struct PairRemoveLiqResult<M: ManagedTypeApi> {
     pub first_tokens: EsdtTokenPayment<M>,
     pub second_tokens: EsdtTokenPayment<M>,
 }
+
+pub type PairTokenPayments<M> = PairRemoveLiqResult<M>;
 
 #[elrond_wasm::module]
 pub trait PairActionsModule:
@@ -34,7 +31,9 @@ pub trait PairActionsModule:
             return EsdtTokenPayment::new(from_tokens, 0, from_amount);
         }
 
-        let pair_address = self.get_pair_address_for_tokens(&from_tokens, &to_tokens);
+        let pair_address = self
+            .get_pair_address_for_tokens(&from_tokens, &to_tokens)
+            .unwrap_address();
         let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
 
         self.call_pair_swap(pair_address, payment, to_tokens)

@@ -6,6 +6,24 @@ pub struct PairConfig<M: ManagedTypeApi> {
     pub second_token_id: TokenIdentifier<M>,
 }
 
+pub enum PairAddressForTokens<M: ManagedTypeApi> {
+    CorrectOrder(ManagedAddress<M>),
+    ReverseOrder(ManagedAddress<M>),
+}
+
+impl<M: ManagedTypeApi> PairAddressForTokens<M> {
+    pub fn unwrap_address(self) -> ManagedAddress<M> {
+        match self {
+            PairAddressForTokens::CorrectOrder(addr) => addr,
+            PairAddressForTokens::ReverseOrder(addr) => addr,
+        }
+    }
+
+    pub fn is_reverse(&self) -> bool {
+        matches!(self, PairAddressForTokens::ReverseOrder(_))
+    }
+}
+
 #[elrond_wasm::module]
 pub trait PairsConfigModule: utils::UtilsModule {
     #[only_owner]
@@ -58,16 +76,16 @@ pub trait PairsConfigModule: utils::UtilsModule {
         &self,
         first_token_id: &TokenIdentifier,
         second_token_id: &TokenIdentifier,
-    ) -> ManagedAddress {
+    ) -> PairAddressForTokens<Self::Api> {
         let correct_order_mapper = self.pair_address_for_tokens(first_token_id, second_token_id);
         if !correct_order_mapper.is_empty() {
-            return correct_order_mapper.get();
+            return PairAddressForTokens::CorrectOrder(correct_order_mapper.get());
         }
 
         let reverse_order_mapper = self.pair_address_for_tokens(second_token_id, first_token_id);
         require!(!reverse_order_mapper.is_empty(), "No pair for given tokens");
 
-        reverse_order_mapper.get()
+        PairAddressForTokens::ReverseOrder(reverse_order_mapper.get())
     }
 
     #[storage_mapper("pairAddrForTokens")]
