@@ -40,7 +40,7 @@ pub trait CreatePosModule:
     /// It will try doing this with the optimal amounts,
     /// performing swaps before adding liqudity if necessary
     #[payable("*")]
-    #[endpoint]
+    #[endpoint(createPosFromTwoTokens)]
     fn create_pos_from_two_tokens(&self) -> PaymentsVec<Self::Api> {
         let [mut first_payment, mut second_payment] = self.call_value().multi_esdt();
         let wrapped_dest_pair_address = self.get_pair_address_for_tokens(
