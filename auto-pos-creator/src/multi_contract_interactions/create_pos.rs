@@ -2,11 +2,13 @@ use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
 
 use crate::{
-    common::payments_wrapper::PaymentsWraper,
-    external_sc_interactions::pair_actions::DoubleSwapResult,
+    common::payments_wrapper::PaymentsWraper, configs::pairs_config::PairAddressForTokens,
+    external_sc_interactions::pair_actions::PairTokenPayments,
 };
 
 elrond_wasm::imports!();
+
+pub type DoubleSwapResult<M> = PairTokenPayments<M>;
 
 #[elrond_wasm::module]
 pub trait CreatePosModule:
@@ -30,10 +32,43 @@ pub trait CreatePosModule:
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
         let double_swap_result = self.buy_half_each_token(payment, &dest_pair_address);
+
+        self.create_pos_common(caller, double_swap_result)
+    }
+
+    /// Create pos from two payments, entering the pair for the two tokens
+    /// It will try doing this with the optimal amounts,
+    /// performing swaps before adding liqudity if necessary
+    #[payable("*")]
+    #[endpoint]
+    fn create_pos_from_two_tokens(&self) -> PaymentsVec<Self::Api> {
+        let [mut first_payment, mut second_payment] = self.call_value().multi_esdt();
+        let wrapped_dest_pair_address = self.get_pair_address_for_tokens(
+            &first_payment.token_identifier,
+            &second_payment.token_identifier,
+        );
+
+        if wrapped_dest_pair_address.is_reverse() {
+            core::mem::swap(&mut first_payment, &mut second_payment);
+        }
+        let dest_pair_address = wrapped_dest_pair_address.unwrap_address();
+        let pair_input_tokens = PairTokenPayments {
+            first_tokens: first_payment,
+            second_tokens: second_payment,
+        };
+
+        self.create_pos_common(caller, pair_input_tokens)
+    }
+
+    fn create_pos_common(
+        &self,
+        caller: ManagedAddress,
+        pair_input_tokens: PairTokenPayments<Self::Api>,
+    ) -> PaymentsVec<Self::Api> {
         let add_liq_result = self.call_pair_add_liquidity(
             dest_pair_address,
-            double_swap_result.first_swap_tokens,
-            double_swap_result.second_swap_tokens,
+            pair_input_tokens.first_tokens,
+            pair_input_tokens.second_tokens,
         );
 
         let mut output_payments = PaymentsWraper::new();
