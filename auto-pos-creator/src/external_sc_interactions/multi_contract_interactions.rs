@@ -16,6 +16,7 @@ pub trait MultiContractInteractionsModule:
     + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + crate::configs::auto_farm_config::AutoFarmConfigModule
     + super::farm_actions::FarmActionsModule
+    + super::metastaking_actions::MetastakingActionsModule
 {
     #[endpoint(createPosFromSingleToken)]
     fn create_pos_from_single_token(
@@ -45,7 +46,19 @@ pub trait MultiContractInteractionsModule:
         }
 
         let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
-        output_payments.push(farm_tokens);
+        let opt_ms_tokens = self.try_enter_metastaking_with_lp_farm_tokens(
+            &farm_tokens,
+            &caller,
+            &auto_farm_address,
+        );
+        if opt_ms_tokens.is_none() {
+            output_payments.push(farm_tokens);
+
+            return output_payments.send_and_return(&caller);
+        }
+
+        let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
+        output_payments.push(ms_tokens);
 
         output_payments.send_and_return(&caller)
     }
@@ -58,21 +71,38 @@ pub trait MultiContractInteractionsModule:
     ) -> Option<EsdtTokenPayment> {
         let farm_id_for_lp_tokens = self
             .farm_for_farming_token(&lp_tokens.token_identifier)
-            .get_from_address(&auto_farm_address);
+            .get_from_address(auto_farm_address);
         if farm_id_for_lp_tokens == NULL_ID {
             return None;
         }
 
-        let opt_farm_address = self
+        let farm_address = self
             .farm_ids()
-            .get_address_at_address(&auto_farm_address, farm_id_for_lp_tokens);
-        if opt_farm_address.is_none() {
-            return None;
-        }
-
-        let farm_address = unsafe { opt_farm_address.unwrap_unchecked() };
+            .get_address_at_address(auto_farm_address, farm_id_for_lp_tokens)?;
         let farm_tokens = self.call_enter_farm(farm_address, user.clone(), lp_tokens.clone());
 
         Some(farm_tokens)
+    }
+
+    fn try_enter_metastaking_with_lp_farm_tokens(
+        &self,
+        lp_farm_tokens: &EsdtTokenPayment,
+        user: &ManagedAddress,
+        auto_farm_address: &ManagedAddress,
+    ) -> Option<EsdtTokenPayment> {
+        let ms_id_for_tokens = self
+            .metastaking_for_lp_farm_token(&lp_farm_tokens.token_identifier)
+            .get_from_address(auto_farm_address);
+        if ms_id_for_tokens == NULL_ID {
+            return None;
+        }
+
+        let ms_address = self
+            .metastaking_ids()
+            .get_address_at_address(auto_farm_address, ms_id_for_tokens)?;
+        let ms_tokens =
+            self.call_metastaking_stake(ms_address, user.clone(), lp_farm_tokens.clone());
+
+        Some(ms_tokens)
     }
 }
