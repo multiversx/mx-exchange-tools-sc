@@ -1,8 +1,8 @@
-use pair::AddLiquidityResultType;
+use pair::{AddLiquidityResultType, RemoveLiquidityResultType};
 
 elrond_wasm::imports!();
 
-const MIN_AMOUNT_OUT: u32 = 1;
+pub const MIN_AMOUNT_OUT: u32 = 1;
 
 pub struct DoubleSwapResult<M: ManagedTypeApi> {
     pub first_swap_tokens: EsdtTokenPayment<M>,
@@ -13,6 +13,11 @@ pub struct PairAddLiqResult<M: ManagedTypeApi> {
     pub lp_tokens: EsdtTokenPayment<M>,
     pub first_tokens_remaining: EsdtTokenPayment<M>,
     pub second_tokens_remaining: EsdtTokenPayment<M>,
+}
+
+pub struct PairRemoveLiqResult<M: ManagedTypeApi> {
+    pub first_tokens: EsdtTokenPayment<M>,
+    pub second_tokens: EsdtTokenPayment<M>,
 }
 
 #[elrond_wasm::module]
@@ -116,6 +121,24 @@ pub trait PairActionsModule:
             lp_tokens,
             first_tokens_remaining,
             second_tokens_remaining,
+        }
+    }
+
+    fn call_pair_remove_liquidity(
+        &self,
+        pair_address: ManagedAddress,
+        lp_tokens: EsdtTokenPayment,
+    ) -> PairRemoveLiqResult<Self::Api> {
+        let raw_results: RemoveLiquidityResultType<Self::Api> = self
+            .pair_proxy(pair_address)
+            .remove_liquidity(MIN_AMOUNT_OUT, MIN_AMOUNT_OUT)
+            .with_esdt_transfer(lp_tokens)
+            .execute_on_dest_context();
+        let (first_tokens, second_tokens) = raw_results.into_tuple();
+
+        PairRemoveLiqResult {
+            first_tokens,
+            second_tokens,
         }
     }
 
