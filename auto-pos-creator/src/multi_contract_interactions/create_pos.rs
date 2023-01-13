@@ -2,7 +2,7 @@ use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
 
 use crate::{
-    common::payments_wrapper::PaymentsWraper, configs::pairs_config::PairAddressForTokens,
+    common::payments_wrapper::PaymentsWraper,
     external_sc_interactions::pair_actions::PairTokenPayments,
 };
 
@@ -33,7 +33,7 @@ pub trait CreatePosModule:
         let payment = self.call_value().single_esdt();
         let double_swap_result = self.buy_half_each_token(payment, &dest_pair_address);
 
-        self.create_pos_common(caller, double_swap_result)
+        self.create_pos_common(caller, dest_pair_address, double_swap_result)
     }
 
     /// Create pos from two payments, entering the pair for the two tokens
@@ -42,6 +42,7 @@ pub trait CreatePosModule:
     #[payable("*")]
     #[endpoint(createPosFromTwoTokens)]
     fn create_pos_from_two_tokens(&self) -> PaymentsVec<Self::Api> {
+        let caller = self.blockchain().get_caller();
         let [mut first_payment, mut second_payment] = self.call_value().multi_esdt();
         let wrapped_dest_pair_address = self.get_pair_address_for_tokens(
             &first_payment.token_identifier,
@@ -57,12 +58,13 @@ pub trait CreatePosModule:
             second_tokens: second_payment,
         };
 
-        self.create_pos_common(caller, pair_input_tokens)
+        self.create_pos_common(caller, dest_pair_address, pair_input_tokens)
     }
 
     fn create_pos_common(
         &self,
         caller: ManagedAddress,
+        dest_pair_address: ManagedAddress,
         pair_input_tokens: PairTokenPayments<Self::Api>,
     ) -> PaymentsVec<Self::Api> {
         let add_liq_result = self.call_pair_add_liquidity(
@@ -132,8 +134,8 @@ pub trait CreatePosModule:
         );
 
         DoubleSwapResult {
-            first_swap_tokens,
-            second_swap_tokens,
+            first_tokens: first_swap_tokens,
+            second_tokens: second_swap_tokens,
         }
     }
 

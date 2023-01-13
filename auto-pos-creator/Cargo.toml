@@ -45,3 +45,10 @@ num-bigint = "0.4.2"
 num-traits = "0.2"
 hex = "0.4"
 hex-literal = "0.3.4"
+
+# Common test code
+tests-common = { path = "../tests-common", features = ["enable-tests-common"] }
+
+# modules for tests
+pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }

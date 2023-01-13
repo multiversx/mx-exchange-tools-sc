@@ -37,19 +37,19 @@ fn metabonding_setup_test() {
 
 #[test]
 fn metabonding_claim_through_auto_farm_test() {
-    let mut farm_setup = FarmSetup::new(
+    let farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
 
-    let b_mock = &mut farm_setup.b_mock;
+    let b_mock = farm_setup.b_mock;
     let rust_zero = rust_biguint!(0);
 
-    let mb_setup = setup_metabonding(b_mock, metabonding::contract_obj);
+    let mb_setup = setup_metabonding(&mut b_mock.borrow_mut(), metabonding::contract_obj);
 
-    let owner = b_mock.create_user_account(&rust_zero);
-    let proxy_address = b_mock.create_user_account(&rust_zero);
-    let auto_farm_wrapper = b_mock.create_sc_account(
+    let owner = b_mock.borrow_mut().create_user_account(&rust_zero);
+    let proxy_address = b_mock.borrow_mut().create_user_account(&rust_zero);
+    let auto_farm_wrapper = b_mock.borrow_mut().create_sc_account(
         &rust_zero,
         Some(&owner),
         auto_farm::contract_obj,
@@ -57,6 +57,7 @@ fn metabonding_claim_through_auto_farm_test() {
     );
 
     b_mock
+        .borrow_mut()
         .execute_tx(&owner, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_address!(&proxy_address),
@@ -70,6 +71,7 @@ fn metabonding_claim_through_auto_farm_test() {
 
     // whitelist auto-farm SC in metabonding
     b_mock
+        .borrow_mut()
         .execute_tx(&owner, &mb_setup, &rust_zero, |sc| {
             sc.sc_whitelist_addresses()
                 .add(&managed_address!(auto_farm_wrapper.address_ref()))
@@ -83,12 +85,14 @@ fn metabonding_claim_through_auto_farm_test() {
 
     let first_user_addr = farm_setup.first_user.clone();
     b_mock
+        .borrow_mut()
         .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
         })
         .assert_ok();
 
     b_mock
+        .borrow_mut()
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut claim_args = ManagedVec::new();
             claim_args.push(SingleMetabondingClaimArg {
@@ -173,14 +177,18 @@ fn metabonding_claim_through_auto_farm_test() {
 
 #[test]
 fn fees_collector_setup_test() {
-    let mut farm_setup = FarmSetup::new(
+    let farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
-    let b_mock = &mut farm_setup.b_mock;
+    let b_mock = farm_setup.b_mock;
     let energy_factory_addr = farm_setup.energy_factory_wrapper.address_ref().clone();
 
-    let _ = setup_fees_collector(b_mock, fees_collector::contract_obj, &energy_factory_addr);
+    let _ = setup_fees_collector(
+        &mut b_mock.borrow_mut(),
+        fees_collector::contract_obj,
+        &energy_factory_addr,
+    );
 }
 
 #[test]
@@ -191,9 +199,15 @@ fn fees_collector_claim_through_auto_farm_test() {
         energy_factory::contract_obj,
     );
 
-    let owner = farm_setup.b_mock.create_user_account(&rust_zero);
-    let proxy_address = farm_setup.b_mock.create_user_account(&rust_zero);
-    let auto_farm_wrapper = farm_setup.b_mock.create_sc_account(
+    let owner = farm_setup
+        .b_mock
+        .borrow_mut()
+        .create_user_account(&rust_zero);
+    let proxy_address = farm_setup
+        .b_mock
+        .borrow_mut()
+        .create_user_account(&rust_zero);
+    let auto_farm_wrapper = farm_setup.b_mock.borrow_mut().create_sc_account(
         &rust_zero,
         Some(&owner),
         auto_farm::contract_obj,
@@ -202,13 +216,14 @@ fn fees_collector_claim_through_auto_farm_test() {
 
     let energy_factory_addr = farm_setup.energy_factory_wrapper.address_ref().clone();
     let fc_wrapper = setup_fees_collector(
-        &mut farm_setup.b_mock,
+        &mut farm_setup.b_mock.borrow_mut(),
         fees_collector::contract_obj,
         &energy_factory_addr,
     );
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&owner, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_address!(&proxy_address),
@@ -223,6 +238,7 @@ fn fees_collector_claim_through_auto_farm_test() {
     // whitelist auto-farm SC in fees collector
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&owner, &fc_wrapper, &rust_zero, |sc| {
             sc.sc_whitelist_addresses()
                 .add(&managed_address!(auto_farm_wrapper.address_ref()))
@@ -232,6 +248,7 @@ fn fees_collector_claim_through_auto_farm_test() {
     // whitelist fees collector and auto-farm in energy factory
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(
             &farm_setup.owner,
             &farm_setup.energy_factory_wrapper,
@@ -253,6 +270,7 @@ fn fees_collector_claim_through_auto_farm_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
         })
@@ -260,6 +278,7 @@ fn fees_collector_claim_through_auto_farm_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&second_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
         })
@@ -271,6 +290,7 @@ fn fees_collector_claim_through_auto_farm_test() {
     // proxy claim for user - get registered
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut first_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
             let mut second_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
@@ -290,11 +310,12 @@ fn fees_collector_claim_through_auto_farm_test() {
         .assert_ok();
 
     // advance one week
-    farm_setup.b_mock.set_block_epoch(8);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(8);
 
     // proxy claim for user
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut first_rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
             sc.claim_fees_collector_rewards(

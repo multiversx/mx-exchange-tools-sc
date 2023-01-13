@@ -37,7 +37,7 @@ fn user_enter_and_claim_two_farms_test() {
         energy_factory::contract_obj,
     );
 
-    farm_setup.b_mock.set_block_epoch(2);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(2);
     let third_user = farm_setup.third_user.clone();
 
     // first enter farm
@@ -52,10 +52,10 @@ fn user_enter_and_claim_two_farms_test() {
 
     // advance blocks - 10 blocks - 10 * 1_000 = 10_000 total rewards
     // 7_500 base farm, 2_500 boosted yields
-    farm_setup.b_mock.set_block_nonce(10);
+    farm_setup.b_mock.borrow_mut().set_block_nonce(10);
 
     // random tx on end of week 1, to cummulate rewards
-    farm_setup.b_mock.set_block_epoch(6);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(6);
     farm_setup.set_user_energy(&first_user, 1_000, 6, 1);
     farm_setup.set_user_energy(&third_user, 1, 6, 1);
 
@@ -65,7 +65,7 @@ fn user_enter_and_claim_two_farms_test() {
     farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1, 1);
 
     // advance 1 week
-    farm_setup.b_mock.set_block_epoch(10);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(10);
     farm_setup.set_user_energy(&first_user, 1_000, 10, 1);
 
     // first user claim - 75% of 10_000, 2_500 reserved for boosted yields
@@ -82,6 +82,7 @@ fn user_enter_and_claim_two_farms_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .check_nft_balance::<FarmTokenAttributes<DebugApi>>(
             &first_user,
             FARM_TOKEN_ID[FIRST_FARM_INDEX],
@@ -92,6 +93,7 @@ fn user_enter_and_claim_two_farms_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .check_nft_balance::<LockedTokenAttributes<DebugApi>>(
             &first_user,
             LOCKED_REWARD_TOKEN_ID,
@@ -107,6 +109,7 @@ fn user_enter_and_claim_two_farms_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .check_nft_balance::<FarmTokenAttributes<DebugApi>>(
             &first_user,
             FARM_TOKEN_ID[SECOND_FARM_INDEX],
@@ -117,6 +120,7 @@ fn user_enter_and_claim_two_farms_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .check_nft_balance::<LockedTokenAttributes<DebugApi>>(
             &first_user,
             LOCKED_REWARD_TOKEN_ID,
@@ -134,12 +138,15 @@ fn claim_rewards_through_auto_farm() {
         energy_factory::contract_obj,
     );
 
-    farm_setup.b_mock.set_block_epoch(2);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(2);
 
     // setup auto-farm SC
     let rust_zero = rust_biguint!(0);
-    let proxy_address = farm_setup.b_mock.create_user_account(&rust_zero);
-    let auto_farm_wrapper = farm_setup.b_mock.create_sc_account(
+    let proxy_address = farm_setup
+        .b_mock
+        .borrow_mut()
+        .create_user_account(&rust_zero);
+    let auto_farm_wrapper = farm_setup.b_mock.borrow_mut().create_sc_account(
         &rust_zero,
         Some(&farm_setup.owner),
         auto_farm::contract_obj,
@@ -153,6 +160,7 @@ fn claim_rewards_through_auto_farm() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&farm_setup.owner, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_address!(&proxy_address),
@@ -174,6 +182,7 @@ fn claim_rewards_through_auto_farm() {
     for farm_wrapper in &farm_setup.farm_wrappers {
         farm_setup
             .b_mock
+            .borrow_mut()
             .execute_tx(&farm_setup.owner, farm_wrapper, &rust_zero, |sc| {
                 sc.add_sc_address_to_whitelist(managed_address!(auto_farm_wrapper.address_ref()));
             })
@@ -183,6 +192,7 @@ fn claim_rewards_through_auto_farm() {
     // whitelist auto-farm SC in energy factory
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(
             &farm_setup.owner,
             &farm_setup.energy_factory_wrapper,
@@ -210,10 +220,10 @@ fn claim_rewards_through_auto_farm() {
 
     // advance blocks - 10 blocks - 10 * 1_000 = 10_000 total rewards
     // 7_500 base farm, 2_500 boosted yields
-    farm_setup.b_mock.set_block_nonce(10);
+    farm_setup.b_mock.borrow_mut().set_block_nonce(10);
 
     // random tx on end of week 1, to cummulate rewards
-    farm_setup.b_mock.set_block_epoch(6);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(6);
     farm_setup.set_user_energy(&first_user, 1_000, 6, 1);
     farm_setup.set_user_energy(&third_user, 1, 6, 1);
 
@@ -223,7 +233,7 @@ fn claim_rewards_through_auto_farm() {
     farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1, 1);
 
     // advance 1 week
-    farm_setup.b_mock.set_block_epoch(10);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(10);
     farm_setup.set_user_energy(&first_user, 1_000, 10, 1);
 
     // user deposit farm tokens
@@ -241,6 +251,7 @@ fn claim_rewards_through_auto_farm() {
     ];
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_esdt_multi_transfer(&first_user, &auto_farm_wrapper, &farm_tokens, |sc| {
             sc.deposit_farm_tokens();
         })
@@ -252,6 +263,7 @@ fn claim_rewards_through_auto_farm() {
     let expected_user_rewards_amount = total_expected_rewards - expected_fee_amount;
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_REWARD_TOKEN_ID));
             sc.claim_all_farm_rewards(&managed_address!(&first_user), 1, &mut rew_wrapper);
@@ -301,6 +313,7 @@ fn claim_rewards_through_auto_farm() {
     // check energy is updated accordingly
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_query(&farm_setup.energy_factory_wrapper, |sc| {
             let first_user_energy = sc.user_energy(&managed_address!(&first_user)).get();
             // unlock epoch for new tokens = 10 + 4 * 365 = 1470
@@ -333,12 +346,15 @@ fn withdraw_specific_farm_tokens_test() {
         energy_factory::contract_obj,
     );
 
-    farm_setup.b_mock.set_block_epoch(2);
+    farm_setup.b_mock.borrow_mut().set_block_epoch(2);
 
     // setup auto-farm SC
     let rust_zero = rust_biguint!(0);
-    let proxy_address = farm_setup.b_mock.create_user_account(&rust_zero);
-    let auto_farm_wrapper = farm_setup.b_mock.create_sc_account(
+    let proxy_address = farm_setup
+        .b_mock
+        .borrow_mut()
+        .create_user_account(&rust_zero);
+    let auto_farm_wrapper = farm_setup.b_mock.borrow_mut().create_sc_account(
         &rust_zero,
         Some(&farm_setup.owner),
         auto_farm::contract_obj,
@@ -352,6 +368,7 @@ fn withdraw_specific_farm_tokens_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&farm_setup.owner, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_address!(&proxy_address),
@@ -373,6 +390,7 @@ fn withdraw_specific_farm_tokens_test() {
     for farm_wrapper in &farm_setup.farm_wrappers {
         farm_setup
             .b_mock
+            .borrow_mut()
             .execute_tx(&farm_setup.owner, farm_wrapper, &rust_zero, |sc| {
                 sc.add_sc_address_to_whitelist(managed_address!(auto_farm_wrapper.address_ref()));
             })
@@ -382,6 +400,7 @@ fn withdraw_specific_farm_tokens_test() {
     // whitelist auto-farm SC in energy factory
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(
             &farm_setup.owner,
             &farm_setup.energy_factory_wrapper,
@@ -420,6 +439,7 @@ fn withdraw_specific_farm_tokens_test() {
     ];
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_esdt_multi_transfer(&first_user, &auto_farm_wrapper, &farm_tokens, |sc| {
             sc.deposit_farm_tokens();
         })
@@ -428,6 +448,7 @@ fn withdraw_specific_farm_tokens_test() {
     // user withdraw 1/2 of first token, and 1/4 of second token
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             let mut tokens_to_withdraw = ManagedVec::new();
             tokens_to_withdraw.push(EsdtTokenPayment::new(
@@ -461,14 +482,14 @@ fn withdraw_specific_farm_tokens_test() {
         .assert_ok();
 
     // check user received the tokens
-    farm_setup.b_mock.check_nft_balance::<Empty>(
+    farm_setup.b_mock.borrow_mut().check_nft_balance::<Empty>(
         &first_user,
         FARM_TOKEN_ID[FIRST_FARM_INDEX],
         1,
         &rust_biguint!(first_farm_token_amount / 2),
         None,
     );
-    farm_setup.b_mock.check_nft_balance::<Empty>(
+    farm_setup.b_mock.borrow_mut().check_nft_balance::<Empty>(
         &first_user,
         FARM_TOKEN_ID[SECOND_FARM_INDEX],
         1,

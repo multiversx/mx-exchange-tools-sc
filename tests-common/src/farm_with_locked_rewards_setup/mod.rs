@@ -1,5 +1,7 @@
 #![cfg(feature = "enable-tests-common")]
 
+use std::{cell::RefCell, rc::Rc};
+
 use config::ConfigModule;
 use elrond_wasm::{
     elrond_codec::multi_types::OptionalValue,
@@ -53,7 +55,7 @@ where
     FarmObjBuilder: 'static + Copy + Fn() -> farm_with_locked_rewards::ContractObj<DebugApi>,
     EnergyFactoryBuilder: 'static + Copy + Fn() -> energy_factory::ContractObj<DebugApi>,
 {
-    pub b_mock: BlockchainStateWrapper,
+    pub b_mock: Rc<RefCell<BlockchainStateWrapper>>,
     pub owner: Address,
     pub first_user: Address,
     pub second_user: Address,
@@ -240,8 +242,11 @@ where
             })
             .assert_ok();
 
+        let b_mock_ref = RefCell::new(b_mock);
+        let b_mock_rc = Rc::new(b_mock_ref);
+
         FarmSetup {
-            b_mock,
+            b_mock: b_mock_rc,
             owner,
             first_user,
             second_user,
@@ -259,6 +264,7 @@ where
         locked_tokens: u64,
     ) {
         self.b_mock
+            .borrow_mut()
             .execute_tx(
                 &self.owner,
                 &self.energy_factory_wrapper,
@@ -276,6 +282,7 @@ where
 
     pub fn enter_farm(&mut self, farm_index: usize, user: &Address, farming_token_amount: u64) {
         self.b_mock
+            .borrow_mut()
             .execute_esdt_transfer(
                 user,
                 &self.farm_wrappers[farm_index],
@@ -308,6 +315,7 @@ where
     ) -> u64 {
         let mut result = 0;
         self.b_mock
+            .borrow_mut()
             .execute_esdt_transfer(
                 user,
                 &self.farm_wrappers[farm_index],
@@ -355,6 +363,7 @@ where
         exit_farm_amount: u64,
     ) {
         self.b_mock
+            .borrow_mut()
             .execute_esdt_transfer(
                 user,
                 &self.farm_wrappers[farm_index],

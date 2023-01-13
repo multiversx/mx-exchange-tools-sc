@@ -9,7 +9,7 @@ const FEE_PERCENTAGE: u64 = 1_000; // 10%
 #[test]
 fn register_test() {
     let rust_zero = rust_biguint!(0);
-    let mut farm_setup = FarmSetup::new(
+    let farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
@@ -17,8 +17,11 @@ fn register_test() {
     let first_user = farm_setup.first_user.clone();
     let energy_factory_addr = farm_setup.energy_factory_wrapper.address_ref().clone();
 
-    let proxy_address = farm_setup.b_mock.create_user_account(&rust_zero);
-    let auto_farm_wrapper = farm_setup.b_mock.create_sc_account(
+    let proxy_address = farm_setup
+        .b_mock
+        .borrow_mut()
+        .create_user_account(&rust_zero);
+    let auto_farm_wrapper = farm_setup.b_mock.borrow_mut().create_sc_account(
         &rust_zero,
         Some(&farm_setup.owner),
         auto_farm::contract_obj,
@@ -27,6 +30,7 @@ fn register_test() {
 
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&farm_setup.owner, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_address!(&proxy_address),
@@ -41,6 +45,7 @@ fn register_test() {
     // register ok
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
 
@@ -51,6 +56,7 @@ fn register_test() {
     // try register again
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
         })
@@ -59,6 +65,7 @@ fn register_test() {
     // unregister
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             let _ = sc.withdraw_all_and_unregister();
 
@@ -69,6 +76,7 @@ fn register_test() {
     // try unregister again
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             let _ = sc.withdraw_all_and_unregister();
         })
@@ -77,6 +85,7 @@ fn register_test() {
     // register again - ok
     farm_setup
         .b_mock
+        .borrow_mut()
         .execute_tx(&first_user, &auto_farm_wrapper, &rust_zero, |sc| {
             sc.register();
 
