@@ -1,5 +1,5 @@
 [package]
-name = "auto-farm"
+name = "tests-common"
 version = "0.0.0"
 authors = [ "you",]
 edition = "2018"
@@ -8,6 +8,9 @@ publish = false
 [lib]
 path = "src/lib.rs"
 
+[features]
+enable-tests-common = []
+
 [dependencies.elrond-wasm]
 version = "=0.38.0"
 features = [ "esdt-token-payment-legacy-decode" ]
@@ -15,7 +18,7 @@ features = [ "esdt-token-payment-legacy-decode" ]
 [dependencies.elrond-wasm-modules]
 version = "=0.38.0"
 
-[dev-dependencies.elrond-wasm-debug]
+[dependencies.elrond-wasm-debug]
 version = "=0.38.0"
 
 # Farm dependencies
@@ -28,10 +31,6 @@ farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev
 # Other SCs
 pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-fees-collector = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Other SCs - different repos
-metabonding = { git = "https://github.com/multiversx/mx-metabonding-sc", rev = "1d7e06c" }
 
 # Common modules/types
 common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
@@ -41,13 +40,12 @@ energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b
 legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 
-[dev-dependencies]
+# Dependencies needed for tests
 num-bigint = "0.4.2"
 num-traits = "0.2"
 hex = "0.4"
 hex-literal = "0.3.4"
 
-# Dependencies needed for tests
 simple-lock = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 farm-boosted-yields = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 config = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
@@ -55,6 +53,3 @@ locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "
 farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
 sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Common test code
-tests-common = { path = "../tests-common", features = ["enable-tests-common"] }
