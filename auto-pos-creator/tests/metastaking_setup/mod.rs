@@ -23,7 +23,7 @@ where
         ContractObjWrapper<farm_staking_proxy::ContractObj<DebugApi>, MetastakingObjBuilder>,
 }
 
-#[clippy::allow(too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 pub fn setup_metastaking<MetastakingObjBuilder>(
     b_mock: &mut BlockchainStateWrapper,
     ms_builder: MetastakingObjBuilder,
