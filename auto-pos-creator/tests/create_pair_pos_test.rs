@@ -1,9 +1,14 @@
-use auto_pos_creator::multi_contract_interactions::create_pos::CreatePosModule;
+use auto_pos_creator::multi_contract_interactions::{
+    create_pos::CreatePosModule, exit_pos::ExitPosModule,
+};
 use elrond_wasm::elrond_codec::Empty;
 use elrond_wasm_debug::{managed_address, rust_biguint};
+use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
-use tests_common::farm_with_locked_rewards_setup::FARM_TOKEN_ID;
+use tests_common::{
+    farm_staking_setup::STAKING_FARM_TOKEN_ID, farm_with_locked_rewards_setup::FARM_TOKEN_ID,
+};
 
 pub mod metastaking_setup;
 pub mod pair_setup;
@@ -80,6 +85,31 @@ fn enter_lp_through_pos_creator_test() {
     b_mock
         .borrow()
         .check_esdt_balance(&user_addr, LP_TOKEN_IDS[2], &rust_biguint!(45_454_545));
+
+    // exit LP pos
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            LP_TOKEN_IDS[2],
+            0,
+            &rust_biguint!(45_454_545),
+            |sc| {
+                let _ = sc.full_exit_pos();
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(0));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(45_454_545));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(2 * 45_454_545));
 }
 
 #[test]
@@ -150,6 +180,31 @@ fn enter_lp_and_farm_through_pos_creator() {
         &rust_biguint!(166_666_666),
         None,
     );
+
+    // exit farm and then remove liquidity
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            FARM_TOKEN_ID[1],
+            1,
+            &rust_biguint!(166_666_666),
+            |sc| {
+                let _ = sc.full_exit_pos();
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(165_000_000));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(0));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(165_000_000));
 }
 
 #[test]
@@ -225,5 +280,39 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         1,
         &rust_biguint!(83_333_332),
         None,
+    );
+
+    // exit metastaking, farm and then remove liquidity
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            DUAL_YIELD_TOKEN_ID,
+            1,
+            &rust_biguint!(83_333_332),
+            |sc| {
+                let _ = sc.full_exit_pos();
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(0));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(45_000_000));
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(0));
+
+    // check user has the unbond token for THIRD tokens (i.e. staking tokens)
+    b_mock.borrow().check_nft_balance(
+        &user_addr,
+        STAKING_FARM_TOKEN_ID,
+        2,
+        &rust_biguint!(2 * 45_000_000),
+        Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 }
