@@ -234,7 +234,7 @@ where
             })
             .assert_ok();
 
-        // add auto pos SC to LP farm whitelist
+        // add auto pos SC and metastaking SC to LP farm whitelist
         b_mock
             .borrow_mut()
             .execute_tx(
@@ -244,6 +244,8 @@ where
                 |sc| {
                     sc.sc_whitelist_addresses()
                         .add(&managed_address!(pos_creator_wrapper.address_ref()));
+                    sc.sc_whitelist_addresses()
+                        .add(&managed_address!(ms_wrapper.address_ref()));
                 },
             )
             .assert_ok();
