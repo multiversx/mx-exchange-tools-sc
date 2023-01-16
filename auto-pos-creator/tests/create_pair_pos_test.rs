@@ -46,7 +46,7 @@ fn enter_lp_through_pos_creator_test() {
         &rust_biguint!(user_first_token_balance),
     );
 
-    // user enter (second token, third token) pair with first token
+    // user enter (B, C) pair with token A
     let second_pair_addr = pos_creator_setup.pair_setups[2]
         .pair_wrapper
         .address_ref()
@@ -65,17 +65,17 @@ fn enter_lp_through_pos_creator_test() {
         )
         .assert_ok();
 
-    // bought SECOND tokens with 100_000_000 FIRST tokens
-    // ratio in pair was FIRST:SECOND 2:1
-    // ~50_000_000 SECOND received
+    // bought B tokens with 100_000_000 A tokens
+    // ratio in pair was A:B 1:2
+    // ~200_000_000 B tokens received
     //
-    // bought THIRD tokens with 100_000_000 FIRST tokens
-    // ratio in pair was FIRST:THIRD 1:1
-    // ~100_000_000 THIRD received
+    // bought C tokens with 100_000_000 A tokens
+    // ratio in pair was A:C 1:6
+    // ~600_000_000 C received
     //
-    // added liqudity with the received (SECOND, THIRD) tokens, to pool,
-    // which had ratio of SECOND:THIRD 1:2 (500_000_000, 1_000_000_000)
-    // received 45_454_545 LP tokens
+    // added liqudity with the received (B, C) tokens to the pool,
+    // which had ratio of B:C 1:3
+    // received 181_818_181 LP tokens
     b_mock
         .borrow()
         .check_esdt_balance(&user_addr, LP_TOKEN_IDS[0], &rust_biguint!(0));
@@ -84,7 +84,7 @@ fn enter_lp_through_pos_creator_test() {
         .check_esdt_balance(&user_addr, LP_TOKEN_IDS[1], &rust_biguint!(0));
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, LP_TOKEN_IDS[2], &rust_biguint!(45_454_545));
+        .check_esdt_balance(&user_addr, LP_TOKEN_IDS[2], &rust_biguint!(181_818_181));
 
     // exit LP pos
     b_mock
@@ -94,7 +94,7 @@ fn enter_lp_through_pos_creator_test() {
             &pos_creator_setup.pos_creator_wrapper,
             LP_TOKEN_IDS[2],
             0,
-            &rust_biguint!(45_454_545),
+            &rust_biguint!(181_818_181),
             |sc| {
                 let _ = sc.full_exit_pos();
             },
@@ -106,10 +106,12 @@ fn enter_lp_through_pos_creator_test() {
         .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(0));
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(45_454_545));
-    b_mock
-        .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(2 * 45_454_545));
+        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(181_818_181));
+    b_mock.borrow().check_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(3 * 181_818_181 + 2),
+    );
 }
 
 #[test]
@@ -132,7 +134,7 @@ fn enter_lp_and_farm_through_pos_creator() {
         &rust_biguint!(user_second_token_balance),
     );
 
-    // enter pair and farm from SECOND tokens
+    // enter pair and farm from B tokens
     let second_pair_addr = pos_creator_setup.pair_setups[1]
         .pair_wrapper
         .address_ref()
@@ -163,21 +165,22 @@ fn enter_lp_and_farm_through_pos_creator() {
         .check_esdt_balance(&user_addr, LP_TOKEN_IDS[2], &rust_biguint!(0));
 
     // check user received farm tokens
-    // bought FIRST tokens with 100_000_000 SECOND tokens
-    // pair had FIRST:SECOND ratio of 2:1
-    // ~200_000_000 FIRST tokens received
+    // bought A tokens with 100_000_000 B tokens
+    // pair had A:B ratio of 1:2
+    // ~50_000_000 A tokens received
     //
-    // bought THIRD tokens with 100_000_000 SECOND tokens
-    // ~200_000_000 THIRD tokens received
+    // bought C tokens with 100_000_000 B tokens
+    // pair had B:C ratio of 1:3
+    // ~300_000_000 THIRD tokens received
     //
-    // added liquidty to (FIRST, THIRD pool) of (200M, 200M)
-    // pool already had (1_000_000_000, 1_000_000_000)
-    // 166_666_666 LP tokens received
+    // added liquidty to (A, C pool) of (50M, 300M)
+    // pool already had A:C ratio of 1:6
+    // 45_454_545 LP tokens received
     b_mock.borrow().check_nft_balance::<Empty>(
         &user_addr,
         FARM_TOKEN_ID[1],
         1,
-        &rust_biguint!(166_666_666),
+        &rust_biguint!(45_454_545),
         None,
     );
 
@@ -189,7 +192,7 @@ fn enter_lp_and_farm_through_pos_creator() {
             &pos_creator_setup.pos_creator_wrapper,
             FARM_TOKEN_ID[1],
             1,
-            &rust_biguint!(166_666_666),
+            &rust_biguint!(45_454_545),
             |sc| {
                 let _ = sc.full_exit_pos();
             },
@@ -198,13 +201,13 @@ fn enter_lp_and_farm_through_pos_creator() {
 
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(165_000_000));
+        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(47_164_502));
     b_mock
         .borrow()
         .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(0));
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(165_000_000));
+        .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(270_000_000));
 }
 
 #[test]
@@ -227,7 +230,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &rust_biguint!(user_third_token_balance),
     );
 
-    // enter pair and farm from SECOND tokens
+    // enter pair and farm from C tokens
     let first_pair_addr = pos_creator_setup.pair_setups[0]
         .pair_wrapper
         .address_ref()
@@ -278,7 +281,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &user_addr,
         DUAL_YIELD_TOKEN_ID,
         1,
-        &rust_biguint!(83_333_332),
+        &rust_biguint!(15_873_015),
         None,
     );
 
@@ -290,7 +293,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
             &pos_creator_setup.pos_creator_wrapper,
             DUAL_YIELD_TOKEN_ID,
             1,
-            &rust_biguint!(83_333_332),
+            &rust_biguint!(15_873_015),
             |sc| {
                 let _ = sc.full_exit_pos();
             },
@@ -299,20 +302,20 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
 
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(0));
+        .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(264_410));
     b_mock
         .borrow()
-        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(45_000_000));
+        .check_esdt_balance(&user_addr, TOKEN_IDS[1], &rust_biguint!(31_935_484));
     b_mock
         .borrow()
         .check_esdt_balance(&user_addr, TOKEN_IDS[2], &rust_biguint!(0));
 
-    // check user has the unbond token for THIRD tokens (i.e. staking tokens)
+    // check user has the unbond token for C tokens (i.e. staking tokens)
     b_mock.borrow().check_nft_balance(
         &user_addr,
         STAKING_FARM_TOKEN_ID,
         2,
-        &rust_biguint!(2 * 45_000_000),
+        &rust_biguint!(15_967_742),
         Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 }
