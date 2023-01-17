@@ -15,7 +15,6 @@ elrond_wasm_node::wasm_endpoints! {
     auto_farm
     (
         changeProxyClaimAddress
-        getFarmConfig
         register
         withdrawAllAndUnregister
         depositFarmTokens
@@ -26,7 +25,6 @@ elrond_wasm_node::wasm_endpoints! {
         withdrawAllMetastakingTokens
         withdrawSpecificMetastakingTokens
         getUserMetastakingTokens
-        getMetastakingConfig
         claimAllRewardsAndCompound
         userClaimRewards
         getUserRewards
@@ -39,10 +37,12 @@ elrond_wasm_node::wasm_endpoints! {
         removeFarms
         getFarmForFarmToken
         getFarmForFarmingToken
+        getFarmConfig
         addMetastakingScs
         removeMetastakingScs
         getMetastakingForDualYieldToken
         getMetastakingForLpFarmToken
+        getMetastakingConfig
     )
 }
 
