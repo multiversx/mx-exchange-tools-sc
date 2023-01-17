@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use auto_farm::external_storage_read::farm_storage_read::ProxyTrait as _;
 use auto_farm::external_storage_read::metastaking_storage_read::ProxyTrait as _;
 use auto_farm::fees::ProxyTrait as _;
@@ -7,7 +9,6 @@ use auto_farm::user_tokens::user_metastaking_tokens::ProxyTrait as _;
 use auto_farm::user_tokens::user_rewards::ProxyTrait as _;
 use auto_farm::whitelists::farms_whitelist::ProxyTrait as _;
 use auto_farm::whitelists::metastaking_whitelist::ProxyTrait as _;
-#[allow(non_snake_case)]
 use auto_farm::ProxyTrait as _;
 use auto_farm::{
     external_sc_interactions::multi_contract_interactions::ProxyTrait as _,
