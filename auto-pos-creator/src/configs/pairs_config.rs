@@ -24,6 +24,11 @@ impl<M: ManagedTypeApi> PairAddressForTokens<M> {
     }
 }
 
+pub struct PairReserves<M: ManagedTypeApi> {
+    pub first_token_reserves: BigUint<M>,
+    pub second_token_reserves: BigUint<M>,
+}
+
 #[elrond_wasm::module]
 pub trait PairsConfigModule: utils::UtilsModule {
     #[only_owner]
@@ -88,6 +93,29 @@ pub trait PairsConfigModule: utils::UtilsModule {
         PairAddressForTokens::ReverseOrder(reverse_order_mapper.get())
     }
 
+    fn get_pair_reserves(
+        &self,
+        pair_address: &ManagedAddress,
+        first_token_id: &TokenIdentifier,
+        second_token_id: &TokenIdentifier,
+    ) -> PairReserves<Self::Api> {
+        let first_token_reserves = self
+            .pair_reserve(first_token_id)
+            .get_from_address(pair_address);
+        let second_token_reserves = self
+            .pair_reserve(second_token_id)
+            .get_from_address(pair_address);
+        require!(
+            first_token_reserves > 0 && second_token_reserves > 0,
+            "Liq pool is empty"
+        );
+
+        PairReserves {
+            first_token_reserves,
+            second_token_reserves,
+        }
+    }
+
     #[storage_mapper("pairAddrForTokens")]
     fn pair_address_for_tokens(
         &self,
@@ -109,4 +137,7 @@ pub trait PairsConfigModule: utils::UtilsModule {
 
     #[storage_mapper("second_token_id")]
     fn second_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[storage_mapper("reserve")]
+    fn pair_reserve(&self, token_id: &TokenIdentifier) -> SingleValueMapper<BigUint>;
 }

@@ -1,7 +1,7 @@
 use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
 
-use crate::common::payments_wrapper::PaymentsWraper;
+use crate::common::payments_wrapper::PaymentsWrapper;
 
 elrond_wasm::imports!();
 
@@ -34,7 +34,7 @@ pub trait ExitPosModule:
 
         let auto_farm_sc_address = self.auto_farm_sc_address().get();
         let exit_type = self.get_exit_type(&payment.token_identifier, &auto_farm_sc_address);
-        let mut output_payments = PaymentsWraper::new();
+        let mut output_payments = PaymentsWrapper::new();
 
         match exit_type {
             ExitType::Metastaking(ms_addr) => {
@@ -90,7 +90,7 @@ pub trait ExitPosModule:
 
     fn unstake_metastaking(
         &self,
-        output_payments: &mut PaymentsWraper<Self::Api>,
+        output_payments: &mut PaymentsWrapper<Self::Api>,
         ms_address: ManagedAddress,
         user: ManagedAddress,
         ms_tokens: EsdtTokenPayment,
@@ -108,7 +108,7 @@ pub trait ExitPosModule:
 
     fn exit_farm(
         &self,
-        output_payments: &mut PaymentsWraper<Self::Api>,
+        output_payments: &mut PaymentsWrapper<Self::Api>,
         farm_address: ManagedAddress,
         user: ManagedAddress,
         farm_tokens: EsdtTokenPayment,
@@ -130,7 +130,7 @@ pub trait ExitPosModule:
 
     fn remove_pair_liq(
         &self,
-        output_payments: &mut PaymentsWraper<Self::Api>,
+        output_payments: &mut PaymentsWrapper<Self::Api>,
         pair_address: ManagedAddress,
         lp_tokens: EsdtTokenPayment,
     ) {

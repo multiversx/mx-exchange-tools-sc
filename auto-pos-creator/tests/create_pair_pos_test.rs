@@ -1,8 +1,11 @@
-use auto_pos_creator::multi_contract_interactions::{
-    create_pos::CreatePosModule, exit_pos::ExitPosModule,
+use auto_pos_creator::{
+    external_sc_interactions::pair_actions::PairTokenPayments,
+    multi_contract_interactions::{create_pos::CreatePosModule, exit_pos::ExitPosModule},
 };
-use elrond_wasm::elrond_codec::Empty;
-use elrond_wasm_debug::{managed_address, rust_biguint};
+use elrond_wasm::{elrond_codec::Empty, types::EsdtTokenPayment};
+use elrond_wasm_debug::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint, tx_mock::TxTokenTransfer,
+};
 use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
@@ -318,4 +321,164 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &rust_biguint!(15_967_742),
         Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
+}
+
+#[test]
+fn create_pos_from_two_tokens_balanced_ratio_test() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+
+    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+
+    // ratio for first pair is A:B 1:2
+    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_first_token_balance = 100_000_000u64;
+    let user_second_token_balance = 200_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_second_token_balance),
+    );
+
+    let first_pair_addr = pos_creator_setup.pair_setups[0]
+        .pair_wrapper
+        .address_ref()
+        .clone();
+
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[0].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_first_token_balance),
+        },
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[1].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_second_token_balance),
+        },
+    ];
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            &payments,
+            |sc| {
+                let mut pair_payments = PairTokenPayments {
+                    first_tokens: EsdtTokenPayment::new(
+                        managed_token_id!(TOKEN_IDS[0]),
+                        0,
+                        managed_biguint!(user_first_token_balance),
+                    ),
+                    second_tokens: EsdtTokenPayment::new(
+                        managed_token_id!(TOKEN_IDS[1]),
+                        0,
+                        managed_biguint!(user_second_token_balance),
+                    ),
+                };
+
+                sc.balance_token_amounts_through_swaps(
+                    managed_address!(&first_pair_addr),
+                    &mut pair_payments,
+                );
+
+                // check nothing changed
+                assert_eq!(pair_payments.first_tokens.amount, user_first_token_balance);
+                assert_eq!(
+                    pair_payments.second_tokens.amount,
+                    user_second_token_balance
+                );
+            },
+        )
+        .assert_ok();
+}
+
+#[test]
+fn create_pos_from_two_tokens_wrong_ratio() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+
+    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+
+    // ratio for first pair is A:B 1:2, try enter with 1:4 ratio
+    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_first_token_balance = 100_000_000u64;
+    let user_second_token_balance = 400_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_second_token_balance),
+    );
+
+    let first_pair_addr = pos_creator_setup.pair_setups[0]
+        .pair_wrapper
+        .address_ref()
+        .clone();
+
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[0].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_first_token_balance),
+        },
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[1].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_second_token_balance),
+        },
+    ];
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            &payments,
+            |sc| {
+                let mut pair_payments = PairTokenPayments {
+                    first_tokens: EsdtTokenPayment::new(
+                        managed_token_id!(TOKEN_IDS[0]),
+                        0,
+                        managed_biguint!(user_first_token_balance),
+                    ),
+                    second_tokens: EsdtTokenPayment::new(
+                        managed_token_id!(TOKEN_IDS[1]),
+                        0,
+                        managed_biguint!(user_second_token_balance),
+                    ),
+                };
+
+                sc.balance_token_amounts_through_swaps(
+                    managed_address!(&first_pair_addr),
+                    &mut pair_payments,
+                );
+
+                // check part of tokens was swapped to fix the ratio
+                // initial was 100M A and 400M B
+                assert_eq!(pair_payments.first_tokens.amount, 147_619_047);
+                assert_eq!(pair_payments.second_tokens.amount, 300_000_000);
+            },
+        )
+        .assert_ok();
 }

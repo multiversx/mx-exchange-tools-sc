@@ -2,11 +2,11 @@ use common_structs::PaymentsVec;
 
 elrond_wasm::imports!();
 
-pub struct PaymentsWraper<M: SendApi> {
+pub struct PaymentsWrapper<M: SendApi> {
     payments: PaymentsVec<M>,
 }
 
-impl<M: SendApi> Default for PaymentsWraper<M> {
+impl<M: SendApi> Default for PaymentsWrapper<M> {
     #[inline]
     fn default() -> Self {
         Self {
@@ -15,7 +15,7 @@ impl<M: SendApi> Default for PaymentsWraper<M> {
     }
 }
 
-impl<M: SendApi> PaymentsWraper<M> {
+impl<M: SendApi> PaymentsWrapper<M> {
     #[inline]
     pub fn new() -> Self {
         Self::default()
