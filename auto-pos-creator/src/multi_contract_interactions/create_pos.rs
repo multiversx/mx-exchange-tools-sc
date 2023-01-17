@@ -2,7 +2,7 @@ use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
 
 use crate::{
-    common::payments_wrapper::PaymentsWraper,
+    common::payments_wrapper::PaymentsWrapper,
     external_sc_interactions::pair_actions::PairTokenPayments,
 };
 
@@ -75,7 +75,7 @@ pub trait CreatePosModule:
             pair_input_tokens.second_tokens,
         );
 
-        let mut output_payments = PaymentsWraper::new();
+        let mut output_payments = PaymentsWrapper::new();
         output_payments.push(add_liq_result.first_tokens_remaining);
         output_payments.push(add_liq_result.second_tokens_remaining);
 
