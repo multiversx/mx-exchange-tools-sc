@@ -67,6 +67,20 @@ where
     MetastakingBuilder: 'static + Copy + Fn() -> farm_staking_proxy::ContractObj<DebugApi>,
     PosCreatorBuilder: 'static + Copy + Fn() -> auto_pos_creator::ContractObj<DebugApi>,
 {
+    // Pairs setup:
+    // 3 pools (A, B), (A, C), (B, C),
+    // A:B 1:2
+    // A:C 1:6
+    // B:C 1:3
+
+    // Pools: (B = billion)
+    // (A, B) => (1B, 2B)
+    // (A, C) => (1B, 6B)
+    // (B, C) => (1B, 3B)
+    //
+    // A_total = 2B
+    // B_total = 3B
+    // C_total = 9B
     pub fn new(
         farm_builder: FarmBuilder,
         energy_factory_builder: EnergyFactoryBuilder,
@@ -89,10 +103,6 @@ where
             LP_TOKEN_IDS[1],
             &rust_biguint!(0),
         );
-
-        let first_token_amount = 1_000_000_000u64;
-        let second_token_amount = 500_000_000u64;
-        let third_token_amount = 1_000_000_000u64;
 
         let owner = farm_setup.owner.clone();
         let mut first_pair_setup = PairSetup::new(
@@ -120,26 +130,29 @@ where
             LP_TOKEN_IDS[2],
         );
 
+        let first_token_total_amount = 2_000_000_000u64;
+        let second_token_total_amount = 3_000_000_000u64;
+        let third_token_total_amount = 9_000_000_000u64;
         b_mock.borrow_mut().set_esdt_balance(
             &owner,
             TOKEN_IDS[0],
-            &rust_biguint!(first_token_amount * 2),
+            &rust_biguint!(first_token_total_amount),
         );
         b_mock.borrow_mut().set_esdt_balance(
             &owner,
             TOKEN_IDS[1],
-            &rust_biguint!(second_token_amount * 2),
+            &rust_biguint!(second_token_total_amount),
         );
         b_mock.borrow_mut().set_esdt_balance(
             &owner,
             TOKEN_IDS[2],
-            &rust_biguint!(third_token_amount * 2),
+            &rust_biguint!(third_token_total_amount),
         );
 
         // add initial liquidity
-        first_pair_setup.add_liquidity(&owner, first_token_amount, second_token_amount);
-        second_pair_setup.add_liquidity(&owner, first_token_amount, third_token_amount);
-        third_pair_setup.add_liquidity(&owner, second_token_amount, third_token_amount);
+        first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
+        second_pair_setup.add_liquidity(&owner, 1_000_000_000, 6_000_000_000);
+        third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
 
         // setup farm staking
         let fs_wrapper = setup_farm_staking(
