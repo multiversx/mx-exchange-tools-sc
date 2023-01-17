@@ -52,11 +52,13 @@ pub trait CreatePosModule:
         if wrapped_dest_pair_address.is_reverse() {
             core::mem::swap(&mut first_payment, &mut second_payment);
         }
+
         let dest_pair_address = wrapped_dest_pair_address.unwrap_address();
-        let pair_input_tokens = PairTokenPayments {
+        let mut pair_input_tokens = PairTokenPayments {
             first_tokens: first_payment,
             second_tokens: second_payment,
         };
+        self.balance_token_amounts_through_swaps(dest_pair_address.clone(), &mut pair_input_tokens);
 
         self.create_pos_common(caller, dest_pair_address, pair_input_tokens)
     }
@@ -137,6 +139,72 @@ pub trait CreatePosModule:
             first_tokens: first_swap_tokens,
             second_tokens: second_swap_tokens,
         }
+    }
+
+    fn balance_token_amounts_through_swaps(
+        &self,
+        dest_pair_address: ManagedAddress,
+        payments: &mut PairTokenPayments<Self::Api>,
+    ) {
+        let pair_reserves = self.get_pair_reserves(
+            &dest_pair_address,
+            &payments.first_tokens.token_identifier,
+            &payments.second_tokens.token_identifier,
+        );
+        let first_tokens_price_in_second_token = self.pair_get_equivalent(
+            &payments.first_tokens.amount,
+            &pair_reserves.first_token_reserves,
+            &pair_reserves.second_token_reserves,
+        );
+        let second_tokens_price_in_first_token = self.pair_get_equivalent(
+            &payments.second_tokens.amount,
+            &pair_reserves.second_token_reserves,
+            &pair_reserves.first_token_reserves,
+        );
+
+        let first_token_id = &payments.first_tokens.token_identifier;
+        let second_token_id = &payments.second_tokens.token_identifier;
+        let (swap_tokens_in, requested_token_id) =
+            if payments.second_tokens.amount > first_tokens_price_in_second_token {
+                let extra_second_tokens =
+                    &payments.second_tokens.amount - &first_tokens_price_in_second_token;
+                let swap_amount = extra_second_tokens / 2u32;
+                let swap_tokens_in = EsdtTokenPayment::new(second_token_id.clone(), 0, swap_amount);
+
+                (swap_tokens_in, first_token_id.clone())
+            } else {
+                let extra_first_tokens =
+                    &payments.first_tokens.amount - &second_tokens_price_in_first_token;
+                let swap_amount = extra_first_tokens / 2u32;
+                let swap_tokens_in = EsdtTokenPayment::new(first_token_id.clone(), 0, swap_amount);
+
+                (swap_tokens_in, second_token_id.clone())
+            };
+
+        if swap_tokens_in.amount == 0 {
+            return;
+        }
+
+        let swap_amount = swap_tokens_in.amount.clone();
+        let received_tokens =
+            self.call_pair_swap(dest_pair_address, swap_tokens_in, requested_token_id);
+        if &received_tokens.token_identifier == first_token_id {
+            payments.second_tokens.amount -= swap_amount;
+            payments.first_tokens.amount += received_tokens.amount;
+        } else {
+            payments.first_tokens.amount -= swap_amount;
+            payments.second_tokens.amount += received_tokens.amount;
+        }
+    }
+
+    /// mimics the implementation from pair, to not have to do a SC call for this
+    fn pair_get_equivalent(
+        &self,
+        input_token_amount: &BigUint,
+        input_token_reserve: &BigUint,
+        other_token_reserve: &BigUint,
+    ) -> BigUint {
+        input_token_amount * other_token_reserve / input_token_reserve
     }
 
     fn try_enter_farm_with_lp(
