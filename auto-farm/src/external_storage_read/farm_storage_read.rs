@@ -10,7 +10,7 @@ pub enum State {
     PartialActive,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
 pub struct FarmConfig<M: ManagedTypeApi> {
     pub state: State,
     pub farm_token_id: TokenIdentifier<M>,
