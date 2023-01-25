@@ -1,7 +1,9 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, NestedEncode)]
+static mut CURRENT_CHAIN_INFO: Option<CurrentChainInfo> = None;
+
+#[derive(TypeAbi, TopEncode, NestedEncode, Copy, Clone)]
 pub struct CurrentChainInfo {
     pub block: u64,
     pub epoch: u64,
@@ -10,11 +12,21 @@ pub struct CurrentChainInfo {
 
 impl CurrentChainInfo {
     pub fn new<Api: BlockchainApi>() -> Self {
-        let api = Api::blockchain_api_impl();
-        CurrentChainInfo {
-            block: api.get_block_nonce(),
-            epoch: api.get_block_epoch(),
-            timestamp: api.get_block_timestamp(),
+        unsafe {
+            match CURRENT_CHAIN_INFO {
+                Some(cci) => cci,
+                None => {
+                    let api = Api::blockchain_api_impl();
+                    let cci = CurrentChainInfo {
+                        block: api.get_block_nonce(),
+                        epoch: api.get_block_epoch(),
+                        timestamp: api.get_block_timestamp(),
+                    };
+                    CURRENT_CHAIN_INFO = Some(cci);
+
+                    cci
+                }
+            }
         }
     }
 }
