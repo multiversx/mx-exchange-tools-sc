@@ -8,3 +8,4 @@
 # VSCode specific files
 .vscode/*
 elrond.workspace.json
+multiversx.workspace.json

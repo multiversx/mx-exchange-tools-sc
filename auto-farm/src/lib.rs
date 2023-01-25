@@ -3,6 +3,7 @@
 elrond_wasm::imports!();
 
 pub mod common;
+pub mod events;
 pub mod external_sc_interactions;
 pub mod external_storage_read;
 pub mod fees;
@@ -31,6 +32,7 @@ pub trait AutoFarm:
     + user_tokens::user_rewards::UserRewardsModule
     + user_tokens::withdraw_tokens::WithdrawTokensModule
     + fees::FeesModule
+    + events::EventsModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule

@@ -1,5 +1,7 @@
 use common_structs::PaymentsVec;
 
+use crate::events::WithdrawType;
+
 elrond_wasm::imports!();
 
 #[elrond_wasm::module]
@@ -15,6 +17,7 @@ pub trait RegistrationModule:
     + crate::user_tokens::user_metastaking_tokens::UserMetastakingTokensModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
+    + crate::events::EventsModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -24,6 +27,7 @@ pub trait RegistrationModule:
     fn register(&self) {
         let caller = self.blockchain().get_caller();
         let _ = self.user_ids().insert_new(&caller);
+        self.emit_user_register_event(&caller);
     }
 
     #[endpoint(withdrawAllAndUnregister)]
@@ -34,12 +38,14 @@ pub trait RegistrationModule:
 
         let farm_tokens = self.withdraw_all_tokens(&caller, &self.user_farm_tokens(user_id));
         let ms_tokens = self.withdraw_all_tokens(&caller, &self.user_metastaking_tokens(user_id));
-        let claimed_rewards = self.user_claim_rewards(caller, user_id);
+        let claimed_rewards = self.user_claim_rewards(caller.clone(), user_id);
         let _ = ids_mapper.remove_by_id(user_id);
 
         let mut results = farm_tokens;
         results.append_vec(ms_tokens);
         results.append_vec(claimed_rewards);
+
+        self.emit_token_withdrawal_event(&caller, WithdrawType::AllTokens, &results);
 
         results
     }

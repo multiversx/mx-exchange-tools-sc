@@ -25,6 +25,7 @@ pub trait MultiContractInteractionsModule:
     + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + crate::fees::FeesModule
+    + crate::events::EventsModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -101,7 +102,9 @@ pub trait MultiContractInteractionsModule:
         }
 
         user_wrapped_rewards.other_tokens = UniquePayments::new_from_unique_payments(user_rewards);
-        user_rewards_mapper.set(user_wrapped_rewards);
-        user_farm_tokens_mapper.set(user_farm_tokens);
+        user_rewards_mapper.set(&user_wrapped_rewards);
+        user_farm_tokens_mapper.set(&user_farm_tokens);
+
+        self.emit_proxy_claim_event(user, &user_wrapped_rewards, &user_farm_tokens);
     }
 }

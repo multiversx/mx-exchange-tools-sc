@@ -24,6 +24,7 @@ pub trait FarmActionsModule:
     + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::user_tokens::withdraw_tokens::WithdrawTokensModule
     + crate::fees::FeesModule
+    + crate::events::EventsModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
     + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule

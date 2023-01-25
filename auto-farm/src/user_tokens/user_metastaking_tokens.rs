@@ -1,6 +1,9 @@
 use common_structs::PaymentsVec;
 
-use crate::common::address_to_id_mapper::{AddressId, NULL_ID};
+use crate::{
+    common::address_to_id_mapper::{AddressId, NULL_ID},
+    events::{DepositType, WithdrawType},
+};
 
 elrond_wasm::imports!();
 
@@ -10,6 +13,7 @@ pub trait UserMetastakingTokensModule:
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + super::withdraw_tokens::WithdrawTokensModule
+    + crate::events::EventsModule
     + utils::UtilsModule
 {
     #[payable("*")]
@@ -29,6 +33,8 @@ pub trait UserMetastakingTokensModule:
                 tokens.push(payment);
             }
         });
+
+        self.emit_token_deposit_event(&caller, DepositType::MetastakingTokens, &payments);
     }
 
     #[endpoint(withdrawAllMetastakingTokens)]
@@ -36,7 +42,14 @@ pub trait UserMetastakingTokensModule:
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
         let tokens_mapper = self.user_metastaking_tokens(user_id);
-        self.withdraw_all_tokens(&caller, &tokens_mapper)
+        let withdrawn_tokens = self.withdraw_all_tokens(&caller, &tokens_mapper);
+        self.emit_token_withdrawal_event(
+            &caller,
+            WithdrawType::MetastakingTokens,
+            &withdrawn_tokens,
+        );
+
+        withdrawn_tokens
     }
 
     #[endpoint(withdrawSpecificMetastakingTokens)]
@@ -48,16 +61,17 @@ pub trait UserMetastakingTokensModule:
         let user_id = self.user_ids().get_id_non_zero(&caller);
         let tokens_mapper = self.user_metastaking_tokens(user_id);
         self.withdraw_specific_tokens(&caller, &tokens_mapper, &tokens_to_withdraw);
+        self.emit_token_withdrawal_event(
+            &caller,
+            WithdrawType::MetastakingTokens,
+            &tokens_to_withdraw,
+        );
     }
 
     #[view(getUserMetastakingTokens)]
     fn get_user_metastaking_tokens_view(&self, user: ManagedAddress) -> PaymentsVec<Self::Api> {
         let user_id = self.user_ids().get_id(&user);
-        if user_id != NULL_ID {
-            self.user_metastaking_tokens(user_id).get()
-        } else {
-            PaymentsVec::new()
-        }
+        self.user_metastaking_tokens(user_id).get()
     }
 
     #[storage_mapper("userMSTokens")]
