@@ -3,7 +3,7 @@ use super::unique_payments::UniquePayments;
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode, PartialEq, Debug)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct MergedRewardsWrapper<M: ManagedTypeApi> {
     pub opt_locked_tokens: Option<EsdtTokenPayment<M>>,
     pub other_tokens: UniquePayments<M>,

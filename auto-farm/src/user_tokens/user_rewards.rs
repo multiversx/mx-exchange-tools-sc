@@ -1,9 +1,12 @@
 use common_structs::PaymentsVec;
 use mergeable::Mergeable;
 
-use crate::common::{
-    address_to_id_mapper::{AddressId, NULL_ID},
-    rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
+use crate::{
+    common::{
+        address_to_id_mapper::{AddressId, NULL_ID},
+        rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
+    },
+    events::WithdrawType,
 };
 
 elrond_wasm::imports!();
@@ -14,6 +17,7 @@ pub trait UserRewardsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::fees::FeesModule
     + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule
+    + crate::events::EventsModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
     + energy_query::EnergyQueryModule
@@ -23,7 +27,10 @@ pub trait UserRewardsModule:
     fn user_claim_rewards_endpoint(&self) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
-        self.user_claim_rewards(caller, user_id)
+        let claimed_tokens = self.user_claim_rewards(caller.clone(), user_id);
+        self.emit_token_withdrawal_event(&caller, WithdrawType::RewardTokens, &claimed_tokens);
+
+        claimed_tokens
     }
 
     fn user_claim_rewards(
