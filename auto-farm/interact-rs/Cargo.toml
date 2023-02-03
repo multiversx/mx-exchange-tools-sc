@@ -1,6 +1,6 @@
 [[bin]]
 name = "rust-interact"
-path = "src/lib.rs"
+path = "src/interact.rs"
 
 [package]
 name = "rust-interact"
