@@ -1,19 +1,19 @@
+[[bin]]
+name = "rust-interact"
+path = "src/lib.rs"
+
 [package]
 name = "rust-interact"
 version = "0.0.0"
 authors = ["you"]
 edition = "2021"
 publish = false
-
-[[bin]]
-name = "rust-interact"
-path = "src/lib.rs"
-
 [dependencies.auto-farm]
 path = ".."
 
-[dependencies.elrond-interact-snippets]
-version = "0.38.0"
+[dependencies.multiversx-sc-snippets]
+version = "0.39.4"
 
-[dependencies]
-energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+[dependencies.energy-query]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"

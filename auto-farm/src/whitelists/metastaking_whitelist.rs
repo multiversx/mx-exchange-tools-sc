@@ -1,8 +1,8 @@
 use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MetastakingWhitelistModule:
     crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + utils::UtilsModule

@@ -1,12 +1,12 @@
 use core::marker::PhantomData;
 
-use elrond_wasm::{
+use multiversx_sc::{
     api::StorageMapperApi,
     storage::{storage_get_from_address, storage_get_len_from_address, StorageKey},
     storage_clear, storage_get, storage_get_len, storage_set,
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 static ID_SUFFIX: &[u8] = b"userId";
 static ADDRESS_SUFFIX: &[u8] = b"addr";

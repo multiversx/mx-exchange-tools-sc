@@ -1,8 +1,8 @@
 use common_structs::PaymentsVec;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait WithdrawTokensModule {
     fn withdraw_specific_tokens(
         &self,

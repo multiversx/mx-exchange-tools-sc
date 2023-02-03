@@ -1,5 +1,5 @@
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(
     TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Copy, Clone, Debug,
@@ -17,7 +17,7 @@ pub struct FarmConfig<M: ManagedTypeApi> {
     pub farming_token_id: TokenIdentifier<M>,
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait FarmStorageReadModule: utils::UtilsModule {
     #[label("farm-whitelist-endpoints")]
     #[view(getFarmConfig)]

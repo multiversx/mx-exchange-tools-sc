@@ -16,10 +16,10 @@ use auto_farm::{
     common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
-use elrond_wasm::types::{EsdtTokenPayment, ManagedVec};
-use elrond_wasm_debug::{
+use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};
+use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
-    testing_framework::BlockchainStateWrapper, DebugApi,
+    whitebox::BlockchainStateWrapper, DebugApi,
 };
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use fees_collector_setup::setup_fees_collector;

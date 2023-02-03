@@ -1,7 +1,7 @@
-use elrond_wasm::types::{Address, EsdtLocalRole, MultiValueEncoded};
-use elrond_wasm_debug::{
+use multiversx_sc::types::{Address, EsdtLocalRole, MultiValueEncoded};
+use multiversx_sc_scenario::{
     managed_address, managed_token_id, managed_token_id_wrapped, rust_biguint,
-    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
+    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 use energy_query::EnergyQueryModule;

@@ -1,6 +1,6 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait AutoFarmConfigModule {
     #[storage_mapper("autoFarmScAddress")]
     fn auto_farm_sc_address(&self) -> SingleValueMapper<ManagedAddress>;

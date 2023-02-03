@@ -1,6 +1,6 @@
 use pair::{AddLiquidityResultType, RemoveLiquidityResultType};
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub const MIN_AMOUNT_OUT: u32 = 1;
 
@@ -17,7 +17,7 @@ pub struct PairRemoveLiqResult<M: ManagedTypeApi> {
 
 pub type PairTokenPayments<M> = PairRemoveLiqResult<M>;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait PairActionsModule:
     crate::configs::pairs_config::PairsConfigModule + utils::UtilsModule
 {

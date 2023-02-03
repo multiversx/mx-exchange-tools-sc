@@ -5,9 +5,9 @@ use mergeable::Mergeable;
 
 use crate::common::rewards_wrapper::MergedRewardsWrapper;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
     fn merge_wrapped_locked_tokens(
         &self,
@@ -47,6 +47,7 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
         let new_token = self
             .energy_factory_proxy(energy_factory_address)
             .merge_tokens_endpoint(user)
+            .with_multi_token_transfer(locked_tokens)
             .execute_on_dest_context();
 
         Some(new_token)

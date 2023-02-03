@@ -1,4 +1,4 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub struct PairConfig<M: ManagedTypeApi> {
     pub lp_token_id: TokenIdentifier<M>,
@@ -29,7 +29,7 @@ pub struct PairReserves<M: ManagedTypeApi> {
     pub second_token_reserves: BigUint<M>,
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait PairsConfigModule: utils::UtilsModule {
     #[only_owner]
     #[endpoint(addPairsToWhitelist)]

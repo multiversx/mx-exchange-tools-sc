@@ -6,8 +6,8 @@ use metabonding::{
 
 use crate::common::rewards_wrapper::RewardsWrapper;
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
 pub struct SingleMetabondingClaimArg<M: ManagedTypeApi> {
@@ -17,7 +17,7 @@ pub struct SingleMetabondingClaimArg<M: ManagedTypeApi> {
     pub signature: Signature<M>,
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MetabondingActionsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::user_tokens::user_rewards::UserRewardsModule

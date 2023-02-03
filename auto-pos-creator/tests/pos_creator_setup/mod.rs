@@ -5,9 +5,9 @@ use auto_farm::whitelists::{
     farms_whitelist::FarmsWhitelistModule, metastaking_whitelist::MetastakingWhitelistModule,
 };
 use auto_pos_creator::{configs::pairs_config::PairsConfigModule, AutoPosCreator};
-use elrond_wasm::types::{ManagedVec, MultiValueEncoded};
-use elrond_wasm_debug::{
-    managed_address, managed_biguint, rust_biguint, testing_framework::ContractObjWrapper, DebugApi,
+use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, rust_biguint, whitebox::ContractObjWrapper, DebugApi,
 };
 use pair::safe_price::SafePriceModule;
 use sc_whitelist_module::SCWhitelistModule;

@@ -1,10 +1,10 @@
 use auto_farm::common::rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper};
 use auto_farm::common::{common_storage::MAX_PERCENTAGE, unique_payments::UniquePayments};
 use common_structs::FarmTokenAttributes;
-use elrond_wasm::elrond_codec::Empty;
-use elrond_wasm::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
-use elrond_wasm_debug::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, tx_mock::TxTokenTransfer,
+use multiversx_sc::codec::Empty;
+use multiversx_sc::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::TxTokenTransfer,
     DebugApi,
 };
 use energy_factory::energy::EnergyModule;

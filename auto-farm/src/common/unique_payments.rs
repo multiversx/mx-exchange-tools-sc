@@ -1,8 +1,8 @@
 use common_structs::PaymentsVec;
 use mergeable::Mergeable;
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
 pub struct UniquePayments<M: ManagedTypeApi> {

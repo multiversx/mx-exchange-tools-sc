@@ -5,9 +5,9 @@ use crate::common::{
     unique_payments::UniquePayments,
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait FeesModule:
     crate::common::common_storage::CommonStorageModule
     + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule

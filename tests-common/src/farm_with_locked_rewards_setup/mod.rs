@@ -3,21 +3,21 @@
 use std::{cell::RefCell, rc::Rc};
 
 use config::ConfigModule;
-use elrond_wasm::{
-    elrond_codec::multi_types::OptionalValue,
+use multiversx_sc::{
+    codec::multi_types::OptionalValue,
     storage::mappers::StorageTokenWrapper,
     types::{Address, BigInt, EsdtLocalRole, MultiValueEncoded},
 };
-use elrond_wasm_debug::{
+use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
-    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
+    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 
 mod fees_collector_mock;
 use fees_collector_mock::*;
 
-use elrond_wasm_modules::pause::PauseModule;
+use multiversx_sc_modules::pause::PauseModule;
 use energy_factory::{energy::EnergyModule, SimpleLockEnergy};
 use energy_query::{Energy, EnergyQueryModule};
 use farm_boosted_yields::boosted_yields_factors::BoostedYieldsFactorsModule;
@@ -78,13 +78,13 @@ where
 
         // needed for metabonding signatures
 
-        // address:user1 from mandos
+        // address:user1 from scenarios
         let first_user = Address::from(hex_literal::hex!(
             "75736572315F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
         ));
         b_mock.create_user_account_fixed_address(&first_user, &rust_zero);
 
-        // address:user2 from mandos
+        // address:user2 from scenarios
         let second_user = Address::from(hex_literal::hex!(
             "75736572325F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
         ));

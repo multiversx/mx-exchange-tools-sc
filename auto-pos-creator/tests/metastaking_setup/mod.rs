@@ -1,12 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
-use elrond_wasm::{
+use multiversx_sc::{
     storage::mappers::StorageTokenWrapper,
     types::{Address, EsdtLocalRole},
 };
-use elrond_wasm_debug::{
+use multiversx_sc_scenario::{
     managed_address, managed_token_id, rust_biguint,
-    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
+    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 

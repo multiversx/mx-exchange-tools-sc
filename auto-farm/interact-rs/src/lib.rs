@@ -14,26 +14,25 @@ use auto_farm::{
     external_sc_interactions::multi_contract_interactions::ProxyTrait as _,
     external_storage_read::farm_storage_read::FarmConfig,
 };
-use elrond_interact_snippets::{
-    elrond_wasm::{
-        elrond_codec::{multi_types::*, Empty},
+use energy_query::ProxyTrait as _;
+use multiversx_sc_snippets::erdrs::wallet::Wallet;
+use multiversx_sc_snippets::multiversx_sc_scenario::scenario_format::interpret_trait::InterpreterContext;
+use multiversx_sc_snippets::multiversx_sc_scenario::scenario_model::IntoBlockchainCall;
+use multiversx_sc_snippets::{
+    env_logger,
+    multiversx_sc::{
+        codec::{multi_types::*, Empty},
         types::{Address, CodeMetadata, MultiValueEncoded},
     },
-    elrond_wasm_debug::{
-        bech32, mandos::interpret_trait::InterpreterContext, mandos_system::model::*, ContractInfo,
-        DebugApi,
-    },
-    env_logger,
-    erdrs::interactors::wallet::Wallet,
+    multiversx_sc_scenario::{bech32, ContractInfo, DebugApi},
     tokio, Interactor,
 };
-use energy_query::ProxyTrait as _;
 use std::{
     env::Args,
     io::{Read, Write},
 };
 
-const GATEWAY: &str = elrond_interact_snippets::erdrs::blockchain::rpc::DEVNET_GATEWAY;
+const GATEWAY: &str = multiversx_sc_snippets::erdrs::blockchain::DEVNET_GATEWAY;
 const PEM: &str = "devnetWalletKey.pem";
 const SC_ADDRESS: &str = "erd1qqqqqqqqqqqqqpgqnxsz48mu6m882qwq09dh66jxjdfm0rkk082s8r9fpp";
 
@@ -50,7 +49,7 @@ type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 /// - addFarms (farms and farm-staking are both added through this endpoint)
 ///     No additional setup is needed, as the auto-farm SC will read the required data from the farm's storage
 /// - addMetastakingScs (optional)
-/// 
+///
 /// User actions:
 /// - register (for users who only want fees-collector/metabonding, without any farm interactions)
 /// - depositFarmTokens (deposits farm tokens, and also registers the user)
@@ -59,7 +58,7 @@ type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 /// - withdrawAllMetastakingTokens, withdrawSpecificMetastakingTokens
 /// - withdrawAllAndUnregister
 /// - userClaimRewards - claim accumulated rewards
-/// 
+///
 /// Proxy actions:
 /// - claimAllRewardsAndCompound - claims all rewards from all contracts (metabonding, fees collector, farms, etc.)
 ///     and compounds those rewards with a user's existing farm position, if they have any that fit
@@ -147,7 +146,7 @@ impl State {
         let fees_collector_sc_address =
             bech32::decode("erd1qqqqqqqqqqqqqpgq82pd37ra5vqnsaq5cc50ll073gzm4ahx0n4s793d9d");
 
-        let result: elrond_interact_snippets::InteractorResult<()> = self
+        let result: multiversx_sc_snippets::InteractorResult<()> = self
             .interactor
             .sc_deploy(
                 self.contract
@@ -180,7 +179,7 @@ impl State {
     async fn change_proxy_claim_address(&mut self) {
         let new_proxy_claim_address = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -208,7 +207,7 @@ impl State {
             "erd1qqqqqqqqqqqqqpgq5dzs6yf47tnsk5ays2aedzmu2ahsmcqv0n4s3rsljy",
         ));
 
-        let result: elrond_interact_snippets::InteractorResult<()> = self
+        let result: multiversx_sc_snippets::InteractorResult<()> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -227,7 +226,7 @@ impl State {
     async fn remove_farms(&mut self) {
         let farms = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -281,7 +280,7 @@ impl State {
     }
 
     async fn register(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -298,7 +297,7 @@ impl State {
     }
 
     async fn withdraw_all_and_unregister(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -319,7 +318,7 @@ impl State {
         let token_nonce = 0u64;
         let token_amount = 0u64;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -337,7 +336,7 @@ impl State {
     }
 
     async fn withdraw_all_farm_tokens_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -356,7 +355,7 @@ impl State {
     async fn withdraw_specific_farm_tokens_endpoint(&mut self) {
         let tokens_to_withdraw = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -386,7 +385,7 @@ impl State {
     async fn add_metastaking_scs(&mut self) {
         let scs = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -405,7 +404,7 @@ impl State {
     async fn remove_metastaking_scs(&mut self) {
         let scs = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -454,7 +453,7 @@ impl State {
         let token_nonce = 0u64;
         let token_amount = 0u64;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -472,7 +471,7 @@ impl State {
     }
 
     async fn withdraw_all_metastaking_tokens_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -491,7 +490,7 @@ impl State {
     async fn withdraw_specific_metastaking_tokens_endpoint(&mut self) {
         let tokens_to_withdraw = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -532,7 +531,7 @@ impl State {
     async fn claim_all_rewards_and_compound(&mut self) {
         let claim_args = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -549,7 +548,7 @@ impl State {
     }
 
     async fn user_claim_rewards_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -577,7 +576,7 @@ impl State {
     }
 
     async fn claim_fees(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -614,7 +613,7 @@ impl State {
     async fn set_energy_factory_address(&mut self) {
         let sc_address = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract

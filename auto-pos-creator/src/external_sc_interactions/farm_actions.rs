@@ -3,11 +3,11 @@ use farm::{
     EnterFarmResultType,
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 // pub struct ExitFarmResultType<M: ManagedTypeApi>
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait FarmActionsModule {
     fn call_enter_farm(
         &self,

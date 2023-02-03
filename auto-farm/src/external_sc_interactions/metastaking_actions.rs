@@ -1,11 +1,12 @@
 use common_structs::PaymentsVec;
 use farm_staking_proxy::result_types::ClaimDualYieldResult;
+pub use farm_staking_proxy::proxy_actions::claim::ProxyTrait as OtherProxyTrait;
 
 use crate::common::{address_to_id_mapper::AddressId, rewards_wrapper::RewardsWrapper};
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MetastakingActionsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule

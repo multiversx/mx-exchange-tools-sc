@@ -1,7 +1,7 @@
 use super::unique_payments::UniquePayments;
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct MergedRewardsWrapper<M: ManagedTypeApi> {

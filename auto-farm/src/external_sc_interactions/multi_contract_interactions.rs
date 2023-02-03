@@ -2,12 +2,12 @@ use crate::common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePaym
 
 use super::metabonding_actions::SingleMetabondingClaimArg;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub type ClaimAllArgType<M> =
     MultiValue2<ManagedAddress<M>, ManagedVec<M, SingleMetabondingClaimArg<M>>>;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MultiContractInteractionsModule:
     crate::whitelists::farms_whitelist::FarmsWhitelistModule
     + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
