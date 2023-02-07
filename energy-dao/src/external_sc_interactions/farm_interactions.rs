@@ -221,7 +221,7 @@ pub trait FarmInteractionsModule:
         );
 
         let unstake_payment = EsdtTokenPayment::new(
-            farm_config.farm_token_id.clone(),
+            farm_config.farm_token_id,
             unstake_attributes.token_nonce,
             payment.amount.clone(),
         );

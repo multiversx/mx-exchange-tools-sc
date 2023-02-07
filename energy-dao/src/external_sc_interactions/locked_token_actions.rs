@@ -8,13 +8,10 @@ use energy_factory::ProxyTrait as _;
 pub trait LockedTokenModule: energy_query::EnergyQueryModule {
     fn lock_tokens(&self, payment: EsdtTokenPayment, epoch: Epoch) -> EsdtTokenPayment {
         let energy_factory_address = self.energy_factory_address().get();
-        let new_token = self
-            .energy_factory_proxy(energy_factory_address)
+        self.energy_factory_proxy(energy_factory_address)
             .lock_tokens_endpoint(epoch, OptionalValue::<ManagedAddress>::None)
             .with_egld_or_single_esdt_transfer(payment)
-            .execute_on_dest_context();
-
-        new_token
+            .execute_on_dest_context()
     }
 
     fn merge_locked_tokens(&self, locked_tokens: PaymentsVec<Self::Api>) -> EsdtTokenPayment {
@@ -23,24 +20,18 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
         }
 
         let energy_factory_address = self.energy_factory_address().get();
-        let new_token = self
-            .energy_factory_proxy(energy_factory_address)
+        self.energy_factory_proxy(energy_factory_address)
             .merge_tokens_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_multi_token_transfer(locked_tokens)
-            .execute_on_dest_context();
-
-        new_token
+            .execute_on_dest_context()
     }
 
     fn wrap_locked_token(&self, payment: EsdtTokenPayment<Self::Api>) -> EsdtTokenPayment {
         let sc_address = self.locked_token_wrapper_sc_address().get();
-        let wrapped_token = self
-            .energy_factory_proxy(sc_address)
+        self.energy_factory_proxy(sc_address)
             .merge_tokens_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(payment)
-            .execute_on_dest_context();
-
-        wrapped_token
+            .execute_on_dest_context()
     }
 
     #[proxy]
