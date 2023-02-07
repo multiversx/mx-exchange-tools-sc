@@ -5,5 +5,7 @@ members = [
   "auto-farm/interact-rs",
   "auto-pos-creator",
   "auto-pos-creator/meta",
+  "energy-dao",
+  "energy-dao/meta",
   "tests-common"
 ]

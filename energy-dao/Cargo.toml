@@ -1,0 +1,105 @@
+[package]
+name = "energy-dao"
+version = "0.0.0"
+authors = ["you"]
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+[dependencies.multiversx-sc]
+version = "=0.39.4"
+features = ["esdt-token-payment-legacy-decode"]
+
+[dependencies.multiversx-sc-modules]
+version = "=0.39.4"
+
+[dependencies.farm]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-with-locked-rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-staking]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-staking-proxy]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.energy-factory]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.fees-collector]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.locked-token-wrapper]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.simple-lock]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.common_structs]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.mergeable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.utils]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.token_send]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm_token]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.locking_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.config]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.energy-query]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-boosted-yields]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.legacy_token_decode_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.lkmex-transfer]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "=0.39.4"
