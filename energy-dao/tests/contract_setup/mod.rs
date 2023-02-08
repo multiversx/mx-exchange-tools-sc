@@ -333,7 +333,7 @@ where
         .assert_ok();
 
     b_mock
-        .execute_tx(&owner, &energy_factory_wrapper, &rust_zero, |sc| {
+        .execute_tx(owner, &energy_factory_wrapper, &rust_zero, |sc| {
             sc.add_sc_address_to_whitelist(managed_address!(locked_token_wrapper.address_ref()));
             let mut address_to_whitelist = MultiValueEncoded::new();
             address_to_whitelist.push(managed_address!(locked_token_wrapper.address_ref()));
@@ -412,7 +412,7 @@ where
         .assert_ok();
 
     b_mock
-        .execute_tx(&owner, &energy_factory_wrapper, &rust_zero, |sc| {
+        .execute_tx(owner, &energy_factory_wrapper, &rust_zero, |sc| {
             sc.sc_whitelist_addresses()
                 .add(&managed_address!(farm_wrapper.address_ref()));
         })
