@@ -1,13 +1,13 @@
 #![no_std]
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub mod common;
 pub mod configs;
 pub mod external_sc_interactions;
 pub mod multi_contract_interactions;
 
-#[elrond_wasm::contract]
+#[multiversx_sc::contract]
 pub trait AutoPosCreator:
     auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
     + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule

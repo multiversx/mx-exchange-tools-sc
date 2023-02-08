@@ -16,10 +16,10 @@ use auto_farm::{
     common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
-use elrond_wasm::types::{EsdtTokenPayment, ManagedVec};
-use elrond_wasm_debug::{
+use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};
+use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
-    testing_framework::BlockchainStateWrapper, DebugApi,
+    whitebox::BlockchainStateWrapper, DebugApi,
 };
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use fees_collector_setup::setup_fees_collector;
@@ -83,7 +83,7 @@ fn metabonding_claim_through_auto_farm_test() {
     let sig_first_user_week_1 = hex_literal::hex!("d47c0d67b2d25de8b4a3f43d91a2b5ccb522afac47321ae80bf89c90a4445b26adefa693ab685fa20891f736d74eb2dedc11c4b1a8d6e642fa28df270d6ebe08");
     let sig_first_user_week_2 = hex_literal::hex!("b4aadf08eea4cc7c636922511943edbab2ff6ef2558528e0e7b03c7448367989fe860ac091be4d942304f04c86b1eaa0501f36e02819a3c628b4c53f3d3ac801");
 
-    let first_user_addr = farm_setup.first_user.clone();
+    let first_user_addr = farm_setup.first_user;
     b_mock
         .borrow_mut()
         .execute_tx(&first_user_addr, &auto_farm_wrapper, &rust_zero, |sc| {

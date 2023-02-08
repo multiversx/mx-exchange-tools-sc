@@ -2,8 +2,8 @@ use common_structs::PaymentsVec;
 
 use crate::common::{chain_info::CurrentChainInfo, rewards_wrapper::MergedRewardsWrapper};
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode)]
 pub struct TokenDepositEvent<'a, M: ManagedTypeApi> {
@@ -38,7 +38,7 @@ pub struct ProxyClaimEvent<'a, M: ManagedTypeApi> {
     pub chain_info: CurrentChainInfo,
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait EventsModule {
     fn emit_user_register_event(&self, user: &ManagedAddress) {
         self.user_register_event(user, CurrentChainInfo::new::<Self::Api>())

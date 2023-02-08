@@ -13,9 +13,9 @@ use crate::{
     external_storage_read::farm_storage_read::State,
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait FarmActionsModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule

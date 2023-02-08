@@ -1,3 +1,3 @@
 fn main() {
-    elrond_wasm_debug::meta::perform::<auto_pos_creator::AbiProvider>();
+    multiversx_sc_meta::cli_main::<auto_pos_creator::AbiProvider>();
 }

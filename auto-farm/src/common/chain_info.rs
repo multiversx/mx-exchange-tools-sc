@@ -1,5 +1,5 @@
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 static mut CURRENT_CHAIN_INFO: Option<CurrentChainInfo> = None;
 

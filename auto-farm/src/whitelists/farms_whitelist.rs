@@ -2,9 +2,9 @@ use common_structs::PaymentsVec;
 
 use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait FarmsWhitelistModule:
     crate::external_storage_read::farm_storage_read::FarmStorageReadModule + utils::UtilsModule
 {

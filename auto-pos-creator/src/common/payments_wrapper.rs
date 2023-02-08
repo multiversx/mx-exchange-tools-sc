@@ -1,6 +1,6 @@
 use common_structs::PaymentsVec;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub struct PaymentsWrapper<M: SendApi> {
     payments: PaymentsVec<M>,

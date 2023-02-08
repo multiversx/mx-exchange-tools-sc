@@ -1,10 +1,12 @@
 use farm_staking_proxy::result_types::{StakeProxyResult, UnstakeResult};
+pub use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as OtherProxyTrait;
+pub use farm_staking_proxy::proxy_actions::stake::ProxyTrait as OtherProxyTrait2;
 
 use super::pair_actions::MIN_AMOUNT_OUT;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MetastakingActionsModule {
     fn call_metastaking_stake(
         &self,

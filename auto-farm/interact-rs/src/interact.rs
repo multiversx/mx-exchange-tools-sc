@@ -14,34 +14,27 @@ use auto_farm::{
     external_sc_interactions::multi_contract_interactions::ProxyTrait as _,
     external_storage_read::farm_storage_read::FarmConfig,
 };
-use elrond_interact_snippets::{
-    elrond_wasm::{
-        elrond_codec::{multi_types::*, Empty},
-        types::{Address, CodeMetadata, MultiValueEncoded},
-    },
-    elrond_wasm_debug::{
-        bech32, mandos::interpret_trait::InterpreterContext, mandos_system::model::*, ContractInfo,
-        DebugApi,
-    },
+use energy_query::ProxyTrait as _;
+use multiversx_sc_snippets::erdrs::wallet::Wallet;
+use multiversx_sc_snippets::multiversx_sc_scenario::scenario_format::interpret_trait::InterpreterContext;
+use multiversx_sc_snippets::multiversx_sc_scenario::scenario_model::IntoBlockchainCall;
+use multiversx_sc_snippets::{
     env_logger,
-    erdrs::interactors::wallet::Wallet,
+    multiversx_sc::{
+        codec::multi_types::*,
+        types::{Address, CodeMetadata},
+    },
+    multiversx_sc_scenario::{bech32, ContractInfo, DebugApi},
     tokio, Interactor,
 };
-use energy_query::ProxyTrait as _;
-use std::{
-    env::Args,
-    io::{Read, Write},
-};
 
-const GATEWAY: &str = elrond_interact_snippets::erdrs::blockchain::rpc::DEVNET_GATEWAY;
+const GATEWAY: &str = multiversx_sc_snippets::erdrs::blockchain::DEVNET_GATEWAY;
 const PEM: &str = "devnetWalletKey.pem";
 const SC_ADDRESS: &str = "erd1qqqqqqqqqqqqqpgqnxsz48mu6m882qwq09dh66jxjdfm0rkk082s8r9fpp";
 
-const SYSTEM_SC_BECH32: &str = "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u";
 const DEFAULT_ADDRESS_EXPR: &str =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
 const DEFAULT_GAS_LIMIT: u64 = 100_000_000;
-const TOKEN_ISSUE_COST: u64 = 50_000_000_000_000_000;
 
 type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 
@@ -50,7 +43,7 @@ type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 /// - addFarms (farms and farm-staking are both added through this endpoint)
 ///     No additional setup is needed, as the auto-farm SC will read the required data from the farm's storage
 /// - addMetastakingScs (optional)
-/// 
+///
 /// User actions:
 /// - register (for users who only want fees-collector/metabonding, without any farm interactions)
 /// - depositFarmTokens (deposits farm tokens, and also registers the user)
@@ -59,7 +52,7 @@ type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 /// - withdrawAllMetastakingTokens, withdrawSpecificMetastakingTokens
 /// - withdrawAllAndUnregister
 /// - userClaimRewards - claim accumulated rewards
-/// 
+///
 /// Proxy actions:
 /// - claimAllRewardsAndCompound - claims all rewards from all contracts (metabonding, fees collector, farms, etc.)
 ///     and compounds those rewards with a user's existing farm position, if they have any that fit
@@ -124,7 +117,7 @@ impl State {
     async fn new() -> Self {
         let mut interactor = Interactor::new(GATEWAY).await;
         let wallet_address = interactor.register_wallet(Wallet::from_pem_file(PEM).unwrap());
-        let sc_addr_expr = if SC_ADDRESS == "" {
+        let sc_addr_expr = if SC_ADDRESS.is_empty() {
             DEFAULT_ADDRESS_EXPR.to_string()
         } else {
             "bech32:".to_string() + SC_ADDRESS
@@ -147,7 +140,7 @@ impl State {
         let fees_collector_sc_address =
             bech32::decode("erd1qqqqqqqqqqqqqpgq82pd37ra5vqnsaq5cc50ll073gzm4ahx0n4s793d9d");
 
-        let result: elrond_interact_snippets::InteractorResult<()> = self
+        let result: multiversx_sc_snippets::InteractorResult<()> = self
             .interactor
             .sc_deploy(
                 self.contract
@@ -172,23 +165,19 @@ impl State {
         let new_address = result.new_deployed_address();
         let new_address_bech32 = bech32::encode(&new_address);
         println!("new address: {}", new_address_bech32);
-        let result_value = result.value();
-
-        println!("Result: {:?}", result_value);
     }
 
     async fn change_proxy_claim_address(&mut self) {
         let new_proxy_claim_address = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .change_proxy_claim_address(new_proxy_claim_address)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -208,34 +197,29 @@ impl State {
             "erd1qqqqqqqqqqqqqpgq5dzs6yf47tnsk5ays2aedzmu2ahsmcqv0n4s3rsljy",
         ));
 
-        let result: elrond_interact_snippets::InteractorResult<()> = self
+        let _: multiversx_sc_snippets::InteractorResult<()> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .add_farms(farms)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
-        let result_value = result.value();
-
-        println!("Result: {:?}", result_value);
     }
 
     async fn remove_farms(&mut self) {
         let farms = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .remove_farms(farms)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -281,15 +265,14 @@ impl State {
     }
 
     async fn register(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .register()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -298,15 +281,14 @@ impl State {
     }
 
     async fn withdraw_all_and_unregister(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .withdraw_all_and_unregister()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -319,7 +301,7 @@ impl State {
         let token_nonce = 0u64;
         let token_amount = 0u64;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -327,8 +309,7 @@ impl State {
                     .into_blockchain_call()
                     .from(&self.wallet_address)
                     .esdt_transfer(token_id.to_vec(), token_nonce, token_amount)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -337,15 +318,14 @@ impl State {
     }
 
     async fn withdraw_all_farm_tokens_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .withdraw_all_farm_tokens_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -356,15 +336,14 @@ impl State {
     async fn withdraw_specific_farm_tokens_endpoint(&mut self) {
         let tokens_to_withdraw = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .withdraw_specific_farm_tokens_endpoint(tokens_to_withdraw)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -386,15 +365,14 @@ impl State {
     async fn add_metastaking_scs(&mut self) {
         let scs = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .add_metastaking_scs(scs)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -405,15 +383,14 @@ impl State {
     async fn remove_metastaking_scs(&mut self) {
         let scs = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .remove_metastaking_scs(scs)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -454,7 +431,7 @@ impl State {
         let token_nonce = 0u64;
         let token_amount = 0u64;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
@@ -462,8 +439,7 @@ impl State {
                     .into_blockchain_call()
                     .from(&self.wallet_address)
                     .esdt_transfer(token_id.to_vec(), token_nonce, token_amount)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -472,15 +448,14 @@ impl State {
     }
 
     async fn withdraw_all_metastaking_tokens_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .withdraw_all_metastaking_tokens_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -491,15 +466,14 @@ impl State {
     async fn withdraw_specific_metastaking_tokens_endpoint(&mut self) {
         let tokens_to_withdraw = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .withdraw_specific_metastaking_tokens_endpoint(tokens_to_withdraw)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -532,15 +506,14 @@ impl State {
     async fn claim_all_rewards_and_compound(&mut self) {
         let claim_args = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .claim_all_rewards_and_compound(claim_args)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -549,15 +522,14 @@ impl State {
     }
 
     async fn user_claim_rewards_endpoint(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .user_claim_rewards_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -577,15 +549,14 @@ impl State {
     }
 
     async fn claim_fees(&mut self) {
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .claim_fees()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -614,15 +585,14 @@ impl State {
     async fn set_energy_factory_address(&mut self) {
         let sc_address = PlaceholderInput;
 
-        let result: elrond_interact_snippets::InteractorResult<PlaceholderOutput> = self
+        let result: multiversx_sc_snippets::InteractorResult<PlaceholderOutput> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .set_energy_factory_address(sc_address)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();

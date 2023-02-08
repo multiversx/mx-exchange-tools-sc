@@ -1,6 +1,6 @@
 #![no_std]
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub mod common;
 pub mod events;
@@ -13,7 +13,7 @@ pub mod whitelists;
 
 use common::common_storage::MAX_PERCENTAGE;
 
-#[elrond_wasm::contract]
+#[multiversx_sc::contract]
 pub trait AutoFarm:
     whitelists::farms_whitelist::FarmsWhitelistModule
     + external_storage_read::farm_storage_read::FarmStorageReadModule

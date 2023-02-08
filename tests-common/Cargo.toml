@@ -1,7 +1,7 @@
 [package]
 name = "tests-common"
 version = "0.0.0"
-authors = [ "you",]
+authors = ["you"]
 edition = "2018"
 publish = false
 
@@ -11,45 +11,94 @@ path = "src/lib.rs"
 [features]
 enable-tests-common = []
 
-[dependencies.elrond-wasm]
-version = "=0.38.0"
-features = [ "esdt-token-payment-legacy-decode" ]
-
-[dependencies.elrond-wasm-modules]
-version = "=0.38.0"
-
-[dependencies.elrond-wasm-debug]
-version = "=0.38.0"
-
-# Farm dependencies
 [dependencies]
-farm = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-farm-with-locked-rewards = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-farm-staking = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-farm-staking-proxy = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Other SCs
-pair = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-energy-factory = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Common modules/types
-common_structs = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-mergeable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-utils = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-energy-query = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-legacy_token_decode_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-lkmex-transfer = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-
-# Dependencies needed for tests
 num-bigint = "0.4.2"
 num-traits = "0.2"
 hex = "0.4"
 hex-literal = "0.3.4"
 
-simple-lock = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-farm-boosted-yields = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-config = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-locking_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-farm_token = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-pausable = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
-sc_whitelist_module = { git = "https://github.com/multiversx/mx-exchange-sc", rev = "7b6564f" }
+[dependencies.multiversx-sc]
+version = "=0.39.4"
+features = ["esdt-token-payment-legacy-decode"]
+
+[dependencies.multiversx-sc-modules]
+version = "=0.39.4"
+
+[dependencies.multiversx-sc-scenario]
+version = "=0.39.4"
+
+[dependencies.farm]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-with-locked-rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-staking]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-staking-proxy]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.energy-factory]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.common_structs]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.mergeable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.utils]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.energy-query]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.legacy_token_decode_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.lkmex-transfer]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.simple-lock]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm-boosted-yields]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.config]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.locking_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.farm_token]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
+[dependencies.sc_whitelist_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"

@@ -17,11 +17,11 @@ use auto_farm::{
     whitelists::farms_whitelist::FarmsWhitelistModule,
     AutoFarm,
 };
-use elrond_wasm::{
-    elrond_codec::{multi_types::OptionalValue, Empty},
+use multiversx_sc::{
+    codec::{multi_types::OptionalValue, Empty},
     types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded},
 };
-use elrond_wasm_debug::{
+use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, DebugApi,
 };
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
@@ -315,7 +315,7 @@ fn auto_compound_test() {
             let expected_farm_staking_tokens = ManagedVec::from_single_item(EsdtTokenPayment::new(
                 managed_token_id!(STAKING_FARM_TOKEN_ID),
                 3,
-                elrond_wasm::types::BigUint::from(farm_in_amount) + first_token_total
+                multiversx_sc::types::BigUint::from(farm_in_amount) + first_token_total
                     - first_expected_fee_amount,
             ));
             assert_eq!(actual_farm_staking_tokens, expected_farm_staking_tokens);

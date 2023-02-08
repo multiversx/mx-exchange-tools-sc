@@ -1,10 +1,10 @@
 use super::address_to_id_mapper::AddressToIdMapper;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub const MAX_PERCENTAGE: u64 = 10_000;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait CommonStorageModule {
     fn require_caller_proxy_claim_address(&self) {
         let caller = self.blockchain().get_caller();

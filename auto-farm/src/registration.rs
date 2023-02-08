@@ -2,9 +2,9 @@ use common_structs::PaymentsVec;
 
 use crate::events::WithdrawType;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait RegistrationModule:
     crate::common::common_storage::CommonStorageModule
     + crate::user_tokens::user_rewards::UserRewardsModule

@@ -5,9 +5,9 @@ use crate::{
     events::{DepositType, WithdrawType},
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait UserFarmTokensModule:
     crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule

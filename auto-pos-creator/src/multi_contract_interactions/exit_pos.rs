@@ -3,7 +3,7 @@ use common_structs::PaymentsVec;
 
 use crate::common::payments_wrapper::PaymentsWrapper;
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub enum ExitType<M: ManagedTypeApi> {
     Metastaking(ManagedAddress<M>),
@@ -13,7 +13,7 @@ pub enum ExitType<M: ManagedTypeApi> {
 
 static INVALID_INPUT_TOKEN_ERR_MSG: &[u8] = b"Invalid input token";
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait ExitPosModule:
     crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::configs::pairs_config::PairsConfigModule

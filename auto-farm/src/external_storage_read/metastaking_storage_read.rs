@@ -1,5 +1,5 @@
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode, TopDecode)]
 pub struct MetastakingConfig<M: ManagedTypeApi> {
@@ -7,7 +7,7 @@ pub struct MetastakingConfig<M: ManagedTypeApi> {
     pub lp_farm_token_id: TokenIdentifier<M>,
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait MetastakingStorageReadModule: utils::UtilsModule {
     #[label("metastaking-whitelist-endpoints")]
     #[view(getMetastakingConfig)]

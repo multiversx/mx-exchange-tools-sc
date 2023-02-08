@@ -6,11 +6,11 @@ use crate::{
     external_sc_interactions::pair_actions::PairTokenPayments,
 };
 
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 pub type DoubleSwapResult<M> = PairTokenPayments<M>;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait CreatePosModule:
     crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::configs::pairs_config::PairsConfigModule

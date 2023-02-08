@@ -2,9 +2,9 @@ use auto_pos_creator::{
     external_sc_interactions::pair_actions::PairTokenPayments,
     multi_contract_interactions::{create_pos::CreatePosModule, exit_pos::ExitPosModule},
 };
-use elrond_wasm::{elrond_codec::Empty, types::EsdtTokenPayment};
-use elrond_wasm_debug::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, tx_mock::TxTokenTransfer,
+use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::TxTokenTransfer,
 };
 use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
