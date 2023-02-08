@@ -526,6 +526,7 @@ dependencies = [
  "num-bigint",
  "pair",
  "pausable",
+ "sc_whitelist_module",
  "simple-lock",
  "token_send",
  "utils",

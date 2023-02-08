@@ -70,15 +70,21 @@ pub trait FarmActionsModule:
                     &new_farm_token.amount,
                     &initial_farm_config.division_safety_constant,
                 );
-                let mut reward_payments = ManagedVec::new();
-                let current_rewards = EsdtTokenPayment::new(
-                    farm_rewards.token_identifier.clone(),
-                    initial_farm_config.reward_token_nonce,
-                    initial_farm_config.reward_reserve.clone(),
-                );
-                reward_payments.push(farm_rewards);
-                reward_payments.push(current_rewards);
-                let new_rewards = self.merge_locked_tokens(reward_payments);
+
+                let new_rewards = if initial_farm_config.reward_reserve > 0 {
+                    let mut reward_payments = ManagedVec::new();
+                    let current_rewards = EsdtTokenPayment::new(
+                        farm_rewards.token_identifier.clone(),
+                        initial_farm_config.reward_token_nonce,
+                        initial_farm_config.reward_reserve.clone(),
+                    );
+                    reward_payments.push(farm_rewards);
+                    reward_payments.push(current_rewards);
+                    self.merge_locked_tokens(reward_payments)
+                } else {
+                    farm_rewards
+                };
+
                 config.reward_token_nonce = new_rewards.token_nonce;
                 config.reward_reserve = new_rewards.amount;
                 config.farm_rps += rps_increase;

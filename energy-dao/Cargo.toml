@@ -66,6 +66,10 @@ rev = "fdb1fb4"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "fdb1fb4"
 
+[dependencies.sc_whitelist_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "fdb1fb4"
+
 [dependencies.token_send]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "fdb1fb4"

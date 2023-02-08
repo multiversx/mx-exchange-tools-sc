@@ -28,8 +28,8 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
 
     fn wrap_locked_token(&self, payment: EsdtTokenPayment<Self::Api>) -> EsdtTokenPayment {
         let sc_address = self.locked_token_wrapper_sc_address().get();
-        self.energy_factory_proxy(sc_address)
-            .merge_tokens_endpoint(OptionalValue::<ManagedAddress>::None)
+        self.locked_token_wrapper_proxy(sc_address)
+            .wrap_locked_token_endpoint()
             .with_esdt_transfer(payment)
             .execute_on_dest_context()
     }

@@ -90,47 +90,40 @@ where
             .assert_ok();
     }
 
-    // pub fn claim_farm_rewards(
-    //     &mut self,
-    //     farm_address: &Address,
-    //     caller: &Address,
-    //     payment_token: &[u8],
-    //     payment_amount: u64,
-    // ) {
-    //     self.b_mock
-    //         .execute_esdt_transfer(
-    //             caller,
-    //             &self.energy_dao_wrapper,
-    //             payment_token,
-    //             0,
-    //             &rust_biguint!(payment_amount),
-    //             |sc| {
-    //                 sc.claim_farm_rewards(managed_address!(farm_address));
-    //             },
-    //         )
-    //         .assert_ok();
-    // }
+    pub fn claim_farm_rewards(&mut self, farm_address: &Address) {
+        self.b_mock
+            .execute_tx(
+                &self.owner_address,
+                &self.energy_dao_wrapper,
+                &rust_biguint!(0u64),
+                |sc| {
+                    sc.claim_farm_rewards(managed_address!(farm_address));
+                },
+            )
+            .assert_ok();
+    }
 
-    // pub fn claim_user_rewards(
-    //     &mut self,
-    //     farm_address: &Address,
-    //     caller: &Address,
-    //     payment_token: &[u8],
-    //     payment_amount: u64,
-    // ) {
-    //     self.b_mock
-    //         .execute_esdt_transfer(
-    //             caller,
-    //             &self.energy_dao_wrapper,
-    //             payment_token,
-    //             0,
-    //             &rust_biguint!(payment_amount),
-    //             |sc| {
-    //                 sc.claim_user_rewards(managed_address!(farm_address));
-    //             },
-    //         )
-    //         .assert_ok();
-    // }
+    pub fn claim_user_rewards(
+        &mut self,
+        farm_address: &Address,
+        caller: &Address,
+        payment_token: &[u8],
+        payment_nonce: u64,
+        payment_amount: u64,
+    ) {
+        self.b_mock
+            .execute_esdt_transfer(
+                caller,
+                &self.energy_dao_wrapper,
+                payment_token,
+                payment_nonce,
+                &rust_biguint!(payment_amount),
+                |sc| {
+                    sc.claim_user_rewards(managed_address!(farm_address));
+                },
+            )
+            .assert_ok();
+    }
 
     pub fn unstake_farm(
         &mut self,
