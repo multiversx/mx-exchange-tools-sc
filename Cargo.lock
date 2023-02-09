@@ -615,6 +615,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "farm-extra-rewards-wrapper"
+version = "0.0.0"
+dependencies = [
+ "farm",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "farm-extra-rewards-wrapper-meta"
+version = "0.0.0"
+dependencies = [
+ "farm-extra-rewards-wrapper",
+ "multiversx-sc-meta",
+]
+
+[[package]]
 name = "farm-staking"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=fdb1fb4#fdb1fb4764351d307db3e7ef84696968193e712b"
