@@ -80,13 +80,11 @@ pub trait FarmInteractionsModule:
             farm_address,
             token_rps: new_farm_state.farm_rps,
         };
-        let output_payment = self.wrapped_farm_token().nft_create_and_send(
+        self.wrapped_farm_token().nft_create_and_send(
             &caller,
             user_farm_amount,
             &user_token_attributes,
-        );
-
-        output_payment
+        )
     }
 
     #[payable("*")]
@@ -249,7 +247,7 @@ pub trait FarmInteractionsModule:
         );
         let user_rewards = self.compute_user_rewards_payment(
             farm_state_mapper,
-            &payment,
+            payment,
             &division_safety_constant,
         );
         farm_state_mapper.update(|config| config.reward_reserve -= &user_rewards.amount);
