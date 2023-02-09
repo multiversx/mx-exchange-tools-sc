@@ -42,7 +42,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
         farm_with_locked_rewards::contract_obj,
     );
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
-    energy_dao_setup.add_farm(&farm_address, WRAPPED_FARM_TOKEN_ID, UNSTAKE_TOKEN_ID);
+    energy_dao_setup.add_farm(&farm_address);
 
     let user_farm_amount = 1_000u64;
     let user1 = energy_dao_setup.setup_new_user(FARMING_TOKEN_ID, user_farm_amount);
@@ -68,13 +68,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
             None,
         );
 
-    energy_dao_setup.unstake_farm(
-        &farm_address,
-        &user1,
-        WRAPPED_FARM_TOKEN_ID,
-        1,
-        user_farm_amount,
-    );
+    energy_dao_setup.unstake_farm(&user1, WRAPPED_FARM_TOKEN_ID, 1, user_farm_amount);
 
     // check if tokens were burned
     energy_dao_setup
@@ -89,7 +83,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
 
     energy_dao_setup
         .b_mock
-        .check_nft_balance::<UnstakeTokenAttributes>(
+        .check_nft_balance::<UnstakeTokenAttributes<DebugApi>>(
             &user1,
             UNSTAKE_TOKEN_ID,
             1,
@@ -98,7 +92,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
         );
 
     energy_dao_setup.b_mock.set_block_epoch(10);
-    energy_dao_setup.unbond_farm(&farm_address, &user1, UNSTAKE_TOKEN_ID, 1, user_farm_amount);
+    energy_dao_setup.unbond_farm(&user1, UNSTAKE_TOKEN_ID, 1, user_farm_amount);
 
     // check if tokens were burned
     energy_dao_setup
@@ -128,7 +122,7 @@ fn energy_dao_multiple_users_with_claim_test() {
         farm_with_locked_rewards::contract_obj,
     );
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
-    energy_dao_setup.add_farm(&farm_address, WRAPPED_FARM_TOKEN_ID, UNSTAKE_TOKEN_ID);
+    energy_dao_setup.add_farm(&farm_address);
     energy_dao_setup.lock_energy_tokens(USER_BALANCE, LOCK_OPTIONS[2]);
 
     let user1_farm_amount = 10_000u64;
@@ -178,26 +172,10 @@ fn energy_dao_multiple_users_with_claim_test() {
         );
 
     energy_dao_setup.b_mock.set_block_nonce(10u64);
-    energy_dao_setup.claim_farm_rewards(&farm_address);
-
-    energy_dao_setup.claim_user_rewards(
-        &farm_address,
-        &user1,
-        WRAPPED_FARM_TOKEN_ID,
-        1,
-        user1_farm_amount,
-    );
+    energy_dao_setup.claim_user_rewards(&user1, WRAPPED_FARM_TOKEN_ID, 1, user1_farm_amount);
 
     energy_dao_setup.b_mock.set_block_nonce(20u64);
-    energy_dao_setup.claim_farm_rewards(&farm_address);
-
-    energy_dao_setup.claim_user_rewards(
-        &farm_address,
-        &user2,
-        WRAPPED_FARM_TOKEN_ID,
-        2,
-        user2_farm_amount,
-    );
+    energy_dao_setup.claim_user_rewards(&user2, WRAPPED_FARM_TOKEN_ID, 2, user2_farm_amount);
 
     energy_dao_setup
         .b_mock

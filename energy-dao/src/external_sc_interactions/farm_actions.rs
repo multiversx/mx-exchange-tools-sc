@@ -60,7 +60,7 @@ pub trait FarmActionsModule:
         &self,
         initial_farm_state: &FarmState<Self::Api>,
         farm_state_mapper: &mut SingleValueMapper<FarmState<Self::Api>>,
-        new_farm_token: EsdtTokenPayment,
+        new_farm_token: &EsdtTokenPayment,
         farm_rewards: EsdtTokenPayment,
         division_safety_constant: &BigUint,
     ) {

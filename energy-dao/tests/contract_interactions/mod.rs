@@ -2,17 +2,12 @@ use energy_dao::external_sc_interactions::{
     farm_config::FarmConfigModule, farm_interactions::FarmInteractionsModule,
     locked_token_interactions::LockedTokenInteractionsModule,
 };
-use multiversx_sc::{
-    codec::multi_types::MultiValue3,
-    types::{Address, EsdtTokenPayment, MultiValueEncoded},
-};
+use multiversx_sc::types::{Address, EsdtTokenPayment, MultiValueEncoded};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, DebugApi,
 };
 
-use crate::contract_setup::{
-    EnergyDAOContractSetup, BASE_ASSET_TOKEN_ID, LOCKED_TOKEN_ID, SFT_ROLES,
-};
+use crate::contract_setup::{EnergyDAOContractSetup, BASE_ASSET_TOKEN_ID, LOCKED_TOKEN_ID};
 
 impl<
         EnergyDAOContractObjBuilder,
@@ -36,18 +31,7 @@ where
         'static + Copy + Fn() -> locked_token_wrapper::ContractObj<DebugApi>,
     FarmObjBuilder: 'static + Copy + Fn() -> farm_with_locked_rewards::ContractObj<DebugApi>,
 {
-    pub fn add_farm(&mut self, farm_address: &Address, wrapped_token: &[u8], unstake_token: &[u8]) {
-        self.b_mock.set_esdt_local_roles(
-            self.energy_dao_wrapper.address_ref(),
-            wrapped_token,
-            SFT_ROLES,
-        );
-        self.b_mock.set_esdt_local_roles(
-            self.energy_dao_wrapper.address_ref(),
-            unstake_token,
-            SFT_ROLES,
-        );
-
+    pub fn add_farm(&mut self, farm_address: &Address) {
         self.b_mock
             .execute_tx(
                 &self.owner_address,
@@ -55,12 +39,7 @@ where
                 &rust_biguint!(0u64),
                 |sc| {
                     let mut farms = MultiValueEncoded::new();
-                    let farm_data = MultiValue3::from((
-                        managed_address!(farm_address),
-                        managed_token_id!(wrapped_token),
-                        managed_token_id!(unstake_token),
-                    ));
-                    farms.push(farm_data);
+                    farms.push(managed_address!(farm_address));
                     sc.add_farms(farms);
                 },
             )
@@ -88,22 +67,8 @@ where
             .assert_ok();
     }
 
-    pub fn claim_farm_rewards(&mut self, farm_address: &Address) {
-        self.b_mock
-            .execute_tx(
-                &self.owner_address,
-                &self.energy_dao_wrapper,
-                &rust_biguint!(0u64),
-                |sc| {
-                    sc.claim_farm_rewards(managed_address!(farm_address));
-                },
-            )
-            .assert_ok();
-    }
-
     pub fn claim_user_rewards(
         &mut self,
-        farm_address: &Address,
         caller: &Address,
         payment_token: &[u8],
         payment_nonce: u64,
@@ -117,7 +82,7 @@ where
                 payment_nonce,
                 &rust_biguint!(payment_amount),
                 |sc| {
-                    sc.claim_user_rewards(managed_address!(farm_address));
+                    sc.claim_user_rewards();
                 },
             )
             .assert_ok();
@@ -125,7 +90,6 @@ where
 
     pub fn unstake_farm(
         &mut self,
-        farm_address: &Address,
         caller: &Address,
         payment_token: &[u8],
         payment_token_nonce: u64,
@@ -139,7 +103,7 @@ where
                 payment_token_nonce,
                 &rust_biguint!(payment_amount),
                 |sc| {
-                    sc.unstake_farm(managed_address!(farm_address));
+                    sc.unstake_farm();
                 },
             )
             .assert_ok();
@@ -147,7 +111,6 @@ where
 
     pub fn unbond_farm(
         &mut self,
-        farm_address: &Address,
         caller: &Address,
         payment_token: &[u8],
         payment_token_nonce: u64,
@@ -161,7 +124,7 @@ where
                 payment_token_nonce,
                 &rust_biguint!(payment_amount),
                 |sc| {
-                    sc.unbond_farm(managed_address!(farm_address));
+                    sc.unbond_farm();
                 },
             )
             .assert_ok();
