@@ -239,7 +239,7 @@ pub trait FarmInteractionsModule:
             payment.amount.clone(),
         );
         let exit_farm_result = self.call_exit_farm(farm_address, unstake_payment);
-        let (farming_tokens, locked_rewards_payment, _) = exit_farm_result.into_tuple();
+        let (mut farming_tokens, locked_rewards_payment, _) = exit_farm_result.into_tuple();
 
         farm_state_mapper.update(|config| {
             config.farm_unstaked_value -= &payment.amount;
@@ -250,8 +250,8 @@ pub trait FarmInteractionsModule:
             payment.token_nonce,
             &payment.amount,
         );
-        let remaining_payment = self.apply_fee(farming_tokens);
-        let mut user_payments = ManagedVec::from_single_item(remaining_payment);
+        self.apply_fee(&mut farming_tokens);
+        let mut user_payments = ManagedVec::from_single_item(farming_tokens);
         if locked_rewards_payment.amount > 0 {
             user_payments.push(locked_rewards_payment);
         }

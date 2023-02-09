@@ -21,8 +21,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         addFarms
         removeFarms
         getFarmState
-        getFarmTokenId
         getFarmingTokenId
+        getFarmTokenId
         getDivisionSafetyConstant
         getWrappedFarmTokenId
         getUnstakeFarmTokenId

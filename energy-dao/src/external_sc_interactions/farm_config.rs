@@ -122,18 +122,21 @@ pub trait FarmConfigModule: utils::UtilsModule {
         farm_state_mapper.get()
     }
 
+    #[view(getFarmingTokenId)]
     fn get_farming_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
         let farming_token_id = self.farming_token_id().get_from_address(farm_address);
         self.require_valid_token_id(&farming_token_id);
         farming_token_id
     }
 
+    #[view(getFarmTokenId)]
     fn get_farm_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
         let farm_token_id = self.farm_token_id().get_from_address(farm_address);
         self.require_valid_token_id(&farm_token_id);
         farm_token_id
     }
 
+    #[view(getDivisionSafetyConstant)]
     fn get_division_safety_constant(&self, farm_address: &ManagedAddress) -> BigUint {
         let division_safety_constant = self
             .division_safety_constant()
@@ -142,15 +145,12 @@ pub trait FarmConfigModule: utils::UtilsModule {
         division_safety_constant
     }
 
-    #[view(getFarmTokenId)]
     #[storage_mapper("farm_token_id")]
     fn farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[view(getFarmingTokenId)]
     #[storage_mapper("farming_token_id")]
     fn farming_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[view(getDivisionSafetyConstant)]
     #[storage_mapper("division_safety_constant")]
     fn division_safety_constant(&self) -> SingleValueMapper<BigUint>;
 

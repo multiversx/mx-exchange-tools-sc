@@ -64,36 +64,40 @@ pub trait FarmActionsModule:
         farm_rewards: EsdtTokenPayment,
         division_safety_constant: &BigUint,
     ) {
-        farm_state_mapper.update(|config| {
-            if farm_rewards.amount > 0 {
-                let rps_increase = self.compute_farm_rps_increase(
-                    &farm_rewards.amount,
-                    &new_farm_token.amount,
-                    division_safety_constant,
-                );
+        let mut farm_state = farm_state_mapper.get();
 
-                let new_rewards = if initial_farm_state.reward_reserve > 0 {
-                    let mut reward_payments = ManagedVec::new();
-                    let current_rewards = EsdtTokenPayment::new(
-                        farm_rewards.token_identifier.clone(),
-                        initial_farm_state.reward_token_nonce,
-                        initial_farm_state.reward_reserve.clone(),
-                    );
-                    reward_payments.push(farm_rewards);
-                    reward_payments.push(current_rewards);
-                    self.merge_locked_tokens(reward_payments)
-                } else {
-                    farm_rewards
-                };
+        farm_state.farm_staked_value = new_farm_token.amount.clone();
+        farm_state.farm_token_nonce = new_farm_token.token_nonce;
 
-                config.reward_token_nonce = new_rewards.token_nonce;
-                config.reward_reserve = new_rewards.amount;
-                config.farm_rps += rps_increase;
-            }
+        if farm_rewards.amount == 0 {
+            farm_state_mapper.set(farm_state);
+            return;
+        }
 
-            config.farm_staked_value = new_farm_token.amount;
-            config.farm_token_nonce = new_farm_token.token_nonce;
-        });
+        let rps_increase = self.compute_farm_rps_increase(
+            &farm_rewards.amount,
+            &new_farm_token.amount,
+            division_safety_constant,
+        );
+        let new_rewards = if initial_farm_state.reward_reserve > 0 {
+            let mut reward_payments = ManagedVec::new();
+            let current_rewards = EsdtTokenPayment::new(
+                farm_rewards.token_identifier.clone(),
+                initial_farm_state.reward_token_nonce,
+                initial_farm_state.reward_reserve.clone(),
+            );
+            reward_payments.push(farm_rewards);
+            reward_payments.push(current_rewards);
+            self.merge_locked_tokens(reward_payments)
+        } else {
+            farm_rewards
+        };
+
+        farm_state.reward_token_nonce = new_rewards.token_nonce;
+        farm_state.reward_reserve = new_rewards.amount;
+        farm_state.farm_rps += rps_increase;
+
+        farm_state_mapper.set(farm_state);
     }
 
     fn compute_farm_rps_increase(
@@ -109,7 +113,7 @@ pub trait FarmActionsModule:
         }
     }
 
-    fn apply_fee(&self, payment: EsdtTokenPayment) -> EsdtTokenPayment {
+    fn apply_fee(&self, payment: &mut EsdtTokenPayment) {
         let penalty_percent = self.penalty_percent().get();
         let calculated_fee = &payment.amount * penalty_percent / MAX_PERCENT;
 
@@ -128,12 +132,7 @@ pub trait FarmActionsModule:
                 }
             });
         }
-
-        EsdtTokenPayment::new(
-            payment.token_identifier,
-            payment.token_nonce,
-            payment.amount - calculated_fee,
-        )
+        payment.amount -= calculated_fee;
     }
 
     fn compute_user_rewards_payment(
