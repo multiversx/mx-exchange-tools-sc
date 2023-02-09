@@ -30,14 +30,12 @@ pub trait EnergyDAO:
         energy_factory_address: ManagedAddress,
         fees_collector_sc_address: ManagedAddress,
         locked_token_wrapper_sc_address: ManagedAddress,
-        locked_token_id: TokenIdentifier,
         penalty_percent: u64,
         unbond_period: u64,
     ) {
         self.require_sc_address(&energy_factory_address);
         self.require_sc_address(&fees_collector_sc_address);
         self.require_sc_address(&locked_token_wrapper_sc_address);
-        self.require_valid_token_id(&locked_token_id);
 
         self.energy_factory_address()
             .set_if_empty(energy_factory_address);
@@ -45,7 +43,6 @@ pub trait EnergyDAO:
             .set_if_empty(fees_collector_sc_address);
         self.locked_token_wrapper_sc_address()
             .set_if_empty(locked_token_wrapper_sc_address);
-        self.locked_token_id().set_if_empty(locked_token_id);
         self.penalty_percent().set_if_empty(penalty_percent);
         self.unbond_period().set_if_empty(unbond_period);
     }

@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           21
+// Endpoints:                           25
 // Async Callback:                       1
-// Total number of exported functions:  23
+// Total number of exported functions:  27
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -20,8 +20,12 @@ multiversx_sc_wasm_adapter::endpoints! {
     (
         addFarms
         removeFarms
-        getFarmConfig
+        getFarmState
+        getFarmTokenId
         getFarmingTokenId
+        getDivisionSafetyConstant
+        getWrappedFarmTokenId
+        getUnstakeFarmTokenId
         getUnbondPeriod
         getPenaltyPercent
         enterFarm

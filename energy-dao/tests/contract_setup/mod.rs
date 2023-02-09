@@ -167,7 +167,6 @@ where
                     managed_address!(energy_factory_wrapper.address_ref()),
                     managed_address!(fees_collector_wrapper.address_ref()),
                     managed_address!(locked_token_wrapper.address_ref()),
-                    managed_token_id!(LOCKED_TOKEN_ID),
                     PENALTY_PERCENTAGE,
                     UNBOND_PERIOD,
                 );

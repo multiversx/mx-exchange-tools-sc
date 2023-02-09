@@ -3,7 +3,7 @@ use energy_dao::external_sc_interactions::{
     locked_token_interactions::LockedTokenInteractionsModule,
 };
 use multiversx_sc::{
-    codec::multi_types::MultiValue4,
+    codec::multi_types::MultiValue3,
     types::{Address, EsdtTokenPayment, MultiValueEncoded},
 };
 use multiversx_sc_scenario::{
@@ -11,8 +11,7 @@ use multiversx_sc_scenario::{
 };
 
 use crate::contract_setup::{
-    EnergyDAOContractSetup, BASE_ASSET_TOKEN_ID, DIVISION_SAFETY_CONSTANT, LOCKED_TOKEN_ID,
-    SFT_ROLES,
+    EnergyDAOContractSetup, BASE_ASSET_TOKEN_ID, LOCKED_TOKEN_ID, SFT_ROLES,
 };
 
 impl<
@@ -56,11 +55,10 @@ where
                 &rust_biguint!(0u64),
                 |sc| {
                     let mut farms = MultiValueEncoded::new();
-                    let farm_data = MultiValue4::from((
+                    let farm_data = MultiValue3::from((
                         managed_address!(farm_address),
                         managed_token_id!(wrapped_token),
                         managed_token_id!(unstake_token),
-                        managed_biguint!(DIVISION_SAFETY_CONSTANT),
                     ));
                     farms.push(farm_data);
                     sc.add_farms(farms);

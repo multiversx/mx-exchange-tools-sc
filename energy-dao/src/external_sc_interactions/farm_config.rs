@@ -5,7 +5,7 @@ use common_structs::{Epoch, Nonce};
 
 use crate::common::errors::{
     ERROR_DIVISION_CONSTANT_VALUE, ERROR_FARM_ALREADY_DEFINED, ERROR_FARM_DOES_NOT_EXIST,
-    ERROR_FARM_HAS_FUNDS, ERROR_TOKEN_ROLES,
+    ERROR_FARM_HAS_FUNDS,
 };
 
 #[derive(
@@ -18,18 +18,13 @@ pub enum State {
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug)]
-pub struct FarmConfig<M: ManagedTypeApi> {
-    pub wrapped_token_id: TokenIdentifier<M>,
-    pub farming_token_id: TokenIdentifier<M>,
-    pub farm_token_id: TokenIdentifier<M>,
-    pub unstake_token_id: TokenIdentifier<M>,
+pub struct FarmState<M: ManagedTypeApi> {
     pub farm_staked_value: BigUint<M>,
     pub farm_token_nonce: Nonce,
     pub reward_token_nonce: Nonce,
     pub farm_unstaked_value: BigUint<M>,
     pub reward_reserve: BigUint<M>,
     pub farm_rps: BigUint<M>,
-    pub division_safety_constant: BigUint<M>,
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
@@ -49,52 +44,35 @@ pub const MAX_PERCENT: u64 = 10_000;
 
 #[multiversx_sc::module]
 pub trait FarmConfigModule: utils::UtilsModule {
+    /// Allows the setup of farms in the contract. For each farm, the following values are required:
+    /// farm address: the address of the farm
+    /// wrapped_farm_token_id: token id previously issued, that will reflect the farm position of the users (roles must be already set)
+    /// unstake_farm_token_id: token id previously issued, that will reflect the unstake position of the users (roles must be already set)
     #[only_owner]
     #[endpoint(addFarms)]
     fn add_farms(
         &self,
-        farms: MultiValueEncoded<
-            MultiValue4<ManagedAddress, TokenIdentifier, TokenIdentifier, BigUint>,
-        >,
+        farms: MultiValueEncoded<MultiValue3<ManagedAddress, TokenIdentifier, TokenIdentifier>>,
     ) {
         for farm in farms {
-            let (farm_addr, wrapped_token_id, unstake_token_id, division_safety_constant) =
-                farm.into_tuple();
-            let farm_config_mapper = self.farm_config(&farm_addr);
-            require!(farm_config_mapper.is_empty(), ERROR_FARM_ALREADY_DEFINED);
+            let (farm_addr, wrapped_farm_token_id, unstake_farm_token_id) = farm.into_tuple();
+            let farm_state_mapper = self.farm_state(&farm_addr);
+            require!(farm_state_mapper.is_empty(), ERROR_FARM_ALREADY_DEFINED);
             self.require_sc_address(&farm_addr);
-            self.require_valid_token_id(&wrapped_token_id);
-            let wrapped_token_roles = self.blockchain().get_esdt_local_roles(&wrapped_token_id);
-            require!(
-                wrapped_token_roles.has_role(&EsdtLocalRole::NftCreate)
-                    && wrapped_token_roles.has_role(&EsdtLocalRole::NftBurn),
-                ERROR_TOKEN_ROLES
-            );
-            let unstake_token_roles = self.blockchain().get_esdt_local_roles(&unstake_token_id);
-            require!(
-                unstake_token_roles.has_role(&EsdtLocalRole::NftCreate)
-                    && unstake_token_roles.has_role(&EsdtLocalRole::NftBurn),
-                ERROR_TOKEN_ROLES
-            );
-            require!(division_safety_constant > 0, ERROR_DIVISION_CONSTANT_VALUE);
+            self.require_valid_token_id(&wrapped_farm_token_id);
+            self.require_valid_token_id(&unstake_farm_token_id);
+            self.wrapped_farm_token_id().set(wrapped_farm_token_id);
+            self.unstake_farm_token_id().set(unstake_farm_token_id);
 
-            let farming_token_id = self.get_farming_token(&farm_addr);
-            let farm_token_id = self.get_farm_token(&farm_addr);
-
-            let farm_config = FarmConfig {
-                wrapped_token_id,
-                farming_token_id,
-                farm_token_id,
-                unstake_token_id,
+            let farm_state = FarmState {
                 farm_staked_value: BigUint::zero(),
                 farm_token_nonce: 0u64,
                 reward_token_nonce: 0u64,
                 farm_unstaked_value: BigUint::zero(),
                 reward_reserve: BigUint::zero(),
                 farm_rps: BigUint::zero(),
-                division_safety_constant,
             };
-            farm_config_mapper.set(farm_config);
+            farm_state_mapper.set(farm_state);
         }
     }
 
@@ -102,11 +80,11 @@ pub trait FarmConfigModule: utils::UtilsModule {
     #[endpoint(removeFarms)]
     fn remove_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
         for farm in farms {
-            let farm_config_mapper = self.farm_config(&farm);
-            require!(!farm_config_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
-            let farm_config = farm_config_mapper.get();
-            require!(farm_config.farm_staked_value == 0, ERROR_FARM_HAS_FUNDS);
-            farm_config_mapper.clear();
+            let farm_state_mapper = self.farm_state(&farm);
+            require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
+            let farm_state = farm_state_mapper.get();
+            require!(farm_state.farm_staked_value == 0, ERROR_FARM_HAS_FUNDS);
+            farm_state_mapper.clear();
         }
     }
 
@@ -123,10 +101,6 @@ pub trait FarmConfigModule: utils::UtilsModule {
         EsdtTokenPayment::new(token_id, new_nonce, amount)
     }
 
-    fn burn_tokens(&self, token_id: &TokenIdentifier, nonce: Nonce, amount: &BigUint) {
-        self.send().esdt_local_burn(token_id, nonce, amount);
-    }
-
     fn get_token_attributes<T: TopDecode>(
         &self,
         token_id: &TokenIdentifier,
@@ -141,27 +115,34 @@ pub trait FarmConfigModule: utils::UtilsModule {
         token_info.decode_attributes()
     }
 
-    #[view(getFarmConfig)]
-    fn get_farm_config(&self, farm_address: &ManagedAddress) -> FarmConfig<Self::Api> {
-        let farm_config_mapper = self.farm_config(farm_address);
-        require!(!farm_config_mapper.is_empty(), "Farm does not exist");
-        farm_config_mapper.get()
+    #[view(getFarmState)]
+    fn get_farm_state(&self, farm_address: &ManagedAddress) -> FarmState<Self::Api> {
+        let farm_state_mapper = self.farm_state(farm_address);
+        require!(!farm_state_mapper.is_empty(), "Farm does not exist");
+        farm_state_mapper.get()
     }
 
-    #[inline]
     fn get_farming_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
         let farming_token_id = self.farming_token_id().get_from_address(farm_address);
         self.require_valid_token_id(&farming_token_id);
         farming_token_id
     }
 
-    #[inline]
     fn get_farm_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
         let farm_token_id = self.farm_token_id().get_from_address(farm_address);
         self.require_valid_token_id(&farm_token_id);
         farm_token_id
     }
 
+    fn get_division_safety_constant(&self, farm_address: &ManagedAddress) -> BigUint {
+        let division_safety_constant = self
+            .division_safety_constant()
+            .get_from_address(farm_address);
+        require!(division_safety_constant > 0, ERROR_DIVISION_CONSTANT_VALUE);
+        division_safety_constant
+    }
+
+    #[view(getFarmTokenId)]
     #[storage_mapper("farm_token_id")]
     fn farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
@@ -169,8 +150,17 @@ pub trait FarmConfigModule: utils::UtilsModule {
     #[storage_mapper("farming_token_id")]
     fn farming_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("lockedTokenId")]
-    fn locked_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+    #[view(getDivisionSafetyConstant)]
+    #[storage_mapper("division_safety_constant")]
+    fn division_safety_constant(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getWrappedFarmTokenId)]
+    #[storage_mapper("wrappedFarmTokenId")]
+    fn wrapped_farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getUnstakeFarmTokenId)]
+    #[storage_mapper("unstakeFarmTokenId")]
+    fn unstake_farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
     #[view(getUnbondPeriod)]
     #[storage_mapper("unbondPeriod")]
@@ -183,9 +173,6 @@ pub trait FarmConfigModule: utils::UtilsModule {
     #[storage_mapper("exitFees")]
     fn exit_fees(&self) -> SingleValueMapper<EsdtTokenPayment>;
 
-    #[storage_mapper("farm_config")]
-    fn farm_config(
-        &self,
-        farm_address: &ManagedAddress,
-    ) -> SingleValueMapper<FarmConfig<Self::Api>>;
+    #[storage_mapper("farmState")]
+    fn farm_state(&self, farm_address: &ManagedAddress) -> SingleValueMapper<FarmState<Self::Api>>;
 }
