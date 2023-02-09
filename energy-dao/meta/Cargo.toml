@@ -1,0 +1,13 @@
+[package]
+name = "energy-dao-meta"
+version = "0.0.0"
+edition = "2021"
+publish = false
+authors = ["you"]
+
+[dev-dependencies]
+[dependencies.energy-dao]
+path = ".."
+
+[dependencies.multiversx-sc-meta]
+version = "0.39.4"
