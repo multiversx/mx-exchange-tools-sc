@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
-// Async Callback (empty):               1
-// Total number of exported functions:   2
+// Endpoints:                           27
+// Async Callback:                       1
+// Total number of exported functions:  29
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -16,9 +16,35 @@ multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
 
 multiversx_sc_wasm_adapter::endpoints! {
-    empty
+    farm_extra_rewards_wrapper
     (
+        getRewardPerShare
+        getRewardReserve
+        getFarmingTokenId
+        getRewardTokenId
+        getPerBlockRewardAmount
+        getLastRewardBlockNonce
+        getDivisionSafetyConstant
+        registerFarmToken
+        getFarmTokenId
+        getFarmTokenSupply
+        addToPauseWhitelist
+        removeFromPauseWhitelist
+        pause
+        resume
+        getState
+        addAdmin
+        removeAdmin
+        updateOwnerOrAdmin
+        getPermissions
+        depositRewardTokens
+        withdrawRewardTokens
+        getRewardTokens
+        addFarms
+        removeFarms
+        getFarmForFarmToken
+        getFarmForFarmingToken
+        getFarmConfig
+        callBack
     )
 }
-
-multiversx_sc_wasm_adapter::empty_callback! {}
