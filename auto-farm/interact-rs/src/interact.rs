@@ -21,26 +21,20 @@ use multiversx_sc_snippets::multiversx_sc_scenario::scenario_model::IntoBlockcha
 use multiversx_sc_snippets::{
     env_logger,
     multiversx_sc::{
-        codec::{multi_types::*, Empty},
-        types::{Address, CodeMetadata, MultiValueEncoded},
+        codec::multi_types::*,
+        types::{Address, CodeMetadata},
     },
     multiversx_sc_scenario::{bech32, ContractInfo, DebugApi},
     tokio, Interactor,
-};
-use std::{
-    env::Args,
-    io::{Read, Write},
 };
 
 const GATEWAY: &str = multiversx_sc_snippets::erdrs::blockchain::DEVNET_GATEWAY;
 const PEM: &str = "devnetWalletKey.pem";
 const SC_ADDRESS: &str = "erd1qqqqqqqqqqqqqpgqnxsz48mu6m882qwq09dh66jxjdfm0rkk082s8r9fpp";
 
-const SYSTEM_SC_BECH32: &str = "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u";
 const DEFAULT_ADDRESS_EXPR: &str =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
 const DEFAULT_GAS_LIMIT: u64 = 100_000_000;
-const TOKEN_ISSUE_COST: u64 = 50_000_000_000_000_000;
 
 type ContractType = ContractInfo<auto_farm::Proxy<DebugApi>>;
 
@@ -123,7 +117,7 @@ impl State {
     async fn new() -> Self {
         let mut interactor = Interactor::new(GATEWAY).await;
         let wallet_address = interactor.register_wallet(Wallet::from_pem_file(PEM).unwrap());
-        let sc_addr_expr = if SC_ADDRESS == "" {
+        let sc_addr_expr = if SC_ADDRESS.is_empty() {
             DEFAULT_ADDRESS_EXPR.to_string()
         } else {
             "bech32:".to_string() + SC_ADDRESS
@@ -171,9 +165,6 @@ impl State {
         let new_address = result.new_deployed_address();
         let new_address_bech32 = bech32::encode(&new_address);
         println!("new address: {}", new_address_bech32);
-        let result_value = result.value();
-
-        println!("Result: {:?}", result_value);
     }
 
     async fn change_proxy_claim_address(&mut self) {
@@ -186,8 +177,7 @@ impl State {
                     .change_proxy_claim_address(new_proxy_claim_address)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -207,20 +197,16 @@ impl State {
             "erd1qqqqqqqqqqqqqpgq5dzs6yf47tnsk5ays2aedzmu2ahsmcqv0n4s3rsljy",
         ));
 
-        let result: multiversx_sc_snippets::InteractorResult<()> = self
+        let _: multiversx_sc_snippets::InteractorResult<()> = self
             .interactor
             .sc_call_get_result(
                 self.contract
                     .add_farms(farms)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
-        let result_value = result.value();
-
-        println!("Result: {:?}", result_value);
     }
 
     async fn remove_farms(&mut self) {
@@ -233,8 +219,7 @@ impl State {
                     .remove_farms(farms)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -287,8 +272,7 @@ impl State {
                     .register()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -304,8 +288,7 @@ impl State {
                     .withdraw_all_and_unregister()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -326,8 +309,7 @@ impl State {
                     .into_blockchain_call()
                     .from(&self.wallet_address)
                     .esdt_transfer(token_id.to_vec(), token_nonce, token_amount)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -343,8 +325,7 @@ impl State {
                     .withdraw_all_farm_tokens_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -362,8 +343,7 @@ impl State {
                     .withdraw_specific_farm_tokens_endpoint(tokens_to_withdraw)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -392,8 +372,7 @@ impl State {
                     .add_metastaking_scs(scs)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -411,8 +390,7 @@ impl State {
                     .remove_metastaking_scs(scs)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -461,8 +439,7 @@ impl State {
                     .into_blockchain_call()
                     .from(&self.wallet_address)
                     .esdt_transfer(token_id.to_vec(), token_nonce, token_amount)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -478,8 +455,7 @@ impl State {
                     .withdraw_all_metastaking_tokens_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -497,8 +473,7 @@ impl State {
                     .withdraw_specific_metastaking_tokens_endpoint(tokens_to_withdraw)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -538,8 +513,7 @@ impl State {
                     .claim_all_rewards_and_compound(claim_args)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -555,8 +529,7 @@ impl State {
                     .user_claim_rewards_endpoint()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -583,8 +556,7 @@ impl State {
                     .claim_fees()
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
@@ -620,8 +592,7 @@ impl State {
                     .set_energy_factory_address(sc_address)
                     .into_blockchain_call()
                     .from(&self.wallet_address)
-                    .gas_limit(DEFAULT_GAS_LIMIT)
-                    .into(),
+                    .gas_limit(DEFAULT_GAS_LIMIT),
             )
             .await;
         let result_value = result.value();
