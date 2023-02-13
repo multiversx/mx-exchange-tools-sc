@@ -1,12 +1,27 @@
 use common_structs::PaymentsVec;
 
+use crate::common::payments_wrapper::PaymentsWrapper;
+
+use mergeable::Mergeable;
+
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct UnwrapResult<M: ManagedTypeApi> {
-    pub farm_tokens: PaymentsVec<M>,
-    pub rewards: PaymentsVec<M>,
+    pub farm_tokens: PaymentsWrapper<M>,
+    pub rewards: PaymentsWrapper<M>,
+}
+
+pub struct ExitMultiFarmResult<M: ManagedTypeApi> {
+    pub farming_tokens: PaymentsWrapper<M>,
+    pub rewards: PaymentsWrapper<M>,
+}
+
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
+pub struct UnwrapAndExitResult<M: ManagedTypeApi> {
+    pub farming_tokens: PaymentsWrapper<M>,
+    pub rewards: PaymentsWrapper<M>,
 }
 
 #[multiversx_sc::module]
@@ -33,15 +48,28 @@ pub trait UnwrapFarmTokenModule:
         let caller = self.blockchain().get_caller();
         let payments = self.get_non_empty_payments();
         let unwrap_result = self.unwrap_common(&caller, payments);
-        if !unwrap_result.farm_tokens.is_empty() {
-            self.send()
-                .direct_multi(&caller, &unwrap_result.farm_tokens);
-        }
-        if !unwrap_result.rewards.is_empty() {
-            self.send().direct_multi(&caller, &unwrap_result.rewards);
-        }
+        unwrap_result.farm_tokens.send_to(&caller);
+        unwrap_result.rewards.send_to(&caller);
 
         unwrap_result
+    }
+
+    #[payable("*")]
+    #[endpoint(unwrapAndExitFarm)]
+    fn unwrap_and_exit_farm(&self) -> UnwrapAndExitResult<Self::Api> {
+        let caller = self.blockchain().get_caller();
+        let payments = self.get_non_empty_payments();
+        let unwrap_result = self.unwrap_common(&caller, payments);
+        let mut exit_result = self.exit_all_farms(&caller, unwrap_result.farm_tokens);
+        exit_result.rewards.merge_with(unwrap_result.rewards);
+
+        exit_result.farming_tokens.send_to(&caller);
+        exit_result.rewards.send_to(&caller);
+
+        UnwrapAndExitResult {
+            farming_tokens: exit_result.farming_tokens,
+            rewards: exit_result.rewards,
+        }
     }
 
     fn unwrap_common(
@@ -68,5 +96,24 @@ pub trait UnwrapFarmTokenModule:
         self.send().esdt_local_burn_multi(&payments);
 
         unwrap_result
+    }
+
+    fn exit_all_farms(
+        &self,
+        user: &ManagedAddress,
+        farm_tokens: PaymentsWrapper<Self::Api>,
+    ) -> ExitMultiFarmResult<Self::Api> {
+        let mut farming_tokens = PaymentsWrapper::new();
+        let mut rewards = PaymentsWrapper::new();
+        for farm_token in farm_tokens.iter() {
+            let exit_result = self.exit_farm(user.clone(), farm_token);
+            farming_tokens.push(exit_result.farming_tokens);
+            rewards.push(exit_result.rewards);
+        }
+
+        ExitMultiFarmResult {
+            farming_tokens,
+            rewards,
+        }
     }
 }

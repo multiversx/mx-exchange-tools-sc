@@ -5,6 +5,7 @@ use permissions_module::Permissions;
 
 multiversx_sc::imports!();
 
+pub mod common;
 pub mod external_sc_interactions;
 pub mod reward_tokens;
 pub mod single_token_rewards;

@@ -4,6 +4,7 @@ use farm_base_impl::base_traits_impl::FarmContract;
 use fixed_supply_token::FixedSupplyToken;
 
 use crate::{
+    common::payments_wrapper::PaymentsWrapper,
     single_token_rewards::{BaseFarmLogicWrapper, ScTraits},
     wrapped_farm_attributes::WrappedFarmAttributes,
 };
@@ -15,8 +16,8 @@ pub struct InternalClaimResult<'a, C>
 where
     C: ScTraits,
 {
-    pub rewards: PaymentsVec<C::Api>,
-    pub underlying_farm_tokens: PaymentsVec<C::Api>,
+    pub rewards: PaymentsWrapper<C::Api>,
+    pub underlying_farm_tokens: PaymentsWrapper<C::Api>,
     pub claim_context: ClaimRewardsContext<C::Api, WrappedFarmAttributes<C::Api>>,
     pub storage_cache: StorageCache<'a, C>,
 }
@@ -24,7 +25,7 @@ where
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct ClaimResult<M: ManagedTypeApi> {
     pub new_wrapped_farm_token: EsdtTokenPayment<M>,
-    pub rewards: PaymentsVec<M>,
+    pub rewards: PaymentsWrapper<M>,
 }
 
 #[multiversx_sc::module]
@@ -51,11 +52,11 @@ pub trait GenerateRewardsModule:
         let payments = self.get_non_empty_payments();
         let mut claim_result = self.generate_rewards_all_tokens(&caller, payments);
 
-        let farm_claim_result =
-            self.claim_base_farm_rewards(caller.clone(), claim_result.underlying_farm_tokens);
-        if farm_claim_result.rewards.amount > 0 {
-            claim_result.rewards.push(farm_claim_result.rewards);
-        }
+        let farm_claim_result = self.claim_base_farm_rewards(
+            caller.clone(),
+            claim_result.underlying_farm_tokens.into_payments(),
+        );
+        claim_result.rewards.push(farm_claim_result.rewards);
 
         let new_wrapped_farm_token = self
             .create_new_wrapped_farm_token_after_claim(
@@ -68,9 +69,7 @@ pub trait GenerateRewardsModule:
         self.send()
             .direct_non_zero_esdt_payment(&caller, &new_wrapped_farm_token);
 
-        if !claim_result.rewards.is_empty() {
-            self.send().direct_multi(&caller, &claim_result.rewards);
-        }
+        claim_result.rewards.send_to(&caller);
 
         ClaimResult {
             new_wrapped_farm_token,
@@ -103,7 +102,7 @@ pub trait GenerateRewardsModule:
 
         BaseFarmLogicWrapper::generate_aggregated_rewards(self, &mut storage_cache);
 
-        let mut rewards = PaymentsVec::new();
+        let mut rewards = PaymentsWrapper::new();
         for token in self.reward_tokens().iter() {
             let rew = self.generate_single_token_reward(
                 caller,
@@ -112,9 +111,7 @@ pub trait GenerateRewardsModule:
                 &wrapped_token_attributes,
                 &mut storage_cache,
             );
-            if rew.amount > 0 {
-                rewards.push(rew);
-            }
+            rewards.push(rew);
         }
 
         InternalClaimResult {
@@ -191,15 +188,13 @@ pub trait GenerateRewardsModule:
     fn get_all_underlying_farm_tokens(
         &self,
         claim_rewards_context: &ClaimRewardsContext<Self::Api, WrappedFarmAttributes<Self::Api>>,
-    ) -> PaymentsVec<Self::Api> {
+    ) -> PaymentsWrapper<Self::Api> {
         let wrapped_token_mapper = self.farm_token();
         let first_farm_token = &claim_rewards_context.first_farm_token.attributes.farm_token;
 
-        let mut underlying_farm_tokens = if first_farm_token.amount > 0 {
-            ManagedVec::from_single_item(first_farm_token.clone())
-        } else {
-            ManagedVec::new()
-        };
+        let mut underlying_farm_tokens = PaymentsWrapper::new();
+        underlying_farm_tokens.push(first_farm_token.clone());
+
         for other_wrapped_token in &claim_rewards_context.additional_payments {
             let attributes: WrappedFarmAttributes<Self::Api> = self
                 .get_attributes_as_part_of_fixed_supply(
@@ -211,9 +206,7 @@ pub trait GenerateRewardsModule:
                 "Invalid payments, all wrapped tokens must belong to the same farm"
             );
 
-            if attributes.farm_token.amount > 0 {
-                underlying_farm_tokens.push(attributes.farm_token);
-            }
+            underlying_farm_tokens.push(attributes.farm_token);
         }
 
         underlying_farm_tokens

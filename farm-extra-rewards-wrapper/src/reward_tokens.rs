@@ -1,5 +1,7 @@
 use common_structs::{Nonce, PaymentsVec};
 
+use crate::common::payments_wrapper::PaymentsWrapper;
+
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
@@ -33,7 +35,7 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
     ) -> PaymentsVec<Self::Api> {
         self.require_caller_has_owner_or_admin_permissions();
 
-        let mut output_payments = PaymentsVec::new();
+        let mut output_payments = PaymentsWrapper::new();
         let mut tokens_mapper = self.reward_tokens();
         for token in tokens {
             let _ = tokens_mapper.swap_remove(&token);
@@ -42,20 +44,15 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
             let accumulated_rewards = self.accumulated_rewards(&token).take();
             let capacity = self.reward_capacity(&token).take();
             let remaining_tokens = capacity - accumulated_rewards;
-            if remaining_tokens == 0 {
-                continue;
-            }
 
             let payment = EsdtTokenPayment::new(token, 0, remaining_tokens);
             output_payments.push(payment);
         }
 
         let caller = self.blockchain().get_caller();
-        if !output_payments.is_empty() {
-            self.send().direct_multi(&caller, &output_payments);
-        }
+        output_payments.send_to(&caller);
 
-        output_payments
+        output_payments.into_payments()
     }
 
     #[view(getRewardTokens)]
