@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           27
+// Endpoints:                           32
 // Async Callback:                       1
-// Total number of exported functions:  29
+// Total number of exported functions:  34
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -40,6 +40,11 @@ multiversx_sc_wasm_adapter::endpoints! {
         depositRewardTokens
         withdrawRewardTokens
         getRewardTokens
+        getTokenAdditionBlock
+        wrapFarmToken
+        claimRewards
+        unwrapFarmToken
+        unwrapAndExitFarm
         addFarms
         removeFarms
         getFarmForFarmToken
