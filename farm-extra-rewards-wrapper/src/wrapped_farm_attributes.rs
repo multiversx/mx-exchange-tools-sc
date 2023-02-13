@@ -91,6 +91,7 @@ impl<M: ManagedTypeApi> From<FarmTokenAttributes<M>> for WrappedFarmAttributes<M
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl<M: ManagedTypeApi> Into<FarmTokenAttributes<M>> for WrappedFarmAttributes<M> {
     fn into(self) -> FarmTokenAttributes<M> {
         throw_not_implemented_error::<M>();
