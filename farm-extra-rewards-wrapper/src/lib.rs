@@ -28,6 +28,7 @@ pub trait FarmExtraRewardsWrapper:
     + crate::reward_tokens::RewardTokensModule
     + crate::wrapper_actions::wrap_farm_token::WrapFarmTokenModule
     + crate::wrapper_actions::generate_rewards::GenerateRewardsModule
+    + crate::wrapper_actions::unwrap_farm_token::UnwrapFarmTokenModule
     + crate::external_sc_interactions::farm_interactions::FarmInteractionsModule
 {
     #[init]

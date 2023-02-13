@@ -4,11 +4,22 @@ use farm_base_impl::base_traits_impl::FarmContract;
 use fixed_supply_token::FixedSupplyToken;
 
 use crate::{
-    single_token_rewards::BaseFarmLogicWrapper, wrapped_farm_attributes::WrappedFarmAttributes,
+    single_token_rewards::{BaseFarmLogicWrapper, ScTraits},
+    wrapped_farm_attributes::WrappedFarmAttributes,
 };
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
+
+pub struct InternalClaimResult<'a, C>
+where
+    C: ScTraits,
+{
+    pub rewards: PaymentsVec<C::Api>,
+    pub underlying_farm_tokens: PaymentsVec<C::Api>,
+    pub claim_context: ClaimRewardsContext<C::Api, WrappedFarmAttributes<C::Api>>,
+    pub storage_cache: StorageCache<'a, C>,
+}
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct ClaimResult<M: ManagedTypeApi> {
@@ -38,22 +49,40 @@ pub trait GenerateRewardsModule:
     fn claim_rewards(&self) -> ClaimResult<Self::Api> {
         let caller = self.blockchain().get_caller();
         let payments = self.get_non_empty_payments();
-        let claim_result = self.generate_rewards_all_tokens(caller.clone(), payments);
+        let mut claim_result = self.generate_rewards_all_tokens(&caller, payments);
+
+        let farm_claim_result =
+            self.claim_base_farm_rewards(caller.clone(), claim_result.underlying_farm_tokens);
+        if farm_claim_result.rewards.amount > 0 {
+            claim_result.rewards.push(farm_claim_result.rewards);
+        }
+
+        let new_wrapped_farm_token = self
+            .create_new_wrapped_farm_token_after_claim(
+                caller.clone(),
+                claim_result.claim_context,
+                farm_claim_result.new_farm_token,
+                &claim_result.storage_cache,
+            )
+            .payment;
         self.send()
-            .direct_non_zero_esdt_payment(&caller, &claim_result.new_wrapped_farm_token);
+            .direct_non_zero_esdt_payment(&caller, &new_wrapped_farm_token);
 
         if !claim_result.rewards.is_empty() {
             self.send().direct_multi(&caller, &claim_result.rewards);
         }
 
-        claim_result
+        ClaimResult {
+            new_wrapped_farm_token,
+            rewards: claim_result.rewards,
+        }
     }
 
     fn generate_rewards_all_tokens(
         &self,
-        caller: ManagedAddress,
+        caller: &ManagedAddress,
         payments: PaymentsVec<Self::Api>,
-    ) -> ClaimResult<Self::Api> {
+    ) -> InternalClaimResult<Self> {
         let mut storage_cache = StorageCache::new(self);
         self.validate_contract_state(storage_cache.contract_state, &storage_cache.farm_token_id);
 
@@ -77,7 +106,7 @@ pub trait GenerateRewardsModule:
         let mut rewards = PaymentsVec::new();
         for token in self.reward_tokens().iter() {
             let rew = self.generate_single_token_reward(
-                &caller,
+                caller,
                 token,
                 wrapped_farm_token_amount,
                 &wrapped_token_attributes,
@@ -88,22 +117,11 @@ pub trait GenerateRewardsModule:
             }
         }
 
-        let farm_claim_result =
-            self.claim_base_farm_rewards(caller.clone(), underlying_farm_tokens);
-        if farm_claim_result.rewards.amount > 0 {
-            rewards.push(farm_claim_result.rewards);
-        }
-
-        let new_wrapped_farm_token = self.create_new_wrapped_farm_token_after_claim(
-            caller,
-            claim_rewards_context,
-            farm_claim_result.new_farm_token,
-            &storage_cache,
-        );
-
-        ClaimResult {
-            new_wrapped_farm_token: new_wrapped_farm_token.payment,
+        InternalClaimResult {
             rewards,
+            underlying_farm_tokens,
+            claim_context: claim_rewards_context,
+            storage_cache,
         }
     }
 
@@ -177,7 +195,11 @@ pub trait GenerateRewardsModule:
         let wrapped_token_mapper = self.farm_token();
         let first_farm_token = &claim_rewards_context.first_farm_token.attributes.farm_token;
 
-        let mut underlying_farm_tokens = ManagedVec::from_single_item(first_farm_token.clone());
+        let mut underlying_farm_tokens = if first_farm_token.amount > 0 {
+            ManagedVec::from_single_item(first_farm_token.clone())
+        } else {
+            ManagedVec::new()
+        };
         for other_wrapped_token in &claim_rewards_context.additional_payments {
             let attributes: WrappedFarmAttributes<Self::Api> = self
                 .get_attributes_as_part_of_fixed_supply(
@@ -189,7 +211,9 @@ pub trait GenerateRewardsModule:
                 "Invalid payments, all wrapped tokens must belong to the same farm"
             );
 
-            underlying_farm_tokens.push(attributes.farm_token);
+            if attributes.farm_token.amount > 0 {
+                underlying_farm_tokens.push(attributes.farm_token);
+            }
         }
 
         underlying_farm_tokens
