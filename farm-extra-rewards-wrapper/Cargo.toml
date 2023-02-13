@@ -56,6 +56,10 @@ rev = "4941cae"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
+[dependencies.unwrappable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
 [dependencies.math]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"

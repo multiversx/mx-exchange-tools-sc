@@ -3,18 +3,31 @@ use core::marker::PhantomData;
 use contexts::storage_cache::StorageCache;
 use farm_base_impl::base_traits_impl::FarmContract;
 
-use crate::wrapped_farm_attributes::{WrappedFarmAttributes, NOT_IMPLEMENTED_ERR_MSG};
-use crate::FarmExtraRewardsWrapper;
+use crate::wrapped_farm_attributes::{throw_not_implemented_error, WrappedFarmAttributes};
 
 multiversx_sc::imports!();
 
-pub struct Wrapper<T: FarmExtraRewardsWrapper> {
+pub trait ScTraits = auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
+    + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
+    + rewards::RewardsModule
+    + config::ConfigModule
+    + token_send::TokenSendModule
+    + farm_token::FarmTokenModule
+    + pausable::PausableModule
+    + permissions_module::PermissionsModule
+    + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule
+    + farm_base_impl::base_farm_validation::BaseFarmValidationModule
+    + farm_base_impl::enter_farm::BaseEnterFarmModule
+    + utils::UtilsModule
+    + crate::reward_tokens::RewardTokensModule;
+
+pub struct BaseFarmLogicWrapper<T: ScTraits> {
     _phantom: PhantomData<T>,
 }
 
-impl<T> FarmContract for Wrapper<T>
+impl<T> FarmContract for BaseFarmLogicWrapper<T>
 where
-    T: FarmExtraRewardsWrapper,
+    T: ScTraits,
 {
     type FarmSc = T;
     type AttributesType = WrappedFarmAttributes<<Self::FarmSc as ContractBase>::Api>;
@@ -64,12 +77,13 @@ where
         WrappedFarmAttributes {
             farm_token: sc.call_value().single_esdt(),
             reward_per_share: current_reward_per_share,
+            creation_block: sc.blockchain().get_block_nonce(),
             current_token_amount: farming_token_amount,
         }
     }
 
     fn create_claim_rewards_initial_attributes(
-        _sc: &Self::FarmSc,
+        sc: &Self::FarmSc,
         _caller: ManagedAddress<<Self::FarmSc as ContractBase>::Api>,
         first_token_attributes: Self::AttributesType,
         current_reward_per_share: BigUint<<Self::FarmSc as ContractBase>::Api>,
@@ -77,6 +91,7 @@ where
         WrappedFarmAttributes {
             farm_token: first_token_attributes.farm_token,
             reward_per_share: current_reward_per_share,
+            creation_block: sc.blockchain().get_block_nonce(),
             current_token_amount: first_token_attributes.current_token_amount,
         }
     }
@@ -88,6 +103,6 @@ where
         _current_reward_per_share: BigUint<<Self::FarmSc as ContractBase>::Api>,
         _reward: &BigUint<<Self::FarmSc as ContractBase>::Api>,
     ) -> Self::AttributesType {
-        <Self::FarmSc as ContractBase>::Api::error_api_impl().signal_error(NOT_IMPLEMENTED_ERR_MSG);
+        throw_not_implemented_error::<<Self::FarmSc as ContractBase>::Api>();
     }
 }
