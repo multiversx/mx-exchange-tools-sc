@@ -52,11 +52,18 @@ pub trait UnwrapFarmTokenModule:
         let token_mapper = self.farm_token();
         token_mapper.require_all_same_token(&payments);
 
-        let claim_result = self.generate_rewards_all_tokens(caller, payments.clone());
+        let mut claim_result = self.generate_rewards_all_tokens(caller, payments.clone());
         let unwrap_result = UnwrapResult {
             farm_tokens: claim_result.underlying_farm_tokens,
             rewards: claim_result.rewards,
         };
+
+        let mut total_supply_lost = BigUint::zero();
+        for payment in &payments {
+            total_supply_lost += payment.amount;
+        }
+
+        claim_result.storage_cache.farm_token_supply -= total_supply_lost;
 
         self.send().esdt_local_burn_multi(&payments);
 
