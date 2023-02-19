@@ -5,19 +5,21 @@ use crate::{
         ERROR_BAD_PAYMENT_TOKENS, ERROR_EXTERNAL_CONTRACT_OUTPUT, ERROR_FARM_DOES_NOT_EXIST,
         ERROR_UNBOND_TOO_SOON,
     },
-    external_sc_interactions::farm_config::{UnstakeTokenAttributes, WrappedFarmTokenAttributes},
+    external_sc_interactions::energy_dao_config::{
+        UnstakeTokenAttributes, WrappedFarmTokenAttributes,
+    },
 };
 use common_structs::PaymentsVec;
 use locked_token_wrapper::wrapped_token;
 
-use super::farm_config::FarmState;
+use super::energy_dao_config::FarmState;
 
 pub type ClaimRewardsResultType<BigUint> =
     MultiValue2<EsdtTokenPayment<BigUint>, EsdtTokenPayment<BigUint>>;
 
 #[multiversx_sc::module]
 pub trait FarmInteractionsModule:
-    crate::external_sc_interactions::farm_config::FarmConfigModule
+    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + crate::external_sc_interactions::fees_collector_interactions::FeesCollectorInteractionsModule

@@ -1,5 +1,5 @@
 use energy_dao::external_sc_interactions::{
-    farm_config::FarmConfigModule, farm_interactions::FarmInteractionsModule,
+    energy_dao_config::EnergyDAOConfigModule, farm_interactions::FarmInteractionsModule,
     locked_token_interactions::LockedTokenInteractionsModule,
 };
 use multiversx_sc::types::{Address, EsdtTokenPayment, MultiValueEncoded};

@@ -6,11 +6,13 @@ use farm::{
 };
 use locked_token_wrapper::wrapped_token;
 
-use super::farm_config::{FarmState, WrappedFarmTokenAttributes, MAX_PERCENT};
+use crate::common::rewards_wrapper::RewardsWrapper;
+
+use super::energy_dao_config::{FarmState, WrappedFarmTokenAttributes, MAX_PERCENT};
 
 #[multiversx_sc::module]
 pub trait FarmActionsModule:
-    crate::external_sc_interactions::farm_config::FarmConfigModule
+    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule
     + energy_query::EnergyQueryModule
@@ -114,22 +116,28 @@ pub trait FarmActionsModule:
     }
 
     fn apply_fee(&self, payment: &mut EsdtTokenPayment) {
-        let penalty_percent = self.penalty_percent().get();
+        let penalty_percent = self.exit_penalty_percent().get();
         let calculated_fee = &payment.amount * penalty_percent / MAX_PERCENT;
 
-        let exit_fees_mapper = self.exit_fees();
+        let exit_fees_mapper = self.user_exit_fees();
         if exit_fees_mapper.is_empty() {
             let new_fee = EsdtTokenPayment::new(
                 payment.token_identifier.clone(),
                 payment.token_nonce,
                 calculated_fee.clone(),
             );
-            exit_fees_mapper.set(new_fee);
+            let locked_token_id = self.get_locked_token_id();
+            let mut fees = RewardsWrapper::new(locked_token_id);
+            fees.add_tokens(new_fee);
+            exit_fees_mapper.set(fees);
         } else {
             exit_fees_mapper.update(|fees| {
-                if fees.token_identifier == payment.token_identifier {
-                    fees.amount += &calculated_fee;
-                }
+                let new_fee = EsdtTokenPayment::new(
+                    payment.token_identifier.clone(),
+                    payment.token_nonce,
+                    calculated_fee.clone(),
+                );
+                fees.add_tokens(new_fee);
             });
         }
         payment.amount -= calculated_fee;

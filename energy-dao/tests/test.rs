@@ -3,7 +3,7 @@ mod contract_setup;
 
 use common_structs::FarmTokenAttributes;
 use contract_setup::*;
-use energy_dao::external_sc_interactions::farm_config::{
+use energy_dao::external_sc_interactions::energy_dao_config::{
     UnstakeTokenAttributes, WrappedFarmTokenAttributes,
 };
 use multiversx_sc_scenario::DebugApi;

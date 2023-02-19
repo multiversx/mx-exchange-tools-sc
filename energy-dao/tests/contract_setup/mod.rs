@@ -12,7 +12,7 @@ use multiversx_sc_scenario::{
 };
 
 use config::ConfigModule;
-use energy_dao::{external_sc_interactions::farm_config::FarmConfigModule, *};
+use energy_dao::{external_sc_interactions::energy_dao_config::EnergyDAOConfigModule, *};
 use energy_factory::{locked_token_transfer::LockedTokenTransferModule, SimpleLockEnergy};
 use energy_query::EnergyQueryModule;
 use farm_boosted_yields::boosted_yields_factors::BoostedYieldsFactorsModule;
