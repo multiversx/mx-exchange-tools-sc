@@ -1,7 +1,7 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-use common_structs::{Epoch, Nonce};
+use common_structs::Epoch;
 
 use crate::common::{
     errors::{
@@ -10,57 +10,8 @@ use crate::common::{
         ERROR_METASTAKING_HAS_FUNDS,
     },
     rewards_wrapper::RewardsWrapper,
+    structs::{FarmState, MetastakingState},
 };
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
-pub struct FarmState<M: ManagedTypeApi> {
-    pub farm_staked_value: BigUint<M>,
-    pub farm_token_nonce: Nonce,
-    pub reward_token_nonce: Nonce,
-    pub farm_unstaked_value: BigUint<M>,
-    pub reward_reserve: BigUint<M>,
-    pub farm_rps: BigUint<M>,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
-pub struct MetastakingState<M: ManagedTypeApi> {
-    pub ms_staked_value: BigUint<M>,
-    pub dual_yield_token_nonce: Nonce,
-    pub lp_farm_reward_token_nonce: Nonce,
-    pub lp_farm_reward_reserve: BigUint<M>,
-    pub staking_reward_reserve: BigUint<M>,
-    pub lp_farm_rps: BigUint<M>,
-    pub staking_rps: BigUint<M>,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct WrappedFarmTokenAttributes<M: ManagedTypeApi> {
-    pub farm_address: ManagedAddress<M>,
-    pub token_rps: BigUint<M>,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct WrappedMetastakingTokenAttributes<M: ManagedTypeApi> {
-    pub metastaking_address: ManagedAddress<M>,
-    pub lp_farm_token_rps: BigUint<M>,
-    pub staking_token_rps: BigUint<M>,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct UnstakeTokenAttributes<M: ManagedTypeApi> {
-    pub farm_address: ManagedAddress<M>,
-    pub unstake_epoch: Epoch,
-    pub token_nonce: Nonce,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct UnstakeMetastakingAttributes<M: ManagedTypeApi> {
-    pub metastaking_address: ManagedAddress<M>,
-    pub unbond_token_id: TokenIdentifier<M>,
-    pub unbond_token_nonce: Nonce,
-}
-
-pub const MAX_PERCENT: u64 = 10_000;
 
 #[multiversx_sc::module]
 pub trait EnergyDAOConfigModule: utils::UtilsModule {
@@ -292,6 +243,13 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
         staking_token_id
     }
 
+    #[view(getLpFarmAddress)]
+    fn get_lp_farm_address(&self, metastaking_address: &ManagedAddress) -> ManagedAddress {
+        let lp_farm_address = self.lp_farm_address().get_from_address(metastaking_address);
+        self.require_sc_address(&lp_farm_address);
+        lp_farm_address
+    }
+
     #[view(getStakingFarmAddress)]
     fn get_staking_farm_address(&self, metastaking_address: &ManagedAddress) -> ManagedAddress {
         let staking_farm_address = self
@@ -318,6 +276,9 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
 
     #[storage_mapper("stakingTokenId")]
     fn staking_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[storage_mapper("lpFarmAddress")]
+    fn lp_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
 
     #[storage_mapper("stakingFarmAddress")]
     fn staking_farm_address(&self) -> SingleValueMapper<ManagedAddress>;

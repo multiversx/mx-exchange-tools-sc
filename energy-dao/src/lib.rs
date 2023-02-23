@@ -12,6 +12,8 @@ pub trait EnergyDAO:
     external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::farm_interactions::FarmInteractionsModule
+    + external_sc_interactions::metastaking_actions::MetastakingActionsModule
+    + external_sc_interactions::metastaking_interactions::MetastakingInteractionsModule
     + external_sc_interactions::locked_token_actions::LockedTokenModule
     + external_sc_interactions::locked_token_interactions::LockedTokenInteractionsModule
     + external_sc_interactions::fees_collector_interactions::FeesCollectorInteractionsModule

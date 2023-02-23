@@ -8,102 +8,80 @@ publish = false
 [lib]
 path = "src/lib.rs"
 [dependencies.multiversx-sc]
-version = "=0.39.4"
+version = "0.39.4"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
-version = "=0.39.4"
+version = "0.39.4"
 
 [dependencies.farm]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/dex/farm"
 
 [dependencies.farm-with-locked-rewards]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/dex/farm-with-locked-rewards"
 
 [dependencies.farm-staking]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/farm-staking/farm-staking"
 
 [dependencies.farm-staking-proxy]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/farm-staking/farm-staking-proxy"
 
 [dependencies.pair]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/dex/pair"
 
 [dependencies.energy-factory]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/locked-asset/energy-factory"
 
 [dependencies.fees-collector]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/energy-integration/fees-collector"
 
 [dependencies.locked-token-wrapper]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/locked-asset/locked-token-wrapper"
 
 [dependencies.simple-lock]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/locked-asset/simple-lock"
 
 [dependencies.common_structs]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/common_structs"
 
 [dependencies.mergeable]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/traits/mergeable"
 
 [dependencies.pausable]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/pausable"
 
 [dependencies.utils]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/utils"
 
 [dependencies.sc_whitelist_module]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/sc_whitelist_module"
 
 [dependencies.token_send]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/token_send"
 
 [dependencies.farm_token]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/farm/farm_token"
 
 [dependencies.locking_module]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/locking_module"
 
 [dependencies.config]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/farm/config"
 
 [dependencies.energy-query]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/energy-integration/common-modules/energy-query"
 
 [dependencies.farm-boosted-yields]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/energy-integration/farm-boosted-yields"
 
 [dependencies.legacy_token_decode_module]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path="../../mx-exchange-sc/common/modules/legacy_token_decode_module"
 
 [dependencies.lkmex-transfer]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "09743c3"
+path = "../../mx-exchange-sc/locked-asset/lkmex-transfer"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.39.4"
+version = "0.39.4"

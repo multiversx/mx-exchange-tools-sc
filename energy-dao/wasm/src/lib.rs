@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           36
+// Endpoints:                           39
 // Async Callback:                       1
-// Total number of exported functions:  38
+// Total number of exported functions:  41
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -33,6 +33,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getDualYieldTokenId
         getLpFarmTokenId
         getStakingTokenId
+        getLpFarmAddress
         getStakingFarmAddress
         getWrappedFarmTokenId
         getUnstakeFarmTokenId
@@ -44,6 +45,10 @@ multiversx_sc_wasm_adapter::endpoints! {
         claimUserRewards
         unstakeFarm
         unbondFarm
+        enterMetastaking
+        unstakeMetastaking
+        unbondMetastaking
+        claimMetastakingRewards
         lockEnergyTokens
         claimFeesCollectorRewards
         setEnergyFactoryAddress
@@ -51,8 +56,6 @@ multiversx_sc_wasm_adapter::endpoints! {
         issueWrappedToken
         setTransferRoleWrappedToken
         unsetTransferRoleWrappedToken
-        getLockedTokenId
-        getOldLockedTokenId
         getWrappedTokenId
         callBack
     )

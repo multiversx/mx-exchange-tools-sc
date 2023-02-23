@@ -2,16 +2,13 @@ multiversx_sc::imports!();
 
 use common_structs::PaymentsVec;
 use farm_staking::unbond_farm::ProxyTrait as _;
-use farm_staking_proxy::{
-    proxy_actions::{
-        claim::ProxyTrait as OtherProxyTrait3, stake::ProxyTrait as OtherProxyTrait,
-        unstake::ProxyTrait as OtherProxyTrait2,
-    },
-    result_types::{ClaimDualYieldResult, StakeProxyResult, UnstakeResult},
-};
+use farm_staking_proxy::proxy_actions::claim::ProxyTrait as _;
+use farm_staking_proxy::proxy_actions::stake::ProxyTrait as _;
+use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as _;
+use farm_staking_proxy::result_types::{ClaimDualYieldResult, StakeProxyResult, UnstakeResult};
 use locked_token_wrapper::wrapped_token;
 
-use super::energy_dao_config::{MetastakingState, WrappedMetastakingTokenAttributes};
+use crate::common::structs::{MetastakingState, WrappedMetastakingTokenAttributes};
 
 #[multiversx_sc::module]
 pub trait MetastakingActionsModule:
@@ -67,10 +64,10 @@ pub trait MetastakingActionsModule:
 
     fn call_metastaking_claim(
         &self,
-        ms_address: ManagedAddress,
+        metastaking_address: ManagedAddress,
         dual_yield_token: EsdtTokenPayment,
     ) -> ClaimDualYieldResult<Self::Api> {
-        self.metastaking_proxy(ms_address)
+        self.metastaking_proxy(metastaking_address)
             .claim_dual_yield_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(dual_yield_token)
             .execute_on_dest_context()

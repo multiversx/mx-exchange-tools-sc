@@ -1,18 +1,14 @@
 multiversx_sc::imports!();
 
-use crate::{
-    common::errors::{
+use crate::common::{
+    errors::{
         ERROR_BAD_PAYMENT_TOKENS, ERROR_EXTERNAL_CONTRACT_OUTPUT, ERROR_FARM_DOES_NOT_EXIST,
         ERROR_UNBOND_TOO_SOON,
     },
-    external_sc_interactions::energy_dao_config::{
-        UnstakeTokenAttributes, WrappedFarmTokenAttributes,
-    },
+    structs::{FarmState, UnstakeTokenAttributes, WrappedFarmTokenAttributes},
 };
 use common_structs::PaymentsVec;
 use locked_token_wrapper::wrapped_token;
-
-use super::energy_dao_config::FarmState;
 
 pub type ClaimRewardsResultType<BigUint> =
     MultiValue2<EsdtTokenPayment<BigUint>, EsdtTokenPayment<BigUint>>;

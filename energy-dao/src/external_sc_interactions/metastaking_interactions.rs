@@ -4,16 +4,12 @@ use common_structs::PaymentsVec;
 use farm_staking_proxy::result_types::ClaimDualYieldResult;
 use locked_token_wrapper::wrapped_token;
 
-use crate::{
-    common::errors::{
+use crate::common::{
+    errors::{
         ERROR_BAD_PAYMENT_TOKENS, ERROR_EXTERNAL_CONTRACT_OUTPUT, ERROR_METASTAKING_DOES_NOT_EXIST,
     },
-    external_sc_interactions::energy_dao_config::{
-        UnstakeMetastakingAttributes, WrappedMetastakingTokenAttributes,
-    },
+    structs::{MetastakingState, UnstakeMetastakingAttributes, WrappedMetastakingTokenAttributes},
 };
-
-use super::energy_dao_config::MetastakingState;
 
 #[multiversx_sc::module]
 pub trait MetastakingInteractionsModule:
@@ -30,7 +26,7 @@ pub trait MetastakingInteractionsModule:
     + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule
 {
     #[payable("*")]
-    #[endpoint(enterFarm)]
+    #[endpoint(enterMetastaking)]
     fn enter_metastaking_endpoint(&self, metastaking_address: ManagedAddress) -> EsdtTokenPayment {
         let payment = self.call_value().single_esdt();
         let mut metastaking_state_mapper = self.metastaking_state(&metastaking_address);
@@ -38,16 +34,30 @@ pub trait MetastakingInteractionsModule:
             !metastaking_state_mapper.is_empty(),
             ERROR_METASTAKING_DOES_NOT_EXIST
         );
-        let lp_farm_token_id = self.get_lp_farm_token(&metastaking_address);
+        let farm_address = self.get_lp_farm_address(&metastaking_address);
+
+        // Needed not to lose any unclaimed rewards
+        self.claim_and_compound_rewards(&farm_address);
+
+        let farming_token_id = self.get_farming_token(&farm_address);
         require!(
-            payment.token_identifier == lp_farm_token_id,
+            farming_token_id == payment.token_identifier,
             ERROR_BAD_PAYMENT_TOKENS
         );
 
+        // We need to enter the farm for the user, in order to have the Energy DAO contract as the original_owner of the position
+        // This is needed later on, in order to be able to merge farm positions when adding extra position
+        // We enter with the payment only, to avoid merging the actual farm position with this position that will go entirely towards metastaking
+        let enter_farm_payments = ManagedVec::from_single_item(payment);
+        let enter_farm_result = self.call_enter_farm(farm_address, enter_farm_payments);
+        let (new_farm_token, _) = enter_farm_result.into_tuple();
+
+        // Proceed to enter metastaking with the new farm position
         let metastaking_state = metastaking_state_mapper.get();
         let dual_yield_token_id = self.get_dual_yield_token(&metastaking_address);
-        let division_safety_constant = self.get_division_safety_constant(&metastaking_address);
-        let mut enter_metastaking_payments = ManagedVec::from_single_item(payment);
+        let farm_staking_address = self.get_staking_farm_address(&metastaking_address);
+        let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
+        let mut enter_metastaking_payments = ManagedVec::from_single_item(new_farm_token);
 
         let current_metastaking_position = EsdtTokenPayment::new(
             dual_yield_token_id,
@@ -115,7 +125,8 @@ pub trait MetastakingInteractionsModule:
 
         let metastaking_state = metastaking_state_mapper.get();
         let dual_yield_token_id = self.get_dual_yield_token(&metastaking_address);
-        let division_safety_constant = self.get_division_safety_constant(&metastaking_address);
+        let farm_staking_address = self.get_staking_farm_address(&metastaking_address);
+        let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
         let full_dual_yield_position = EsdtTokenPayment::new(
             dual_yield_token_id.clone(),
             metastaking_state.dual_yield_token_nonce,
@@ -150,7 +161,6 @@ pub trait MetastakingInteractionsModule:
         metastaking_state_mapper.update(|config| {
             config.lp_farm_reward_reserve -= &user_lp_farm_reward;
             config.staking_reward_reserve -= &user_staking_reward;
-            config.ms_staked_value -= &payment.amount;
         });
 
         self.send().esdt_local_burn(
@@ -291,7 +301,8 @@ pub trait MetastakingInteractionsModule:
     ) -> ClaimDualYieldResult<Self::Api> {
         let metastaking_state = metastaking_state_mapper.get();
         let dual_yield_token_id = self.get_dual_yield_token(metastaking_address);
-        let division_safety_constant = self.get_division_safety_constant(metastaking_address);
+        let farm_staking_address = self.get_staking_farm_address(metastaking_address);
+        let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
         let current_metastaking_position = EsdtTokenPayment::new(
             dual_yield_token_id,
             metastaking_state.dual_yield_token_nonce,
@@ -324,10 +335,11 @@ pub trait MetastakingInteractionsModule:
             config.staking_reward_reserve -= &user_staking_reward;
         });
 
+        let new_metastaking_state = metastaking_state_mapper.get();
         let locked_token_id = self.get_locked_token_id();
         let user_lp_farm_reward_payment = EsdtTokenPayment::new(
             locked_token_id,
-            metastaking_state.lp_farm_reward_token_nonce,
+            new_metastaking_state.lp_farm_reward_token_nonce,
             user_lp_farm_reward,
         );
         let staking_token_id = self.get_staking_token(metastaking_address);
