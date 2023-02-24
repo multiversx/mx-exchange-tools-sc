@@ -592,13 +592,13 @@ where
     );
 
     b_mock.set_esdt_balance(
-        &owner,
+        owner,
         BASE_FARM_STAKING_TOKEN_ID,
         &TOTAL_REWARDS_AMOUNT.into(),
     );
     b_mock
         .execute_esdt_transfer(
-            &owner,
+            owner,
             &farm_staking_wrapper,
             BASE_FARM_STAKING_TOKEN_ID,
             0,
@@ -663,7 +663,7 @@ where
     );
 
     b_mock
-        .execute_tx(&owner, &farm_staking_wrapper, &rust_zero, |sc| {
+        .execute_tx(owner, farm_staking_wrapper, &rust_zero, |sc| {
             sc.add_sc_address_to_whitelist(managed_address!(
                 farm_staking_proxy_wrapper.address_ref()
             ));
@@ -671,7 +671,7 @@ where
         .assert_ok();
 
     b_mock
-        .execute_tx(&owner, &lp_farm_wrapper, &rust_zero, |sc| {
+        .execute_tx(owner, lp_farm_wrapper, &rust_zero, |sc| {
             sc.add_sc_address_to_whitelist(managed_address!(
                 farm_staking_proxy_wrapper.address_ref()
             ));

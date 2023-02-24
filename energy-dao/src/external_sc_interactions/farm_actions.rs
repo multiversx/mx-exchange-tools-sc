@@ -62,7 +62,7 @@ pub trait FarmActionsModule:
     }
 
     fn claim_and_compound_rewards(&self, farm_address: &ManagedAddress) {
-        let mut farm_state_mapper = self.farm_state(&farm_address);
+        let mut farm_state_mapper = self.farm_state(farm_address);
         if farm_state_mapper.is_empty() {
             return;
         }
