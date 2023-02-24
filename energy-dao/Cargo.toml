@@ -15,70 +15,92 @@ features = ["esdt-token-payment-legacy-decode"]
 version = "0.39.4"
 
 [dependencies.farm]
-path = "../../mx-exchange-sc/dex/farm"
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.farm-with-locked-rewards]
-path = "../../mx-exchange-sc/dex/farm-with-locked-rewards"
+ [dependencies.farm-with-locked-rewards]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.farm-staking]
-path = "../../mx-exchange-sc/farm-staking/farm-staking"
+ [dependencies.farm-staking]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.farm-staking-proxy]
-path = "../../mx-exchange-sc/farm-staking/farm-staking-proxy"
+ [dependencies.farm-staking-proxy]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.pair]
-path = "../../mx-exchange-sc/dex/pair"
+ [dependencies.pair]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.energy-factory]
-path = "../../mx-exchange-sc/locked-asset/energy-factory"
+ [dependencies.energy-factory]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.fees-collector]
-path = "../../mx-exchange-sc/energy-integration/fees-collector"
+ [dependencies.fees-collector]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.locked-token-wrapper]
-path = "../../mx-exchange-sc/locked-asset/locked-token-wrapper"
+ [dependencies.locked-token-wrapper]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.simple-lock]
-path = "../../mx-exchange-sc/locked-asset/simple-lock"
+ [dependencies.simple-lock]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.common_structs]
-path="../../mx-exchange-sc/common/common_structs"
+ [dependencies.common_structs]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.mergeable]
-path="../../mx-exchange-sc/common/traits/mergeable"
+ [dependencies.mergeable]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.pausable]
-path="../../mx-exchange-sc/common/modules/pausable"
+ [dependencies.pausable]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.utils]
-path="../../mx-exchange-sc/common/modules/utils"
+ [dependencies.utils]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.sc_whitelist_module]
-path="../../mx-exchange-sc/common/modules/sc_whitelist_module"
+ [dependencies.sc_whitelist_module]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.token_send]
-path="../../mx-exchange-sc/common/modules/token_send"
+ [dependencies.token_send]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.farm_token]
-path="../../mx-exchange-sc/common/modules/farm/farm_token"
+ [dependencies.farm_token]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.locking_module]
-path="../../mx-exchange-sc/common/modules/locking_module"
+ [dependencies.locking_module]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.config]
-path="../../mx-exchange-sc/common/modules/farm/config"
+ [dependencies.config]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.energy-query]
-path = "../../mx-exchange-sc/energy-integration/common-modules/energy-query"
+ [dependencies.energy-query]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.farm-boosted-yields]
-path = "../../mx-exchange-sc/energy-integration/farm-boosted-yields"
+ [dependencies.farm-boosted-yields]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.legacy_token_decode_module]
-path="../../mx-exchange-sc/common/modules/legacy_token_decode_module"
+ [dependencies.legacy_token_decode_module]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
-[dependencies.lkmex-transfer]
-path = "../../mx-exchange-sc/locked-asset/lkmex-transfer"
+ [dependencies.lkmex-transfer]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
 
 [dev-dependencies]
 num-bigint = "0.4.2"

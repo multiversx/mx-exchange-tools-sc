@@ -323,6 +323,7 @@ dependencies = [
 [[package]]
 name = "common-types"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -338,6 +339,7 @@ dependencies = [
 [[package]]
 name = "common_errors"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -353,12 +355,13 @@ dependencies = [
 [[package]]
 name = "common_structs"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "fixed-supply-token 0.0.0",
- "math 0.0.0",
- "mergeable 0.0.0",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "math 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "unwrappable 0.0.0",
+ "unwrappable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -376,13 +379,14 @@ dependencies = [
 [[package]]
 name = "config"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "token_send 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -401,18 +405,19 @@ dependencies = [
 [[package]]
 name = "contexts"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "farm_token 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "rewards 0.0.0",
- "token_merge_helper 0.0.0",
- "token_send 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_merge_helper 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -558,32 +563,32 @@ checksum = "c34f04666d835ff5d62e058c3995147c06f42fe86ff053337632bca83e42702d"
 name = "energy-dao"
 version = "0.0.0"
 dependencies = [
- "common_structs 0.0.0",
- "config 0.0.0",
- "energy-factory 0.0.0",
- "energy-query 0.0.0",
- "farm 0.0.0",
- "farm-boosted-yields 0.0.0",
- "farm-staking 0.0.0",
- "farm-staking-proxy 0.0.0",
- "farm-with-locked-rewards 0.0.0",
- "farm_token 0.0.0",
- "fees-collector 0.0.0",
- "legacy_token_decode_module 0.0.0",
- "lkmex-transfer 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-boosted-yields 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-staking 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-staking-proxy 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-with-locked-rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fees-collector 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "legacy_token_decode_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "lkmex-transfer 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "locked-token-wrapper",
- "locking_module 0.0.0",
- "mergeable 0.0.0",
+ "locking_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
  "multiversx-sc-scenario",
  "num-bigint",
- "pair 0.0.0",
- "pausable 0.0.0",
- "sc_whitelist_module 0.0.0",
- "simple-lock 0.0.0",
- "token_send 0.0.0",
- "utils 0.0.0",
+ "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -597,17 +602,18 @@ dependencies = [
 [[package]]
 name = "energy-factory"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "legacy_token_decode_module 0.0.0",
- "math 0.0.0",
- "mergeable 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "legacy_token_decode_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "math 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "sc_whitelist_module 0.0.0",
- "simple-lock 0.0.0",
- "unwrappable 0.0.0",
- "utils 0.0.0",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "unwrappable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -630,16 +636,18 @@ dependencies = [
 [[package]]
 name = "energy-factory-mock"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "energy-query 0.0.0",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
 [[package]]
 name = "energy-query"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "energy-factory 0.0.0",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -689,9 +697,10 @@ dependencies = [
 [[package]]
 name = "events"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "contexts 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "contexts 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -708,29 +717,30 @@ dependencies = [
 [[package]]
 name = "farm"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "contexts 0.0.0",
- "energy-query 0.0.0",
- "events 0.0.0",
- "farm-boosted-yields 0.0.0",
- "farm_base_impl 0.0.0",
- "farm_token 0.0.0",
- "fixed-supply-token 0.0.0",
- "mergeable 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "contexts 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "events 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-boosted-yields 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_base_impl 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pair 0.0.0",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "rewards 0.0.0",
- "sc_whitelist_module 0.0.0",
- "token_send 0.0.0",
- "utils 0.0.0",
- "week-timekeeping 0.0.0",
- "weekly-rewards-splitting 0.0.0",
+ "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "weekly-rewards-splitting 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -765,15 +775,16 @@ dependencies = [
 [[package]]
 name = "farm-boosted-yields"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common-types 0.0.0",
- "config 0.0.0",
- "energy-query 0.0.0",
+ "common-types 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "week-timekeeping 0.0.0",
- "weekly-rewards-splitting 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "weekly-rewards-splitting 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -794,32 +805,33 @@ dependencies = [
 [[package]]
 name = "farm-staking"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "contexts 0.0.0",
- "energy-factory 0.0.0",
- "energy-query 0.0.0",
- "events 0.0.0",
- "farm 0.0.0",
- "farm-boosted-yields 0.0.0",
- "farm_base_impl 0.0.0",
- "farm_token 0.0.0",
- "fixed-supply-token 0.0.0",
- "math 0.0.0",
- "mergeable 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "contexts 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "events 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-boosted-yields 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_base_impl 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "math 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pair 0.0.0",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "rewards 0.0.0",
- "sc_whitelist_module 0.0.0",
- "token_send 0.0.0",
- "utils 0.0.0",
- "week-timekeeping 0.0.0",
- "weekly-rewards-splitting 0.0.0",
+ "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "weekly-rewards-splitting 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -857,23 +869,24 @@ dependencies = [
 [[package]]
 name = "farm-staking-proxy"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "config 0.0.0",
- "farm 0.0.0",
- "farm-staking 0.0.0",
- "fixed-supply-token 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-staking 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "hex-literal",
- "mergeable 0.0.0",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pair 0.0.0",
- "pausable 0.0.0",
- "rewards 0.0.0",
- "sc_whitelist_module 0.0.0",
- "token_send 0.0.0",
- "unwrappable 0.0.0",
- "utils 0.0.0",
+ "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "unwrappable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -901,31 +914,32 @@ dependencies = [
 [[package]]
 name = "farm-with-locked-rewards"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "contexts 0.0.0",
- "energy-factory 0.0.0",
- "energy-query 0.0.0",
- "events 0.0.0",
- "farm 0.0.0",
- "farm-boosted-yields 0.0.0",
- "farm_base_impl 0.0.0",
- "farm_token 0.0.0",
- "fixed-supply-token 0.0.0",
- "locking_module 0.0.0",
- "mergeable 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "contexts 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "events 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm-boosted-yields 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_base_impl 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "locking_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "rewards 0.0.0",
- "sc_whitelist_module 0.0.0",
- "token_send 0.0.0",
- "utils 0.0.0",
- "week-timekeeping 0.0.0",
- "weekly-rewards-splitting 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "weekly-rewards-splitting 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -962,23 +976,24 @@ dependencies = [
 [[package]]
 name = "farm_base_impl"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "contexts 0.0.0",
- "events 0.0.0",
- "farm_token 0.0.0",
- "fixed-supply-token 0.0.0",
- "mergeable 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "contexts 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "events 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "rewards 0.0.0",
- "token_merge_helper 0.0.0",
- "token_send 0.0.0",
- "utils 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "rewards 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_merge_helper 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1007,15 +1022,16 @@ dependencies = [
 [[package]]
 name = "farm_token"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "token_send 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1045,19 +1061,20 @@ dependencies = [
 [[package]]
 name = "fees-collector"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common-types 0.0.0",
- "common_errors 0.0.0",
- "energy-factory 0.0.0",
- "energy-query 0.0.0",
- "locking_module 0.0.0",
+ "common-types 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "locking_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "sc_whitelist_module 0.0.0",
- "simple-lock 0.0.0",
- "utils 0.0.0",
- "week-timekeeping 0.0.0",
- "weekly-rewards-splitting 0.0.0",
+ "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "weekly-rewards-splitting 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1082,6 +1099,7 @@ dependencies = [
 [[package]]
 name = "fixed-supply-token"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -1497,10 +1515,11 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 [[package]]
 name = "legacy_token_decode_module"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "utils 0.0.0",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1528,14 +1547,15 @@ checksum = "f051f77a7c8e6957c0696eac88f26b0117e54f52d3fc682ab19397a8812846a4"
 [[package]]
 name = "lkmex-transfer"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "energy-factory 0.0.0",
- "energy-query 0.0.0",
- "legacy_token_decode_module 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "legacy_token_decode_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "simple-lock 0.0.0",
- "utils 0.0.0",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1565,26 +1585,28 @@ dependencies = [
 [[package]]
 name = "locked-token-wrapper"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "energy-factory 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "energy-factory-mock",
- "energy-query 0.0.0",
- "legacy_token_decode_module 0.0.0",
- "lkmex-transfer 0.0.0",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "legacy_token_decode_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "lkmex-transfer 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "simple-lock 0.0.0",
- "utils 0.0.0",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
 name = "locking_module"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "energy-factory 0.0.0",
+ "energy-factory 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "simple-lock 0.0.0",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -1615,6 +1637,7 @@ checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 [[package]]
 name = "math"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -1648,6 +1671,7 @@ checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 [[package]]
 name = "mergeable"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -1994,16 +2018,17 @@ checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 [[package]]
 name = "pair"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "fees-collector 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fees-collector 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "itertools",
  "multiversx-sc",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "simple-lock 0.0.0",
- "token_send 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -2054,9 +2079,10 @@ checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
 [[package]]
 name = "pausable"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
- "permissions_module 0.0.0",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -2095,9 +2121,10 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 [[package]]
 name = "permissions_module"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "bitflags",
- "common_errors 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -2457,16 +2484,17 @@ dependencies = [
 [[package]]
 name = "rewards"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
- "config 0.0.0",
- "farm_token 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "config 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "farm_token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
- "pausable 0.0.0",
- "permissions_module 0.0.0",
- "token_send 0.0.0",
+ "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
@@ -2550,8 +2578,9 @@ dependencies = [
 [[package]]
 name = "sc_whitelist_module"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -2727,8 +2756,9 @@ checksum = "74233d3b3b2f6d4b006dc19dee745e73e2a6bfb6f93607cd3b02bd5b00797d7c"
 [[package]]
 name = "simple-lock"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
  "multiversx-sc-modules",
 ]
@@ -2879,8 +2909,9 @@ dependencies = [
 [[package]]
 name = "token_merge_helper"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -2896,9 +2927,10 @@ dependencies = [
 [[package]]
 name = "token_send"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_errors 0.0.0",
- "common_structs 0.0.0",
+ "common_errors 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -3045,6 +3077,7 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 [[package]]
 name = "unwrappable"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
  "multiversx-sc",
 ]
@@ -3071,10 +3104,11 @@ dependencies = [
 [[package]]
 name = "utils"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common_structs 0.0.0",
- "fixed-supply-token 0.0.0",
- "mergeable 0.0.0",
+ "common_structs 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "fixed-supply-token 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -3225,8 +3259,9 @@ dependencies = [
 [[package]]
 name = "week-timekeeping"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common-types 0.0.0",
+ "common-types 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
 ]
 
@@ -3242,13 +3277,14 @@ dependencies = [
 [[package]]
 name = "weekly-rewards-splitting"
 version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8#8812ab8cf9643ea32d53ca3d7582940865306c4c"
 dependencies = [
- "common-types 0.0.0",
- "energy-query 0.0.0",
- "math 0.0.0",
+ "common-types 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "energy-query 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "math 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "multiversx-sc",
- "unwrappable 0.0.0",
- "week-timekeeping 0.0.0",
+ "unwrappable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "week-timekeeping 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
 ]
 
 [[package]]
