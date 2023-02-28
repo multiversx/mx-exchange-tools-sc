@@ -14,7 +14,9 @@ use crate::common::{
 };
 
 #[multiversx_sc::module]
-pub trait EnergyDAOConfigModule: utils::UtilsModule {
+pub trait EnergyDAOConfigModule:
+    utils::UtilsModule + permissions_module::PermissionsModule
+{
     #[only_owner]
     #[payable("EGLD")]
     #[endpoint(registerWrappedFarmToken)]
@@ -95,9 +97,9 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
         );
     }
 
-    #[only_owner]
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
+        self.require_caller_has_owner_or_admin_permissions();
         for farm_addr in farms {
             let farm_state_mapper = self.farm_state(&farm_addr);
             require!(farm_state_mapper.is_empty(), ERROR_FARM_ALREADY_DEFINED);
@@ -115,9 +117,9 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
         }
     }
 
-    #[only_owner]
     #[endpoint(removeFarms)]
     fn remove_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
+        self.require_caller_has_owner_or_admin_permissions();
         for farm in farms {
             let farm_state_mapper = self.farm_state(&farm);
             require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
@@ -127,9 +129,9 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
         }
     }
 
-    #[only_owner]
     #[endpoint(addMetastakingAddresses)]
     fn add_metastaking_addresses(&self, metastaking_addresses: MultiValueEncoded<ManagedAddress>) {
+        self.require_caller_has_owner_or_admin_permissions();
         for metastaking_address in metastaking_addresses {
             let metastaking_state_mapper = self.metastaking_state(&metastaking_address);
             require!(
@@ -151,12 +153,12 @@ pub trait EnergyDAOConfigModule: utils::UtilsModule {
         }
     }
 
-    #[only_owner]
     #[endpoint(removeMetastakingAddresses)]
     fn remove_metastaking_addresses(
         &self,
         metastaking_addresses: MultiValueEncoded<ManagedAddress>,
     ) {
+        self.require_caller_has_owner_or_admin_permissions();
         for metastaking_address in metastaking_addresses {
             let metastaking_state_mapper = self.metastaking_state(&metastaking_address);
             require!(

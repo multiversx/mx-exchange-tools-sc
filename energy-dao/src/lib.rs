@@ -3,6 +3,7 @@
 multiversx_sc::imports!();
 
 use locked_token_wrapper::wrapped_token;
+use permissions_module::Permissions;
 
 pub mod common;
 pub mod external_sc_interactions;
@@ -22,6 +23,7 @@ pub trait EnergyDAO:
     + energy_query::EnergyQueryModule
     + token_send::TokenSendModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + wrapped_token::WrappedTokenModule
     + simple_lock::token_attributes::TokenAttributesModule
     + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule
@@ -48,5 +50,8 @@ pub trait EnergyDAO:
         self.exit_penalty_percent()
             .set_if_empty(exit_penalty_percent);
         self.unbond_period().set_if_empty(unbond_period);
+
+        let caller = self.blockchain().get_caller();
+        self.add_permissions(caller, Permissions::OWNER);
     }
 }

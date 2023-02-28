@@ -10,6 +10,7 @@ pub trait LockedTokenInteractionsModule:
     + crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + energy_query::EnergyQueryModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule

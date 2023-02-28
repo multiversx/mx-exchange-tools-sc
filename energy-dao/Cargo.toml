@@ -62,6 +62,10 @@ version = "0.39.4"
  git = "https://github.com/multiversx/mx-exchange-sc"
  rev = "8812ab8"
 
+ [dependencies.permissions_module]
+ git = "https://github.com/multiversx/mx-exchange-sc"
+ rev = "8812ab8"
+ 
  [dependencies.utils]
  git = "https://github.com/multiversx/mx-exchange-sc"
  rev = "8812ab8"

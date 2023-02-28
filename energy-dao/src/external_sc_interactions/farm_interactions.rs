@@ -24,6 +24,7 @@ pub trait FarmInteractionsModule:
     + energy_query::EnergyQueryModule
     + token_send::TokenSendModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + wrapped_token::WrappedTokenModule
     + simple_lock::token_attributes::TokenAttributesModule
     + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule

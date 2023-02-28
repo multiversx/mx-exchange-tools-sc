@@ -18,6 +18,7 @@ pub trait MetastakingInteractionsModule:
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + energy_query::EnergyQueryModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule

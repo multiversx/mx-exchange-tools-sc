@@ -138,6 +138,7 @@ dependencies = [
  "multiversx-sc-modules",
  "pair",
  "pausable",
+ "permissions_module",
  "sc_whitelist_module",
  "simple-lock",
  "token_send",

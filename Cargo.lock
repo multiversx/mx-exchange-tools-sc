@@ -585,6 +585,7 @@ dependencies = [
  "num-bigint",
  "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
+ "permissions_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
  "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=8812ab8)",
