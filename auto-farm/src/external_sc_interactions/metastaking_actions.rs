@@ -1,6 +1,6 @@
 use common_structs::PaymentsVec;
+pub use farm_staking_proxy::proxy_actions::claim::ProxyTrait as _;
 use farm_staking_proxy::result_types::ClaimDualYieldResult;
-pub use farm_staking_proxy::proxy_actions::claim::ProxyTrait as OtherProxyTrait;
 
 use crate::common::{address_to_id_mapper::AddressId, rewards_wrapper::RewardsWrapper};
 
@@ -64,7 +64,7 @@ pub trait MetastakingActionsModule:
         dual_yield_token: EsdtTokenPayment,
     ) -> ClaimDualYieldResult<Self::Api> {
         self.metastaking_proxy(ms_address)
-            .claim_dual_yield(user)
+            .claim_dual_yield_endpoint(user)
             .with_esdt_transfer(dual_yield_token)
             .execute_on_dest_context()
     }

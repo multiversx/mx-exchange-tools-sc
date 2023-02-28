@@ -16,4 +16,4 @@ version = "0.39.4"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "fdb1fb4"
+rev = "4941cae"

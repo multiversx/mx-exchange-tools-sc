@@ -1,43 +1,46 @@
 [package]
-name = "auto-pos-creator"
+name = "farm-extra-rewards-wrapper"
 version = "0.0.0"
-authors = ["you"]
+authors = [ "you",]
 edition = "2018"
 publish = false
 
 [lib]
 path = "src/lib.rs"
-[dependencies.multiversx-sc]
-version = "=0.39.4"
-features = ["esdt-token-payment-legacy-decode"]
-
-[dependencies.multiversx-sc-modules]
-version = "=0.39.4"
-
-[dependencies.auto-farm]
-path = "../auto-farm"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.farm-with-locked-rewards]
+[dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.farm-staking]
+[dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.farm-staking-proxy]
+[dependencies.rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.pair]
+[dependencies.contexts]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.energy-factory]
+[dependencies.farm_base_impl]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dependencies.token_send]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dependencies.permissions_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
@@ -45,7 +48,19 @@ rev = "4941cae"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
+[dependencies.fixed-supply-token]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
 [dependencies.mergeable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dependencies.unwrappable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dependencies.math]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
@@ -53,35 +68,18 @@ rev = "4941cae"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
-[dependencies.energy-query]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
-
-[dependencies.legacy_token_decode_module]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
-
-[dependencies.lkmex-transfer]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
+[dependencies.auto-farm]
+path = "../auto-farm"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
-num-traits = "0.2"
-hex = "0.4"
-hex-literal = "0.3.4"
+
+[dependencies.multiversx-sc]
+version = "=0.39.4"
+features = ["esdt-token-payment-legacy-decode"]
+
+[dependencies.multiversx-sc-modules]
+version = "=0.39.4"
 
 [dev-dependencies.multiversx-sc-scenario]
 version = "=0.39.4"
-
-[dev-dependencies.tests-common]
-path = "../tests-common"
-features = ["enable-tests-common"]
-
-[dev-dependencies.pausable]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
-
-[dev-dependencies.sc_whitelist_module]
-git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
