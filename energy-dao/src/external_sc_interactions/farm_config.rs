@@ -8,15 +8,6 @@ use crate::common::errors::{
     ERROR_FARM_HAS_FUNDS,
 };
 
-#[derive(
-    TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Copy, Clone, Debug,
-)]
-pub enum State {
-    Inactive,
-    Active,
-    PartialActive,
-}
-
 #[derive(TypeAbi, TopEncode, TopDecode, Debug)]
 pub struct FarmState<M: ManagedTypeApi> {
     pub farm_staked_value: BigUint<M>,
@@ -29,11 +20,13 @@ pub struct FarmState<M: ManagedTypeApi> {
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
 pub struct WrappedFarmTokenAttributes<M: ManagedTypeApi> {
+    pub farm_address: ManagedAddress<M>,
     pub token_rps: BigUint<M>,
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct UnstakeTokenAttributes {
+pub struct UnstakeTokenAttributes<M: ManagedTypeApi> {
+    pub farm_address: ManagedAddress<M>,
     pub unstake_epoch: Epoch,
     pub token_nonce: Nonce,
 }
@@ -44,25 +37,53 @@ pub const MAX_PERCENT: u64 = 10_000;
 
 #[multiversx_sc::module]
 pub trait FarmConfigModule: utils::UtilsModule {
-    /// Allows the setup of farms in the contract. For each farm, the following values are required:
-    /// farm address: the address of the farm
-    /// wrapped_farm_token_id: token id previously issued, that will reflect the farm position of the users (roles must be already set)
-    /// unstake_farm_token_id: token id previously issued, that will reflect the unstake position of the users (roles must be already set)
+    #[only_owner]
+    #[payable("EGLD")]
+    #[endpoint(registerWrappedFarmToken)]
+    fn register_wrapped_farm_token(
+        &self,
+        token_display_name: ManagedBuffer,
+        token_ticker: ManagedBuffer,
+        num_decimals: usize,
+    ) {
+        let payment_amount = self.call_value().egld_value();
+        self.wrapped_farm_token().issue_and_set_all_roles(
+            EsdtTokenType::Meta,
+            payment_amount,
+            token_display_name,
+            token_ticker,
+            num_decimals,
+            None,
+        );
+    }
+
+    #[only_owner]
+    #[payable("EGLD")]
+    #[endpoint(registerUnstakeFarmToken)]
+    fn register_unstake_farm_token(
+        &self,
+        token_display_name: ManagedBuffer,
+        token_ticker: ManagedBuffer,
+        num_decimals: usize,
+    ) {
+        let payment_amount = self.call_value().egld_value();
+        self.unstake_farm_token().issue_and_set_all_roles(
+            EsdtTokenType::Meta,
+            payment_amount,
+            token_display_name,
+            token_ticker,
+            num_decimals,
+            None,
+        );
+    }
+
     #[only_owner]
     #[endpoint(addFarms)]
-    fn add_farms(
-        &self,
-        farms: MultiValueEncoded<MultiValue3<ManagedAddress, TokenIdentifier, TokenIdentifier>>,
-    ) {
-        for farm in farms {
-            let (farm_addr, wrapped_farm_token_id, unstake_farm_token_id) = farm.into_tuple();
+    fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
+        for farm_addr in farms {
             let farm_state_mapper = self.farm_state(&farm_addr);
             require!(farm_state_mapper.is_empty(), ERROR_FARM_ALREADY_DEFINED);
             self.require_sc_address(&farm_addr);
-            self.require_valid_token_id(&wrapped_farm_token_id);
-            self.require_valid_token_id(&unstake_farm_token_id);
-            self.wrapped_farm_token_id().set(wrapped_farm_token_id);
-            self.unstake_farm_token_id().set(unstake_farm_token_id);
 
             let farm_state = FarmState {
                 farm_staked_value: BigUint::zero(),
@@ -86,19 +107,6 @@ pub trait FarmConfigModule: utils::UtilsModule {
             require!(farm_state.farm_staked_value == 0, ERROR_FARM_HAS_FUNDS);
             farm_state_mapper.clear();
         }
-    }
-
-    fn mint_tokens<T: TopEncode>(
-        &self,
-        token_id: TokenIdentifier,
-        amount: BigUint,
-        attributes: &T,
-    ) -> EsdtTokenPayment<Self::Api> {
-        let new_nonce = self
-            .send()
-            .esdt_nft_create_compact(&token_id, &amount, attributes);
-
-        EsdtTokenPayment::new(token_id, new_nonce, amount)
     }
 
     fn get_token_attributes<T: TopDecode>(
@@ -156,11 +164,11 @@ pub trait FarmConfigModule: utils::UtilsModule {
 
     #[view(getWrappedFarmTokenId)]
     #[storage_mapper("wrappedFarmTokenId")]
-    fn wrapped_farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+    fn wrapped_farm_token(&self) -> NonFungibleTokenMapper;
 
     #[view(getUnstakeFarmTokenId)]
     #[storage_mapper("unstakeFarmTokenId")]
-    fn unstake_farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+    fn unstake_farm_token(&self) -> NonFungibleTokenMapper;
 
     #[view(getUnbondPeriod)]
     #[storage_mapper("unbondPeriod")]

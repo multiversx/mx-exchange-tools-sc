@@ -12,7 +12,7 @@ use multiversx_sc_scenario::{
 };
 
 use config::ConfigModule;
-use energy_dao::*;
+use energy_dao::{external_sc_interactions::farm_config::FarmConfigModule, *};
 use energy_factory::{locked_token_transfer::LockedTokenTransferModule, SimpleLockEnergy};
 use energy_query::EnergyQueryModule;
 use farm_boosted_yields::boosted_yields_factors::BoostedYieldsFactorsModule;
@@ -54,12 +54,6 @@ pub const USER_REWARDS_ENERGY_CONST: u64 = 1;
 pub const USER_REWARDS_FARM_CONST: u64 = 0;
 pub const MIN_ENERGY_AMOUNT_FOR_BOOSTED_YIELDS: u64 = 1;
 pub const MIN_FARM_AMOUNT_FOR_BOOSTED_YIELDS: u64 = 1;
-
-pub static ESDT_ROLES: &[EsdtLocalRole] = &[
-    EsdtLocalRole::Mint,
-    EsdtLocalRole::Burn,
-    EsdtLocalRole::Transfer,
-];
 
 pub static SFT_ROLES: &[EsdtLocalRole] = &[
     EsdtLocalRole::NftCreate,
@@ -170,14 +164,25 @@ where
                     PENALTY_PERCENTAGE,
                     UNBOND_PERIOD,
                 );
+
+                sc.wrapped_farm_token()
+                    .set_token_id(managed_token_id!(WRAPPED_FARM_TOKEN_ID));
+                sc.unstake_farm_token()
+                    .set_token_id(managed_token_id!(UNSTAKE_TOKEN_ID));
             })
             .assert_ok();
 
         b_mock.set_esdt_local_roles(
             energy_dao_wrapper.address_ref(),
-            LOCKED_TOKEN_ID,
-            ESDT_ROLES,
+            WRAPPED_FARM_TOKEN_ID,
+            SFT_ROLES,
         );
+        b_mock.set_esdt_local_roles(
+            energy_dao_wrapper.address_ref(),
+            UNSTAKE_TOKEN_ID,
+            SFT_ROLES,
+        );
+
         b_mock.set_esdt_local_roles(energy_dao_wrapper.address_ref(), LOCKED_TOKEN_ID, SFT_ROLES);
 
         let wrapped_locked_reward_token_roles = [EsdtLocalRole::Transfer];
