@@ -3,7 +3,7 @@ mod contract_setup;
 
 use common_structs::FarmTokenAttributes;
 use contract_setup::*;
-use energy_dao::common::structs::{UnstakeTokenAttributes, WrappedFarmTokenAttributes};
+use energy_dao::common::structs::{UnstakeFarmAttributes, WrappedFarmTokenAttributes};
 use multiversx_sc_scenario::DebugApi;
 
 #[test]
@@ -95,7 +95,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
 
     energy_dao_setup
         .b_mock
-        .check_nft_balance::<UnstakeTokenAttributes<DebugApi>>(
+        .check_nft_balance::<UnstakeFarmAttributes<DebugApi>>(
             &user1,
             UNSTAKE_TOKEN_ID,
             1,

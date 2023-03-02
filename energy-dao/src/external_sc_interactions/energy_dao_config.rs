@@ -301,9 +301,9 @@ pub trait EnergyDAOConfigModule:
     #[storage_mapper("unstakeMetastakingTokenId")]
     fn unstake_metastaking_token(&self) -> NonFungibleTokenMapper;
 
-    #[view(getUnbondPeriod)]
-    #[storage_mapper("unbondPeriod")]
-    fn unbond_period(&self) -> SingleValueMapper<Epoch>;
+    #[view(getFarmUnbondPeriod)]
+    #[storage_mapper("farmUnbondPeriod")]
+    fn farm_unbond_period(&self) -> SingleValueMapper<Epoch>;
 
     #[view(getExitPenaltyPercent)]
     #[storage_mapper("exitPenaltyPercent")]

@@ -38,7 +38,7 @@ pub struct WrappedMetastakingTokenAttributes<M: ManagedTypeApi> {
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
-pub struct UnstakeTokenAttributes<M: ManagedTypeApi> {
+pub struct UnstakeFarmAttributes<M: ManagedTypeApi> {
     pub farm_address: ManagedAddress<M>,
     pub unstake_epoch: Epoch,
     pub token_nonce: Nonce,

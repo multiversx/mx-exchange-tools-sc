@@ -39,7 +39,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getUnstakeFarmTokenId
         getWrappedMetastakingTokenId
         getUnstakeMetastakingTokenId
-        getUnbondPeriod
+        getFarmUnbondPeriod
         getExitPenaltyPercent
         enterFarm
         claimUserRewards
