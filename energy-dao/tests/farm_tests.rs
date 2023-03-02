@@ -3,9 +3,7 @@ mod contract_setup;
 
 use common_structs::FarmTokenAttributes;
 use contract_setup::*;
-use energy_dao::external_sc_interactions::farm_config::{
-    UnstakeTokenAttributes, WrappedFarmTokenAttributes,
-};
+use energy_dao::common::structs::{UnstakeFarmAttributes, WrappedFarmTokenAttributes};
 use multiversx_sc_scenario::DebugApi;
 
 #[test]
@@ -15,7 +13,10 @@ fn init_test() {
         energy_factory::contract_obj,
         fees_collector::contract_obj,
         locked_token_wrapper::contract_obj,
+        pair::contract_obj,
         farm_with_locked_rewards::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
     );
 }
 
@@ -26,7 +27,10 @@ fn lock_tokens_test() {
         energy_factory::contract_obj,
         fees_collector::contract_obj,
         locked_token_wrapper::contract_obj,
+        pair::contract_obj,
         farm_with_locked_rewards::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
     );
 
     energy_dao_setup.lock_energy_tokens(USER_BALANCE, LOCK_OPTIONS[2])
@@ -39,14 +43,22 @@ fn energy_dao_enter_exit_with_penalty_test() {
         energy_factory::contract_obj,
         fees_collector::contract_obj,
         locked_token_wrapper::contract_obj,
+        pair::contract_obj,
         farm_with_locked_rewards::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
     );
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
     energy_dao_setup.add_farm(&farm_address);
 
     let user_farm_amount = 1_000u64;
     let user1 = energy_dao_setup.setup_new_user(FARMING_TOKEN_ID, user_farm_amount);
-    energy_dao_setup.enter_farm_endpoint(&farm_address, &user1, FARMING_TOKEN_ID, user_farm_amount);
+    energy_dao_setup.enter_energy_dao_farm_endpoint(
+        &farm_address,
+        &user1,
+        FARMING_TOKEN_ID,
+        user_farm_amount,
+    );
 
     energy_dao_setup
         .b_mock
@@ -83,7 +95,7 @@ fn energy_dao_enter_exit_with_penalty_test() {
 
     energy_dao_setup
         .b_mock
-        .check_nft_balance::<UnstakeTokenAttributes<DebugApi>>(
+        .check_nft_balance::<UnstakeFarmAttributes<DebugApi>>(
             &user1,
             UNSTAKE_TOKEN_ID,
             1,
@@ -105,10 +117,12 @@ fn energy_dao_enter_exit_with_penalty_test() {
             None,
         );
 
-    energy_dao_setup.check_user_balance(
+    energy_dao_setup.b_mock.check_esdt_balance(
         &user1,
         FARMING_TOKEN_ID,
-        user_farm_amount - (user_farm_amount * PENALTY_PERCENTAGE / MAX_PERCENTAGE),
+        &num_bigint::BigUint::from(
+            user_farm_amount - (user_farm_amount * PENALTY_PERCENTAGE / MAX_PERCENTAGE),
+        ),
     );
 }
 
@@ -119,7 +133,10 @@ fn energy_dao_multiple_users_with_claim_test() {
         energy_factory::contract_obj,
         fees_collector::contract_obj,
         locked_token_wrapper::contract_obj,
+        pair::contract_obj,
         farm_with_locked_rewards::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
     );
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
     energy_dao_setup.add_farm(&farm_address);
@@ -129,13 +146,13 @@ fn energy_dao_multiple_users_with_claim_test() {
     let user2_farm_amount = 5_000u64;
     let user1 = energy_dao_setup.setup_new_user(FARMING_TOKEN_ID, user1_farm_amount);
     let user2 = energy_dao_setup.setup_new_user(FARMING_TOKEN_ID, user2_farm_amount);
-    energy_dao_setup.enter_farm_endpoint(
+    energy_dao_setup.enter_energy_dao_farm_endpoint(
         &farm_address,
         &user1,
         FARMING_TOKEN_ID,
         user1_farm_amount,
     );
-    energy_dao_setup.enter_farm_endpoint(
+    energy_dao_setup.enter_energy_dao_farm_endpoint(
         &farm_address,
         &user2,
         FARMING_TOKEN_ID,

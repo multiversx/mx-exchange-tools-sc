@@ -6,13 +6,19 @@ use farm::{
 };
 use locked_token_wrapper::wrapped_token;
 
-use super::farm_config::{FarmState, WrappedFarmTokenAttributes, MAX_PERCENT};
+use crate::common::{
+    rewards_wrapper::RewardsWrapper,
+    structs::{FarmState, WrappedFarmTokenAttributes},
+};
+
+pub const MAX_PERCENT: u64 = 10_000;
 
 #[multiversx_sc::module]
 pub trait FarmActionsModule:
-    crate::external_sc_interactions::farm_config::FarmConfigModule
+    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + energy_query::EnergyQueryModule
     + lkmex_transfer::energy_transfer::EnergyTransferModule
     + legacy_token_decode_module::LegacyTokenDecodeModule
@@ -54,6 +60,36 @@ pub trait FarmActionsModule:
             .claim_rewards_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context()
+    }
+
+    fn claim_and_compound_rewards(&self, farm_address: &ManagedAddress) {
+        let mut farm_state_mapper = self.farm_state(farm_address);
+        if farm_state_mapper.is_empty() {
+            return;
+        }
+        let farm_state = farm_state_mapper.get();
+        if farm_state.farm_staked_value == 0 {
+            return;
+        }
+
+        let division_safety_constant = self.get_division_safety_constant(farm_address);
+        let farm_token_id = self.get_farm_token(farm_address);
+        let current_farm_position = EsdtTokenPayment::new(
+            farm_token_id,
+            farm_state.farm_token_nonce,
+            farm_state.farm_staked_value.clone(),
+        );
+        let claim_rewards_result =
+            self.call_farm_claim(farm_address.clone(), current_farm_position);
+        let (new_farm_token, farm_rewards) = claim_rewards_result.into_tuple();
+
+        self.update_farm_after_claim(
+            &farm_state,
+            &mut farm_state_mapper,
+            &new_farm_token,
+            farm_rewards,
+            &division_safety_constant,
+        );
     }
 
     fn update_farm_after_claim(
@@ -114,22 +150,28 @@ pub trait FarmActionsModule:
     }
 
     fn apply_fee(&self, payment: &mut EsdtTokenPayment) {
-        let penalty_percent = self.penalty_percent().get();
+        let penalty_percent = self.exit_penalty_percent().get();
         let calculated_fee = &payment.amount * penalty_percent / MAX_PERCENT;
 
-        let exit_fees_mapper = self.exit_fees();
+        let exit_fees_mapper = self.user_exit_fees();
         if exit_fees_mapper.is_empty() {
             let new_fee = EsdtTokenPayment::new(
                 payment.token_identifier.clone(),
                 payment.token_nonce,
                 calculated_fee.clone(),
             );
-            exit_fees_mapper.set(new_fee);
+            let locked_token_id = self.get_locked_token_id();
+            let mut fees = RewardsWrapper::new(locked_token_id);
+            fees.add_tokens(new_fee);
+            exit_fees_mapper.set(fees);
         } else {
             exit_fees_mapper.update(|fees| {
-                if fees.token_identifier == payment.token_identifier {
-                    fees.amount += &calculated_fee;
-                }
+                let new_fee = EsdtTokenPayment::new(
+                    payment.token_identifier.clone(),
+                    payment.token_nonce,
+                    calculated_fee.clone(),
+                );
+                fees.add_tokens(new_fee);
             });
         }
         payment.amount -= calculated_fee;
