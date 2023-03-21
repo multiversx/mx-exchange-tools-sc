@@ -1,23 +1,21 @@
 multiversx_sc::imports!();
 
-use crate::{
-    common::errors::{
+use crate::common::{
+    errors::{
         ERROR_BAD_PAYMENT_TOKENS, ERROR_EXTERNAL_CONTRACT_OUTPUT, ERROR_FARM_DOES_NOT_EXIST,
         ERROR_UNBOND_TOO_SOON,
     },
-    external_sc_interactions::farm_config::{UnstakeTokenAttributes, WrappedFarmTokenAttributes},
+    structs::{FarmState, UnstakeFarmAttributes, WrappedFarmTokenAttributes},
 };
 use common_structs::PaymentsVec;
 use locked_token_wrapper::wrapped_token;
-
-use super::farm_config::FarmState;
 
 pub type ClaimRewardsResultType<BigUint> =
     MultiValue2<EsdtTokenPayment<BigUint>, EsdtTokenPayment<BigUint>>;
 
 #[multiversx_sc::module]
 pub trait FarmInteractionsModule:
-    crate::external_sc_interactions::farm_config::FarmConfigModule
+    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + crate::external_sc_interactions::fees_collector_interactions::FeesCollectorInteractionsModule
@@ -26,6 +24,7 @@ pub trait FarmInteractionsModule:
     + energy_query::EnergyQueryModule
     + token_send::TokenSendModule
     + utils::UtilsModule
+    + permissions_module::PermissionsModule
     + wrapped_token::WrappedTokenModule
     + simple_lock::token_attributes::TokenAttributesModule
     + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule
@@ -147,7 +146,7 @@ pub trait FarmInteractionsModule:
             config.farm_unstaked_value += &payment.amount;
         });
         let current_epoch = self.blockchain().get_block_epoch();
-        let unstake_attributes = UnstakeTokenAttributes {
+        let unstake_attributes = UnstakeFarmAttributes {
             farm_address,
             unstake_epoch: current_epoch,
             token_nonce: new_farm_token.token_nonce,
@@ -175,14 +174,14 @@ pub trait FarmInteractionsModule:
             payment.token_identifier == self.unstake_farm_token().get_token_id(),
             ERROR_BAD_PAYMENT_TOKENS
         );
-        let token_attributes: UnstakeTokenAttributes<Self::Api> =
+        let token_attributes: UnstakeFarmAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);
         let farm_address = token_attributes.farm_address;
         let farm_state_mapper = self.farm_state(&farm_address);
         require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
 
         let current_epoch = self.blockchain().get_block_epoch();
-        let unbond_period = self.unbond_period().get();
+        let unbond_period = self.farm_unbond_period().get();
         let unbond_epoch = token_attributes.unstake_epoch + unbond_period;
         require!(current_epoch >= unbond_epoch, ERROR_UNBOND_TOO_SOON);
 
