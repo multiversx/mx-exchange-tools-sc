@@ -62,7 +62,7 @@ pub trait FarmActionsModule:
             .execute_on_dest_context()
     }
 
-    fn claim_and_compound_rewards(&self, farm_address: &ManagedAddress) {
+    fn claim_and_update_state(&self, farm_address: &ManagedAddress) {
         let mut farm_state_mapper = self.farm_state(farm_address);
         if farm_state_mapper.is_empty() {
             return;
@@ -184,6 +184,14 @@ pub trait FarmActionsModule:
         division_safety_constant: &BigUint,
     ) -> EsdtTokenPayment {
         let farm_state = farm_state_mapper.get();
+        let locked_token_id = self.get_locked_token_id();
+        if payment.amount == 0u64 {
+            return EsdtTokenPayment::new(
+                locked_token_id,
+                farm_state.reward_token_nonce,
+                BigUint::zero(),
+            );
+        }
         let token_attributes: WrappedFarmTokenAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);
         let token_rps = token_attributes.token_rps;
@@ -193,7 +201,7 @@ pub trait FarmActionsModule:
         } else {
             BigUint::zero()
         };
-        let locked_token_id = self.get_locked_token_id();
+
         EsdtTokenPayment::new(locked_token_id, farm_state.reward_token_nonce, reward)
     }
 

@@ -45,7 +45,6 @@ pub static STAKING_FARM_TOKEN_ID: &[u8] = b"SUTK-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 pub const PENALTY_PERCENTAGE: u64 = 300;
 pub const MAX_APR_PERCENTAGE: u64 = 2_500;
-pub const MAX_PERCENTAGE: u64 = 10_000;
 pub const UNBOND_PERIOD: u64 = 10;
 pub const EPOCHS_IN_YEAR: u64 = 360;
 pub const USER_BALANCE: u64 = 1_000_000;

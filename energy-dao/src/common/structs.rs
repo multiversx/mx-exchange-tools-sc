@@ -15,7 +15,8 @@ pub struct FarmState<M: ManagedTypeApi> {
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug)]
 pub struct MetastakingState<M: ManagedTypeApi> {
-    pub ms_staked_value: BigUint<M>,
+    pub farm_token_supply: BigUint<M>,
+    pub dual_yield_amount: BigUint<M>,
     pub dual_yield_token_nonce: Nonce,
     pub lp_farm_reward_token_nonce: Nonce,
     pub lp_farm_reward_reserve: BigUint<M>,

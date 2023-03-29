@@ -38,7 +38,7 @@ pub trait MetastakingInteractionsModule:
         let farm_address = self.get_lp_farm_address(&metastaking_address);
 
         // Needed not to lose any unclaimed rewards
-        self.claim_and_compound_rewards(&farm_address);
+        self.claim_and_update_state(&farm_address);
 
         let farming_token_id = self.get_farming_token(&farm_address);
         require!(
@@ -58,12 +58,12 @@ pub trait MetastakingInteractionsModule:
         let dual_yield_token_id = self.get_dual_yield_token(&metastaking_address);
         let farm_staking_address = self.get_staking_farm_address(&metastaking_address);
         let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
-        let mut enter_metastaking_payments = ManagedVec::from_single_item(new_farm_token);
+        let mut enter_metastaking_payments = ManagedVec::from_single_item(new_farm_token.clone());
 
         let current_metastaking_position = EsdtTokenPayment::new(
             dual_yield_token_id,
             metastaking_state.dual_yield_token_nonce,
-            metastaking_state.ms_staked_value.clone(),
+            metastaking_state.dual_yield_amount.clone(),
         );
         let initial_total_metastaking_amount = current_metastaking_position.amount.clone();
         if initial_total_metastaking_amount > 0 {
@@ -78,17 +78,15 @@ pub trait MetastakingInteractionsModule:
             ERROR_EXTERNAL_CONTRACT_OUTPUT
         );
 
-        let user_farm_amount =
-            &enter_metastaking_result.dual_yield_tokens.amount - &initial_total_metastaking_amount;
-
-        let staking_token_id = self.get_staking_token(&metastaking_address);
-        let empty_staking_rewards = EsdtTokenPayment::new(staking_token_id, 0u64, BigUint::zero());
+        let locked_token_id = self.get_locked_token_id();
+        let empty_lp_farm_rewards = EsdtTokenPayment::new(locked_token_id, 0u64, BigUint::zero());
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
+            &new_farm_token.amount,
             &enter_metastaking_result.dual_yield_tokens,
-            enter_metastaking_result.boosted_rewards,
-            empty_staking_rewards,
+            empty_lp_farm_rewards,
+            enter_metastaking_result.boosted_rewards, // they are given in reward tokens, not in locked lp farm tokens
             &division_safety_constant,
         );
 
@@ -102,7 +100,7 @@ pub trait MetastakingInteractionsModule:
 
         self.wrapped_metastaking_token().nft_create_and_send(
             &caller,
-            user_farm_amount,
+            new_farm_token.amount,
             &user_token_attributes,
         )
     }
@@ -131,12 +129,19 @@ pub trait MetastakingInteractionsModule:
         let full_dual_yield_position = EsdtTokenPayment::new(
             dual_yield_token_id.clone(),
             metastaking_state.dual_yield_token_nonce,
-            metastaking_state.ms_staked_value.clone(),
+            metastaking_state.dual_yield_amount.clone(),
         );
+
+        // As the dual yield amount changes every time rewards are claimed
+        // We use the fixed amount of farm tokens that the user initially provided to keep track of his position
+        // To compute the correct unstake amount, we apply the rule of three to the amount of tokens that the user sent as payment
+        let unstake_amount = (&payment.amount * &metastaking_state.dual_yield_amount)
+            / &metastaking_state.farm_token_supply;
+
         let unstake_result = self.call_exit_metastaking(
             metastaking_address.clone(),
             full_dual_yield_position,
-            payment.amount.clone(),
+            unstake_amount,
         );
 
         let new_dual_yield_tokens = match unstake_result.opt_new_dual_yield_tokens {
@@ -147,6 +152,7 @@ pub trait MetastakingInteractionsModule:
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
+            &BigUint::zero(),
             &new_dual_yield_tokens,
             unstake_result.lp_farm_rewards.clone(),
             unstake_result.staking_rewards.clone(),
@@ -307,7 +313,7 @@ pub trait MetastakingInteractionsModule:
         let current_metastaking_position = EsdtTokenPayment::new(
             dual_yield_token_id,
             metastaking_state.dual_yield_token_nonce,
-            metastaking_state.ms_staked_value.clone(),
+            metastaking_state.dual_yield_amount.clone(),
         );
         let claim_rewards_result =
             self.call_metastaking_claim(metastaking_address.clone(), current_metastaking_position);
@@ -315,6 +321,7 @@ pub trait MetastakingInteractionsModule:
         self.update_metastaking_after_claim(
             &metastaking_state,
             metastaking_state_mapper,
+            &BigUint::zero(),
             &claim_rewards_result.new_dual_yield_tokens,
             claim_rewards_result.lp_farm_rewards,
             claim_rewards_result.staking_farm_rewards,

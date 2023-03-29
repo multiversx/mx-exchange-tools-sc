@@ -41,9 +41,14 @@ pub trait FarmInteractionsModule:
             ERROR_BAD_PAYMENT_TOKENS
         );
 
-        let farm_state = farm_state_mapper.get();
         let farm_token_id = self.get_farm_token(&farm_address);
         let division_safety_constant = self.get_division_safety_constant(&farm_address);
+
+        // Needed in order to have the most up-to-date farm state, to properly compute the users positions
+        let empty_payment = EsdtTokenPayment::new(farm_token_id.clone(), 0u64, BigUint::zero());
+        self.claim_and_compute_user_rewards(&empty_payment, &farm_address, &mut farm_state_mapper);
+
+        let farm_state = farm_state_mapper.get();
         let mut enter_farm_payments = ManagedVec::from_single_item(payment);
 
         let current_farm_position = EsdtTokenPayment::new(
@@ -177,7 +182,7 @@ pub trait FarmInteractionsModule:
         let token_attributes: UnstakeFarmAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);
         let farm_address = token_attributes.farm_address;
-        let farm_state_mapper = self.farm_state(&farm_address);
+        let mut farm_state_mapper = self.farm_state(&farm_address);
         require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
 
         let current_epoch = self.blockchain().get_block_epoch();
@@ -187,10 +192,15 @@ pub trait FarmInteractionsModule:
 
         let farm_token_id = self.get_farm_token(&farm_address);
         let unstake_payment = EsdtTokenPayment::new(
-            farm_token_id,
+            farm_token_id.clone(),
             token_attributes.token_nonce,
             payment.amount.clone(),
         );
+
+        // Needed in order to claim all the boosted rewards, in case they were distributed
+        let empty_payment = EsdtTokenPayment::new(farm_token_id, 0u64, BigUint::zero());
+        self.claim_and_compute_user_rewards(&empty_payment, &farm_address, &mut farm_state_mapper);
+
         let exit_farm_result = self.call_exit_farm(farm_address, unstake_payment);
         let (mut farming_tokens, locked_rewards_payment, _) = exit_farm_result.into_tuple();
 
@@ -221,6 +231,10 @@ pub trait FarmInteractionsModule:
         farm_state_mapper: &mut SingleValueMapper<FarmState<Self::Api>>,
     ) -> ClaimRewardsResultType<Self::Api> {
         let farm_state = farm_state_mapper.get();
+        if farm_state.farm_staked_value == 0 {
+            return (payment.clone(), payment.clone()).into();
+        }
+
         let division_safety_constant = self.get_division_safety_constant(farm_address);
         let farm_token_id = self.get_farm_token(farm_address);
         let current_farm_position = EsdtTokenPayment::new(
@@ -239,11 +253,13 @@ pub trait FarmInteractionsModule:
             farm_rewards,
             &division_safety_constant,
         );
-        self.send().esdt_local_burn(
-            &payment.token_identifier,
-            payment.token_nonce,
-            &payment.amount,
-        );
+        if payment.token_nonce > 0 {
+            self.send().esdt_local_burn(
+                &payment.token_identifier,
+                payment.token_nonce,
+                &payment.amount,
+            );
+        }
         let user_rewards = self.compute_user_rewards_payment(
             farm_state_mapper,
             payment,

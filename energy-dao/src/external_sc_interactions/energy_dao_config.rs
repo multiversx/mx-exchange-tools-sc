@@ -7,11 +7,13 @@ use crate::common::{
     errors::{
         ERROR_DIVISION_CONSTANT_VALUE, ERROR_FARM_ALREADY_DEFINED, ERROR_FARM_DOES_NOT_EXIST,
         ERROR_FARM_HAS_FUNDS, ERROR_METASTAKING_ALREADY_DEFINED, ERROR_METASTAKING_DOES_NOT_EXIST,
-        ERROR_METASTAKING_HAS_FUNDS,
+        ERROR_METASTAKING_HAS_FUNDS, ERROR_PERCENTAGE_VALUE,
     },
     rewards_wrapper::RewardsWrapper,
     structs::{FarmState, MetastakingState},
 };
+
+pub const MAX_PERCENTAGE: u64 = 10_000; // 100.00%
 
 #[multiversx_sc::module]
 pub trait EnergyDAOConfigModule:
@@ -97,6 +99,23 @@ pub trait EnergyDAOConfigModule:
         );
     }
 
+    #[only_owner]
+    #[endpoint(setExitPenaltyPercent)]
+    fn set_exit_penalty_percent(&self, exit_penalty_percent: u64) {
+        require!(
+            exit_penalty_percent <= MAX_PERCENTAGE,
+            ERROR_PERCENTAGE_VALUE
+        );
+        self.exit_penalty_percent().set(exit_penalty_percent);
+    }
+
+    #[only_owner]
+    #[endpoint(setFarmUnbondPeriod)]
+    fn set_farm_unbond_period(&self, farm_unbond_period: u64) {
+        self.farm_unbond_period().set(farm_unbond_period);
+    }
+
+    /// Endpoint that allows the owner or a trustworthy admin address to add a new farm
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
         self.require_caller_has_owner_or_admin_permissions();
@@ -117,6 +136,8 @@ pub trait EnergyDAOConfigModule:
         }
     }
 
+    /// Endpoint that allows the owner or a trustworthy admin address to remove a farm, if no funds were deposited
+    /// It can be updated to have a more enforcing approach, by properly sending the funds back to the users, before removing the farm
     #[endpoint(removeFarms)]
     fn remove_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
         self.require_caller_has_owner_or_admin_permissions();
@@ -141,7 +162,8 @@ pub trait EnergyDAOConfigModule:
             self.require_sc_address(&metastaking_address);
 
             let metastaking_state = MetastakingState {
-                ms_staked_value: BigUint::zero(),
+                farm_token_supply: BigUint::zero(),
+                dual_yield_amount: BigUint::zero(),
                 dual_yield_token_nonce: 0u64,
                 lp_farm_reward_token_nonce: 0u64,
                 lp_farm_reward_reserve: BigUint::zero(),
@@ -167,7 +189,7 @@ pub trait EnergyDAOConfigModule:
             );
             let metastaking_state = metastaking_state_mapper.get();
             require!(
-                metastaking_state.ms_staked_value == 0,
+                metastaking_state.farm_token_supply == 0,
                 ERROR_METASTAKING_HAS_FUNDS
             );
             metastaking_state_mapper.clear();
@@ -209,6 +231,9 @@ pub trait EnergyDAOConfigModule:
         farm_token_id
     }
 
+    /// We use the division_safety_constant mapper as a way to access the value from each particular farm
+    /// Because we do not actually save in the storage a certain value for each farm
+    /// We should not have any performance penalty, as we read from the storage only once
     #[view(getDivisionSafetyConstant)]
     fn get_division_safety_constant(&self, farm_address: &ManagedAddress) -> BigUint {
         let division_safety_constant = self

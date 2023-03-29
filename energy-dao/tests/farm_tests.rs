@@ -3,7 +3,10 @@ mod contract_setup;
 
 use common_structs::FarmTokenAttributes;
 use contract_setup::*;
-use energy_dao::common::structs::{UnstakeFarmAttributes, WrappedFarmTokenAttributes};
+use energy_dao::{
+    common::structs::{UnstakeFarmAttributes, WrappedFarmTokenAttributes},
+    external_sc_interactions::energy_dao_config::MAX_PERCENTAGE,
+};
 use multiversx_sc_scenario::DebugApi;
 
 #[test]
@@ -164,7 +167,7 @@ fn energy_dao_multiple_users_with_claim_test() {
         .check_nft_balance::<FarmTokenAttributes<DebugApi>>(
             energy_dao_setup.energy_dao_wrapper.address_ref(),
             FARM_TOKEN_ID,
-            2,
+            3,
             &num_bigint::BigUint::from(user1_farm_amount + user2_farm_amount),
             None,
         );
