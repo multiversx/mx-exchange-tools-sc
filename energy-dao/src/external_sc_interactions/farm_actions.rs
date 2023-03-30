@@ -62,8 +62,11 @@ pub trait FarmActionsModule:
             .execute_on_dest_context()
     }
 
-    fn claim_and_update_state(&self, farm_address: &ManagedAddress) {
-        let mut farm_state_mapper = self.farm_state(farm_address);
+    fn claim_and_update_farm_state(
+        &self,
+        farm_address: &ManagedAddress,
+        farm_state_mapper: &mut SingleValueMapper<FarmState<Self::Api>>,
+    ) {
         if farm_state_mapper.is_empty() {
             return;
         }
@@ -85,7 +88,7 @@ pub trait FarmActionsModule:
 
         self.update_farm_after_claim(
             &farm_state,
-            &mut farm_state_mapper,
+            farm_state_mapper,
             &new_farm_token,
             farm_rewards,
             &division_safety_constant,

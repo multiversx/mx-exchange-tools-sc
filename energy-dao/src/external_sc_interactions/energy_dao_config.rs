@@ -162,7 +162,7 @@ pub trait EnergyDAOConfigModule:
             self.require_sc_address(&metastaking_address);
 
             let metastaking_state = MetastakingState {
-                farm_token_supply: BigUint::zero(),
+                metastaking_token_supply: BigUint::zero(),
                 dual_yield_amount: BigUint::zero(),
                 dual_yield_token_nonce: 0u64,
                 lp_farm_reward_token_nonce: 0u64,
@@ -189,7 +189,7 @@ pub trait EnergyDAOConfigModule:
             );
             let metastaking_state = metastaking_state_mapper.get();
             require!(
-                metastaking_state.farm_token_supply == 0,
+                metastaking_state.metastaking_token_supply == 0,
                 ERROR_METASTAKING_HAS_FUNDS
             );
             metastaking_state_mapper.clear();

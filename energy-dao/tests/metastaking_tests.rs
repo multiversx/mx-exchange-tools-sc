@@ -145,7 +145,7 @@ fn energy_dao_metastaking_test() {
     );
 
     // Check locked rewards
-    let user1_locked_rewards = 3_000u64;
+    let user1_locked_rewards = 258_000u64;
     let user2_locked_rewards = user1_locked_rewards / 2;
     energy_dao_setup
         .b_mock
@@ -168,7 +168,7 @@ fn energy_dao_metastaking_test() {
         );
 
     // Check staking rewards
-    let user1_staking_rewards = 3_000u64;
+    let user1_staking_rewards = 200_000u64;
     let user2_staking_rewards = user1_staking_rewards / 2;
     energy_dao_setup.b_mock.check_esdt_balance(
         &user1,
@@ -264,7 +264,7 @@ fn energy_dao_metastaking_test() {
         user2_metastaking_amount,
     );
 
-    let user2_unstake_amount = 16_666_666_600u64;
+    let user2_unstake_amount = 50_000_000_100u64;
     energy_dao_setup
         .b_mock
         .check_nft_balance::<UnstakeMetastakingAttributes<DebugApi>>(
@@ -283,7 +283,7 @@ fn energy_dao_metastaking_test() {
         user2_unstake_amount,
     );
 
-    let user2_new_locked_rewards = 5_500u64;
+    let user2_new_locked_rewards = 499_500u64;
     energy_dao_setup
         .b_mock
         .check_nft_balance::<WrappedFarmTokenAttributes<DebugApi>>(
@@ -294,8 +294,8 @@ fn energy_dao_metastaking_test() {
             None,
         );
 
-    let user2_new_staking_rewards = 500u64;
-    let user2_base_token_fee = 499_999_998u64;
+    let user2_new_staking_rewards = 130_000u64;
+    let user2_base_token_fee = 1_500_000_003u64;
 
     energy_dao_setup.b_mock.check_esdt_balance(
         &user2,
@@ -306,7 +306,7 @@ fn energy_dao_metastaking_test() {
         ),
     );
 
-    let user2_other_token_balance = 161_666_667u64;
+    let user2_other_token_balance = 485_000_001u64;
     energy_dao_setup.b_mock.check_esdt_balance(
         &user2,
         OTHER_FARM_STAKING_TOKEN_ID,

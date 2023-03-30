@@ -37,8 +37,9 @@ pub trait MetastakingInteractionsModule:
         );
         let farm_address = self.get_lp_farm_address(&metastaking_address);
 
-        // Needed not to lose any unclaimed rewards
-        self.claim_and_update_state(&farm_address);
+        // Needed not to lose any unclaimed farm rewards
+        let mut farm_state_mapper = self.farm_state(&farm_address);
+        self.claim_and_update_farm_state(&farm_address, &mut farm_state_mapper);
 
         let farming_token_id = self.get_farming_token(&farm_address);
         require!(
@@ -49,8 +50,8 @@ pub trait MetastakingInteractionsModule:
         // We need to enter the farm for the user, in order to have the Energy DAO contract as the original_owner of the position
         // This is needed later on, in order to be able to merge farm positions when adding extra position
         // We enter with the payment only, to avoid merging the actual farm position with this position that will go entirely towards metastaking
-        let enter_farm_payments = ManagedVec::from_single_item(payment);
-        let enter_farm_result = self.call_enter_farm(farm_address, enter_farm_payments);
+        let enter_farm_payment = ManagedVec::from_single_item(payment);
+        let enter_farm_result = self.call_enter_farm(farm_address, enter_farm_payment);
         let (new_farm_token, _) = enter_farm_result.into_tuple();
 
         // Proceed to enter metastaking with the new farm position
@@ -65,8 +66,8 @@ pub trait MetastakingInteractionsModule:
             metastaking_state.dual_yield_token_nonce,
             metastaking_state.dual_yield_amount.clone(),
         );
-        let initial_total_metastaking_amount = current_metastaking_position.amount.clone();
-        if initial_total_metastaking_amount > 0 {
+
+        if current_metastaking_position.amount > 0 {
             enter_metastaking_payments.push(current_metastaking_position);
         }
 
@@ -74,7 +75,7 @@ pub trait MetastakingInteractionsModule:
             self.call_enter_metastaking(metastaking_address.clone(), enter_metastaking_payments);
 
         require!(
-            enter_metastaking_result.dual_yield_tokens.amount > initial_total_metastaking_amount,
+            enter_metastaking_result.dual_yield_tokens.amount > metastaking_state.dual_yield_amount,
             ERROR_EXTERNAL_CONTRACT_OUTPUT
         );
 
@@ -136,7 +137,7 @@ pub trait MetastakingInteractionsModule:
         // We use the fixed amount of farm tokens that the user initially provided to keep track of his position
         // To compute the correct unstake amount, we apply the rule of three to the amount of tokens that the user sent as payment
         let unstake_amount = (&payment.amount * &metastaking_state.dual_yield_amount)
-            / &metastaking_state.farm_token_supply;
+            / &metastaking_state.metastaking_token_supply;
 
         let unstake_result = self.call_exit_metastaking(
             metastaking_address.clone(),
@@ -168,6 +169,9 @@ pub trait MetastakingInteractionsModule:
         metastaking_state_mapper.update(|config| {
             config.lp_farm_reward_reserve -= &user_lp_farm_reward;
             config.staking_reward_reserve -= &user_staking_reward;
+
+            // We update the token supply after the rewards are calculated, to also include the current user in the computation
+            config.metastaking_token_supply -= &payment.amount;
         });
 
         self.send().esdt_local_burn(

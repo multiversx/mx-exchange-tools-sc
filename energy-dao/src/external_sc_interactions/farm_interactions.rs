@@ -45,8 +45,7 @@ pub trait FarmInteractionsModule:
         let division_safety_constant = self.get_division_safety_constant(&farm_address);
 
         // Needed in order to have the most up-to-date farm state, to properly compute the users positions
-        let empty_payment = EsdtTokenPayment::new(farm_token_id.clone(), 0u64, BigUint::zero());
-        self.claim_and_compute_user_rewards(&empty_payment, &farm_address, &mut farm_state_mapper);
+        self.claim_and_update_farm_state(&farm_address, &mut farm_state_mapper);
 
         let farm_state = farm_state_mapper.get();
         let mut enter_farm_payments = ManagedVec::from_single_item(payment);
@@ -253,7 +252,10 @@ pub trait FarmInteractionsModule:
             farm_rewards,
             &division_safety_constant,
         );
-        if payment.token_nonce > 0 {
+
+        // The contract uses MetaESDTs for user positions, and only these need to be burned
+        // Empty simulated payments are used to claim rewards and have an up-to-date farm state, for proper user position computations
+        if payment.amount > 0 {
             self.send().esdt_local_burn(
                 &payment.token_identifier,
                 payment.token_nonce,

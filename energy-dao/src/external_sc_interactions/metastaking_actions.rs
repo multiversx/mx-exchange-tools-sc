@@ -78,14 +78,14 @@ pub trait MetastakingActionsModule:
         &self,
         initial_metastaking_state: &MetastakingState<Self::Api>,
         metastaking_state_mapper: &mut SingleValueMapper<MetastakingState<Self::Api>>,
-        farm_amount_increase: &BigUint,
+        metastaking_token_supply_increase: &BigUint,
         new_dual_yield_token: &EsdtTokenPayment,
         lp_farm_rewards: EsdtTokenPayment,
         staking_rewards: EsdtTokenPayment,
         division_safety_constant: &BigUint,
     ) {
         let mut metastaking_state = metastaking_state_mapper.get();
-        metastaking_state.farm_token_supply += farm_amount_increase;
+        metastaking_state.metastaking_token_supply += metastaking_token_supply_increase;
         metastaking_state.dual_yield_amount = new_dual_yield_token.amount.clone();
         metastaking_state.dual_yield_token_nonce = new_dual_yield_token.token_nonce;
 
@@ -97,7 +97,7 @@ pub trait MetastakingActionsModule:
         let (lp_farm_rps_increase, staking_rps_increase) = self.compute_metastaking_rps_increase(
             &lp_farm_rewards.amount,
             &staking_rewards.amount,
-            &new_dual_yield_token.amount,
+            &metastaking_state.metastaking_token_supply,
             division_safety_constant,
         );
         let new_lp_farm_rewards = if initial_metastaking_state.lp_farm_reward_reserve > 0 {
@@ -128,17 +128,17 @@ pub trait MetastakingActionsModule:
         &self,
         lp_farm_reward: &BigUint,
         staking_reward: &BigUint,
-        total_dual_yield_amount: &BigUint,
+        metastaking_token_supply: &BigUint,
         division_safety_constant: &BigUint,
     ) -> (BigUint, BigUint) {
-        if total_dual_yield_amount == &0u64 {
+        if metastaking_token_supply == &0u64 {
             return (BigUint::zero(), BigUint::zero());
         }
 
         let user_lp_farm_reward =
-            (lp_farm_reward * division_safety_constant) / total_dual_yield_amount;
+            (lp_farm_reward * division_safety_constant) / metastaking_token_supply;
         let user_staking_reward =
-            (staking_reward * division_safety_constant) / total_dual_yield_amount;
+            (staking_reward * division_safety_constant) / metastaking_token_supply;
         (user_lp_farm_reward, user_staking_reward)
     }
 
