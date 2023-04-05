@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           47
+// Endpoints:                           46
 // Async Callback:                       1
-// Total number of exported functions:  49
+// Total number of exported functions:  48
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -23,7 +23,6 @@ multiversx_sc_wasm_adapter::endpoints! {
         registerWrappedMetastakingToken
         registerUnstakeMetastakingToken
         setExitPenaltyPercent
-        setFarmUnbondPeriod
         addFarms
         removeFarms
         addMetastakingAddresses
@@ -32,6 +31,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getFarmingTokenId
         getFarmTokenId
         getDivisionSafetyConstant
+        getMinimumFarmingEpoch
         getDualYieldTokenId
         getLpFarmTokenId
         getStakingTokenId
@@ -41,7 +41,6 @@ multiversx_sc_wasm_adapter::endpoints! {
         getUnstakeFarmTokenId
         getWrappedMetastakingTokenId
         getUnstakeMetastakingTokenId
-        getFarmUnbondPeriod
         getExitPenaltyPercent
         enterFarm
         claimUserRewards

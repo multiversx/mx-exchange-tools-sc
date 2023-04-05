@@ -85,11 +85,11 @@ pub trait MetastakingActionsModule:
         division_safety_constant: &BigUint,
     ) {
         let mut metastaking_state = metastaking_state_mapper.get();
-        metastaking_state.metastaking_token_supply += metastaking_token_supply_increase;
         metastaking_state.dual_yield_amount = new_dual_yield_token.amount.clone();
         metastaking_state.dual_yield_token_nonce = new_dual_yield_token.token_nonce;
 
         if lp_farm_rewards.amount == 0 && staking_rewards.amount == 0 {
+            metastaking_state.metastaking_token_supply += metastaking_token_supply_increase;
             metastaking_state_mapper.set(metastaking_state);
             return;
         }
@@ -120,6 +120,7 @@ pub trait MetastakingActionsModule:
         metastaking_state.staking_reward_reserve += staking_rewards.amount;
         metastaking_state.lp_farm_rps += lp_farm_rps_increase;
         metastaking_state.staking_rps += staking_rps_increase;
+        metastaking_state.metastaking_token_supply += metastaking_token_supply_increase;
 
         metastaking_state_mapper.set(metastaking_state);
     }
