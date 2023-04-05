@@ -187,7 +187,7 @@ pub trait FarmInteractionsModule:
         let current_epoch = self.blockchain().get_block_epoch();
         let unbond_period = self.get_minimum_farming_epochs(&farm_address);
         let unbond_epoch = token_attributes.unstake_epoch + unbond_period;
-        require!(current_epoch > unbond_epoch, ERROR_UNBOND_TOO_SOON);
+        require!(current_epoch >= unbond_epoch, ERROR_UNBOND_TOO_SOON);
 
         let farm_token_id = self.get_farm_token(&farm_address);
         let unstake_payment = EsdtTokenPayment::new(
