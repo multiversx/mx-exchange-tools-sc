@@ -155,6 +155,11 @@ pub trait EnergyDAOConfigModule:
             );
             self.require_sc_address(&metastaking_address);
 
+            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            self.require_sc_address(&lp_farm_address);
+            self.lp_farm_metastaking_address(&lp_farm_address)
+                .set(metastaking_address);
+
             let metastaking_state = MetastakingState {
                 metastaking_token_supply: BigUint::zero(),
                 dual_yield_amount: BigUint::zero(),
@@ -186,6 +191,11 @@ pub trait EnergyDAOConfigModule:
                 metastaking_state.metastaking_token_supply == 0,
                 ERROR_METASTAKING_HAS_FUNDS
             );
+
+            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            self.require_sc_address(&lp_farm_address);
+            self.lp_farm_metastaking_address(&lp_farm_address).clear();
+
             metastaking_state_mapper.clear();
         }
     }
@@ -344,4 +354,10 @@ pub trait EnergyDAOConfigModule:
         &self,
         metastaking_address: &ManagedAddress,
     ) -> SingleValueMapper<MetastakingState<Self::Api>>;
+
+    #[storage_mapper("lpFarmMetastakingAddress")]
+    fn lp_farm_metastaking_address(
+        &self,
+        farm_address: &ManagedAddress,
+    ) -> SingleValueMapper<ManagedAddress>;
 }

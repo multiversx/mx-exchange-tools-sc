@@ -3,7 +3,7 @@ multiversx_sc::imports!();
 use crate::common::{
     errors::{
         ERROR_BAD_PAYMENT_TOKENS, ERROR_EXTERNAL_CONTRACT_OUTPUT, ERROR_FARM_DOES_NOT_EXIST,
-        ERROR_UNBOND_TOO_SOON,
+        ERROR_LP_FARM_METASTAKING_ACTIVE, ERROR_UNBOND_TOO_SOON,
     },
     structs::{FarmState, UnstakeFarmAttributes, WrappedFarmTokenAttributes},
 };
@@ -32,6 +32,10 @@ pub trait FarmInteractionsModule:
     #[payable("*")]
     #[endpoint(enterFarm)]
     fn enter_farm_endpoint(&self, farm_address: ManagedAddress) -> EsdtTokenPayment {
+        require!(
+            self.lp_farm_metastaking_address(&farm_address).is_empty(),
+            ERROR_LP_FARM_METASTAKING_ACTIVE
+        );
         let payment = self.call_value().single_esdt();
         let mut farm_state_mapper = self.farm_state(&farm_address);
         require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
@@ -101,6 +105,12 @@ pub trait FarmInteractionsModule:
         let token_attributes: WrappedFarmTokenAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);
         let farm_address = token_attributes.farm_address;
+
+        require!(
+            self.lp_farm_metastaking_address(&farm_address).is_empty(),
+            ERROR_LP_FARM_METASTAKING_ACTIVE
+        );
+
         let mut farm_state_mapper = self.farm_state(&farm_address);
         require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
 
@@ -138,6 +148,12 @@ pub trait FarmInteractionsModule:
         let token_attributes: WrappedFarmTokenAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);
         let farm_address = token_attributes.farm_address;
+
+        require!(
+            self.lp_farm_metastaking_address(&farm_address).is_empty(),
+            ERROR_LP_FARM_METASTAKING_ACTIVE
+        );
+
         let mut farm_state_mapper = self.farm_state(&farm_address);
         require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
 

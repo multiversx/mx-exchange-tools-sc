@@ -149,6 +149,9 @@ pub trait MetastakingActionsModule:
         payment: &EsdtTokenPayment,
         division_safety_constant: &BigUint,
     ) -> (BigUint, BigUint) {
+        if payment.amount == 0 {
+            return (BigUint::zero(), BigUint::zero());
+        }
         let metastaking_state = metastaking_state_mapper.get();
         let token_attributes: WrappedMetastakingTokenAttributes<Self::Api> =
             self.get_token_attributes(&payment.token_identifier, payment.token_nonce);

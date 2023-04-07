@@ -35,12 +35,21 @@ pub trait MetastakingInteractionsModule:
             !metastaking_state_mapper.is_empty(),
             ERROR_METASTAKING_DOES_NOT_EXIST
         );
+
+        // We need to first claim the metastaking rewards, as we need to call the enter farm endpoint, which also claims the boosted rewards, if any
+        // This way, if there are any pending rewards, they are claimed using the correct Metastaking position, and not during the enter farm flow
+        let metastaking_state = metastaking_state_mapper.get();
+        if metastaking_state.dual_yield_amount > 0 {
+            let empty_payment =
+                EsdtTokenPayment::new(payment.token_identifier.clone(), 0u64, BigUint::zero());
+            let _ = self.claim_and_compute_user_metastaking_rewards(
+                &empty_payment,
+                &metastaking_address,
+                &mut metastaking_state_mapper,
+            );
+        }
+
         let farm_address = self.get_lp_farm_address(&metastaking_address);
-
-        // Needed not to lose any unclaimed farm rewards
-        let mut farm_state_mapper = self.farm_state(&farm_address);
-        self.claim_and_update_farm_state(&farm_address, &mut farm_state_mapper);
-
         let farming_token_id = self.get_farming_token(&farm_address);
         require!(
             farming_token_id == payment.token_identifier,
@@ -49,7 +58,6 @@ pub trait MetastakingInteractionsModule:
 
         // We need to enter the farm for the user, in order to have the Energy DAO contract as the original_owner of the position
         // This is needed later on, in order to be able to merge farm positions when adding extra position
-        // We enter with the payment only, to avoid merging the actual farm position with this position that will go entirely towards metastaking
         let enter_farm_payment = ManagedVec::from_single_item(payment);
         let enter_farm_result = self.call_enter_farm(farm_address, enter_farm_payment);
         let (new_farm_token, _) = enter_farm_result.into_tuple();
@@ -331,11 +339,15 @@ pub trait MetastakingInteractionsModule:
             claim_rewards_result.staking_farm_rewards,
             &division_safety_constant,
         );
-        self.send().esdt_local_burn(
-            &payment.token_identifier,
-            payment.token_nonce,
-            &payment.amount,
-        );
+
+        if payment.amount > 0 {
+            self.send().esdt_local_burn(
+                &payment.token_identifier,
+                payment.token_nonce,
+                &payment.amount,
+            );
+        }
+
         let (user_lp_farm_reward, user_staking_reward) = self.compute_user_metastaking_rewards(
             metastaking_state_mapper,
             payment,
