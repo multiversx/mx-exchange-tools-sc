@@ -7,11 +7,13 @@ use crate::common::{
     errors::{
         ERROR_DIVISION_CONSTANT_VALUE, ERROR_FARM_ALREADY_DEFINED, ERROR_FARM_DOES_NOT_EXIST,
         ERROR_FARM_HAS_FUNDS, ERROR_METASTAKING_ALREADY_DEFINED, ERROR_METASTAKING_DOES_NOT_EXIST,
-        ERROR_METASTAKING_HAS_FUNDS,
+        ERROR_METASTAKING_HAS_FUNDS, ERROR_PERCENTAGE_VALUE,
     },
     rewards_wrapper::RewardsWrapper,
     structs::{FarmState, MetastakingState},
 };
+
+pub const MAX_PERCENTAGE: u64 = 10_000; // 100.00%
 
 #[multiversx_sc::module]
 pub trait EnergyDAOConfigModule:
@@ -97,9 +99,20 @@ pub trait EnergyDAOConfigModule:
         );
     }
 
+    #[only_owner]
+    #[endpoint(setExitPenaltyPercent)]
+    fn set_exit_penalty_percent(&self, exit_penalty_percent: u64) {
+        require!(
+            exit_penalty_percent <= MAX_PERCENTAGE,
+            ERROR_PERCENTAGE_VALUE
+        );
+        self.exit_penalty_percent().set(exit_penalty_percent);
+    }
+
+    /// Endpoint that allows the owner or a trustworthy admin address to add a new farm
     #[endpoint(addFarms)]
     fn add_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
-        self.require_caller_has_owner_or_admin_permissions();
+        self.require_caller_has_owner_permissions();
         for farm_addr in farms {
             let farm_state_mapper = self.farm_state(&farm_addr);
             require!(farm_state_mapper.is_empty(), ERROR_FARM_ALREADY_DEFINED);
@@ -117,9 +130,11 @@ pub trait EnergyDAOConfigModule:
         }
     }
 
+    /// Endpoint that allows the owner or a trustworthy admin address to remove a farm, if no funds were deposited
+    /// It can be updated to have a more enforcing approach, by properly sending the funds back to the users, before removing the farm
     #[endpoint(removeFarms)]
     fn remove_farms(&self, farms: MultiValueEncoded<ManagedAddress>) {
-        self.require_caller_has_owner_or_admin_permissions();
+        self.require_caller_has_owner_permissions();
         for farm in farms {
             let farm_state_mapper = self.farm_state(&farm);
             require!(!farm_state_mapper.is_empty(), ERROR_FARM_DOES_NOT_EXIST);
@@ -131,7 +146,7 @@ pub trait EnergyDAOConfigModule:
 
     #[endpoint(addMetastakingAddresses)]
     fn add_metastaking_addresses(&self, metastaking_addresses: MultiValueEncoded<ManagedAddress>) {
-        self.require_caller_has_owner_or_admin_permissions();
+        self.require_caller_has_owner_permissions();
         for metastaking_address in metastaking_addresses {
             let metastaking_state_mapper = self.metastaking_state(&metastaking_address);
             require!(
@@ -140,8 +155,14 @@ pub trait EnergyDAOConfigModule:
             );
             self.require_sc_address(&metastaking_address);
 
+            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            self.require_sc_address(&lp_farm_address);
+            self.lp_farm_metastaking_address(&lp_farm_address)
+                .set(metastaking_address);
+
             let metastaking_state = MetastakingState {
-                ms_staked_value: BigUint::zero(),
+                metastaking_token_supply: BigUint::zero(),
+                dual_yield_amount: BigUint::zero(),
                 dual_yield_token_nonce: 0u64,
                 lp_farm_reward_token_nonce: 0u64,
                 lp_farm_reward_reserve: BigUint::zero(),
@@ -158,7 +179,7 @@ pub trait EnergyDAOConfigModule:
         &self,
         metastaking_addresses: MultiValueEncoded<ManagedAddress>,
     ) {
-        self.require_caller_has_owner_or_admin_permissions();
+        self.require_caller_has_owner_permissions();
         for metastaking_address in metastaking_addresses {
             let metastaking_state_mapper = self.metastaking_state(&metastaking_address);
             require!(
@@ -167,9 +188,14 @@ pub trait EnergyDAOConfigModule:
             );
             let metastaking_state = metastaking_state_mapper.get();
             require!(
-                metastaking_state.ms_staked_value == 0,
+                metastaking_state.metastaking_token_supply == 0,
                 ERROR_METASTAKING_HAS_FUNDS
             );
+
+            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            self.require_sc_address(&lp_farm_address);
+            self.lp_farm_metastaking_address(&lp_farm_address).clear();
+
             metastaking_state_mapper.clear();
         }
     }
@@ -209,6 +235,9 @@ pub trait EnergyDAOConfigModule:
         farm_token_id
     }
 
+    /// We use the division_safety_constant mapper as a way to access the value from each particular farm
+    /// Because we do not actually save in the storage a certain value for each farm
+    /// We should not have any performance penalty, as we read from the storage only once
     #[view(getDivisionSafetyConstant)]
     fn get_division_safety_constant(&self, farm_address: &ManagedAddress) -> BigUint {
         let division_safety_constant = self
@@ -216,6 +245,12 @@ pub trait EnergyDAOConfigModule:
             .get_from_address(farm_address);
         require!(division_safety_constant > 0, ERROR_DIVISION_CONSTANT_VALUE);
         division_safety_constant
+    }
+
+    // We use the minimum_farming_epochs variable from the Farm SC, to have a clear alignment with the farm penalty period
+    #[view(getMinimumFarmingEpoch)]
+    fn get_minimum_farming_epochs(&self, farm_address: &ManagedAddress) -> Epoch {
+        self.minimum_farming_epochs().get_from_address(farm_address)
     }
 
     #[view(getDualYieldTokenId)]
@@ -270,6 +305,9 @@ pub trait EnergyDAOConfigModule:
     #[storage_mapper("division_safety_constant")]
     fn division_safety_constant(&self) -> SingleValueMapper<BigUint>;
 
+    #[storage_mapper("minimum_farming_epochs")]
+    fn minimum_farming_epochs(&self) -> SingleValueMapper<Epoch>;
+
     #[storage_mapper("dualYieldTokenId")]
     fn dual_yield_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
@@ -301,10 +339,6 @@ pub trait EnergyDAOConfigModule:
     #[storage_mapper("unstakeMetastakingTokenId")]
     fn unstake_metastaking_token(&self) -> NonFungibleTokenMapper;
 
-    #[view(getFarmUnbondPeriod)]
-    #[storage_mapper("farmUnbondPeriod")]
-    fn farm_unbond_period(&self) -> SingleValueMapper<Epoch>;
-
     #[view(getExitPenaltyPercent)]
     #[storage_mapper("exitPenaltyPercent")]
     fn exit_penalty_percent(&self) -> SingleValueMapper<u64>;
@@ -320,4 +354,10 @@ pub trait EnergyDAOConfigModule:
         &self,
         metastaking_address: &ManagedAddress,
     ) -> SingleValueMapper<MetastakingState<Self::Api>>;
+
+    #[storage_mapper("lpFarmMetastakingAddress")]
+    fn lp_farm_metastaking_address(
+        &self,
+        farm_address: &ManagedAddress,
+    ) -> SingleValueMapper<ManagedAddress>;
 }

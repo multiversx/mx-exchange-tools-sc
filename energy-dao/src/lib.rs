@@ -35,7 +35,6 @@ pub trait EnergyDAO:
         fees_collector_sc_address: ManagedAddress,
         locked_token_wrapper_sc_address: ManagedAddress,
         exit_penalty_percent: u64,
-        farm_unbond_period: u64,
     ) {
         self.require_sc_address(&energy_factory_address);
         self.require_sc_address(&fees_collector_sc_address);
@@ -47,9 +46,7 @@ pub trait EnergyDAO:
             .set_if_empty(fees_collector_sc_address);
         self.locked_token_wrapper_sc_address()
             .set_if_empty(locked_token_wrapper_sc_address);
-        self.exit_penalty_percent()
-            .set_if_empty(exit_penalty_percent);
-        self.farm_unbond_period().set_if_empty(farm_unbond_period);
+        self.set_exit_penalty_percent(exit_penalty_percent);
 
         let caller = self.blockchain().get_caller();
         self.add_permissions(caller, Permissions::OWNER);

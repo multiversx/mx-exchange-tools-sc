@@ -1,3 +1,4 @@
+use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::{custom_rewards::CustomRewardsModule, FarmStaking};
 use farm_staking_proxy::{dual_yield_token::DualYieldTokenModule, FarmStakingProxy};
 use farm_token::FarmTokenModule;
@@ -45,7 +46,6 @@ pub static STAKING_FARM_TOKEN_ID: &[u8] = b"SUTK-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 pub const PENALTY_PERCENTAGE: u64 = 300;
 pub const MAX_APR_PERCENTAGE: u64 = 2_500;
-pub const MAX_PERCENTAGE: u64 = 10_000;
 pub const UNBOND_PERIOD: u64 = 10;
 pub const EPOCHS_IN_YEAR: u64 = 360;
 pub const USER_BALANCE: u64 = 1_000_000;
@@ -220,7 +220,6 @@ where
                     managed_address!(fees_collector_wrapper.address_ref()),
                     managed_address!(locked_token_wrapper.address_ref()),
                     PENALTY_PERCENTAGE,
-                    UNBOND_PERIOD,
                 );
 
                 sc.wrapped_farm_token()
@@ -494,6 +493,7 @@ where
                 .set_token_id(managed_token_id!(FARM_TOKEN_ID));
             sc.set_locking_sc_address(managed_address!(energy_factory_wrapper.address_ref()));
             sc.set_lock_epochs(*LOCK_OPTIONS.last().unwrap());
+            sc.set_minimum_farming_epochs(UNBOND_PERIOD);
 
             sc.per_block_reward_amount()
                 .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
