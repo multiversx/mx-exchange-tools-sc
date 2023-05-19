@@ -12,6 +12,10 @@ path = "src/lib.rs"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
 
+[dependencies.farm-with-locked-rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
 [dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "4941cae"
@@ -71,8 +75,15 @@ rev = "4941cae"
 [dependencies.auto-farm]
 path = "../auto-farm"
 
+[dev-dependencies.tests-common]
+path = "../tests-common"
+features = ["enable-tests-common"]
+
 [dev-dependencies]
 num-bigint = "0.4.2"
+num-traits = "0.2"
+hex = "0.4"
+hex-literal = "0.3.4"
 
 [dependencies.multiversx-sc]
 version = "=0.39.4"
@@ -83,3 +94,11 @@ version = "=0.39.4"
 
 [dev-dependencies.multiversx-sc-scenario]
 version = "=0.39.4"
+
+[dev-dependencies.energy-factory]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
+
+[dev-dependencies.sc_whitelist_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "4941cae"
