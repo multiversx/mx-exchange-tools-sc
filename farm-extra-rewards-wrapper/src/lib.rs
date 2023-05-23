@@ -35,6 +35,6 @@ pub trait FarmExtraRewardsWrapper:
     #[init]
     fn init(&self) {
         let caller = self.blockchain().get_caller();
-        self.add_permissions(caller, Permissions::OWNER);
+        self.add_permissions(caller, Permissions::OWNER | Permissions::PAUSE);
     }
 }

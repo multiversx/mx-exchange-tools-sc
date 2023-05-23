@@ -166,7 +166,8 @@ pub trait GenerateRewardsModule:
             &claim_rewards_context.additional_payments,
             &farm_token_mapper,
         );
-        new_token_attributes.farm_token = new_farm_token;
+        new_token_attributes.farm_token_id = new_farm_token.token_identifier;
+        new_token_attributes.farm_token_nonce = new_farm_token.token_nonce;
 
         let new_wrapped_token = farm_token_mapper.nft_create(
             new_token_attributes.get_total_supply(),
@@ -190,10 +191,25 @@ pub trait GenerateRewardsModule:
         claim_rewards_context: &ClaimRewardsContext<Self::Api, WrappedFarmAttributes<Self::Api>>,
     ) -> PaymentsWrapper<Self::Api> {
         let wrapped_token_mapper = self.farm_token();
-        let first_farm_token = &claim_rewards_context.first_farm_token.attributes.farm_token;
+        let first_farm_token = &claim_rewards_context
+            .first_farm_token
+            .attributes
+            .farm_token_id;
 
         let mut underlying_farm_tokens = PaymentsWrapper::new();
-        underlying_farm_tokens.push(first_farm_token.clone());
+        let first_payment = EsdtTokenPayment::new(
+            first_farm_token.clone(),
+            claim_rewards_context
+                .first_farm_token
+                .attributes
+                .farm_token_nonce,
+            claim_rewards_context
+                .first_farm_token
+                .attributes
+                .current_token_amount
+                .clone(),
+        );
+        underlying_farm_tokens.push(first_payment);
 
         for other_wrapped_token in &claim_rewards_context.additional_payments {
             let attributes: WrappedFarmAttributes<Self::Api> = self
@@ -202,11 +218,16 @@ pub trait GenerateRewardsModule:
                     &wrapped_token_mapper,
                 );
             require!(
-                first_farm_token.token_identifier == attributes.farm_token.token_identifier,
+                first_farm_token == &attributes.farm_token_id,
                 "Invalid payments, all wrapped tokens must belong to the same farm"
             );
 
-            underlying_farm_tokens.push(attributes.farm_token);
+            let payment = EsdtTokenPayment::new(
+                attributes.farm_token_id,
+                attributes.farm_token_nonce,
+                attributes.current_token_amount,
+            );
+            underlying_farm_tokens.push(payment);
         }
 
         underlying_farm_tokens

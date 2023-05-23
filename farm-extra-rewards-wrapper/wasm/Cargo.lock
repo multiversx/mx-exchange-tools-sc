@@ -225,6 +225,7 @@ dependencies = [
  "config",
  "contexts",
  "farm",
+ "farm-with-locked-rewards",
  "farm_base_impl",
  "farm_token",
  "fixed-supply-token",

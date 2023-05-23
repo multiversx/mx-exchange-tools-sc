@@ -74,8 +74,11 @@ where
         farming_token_amount: BigUint<<Self::FarmSc as ContractBase>::Api>,
         current_reward_per_share: BigUint<<Self::FarmSc as ContractBase>::Api>,
     ) -> Self::AttributesType {
+        let call_value = sc.call_value().single_esdt();
+
         WrappedFarmAttributes {
-            farm_token: sc.call_value().single_esdt(),
+            farm_token_id: call_value.token_identifier,
+            farm_token_nonce: call_value.token_nonce,
             reward_per_share: current_reward_per_share,
             creation_block: sc.blockchain().get_block_nonce(),
             current_token_amount: farming_token_amount,
@@ -89,7 +92,8 @@ where
         current_reward_per_share: BigUint<<Self::FarmSc as ContractBase>::Api>,
     ) -> Self::AttributesType {
         WrappedFarmAttributes {
-            farm_token: first_token_attributes.farm_token,
+            farm_token_id: first_token_attributes.farm_token_id,
+            farm_token_nonce: first_token_attributes.farm_token_nonce,
             reward_per_share: current_reward_per_share,
             creation_block: sc.blockchain().get_block_nonce(),
             current_token_amount: first_token_attributes.current_token_amount,
