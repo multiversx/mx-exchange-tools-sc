@@ -16,6 +16,8 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
         let current_block = self.blockchain().get_block_nonce();
         let mut tokens_mapper = self.reward_tokens();
         for payment in &payments {
+            require!(payment.token_nonce == 0, "Only fungible tokens accepted");
+
             self.reward_capacity(&payment.token_identifier)
                 .update(|total| *total += &payment.amount);
 

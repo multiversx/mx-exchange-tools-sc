@@ -40,6 +40,25 @@ where
     ) {
     }
 
+    fn mint_per_block_rewards(
+        sc: &Self::FarmSc,
+        token_id: &TokenIdentifier<<Self::FarmSc as ContractBase>::Api>,
+    ) -> BigUint<<Self::FarmSc as ContractBase>::Api> {
+        let current_block_nonce = sc.blockchain().get_block_nonce();
+        let last_reward_nonce = sc.last_reward_block_nonce().get();
+        if current_block_nonce > last_reward_nonce {
+            let to_mint =
+                Self::calculate_per_block_rewards(sc, current_block_nonce, last_reward_nonce);
+            if to_mint != 0 {
+                Self::mint_rewards(sc, token_id, &to_mint);
+            }
+
+            to_mint
+        } else {
+            BigUint::zero()
+        }
+    }
+
     fn generate_aggregated_rewards(
         sc: &Self::FarmSc,
         storage_cache: &mut StorageCache<Self::FarmSc>,
@@ -55,7 +74,6 @@ where
             return;
         }
 
-        storage_cache.reward_reserve += &total_reward;
         accumulated_rewards += &total_reward;
         accumulated_rewards_mapper.set(&accumulated_rewards);
 

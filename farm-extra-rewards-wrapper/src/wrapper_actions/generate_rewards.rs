@@ -100,10 +100,16 @@ pub trait GenerateRewardsModule:
             .clone()
             .into_part(wrapped_farm_token_amount);
 
-        BaseFarmLogicWrapper::generate_aggregated_rewards(self, &mut storage_cache);
-
+        let rps_before = storage_cache.reward_per_share.clone();
+        let mut max_new_rps = rps_before.clone();
         let mut rewards = PaymentsWrapper::new();
         for token in self.reward_tokens().iter() {
+            storage_cache.reward_token_id = token.clone();
+            storage_cache.reward_per_share = rps_before.clone();
+            BaseFarmLogicWrapper::generate_aggregated_rewards(self, &mut storage_cache);
+
+            max_new_rps = core::cmp::max(max_new_rps, storage_cache.reward_per_share.clone());
+
             let rew = self.generate_single_token_reward(
                 caller,
                 token,
@@ -113,6 +119,11 @@ pub trait GenerateRewardsModule:
             );
             rewards.push(rew);
         }
+
+        storage_cache.reward_per_share = max_new_rps;
+
+        let block_nonce = self.blockchain().get_block_nonce();
+        self.last_reward_block_nonce().set(&block_nonce);
 
         InternalClaimResult {
             rewards,
@@ -134,8 +145,6 @@ pub trait GenerateRewardsModule:
         if wrapped_token_attributes.creation_block < token_addition_block {
             return EsdtTokenPayment::new(reward_token_id, 0, BigUint::zero());
         }
-
-        storage_cache.reward_token_id = reward_token_id.clone();
 
         let rew_amount = BaseFarmLogicWrapper::calculate_rewards(
             self,
