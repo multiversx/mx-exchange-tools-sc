@@ -33,8 +33,12 @@ pub trait FarmExtraRewardsWrapper:
     + crate::external_sc_interactions::farm_interactions::FarmInteractionsModule
 {
     #[init]
-    fn init(&self) {
+    fn init(&self, division_safety_constant: BigUint) {
         let caller = self.blockchain().get_caller();
         self.add_permissions(caller, Permissions::OWNER | Permissions::PAUSE);
+
+        require!(division_safety_constant != 0, "Invalid div safety const");
+        self.division_safety_constant()
+            .set(&division_safety_constant);
     }
 }

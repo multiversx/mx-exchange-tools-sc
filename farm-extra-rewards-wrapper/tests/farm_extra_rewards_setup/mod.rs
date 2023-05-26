@@ -4,10 +4,11 @@ use auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule;
 use farm_extra_rewards_wrapper::FarmExtraRewardsWrapper;
 use multiversx_sc::types::{Address, ManagedAddress, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    rust_biguint,
+    managed_biguint, rust_biguint,
     testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
+use tests_common::farm_staking_setup::DIVISION_SAFETY_CONSTANT;
 
 pub struct ExtraRewSetup<ScBuilder>
 where
@@ -38,7 +39,7 @@ where
         b_mock
             .borrow_mut()
             .execute_tx(&owner, &sc_wrapper, &rust_biguint!(0), |sc| {
-                sc.init();
+                sc.init(managed_biguint!(DIVISION_SAFETY_CONSTANT));
             })
             .assert_ok();
 

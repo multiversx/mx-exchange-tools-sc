@@ -123,7 +123,7 @@ pub trait GenerateRewardsModule:
         storage_cache.reward_per_share = max_new_rps;
 
         let block_nonce = self.blockchain().get_block_nonce();
-        self.last_reward_block_nonce().set(&block_nonce);
+        self.last_reward_block_nonce().set(block_nonce);
 
         InternalClaimResult {
             rewards,
@@ -164,10 +164,14 @@ pub trait GenerateRewardsModule:
         storage_cache: &StorageCache<Self>,
     ) -> PaymentAttributesPair<Self::Api, WrappedFarmAttributes<Self::Api>> {
         let farm_token_mapper = self.farm_token();
+        let farm_token_attr = claim_rewards_context
+            .first_farm_token
+            .attributes
+            .into_part(&claim_rewards_context.first_farm_token.payment.amount);
         let base_attributes = BaseFarmLogicWrapper::create_claim_rewards_initial_attributes(
             self,
             caller,
-            claim_rewards_context.first_farm_token.attributes,
+            farm_token_attr,
             storage_cache.reward_per_share.clone(),
         );
         let mut new_token_attributes = self.merge_attributes_from_payments(
@@ -206,17 +210,16 @@ pub trait GenerateRewardsModule:
             .farm_token_id;
 
         let mut underlying_farm_tokens = PaymentsWrapper::new();
+        let first_attributes: WrappedFarmAttributes<Self::Api> = claim_rewards_context
+            .first_farm_token
+            .attributes
+            .clone()
+            .into_part(&claim_rewards_context.first_farm_token.payment.amount);
+
         let first_payment = EsdtTokenPayment::new(
             first_farm_token.clone(),
-            claim_rewards_context
-                .first_farm_token
-                .attributes
-                .farm_token_nonce,
-            claim_rewards_context
-                .first_farm_token
-                .attributes
-                .current_token_amount
-                .clone(),
+            first_attributes.farm_token_nonce,
+            first_attributes.current_token_amount.clone(),
         );
         underlying_farm_tokens.push(first_payment);
 
