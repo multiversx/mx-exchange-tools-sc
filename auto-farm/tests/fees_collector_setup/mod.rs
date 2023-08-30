@@ -1,14 +1,16 @@
-use multiversx_sc::types::{Address, EsdtLocalRole, MultiValueEncoded};
-use multiversx_sc_scenario::{
-    managed_address, managed_token_id, managed_token_id_wrapped, rust_biguint,
-    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
-    DebugApi,
-};
+#![allow(deprecated)]
+
 use energy_query::EnergyQueryModule;
 use fees_collector::{
     config::ConfigModule, fees_accumulation::FeesAccumulationModule, FeesCollector,
 };
 use locking_module::lock_with_energy_module::LockWithEnergyModule;
+use multiversx_sc::types::{Address, EsdtLocalRole, MultiValueEncoded};
+use multiversx_sc_scenario::{
+    managed_address, managed_token_id, managed_token_id_wrapped, rust_biguint,
+    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
+    DebugApi,
+};
 use simple_lock::locked_token::LockedTokenAttributes;
 
 pub const USER_BALANCE: u64 = 1_000_000_000_000_000_000;

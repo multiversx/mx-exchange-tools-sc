@@ -1,7 +1,9 @@
+#![allow(deprecated)]
+
 use multiversx_sc::{codec::multi_types::OptionalValue, types::Address};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_buffer, managed_token_id, rust_biguint,
-    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
+    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 

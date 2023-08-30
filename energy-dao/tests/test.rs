@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 mod contract_interactions;
 mod contract_setup;
 

@@ -12,8 +12,8 @@ publish = false
 path = ".."
 
 [dependencies.multiversx-sc-snippets]
-version = "0.39.4"
+version = "0.43.2"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "4941cae"
+rev = "7f25a72"

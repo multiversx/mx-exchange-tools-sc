@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use auto_farm::{
     common::{
         common_storage::MAX_PERCENTAGE,

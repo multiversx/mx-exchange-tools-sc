@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::{cell::RefCell, rc::Rc};
 
 use auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule;

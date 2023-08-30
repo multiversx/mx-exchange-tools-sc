@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::pair_setup::PairSetup;
 
 use super::metastaking_setup::setup_metastaking;
@@ -7,9 +9,9 @@ use auto_farm::whitelists::{
 use auto_pos_creator::{configs::pairs_config::PairsConfigModule, AutoPosCreator};
 use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, rust_biguint, whitebox::ContractObjWrapper, DebugApi,
+    managed_address, managed_biguint, rust_biguint, testing_framework::ContractObjWrapper, DebugApi,
 };
-use pair::safe_price::SafePriceModule;
+use pair::safe_price_view::SafePriceViewModule;
 use sc_whitelist_module::SCWhitelistModule;
 use tests_common::{
     farm_staking_setup::{setup_farm_staking, STAKING_FARM_TOKEN_ID},

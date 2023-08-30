@@ -12,7 +12,7 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
     fn deposit_reward_tokens(&self) {
         self.require_caller_has_owner_or_admin_permissions();
 
-        let payments = self.call_value().all_esdt_transfers();
+        let payments = self.call_value().all_esdt_transfers().clone_value();
         let current_block = self.blockchain().get_block_nonce();
         let mut tokens_mapper = self.reward_tokens();
         for payment in &payments {

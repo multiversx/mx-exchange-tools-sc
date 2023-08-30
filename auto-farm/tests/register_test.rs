@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use auto_farm::common::common_storage::CommonStorageModule;
 use auto_farm::registration::RegistrationModule;
 use auto_farm::AutoFarm;

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use farm_with_locked_rewards::Farm;
 use fees_collector::FeesCollector;
 use locked_token_wrapper::{wrapped_token::WrappedTokenModule, LockedTokenWrapper};
@@ -320,11 +322,7 @@ where
 
     b_mock
         .execute_tx(owner, &locked_token_wrapper, &rust_zero, |sc| {
-            sc.init(
-                managed_token_id!(LEGACY_LOCKED_TOKEN_ID),
-                managed_token_id!(LOCKED_TOKEN_ID),
-                managed_address!(energy_factory_wrapper.address_ref()),
-            );
+            sc.init(managed_address!(energy_factory_wrapper.address_ref()));
 
             sc.wrapped_token()
                 .set_token_id(managed_token_id!(WRAPPED_LOCKED_TOKEN_ID));

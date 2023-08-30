@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use farm_extra_rewards_setup::ExtraRewSetup;
 use farm_extra_rewards_wrapper::{
     reward_tokens::RewardTokensModule,

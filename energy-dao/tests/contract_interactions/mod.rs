@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use energy_dao::external_sc_interactions::{
     farm_config::FarmConfigModule, farm_interactions::FarmInteractionsModule,
     locked_token_interactions::LockedTokenInteractionsModule,

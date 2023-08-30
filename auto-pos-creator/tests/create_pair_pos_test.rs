@@ -1,13 +1,16 @@
+#![allow(deprecated)]
+
 use auto_pos_creator::{
     external_sc_interactions::pair_actions::PairTokenPayments,
     multi_contract_interactions::{create_pos::CreatePosModule, exit_pos::ExitPosModule},
 };
-use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
-use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::TxTokenTransfer,
-};
 use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
+use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::TxTokenTransfer,
+};
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
 use tests_common::{
     farm_staking_setup::STAKING_FARM_TOKEN_ID, farm_with_locked_rewards_setup::FARM_TOKEN_ID,

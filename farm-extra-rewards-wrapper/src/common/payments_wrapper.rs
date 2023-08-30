@@ -1,5 +1,6 @@
 use common_structs::PaymentsVec;
 use mergeable::Mergeable;
+use multiversx_sc::api::{SendApi, SendApiImpl};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -56,11 +57,11 @@ where
         }
 
         let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
-            address,
-            &self.payments,
+            address.get_raw_handle(),
+            self.payments.get_raw_handle(),
             0,
-            &ManagedBuffer::new(),
-            &ManagedArgBuffer::new(),
+            ManagedBuffer::<M>::new().get_raw_handle(),
+            ManagedArgBuffer::<M>::new().get_raw_handle(),
         );
     }
 }

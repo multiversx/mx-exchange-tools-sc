@@ -1,4 +1,5 @@
 use common_structs::PaymentsVec;
+use multiversx_sc::api::{SendApi, SendApiImpl};
 
 multiversx_sc::imports!();
 
@@ -35,11 +36,11 @@ impl<M: SendApi> PaymentsWrapper<M> {
         }
 
         let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
-            to,
-            &self.payments,
+            to.get_raw_handle(),
+            self.payments.get_raw_handle(),
             0,
-            &ManagedBuffer::new(),
-            &ManagedArgBuffer::new(),
+            ManagedBuffer::<M>::new().get_raw_handle(),
+            ManagedArgBuffer::<M>::new().get_raw_handle(),
         );
 
         self.payments
