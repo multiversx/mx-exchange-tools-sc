@@ -170,7 +170,7 @@ where
                         sc.price_observations().push(&PriceObservation {
                             first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
                             second_token_reserve_accumulated: managed_biguint!(2_000_000_000),
-                            weight_accumulated: i as u64,
+                            weight_accumulated: 0,
                             recording_round: 0,
                         });
                         sc.safe_price_current_index().set(i);
@@ -188,7 +188,7 @@ where
                         sc.price_observations().push(&PriceObservation {
                             first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
                             second_token_reserve_accumulated: managed_biguint!(6_000_000_000),
-                            weight_accumulated: i as u64,
+                            weight_accumulated: 0,
                             recording_round: 0,
                         });
                         sc.safe_price_current_index().set(i);
@@ -206,7 +206,7 @@ where
                         sc.price_observations().push(&PriceObservation {
                             first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
                             second_token_reserve_accumulated: managed_biguint!(3_000_000_000),
-                            weight_accumulated: i as u64,
+                            weight_accumulated: 0,
                             recording_round: 0,
                         });
                         sc.safe_price_current_index().set(i);
@@ -337,22 +337,7 @@ where
             )
             .assert_ok();
 
-        // fix safe price, it needs manual updating
         let pair_setups = vec![first_pair_setup, second_pair_setup, third_pair_setup];
-        // for i in 0..20 {
-        //     b_mock.borrow_mut().set_block_nonce(i);
-
-        //     for pair_setup in &pair_setups {
-        //         b_mock
-        //             .borrow_mut()
-        //             .execute_tx(&owner, &pair_setup.pair_wrapper, &rust_biguint!(0), |sc| {
-        //                 sc.update_and_get_tokens_for_given_position_with_safe_price(
-        //                     managed_biguint!(1_000),
-        //                 );
-        //             })
-        //             .assert_ok();
-        //     }
-        // }
 
         PosCreatorSetup {
             farm_setup,
