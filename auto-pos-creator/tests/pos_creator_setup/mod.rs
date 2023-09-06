@@ -17,7 +17,6 @@ use tests_common::{
     farm_with_locked_rewards_setup::{FarmSetup, FARMING_TOKEN_ID, FARM_TOKEN_ID},
 };
 
-use pair::safe_price::PriceObservation;
 use pair::safe_price::SafePriceModule;
 
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
@@ -153,30 +152,27 @@ where
             &rust_biguint!(third_token_total_amount),
         );
 
+        let mut block_round: u64 = 1;
+        b_mock.borrow_mut().set_block_round(block_round);
+
         // add initial liquidity
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
         second_pair_setup.add_liquidity(&owner, 1_000_000_000, 6_000_000_000);
         third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
 
         // setup price observations
-        for i in 1usize..=20 {
-            b_mock
-                .borrow_mut()
-                .execute_tx(
-                    &owner,
-                    &first_pair_setup.pair_wrapper,
-                    &rust_biguint!(0),
-                    |sc| {
-                        sc.price_observations().push(&PriceObservation {
-                            first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
-                            second_token_reserve_accumulated: managed_biguint!(2_000_000_000),
-                            weight_accumulated: 0,
-                            recording_round: 0,
-                        });
-                        sc.safe_price_current_index().set(i);
-                    },
-                )
-                .assert_ok();
+        for _i in 1usize..=20 {
+            block_round += 1;
+            b_mock.borrow_mut().set_block_round(block_round);
+
+            b_mock.borrow_mut().execute_tx(&owner,
+                &first_pair_setup.pair_wrapper,
+                &rust_biguint!(0),
+                |sc| {
+                    sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(2_000_000_000));
+                },
+            )
+            .assert_ok();
 
             b_mock
                 .borrow_mut()
@@ -185,13 +181,7 @@ where
                     &second_pair_setup.pair_wrapper,
                     &rust_biguint!(0),
                     |sc| {
-                        sc.price_observations().push(&PriceObservation {
-                            first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
-                            second_token_reserve_accumulated: managed_biguint!(6_000_000_000),
-                            weight_accumulated: 0,
-                            recording_round: 0,
-                        });
-                        sc.safe_price_current_index().set(i);
+                        sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(6_000_000_000));
                     },
                 )
                 .assert_ok();
@@ -203,13 +193,7 @@ where
                     &third_pair_setup.pair_wrapper,
                     &rust_biguint!(0),
                     |sc| {
-                        sc.price_observations().push(&PriceObservation {
-                            first_token_reserve_accumulated: managed_biguint!(1_000_000_000),
-                            second_token_reserve_accumulated: managed_biguint!(3_000_000_000),
-                            weight_accumulated: 0,
-                            recording_round: 0,
-                        });
-                        sc.safe_price_current_index().set(i);
+                        sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(3_000_000_000));
                     },
                 )
                 .assert_ok();

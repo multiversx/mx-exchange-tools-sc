@@ -236,7 +236,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &rust_biguint!(user_third_token_balance),
     );
 
-    b_mock.borrow_mut().set_block_round(1);
+    b_mock.borrow_mut().set_block_round(21);
 
     // enter pair and farm from C tokens
     let first_pair_addr = pos_creator_setup.pair_setups[0]
