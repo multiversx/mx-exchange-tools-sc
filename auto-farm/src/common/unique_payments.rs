@@ -46,15 +46,42 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
         let len = self.payments.len();
         for i in 0..len {
             let mut current_payment = self.payments.get(i);
-            if current_payment.can_merge_with(&new_payment) {
-                current_payment.amount += new_payment.amount;
-                let _ = self.payments.set(i, &current_payment);
-
-                return;
+            if !current_payment.can_merge_with(&new_payment) {
+                continue;
             }
+
+            current_payment.amount += new_payment.amount;
+            let _ = self.payments.set(i, &current_payment);
+
+            return;
         }
 
         self.payments.push(new_payment);
+    }
+
+    pub fn deduct_payment(&mut self, payment: &EsdtTokenPayment<M>) -> Result<(), ()> {
+        if payment.amount == 0 {
+            return Result::Ok(());
+        }
+
+        let len = self.payments.len();
+        for i in 0..len {
+            let mut current_payment = self.payments.get(i);
+            if !current_payment.can_merge_with(payment) {
+                continue;
+            }
+
+            if current_payment.amount < payment.amount {
+                return Result::Err(());
+            }
+
+            current_payment.amount -= &payment.amount;
+            let _ = self.payments.set(i, &current_payment);
+
+            return Result::Ok(());
+        }
+
+        Result::Err(())
     }
 
     #[inline]
