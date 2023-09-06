@@ -50,6 +50,10 @@ rev = "7f25a72"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "7f25a72"
 
+[dependencies.permissions_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "7f25a72"
+
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "7f25a72"

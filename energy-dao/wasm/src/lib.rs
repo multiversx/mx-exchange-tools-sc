@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           25
+// Endpoints:                           46
 // Async Callback:                       1
-// Total number of exported functions:  27
+// Total number of exported functions:  48
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -18,30 +18,51 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     energy_dao
     (
+        registerWrappedFarmToken
+        registerUnstakeFarmToken
+        registerWrappedMetastakingToken
+        registerUnstakeMetastakingToken
+        setExitPenaltyPercent
         addFarms
         removeFarms
+        addMetastakingAddresses
+        removeMetastakingAddresses
         getFarmState
         getFarmingTokenId
         getFarmTokenId
         getDivisionSafetyConstant
+        getMinimumFarmingEpoch
+        getDualYieldTokenId
+        getLpFarmTokenId
+        getStakingTokenId
+        getLpFarmAddress
+        getStakingFarmAddress
         getWrappedFarmTokenId
         getUnstakeFarmTokenId
-        getUnbondPeriod
-        getPenaltyPercent
+        getWrappedMetastakingTokenId
+        getUnstakeMetastakingTokenId
+        getExitPenaltyPercent
         enterFarm
-        claimFarmRewards
         claimUserRewards
         unstakeFarm
         unbondFarm
+        enterMetastaking
+        unstakeMetastaking
+        unbondMetastaking
+        claimMetastakingRewards
         lockEnergyTokens
+        extendLockPeriod
+        getInternalLockedTokens
         claimFeesCollectorRewards
         setEnergyFactoryAddress
         getEnergyFactoryAddress
+        addAdmin
+        removeAdmin
+        updateOwnerOrAdmin
+        getPermissions
         issueWrappedToken
         setTransferRoleWrappedToken
         unsetTransferRoleWrappedToken
-        getLockedTokenId
-        getOldLockedTokenId
         getWrappedTokenId
         callBack
     )
