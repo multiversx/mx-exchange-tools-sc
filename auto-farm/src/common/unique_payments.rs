@@ -58,7 +58,7 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
 
         self.payments.push(new_payment);
     }
-
+    #[allow(clippy::result_unit_err)]
     pub fn deduct_payment(&mut self, payment: &EsdtTokenPayment<M>) -> Result<(), ()> {
         if payment.amount == 0 {
             return Result::Ok(());
