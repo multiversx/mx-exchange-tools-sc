@@ -219,7 +219,7 @@ pub trait GenerateRewardsModule:
         let first_payment = EsdtTokenPayment::new(
             first_farm_token.clone(),
             first_attributes.farm_token_nonce,
-            first_attributes.current_token_amount.clone(),
+            first_attributes.current_token_amount,
         );
         underlying_farm_tokens.push(first_payment);
 

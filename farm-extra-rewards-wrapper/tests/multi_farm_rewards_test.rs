@@ -82,7 +82,7 @@ where
         .assert_ok();
 
     farm_setup.b_mock.borrow_mut().set_esdt_local_roles(
-        &extra_rew_setup.sc_wrapper.address_ref(),
+        extra_rew_setup.sc_wrapper.address_ref(),
         WRAPPED_FARM_TOKEN_ID,
         &[EsdtLocalRole::NftCreate, EsdtLocalRole::NftBurn],
     );
@@ -112,7 +112,7 @@ fn init_test() {
 
 #[test]
 fn enter_farm_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let (mut farm_setup, extra_rew_setup) = setup_all(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -200,7 +200,7 @@ fn enter_farm_test() {
 
 #[test]
 fn deposit_rewards_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let (farm_setup, extra_rew_setup) = setup_all(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -219,7 +219,7 @@ fn deposit_rewards_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();
@@ -233,7 +233,7 @@ fn deposit_rewards_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();
@@ -241,7 +241,7 @@ fn deposit_rewards_test() {
 
 #[test]
 fn claim_rewards_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let (mut farm_setup, extra_rew_setup) = setup_all(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -263,7 +263,7 @@ fn claim_rewards_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();
@@ -278,7 +278,7 @@ fn claim_rewards_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();
@@ -418,7 +418,7 @@ fn claim_rewards_test() {
 
 #[test]
 fn claim_rewards_half_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let (mut farm_setup, extra_rew_setup) = setup_all(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -440,7 +440,7 @@ fn claim_rewards_half_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();
@@ -455,7 +455,7 @@ fn claim_rewards_half_test() {
             0,
             &rust_biguint!(REW_TOKEN_BALANCE),
             |sc| {
-                let _ = sc.deposit_reward_tokens();
+                sc.deposit_reward_tokens();
             },
         )
         .assert_ok();

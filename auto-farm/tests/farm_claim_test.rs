@@ -33,7 +33,7 @@ const SECOND_FARM_INDEX: usize = 1;
 
 #[test]
 fn user_enter_and_claim_two_farms_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -134,7 +134,7 @@ fn user_enter_and_claim_two_farms_test() {
 
 #[test]
 fn claim_rewards_through_auto_farm() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -342,7 +342,7 @@ fn claim_rewards_through_auto_farm() {
 
 #[test]
 fn withdraw_specific_farm_tokens_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,

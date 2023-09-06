@@ -16,7 +16,7 @@ fn register_test() {
         energy_factory::contract_obj,
     );
 
-    let first_user = farm_setup.first_user.clone();
+    let first_user = farm_setup.first_user;
     let energy_factory_addr = farm_setup.energy_factory_wrapper.address_ref().clone();
 
     let proxy_address = farm_setup
