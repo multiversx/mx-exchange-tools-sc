@@ -19,17 +19,17 @@ use auto_farm::{
     whitelists::farms_whitelist::FarmsWhitelistModule,
     AutoFarm,
 };
+use energy_factory::locked_token_transfer::LockedTokenTransferModule;
+use farm_staking::stake_farm::StakeFarmModule;
+use fees_collector_setup::{
+    setup_fees_collector, FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID,
+};
 use multiversx_sc::{
     codec::{multi_types::OptionalValue, Empty},
     types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded},
 };
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, DebugApi,
-};
-use energy_factory::locked_token_transfer::LockedTokenTransferModule;
-use farm_staking::stake_farm::StakeFarmModule;
-use fees_collector_setup::{
-    setup_fees_collector, FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID,
 };
 use sc_whitelist_module::SCWhitelistModule;
 

@@ -165,14 +165,20 @@ where
             block_round += 1;
             b_mock.borrow_mut().set_block_round(block_round);
 
-            b_mock.borrow_mut().execute_tx(&owner,
-                &first_pair_setup.pair_wrapper,
-                &rust_biguint!(0),
-                |sc| {
-                    sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(2_000_000_000));
-                },
-            )
-            .assert_ok();
+            b_mock
+                .borrow_mut()
+                .execute_tx(
+                    &owner,
+                    &first_pair_setup.pair_wrapper,
+                    &rust_biguint!(0),
+                    |sc| {
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(2_000_000_000),
+                        );
+                    },
+                )
+                .assert_ok();
 
             b_mock
                 .borrow_mut()
@@ -181,7 +187,10 @@ where
                     &second_pair_setup.pair_wrapper,
                     &rust_biguint!(0),
                     |sc| {
-                        sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(6_000_000_000));
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(6_000_000_000),
+                        );
                     },
                 )
                 .assert_ok();
@@ -193,7 +202,10 @@ where
                     &third_pair_setup.pair_wrapper,
                     &rust_biguint!(0),
                     |sc| {
-                        sc.update_safe_price(&managed_biguint!(1_000_000_000), &managed_biguint!(3_000_000_000));
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(3_000_000_000),
+                        );
                     },
                 )
                 .assert_ok();

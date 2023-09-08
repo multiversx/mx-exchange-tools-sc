@@ -1,6 +1,6 @@
-use farm_staking_proxy::result_types::{StakeProxyResult, UnstakeResult};
-pub use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as OtherProxyTrait;
 pub use farm_staking_proxy::proxy_actions::stake::ProxyTrait as OtherProxyTrait2;
+pub use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as OtherProxyTrait;
+use farm_staking_proxy::result_types::{StakeProxyResult, UnstakeResult};
 
 use super::pair_actions::MIN_AMOUNT_OUT;
 
