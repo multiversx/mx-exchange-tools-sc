@@ -31,7 +31,7 @@ pub trait EnergyDAOConfigModule:
         let payment_amount = self.call_value().egld_value();
         self.wrapped_farm_token().issue_and_set_all_roles(
             EsdtTokenType::Meta,
-            payment_amount,
+            payment_amount.clone_value(),
             token_display_name,
             token_ticker,
             num_decimals,
@@ -51,7 +51,7 @@ pub trait EnergyDAOConfigModule:
         let payment_amount = self.call_value().egld_value();
         self.unstake_farm_token().issue_and_set_all_roles(
             EsdtTokenType::Meta,
-            payment_amount,
+            payment_amount.clone_value(),
             token_display_name,
             token_ticker,
             num_decimals,
@@ -71,7 +71,7 @@ pub trait EnergyDAOConfigModule:
         let payment_amount = self.call_value().egld_value();
         self.wrapped_metastaking_token().issue_and_set_all_roles(
             EsdtTokenType::Meta,
-            payment_amount,
+            payment_amount.clone_value(),
             token_display_name,
             token_ticker,
             num_decimals,
@@ -91,7 +91,7 @@ pub trait EnergyDAOConfigModule:
         let payment_amount = self.call_value().egld_value();
         self.unstake_metastaking_token().issue_and_set_all_roles(
             EsdtTokenType::Meta,
-            payment_amount,
+            payment_amount.clone_value(),
             token_display_name,
             token_ticker,
             num_decimals,

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 pub mod fees_collector_setup;
 pub mod metabonding_setup;
 
@@ -16,14 +18,14 @@ use auto_farm::{
     common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
-use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};
-use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint,
-    whitebox::BlockchainStateWrapper, DebugApi,
-};
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use fees_collector_setup::setup_fees_collector;
 use metabonding_setup::*;
+use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::BlockchainStateWrapper, DebugApi,
+};
 use sc_whitelist_module::SCWhitelistModule;
 use tests_common::farm_with_locked_rewards_setup::FarmSetup;
 

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::pair_setup::PairSetup;
 
 use super::metastaking_setup::setup_metastaking;
@@ -7,14 +9,15 @@ use auto_farm::whitelists::{
 use auto_pos_creator::{configs::pairs_config::PairsConfigModule, AutoPosCreator};
 use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, rust_biguint, whitebox::ContractObjWrapper, DebugApi,
+    managed_address, managed_biguint, rust_biguint, testing_framework::ContractObjWrapper, DebugApi,
 };
-use pair::safe_price::SafePriceModule;
 use sc_whitelist_module::SCWhitelistModule;
 use tests_common::{
     farm_staking_setup::{setup_farm_staking, STAKING_FARM_TOKEN_ID},
     farm_with_locked_rewards_setup::{FarmSetup, FARMING_TOKEN_ID, FARM_TOKEN_ID},
 };
+
+use pair::safe_price::SafePriceModule;
 
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
 pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPTHIRD-123456"];
@@ -149,10 +152,64 @@ where
             &rust_biguint!(third_token_total_amount),
         );
 
+        let mut block_round: u64 = 1;
+        b_mock.borrow_mut().set_block_round(block_round);
+
         // add initial liquidity
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
         second_pair_setup.add_liquidity(&owner, 1_000_000_000, 6_000_000_000);
         third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
+
+        // setup price observations
+        for _i in 1usize..=20 {
+            block_round += 1;
+            b_mock.borrow_mut().set_block_round(block_round);
+
+            b_mock
+                .borrow_mut()
+                .execute_tx(
+                    &owner,
+                    &first_pair_setup.pair_wrapper,
+                    &rust_biguint!(0),
+                    |sc| {
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(2_000_000_000),
+                        );
+                    },
+                )
+                .assert_ok();
+
+            b_mock
+                .borrow_mut()
+                .execute_tx(
+                    &owner,
+                    &second_pair_setup.pair_wrapper,
+                    &rust_biguint!(0),
+                    |sc| {
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(6_000_000_000),
+                        );
+                    },
+                )
+                .assert_ok();
+
+            b_mock
+                .borrow_mut()
+                .execute_tx(
+                    &owner,
+                    &third_pair_setup.pair_wrapper,
+                    &rust_biguint!(0),
+                    |sc| {
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(3_000_000_000),
+                        );
+                    },
+                )
+                .assert_ok();
+        }
 
         // setup farm staking
         let fs_wrapper = setup_farm_staking(
@@ -276,22 +333,7 @@ where
             )
             .assert_ok();
 
-        // fix safe price, it needs manual updating
         let pair_setups = vec![first_pair_setup, second_pair_setup, third_pair_setup];
-        for i in 0..20 {
-            b_mock.borrow_mut().set_block_nonce(i);
-
-            for pair_setup in &pair_setups {
-                b_mock
-                    .borrow_mut()
-                    .execute_tx(&owner, &pair_setup.pair_wrapper, &rust_biguint!(0), |sc| {
-                        sc.update_and_get_tokens_for_given_position_with_safe_price(
-                            managed_biguint!(1_000),
-                        );
-                    })
-                    .assert_ok();
-            }
-        }
 
         PosCreatorSetup {
             farm_setup,

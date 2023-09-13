@@ -10,7 +10,10 @@
 // Total number of exported functions:   7
 
 #![no_std]
-#![feature(alloc_error_handler, lang_items)]
+
+// Configuration that works with rustc < 1.73.0.
+// TODO: Recommended rustc version: 1.73.0 or newer.
+#![feature(lang_items)]
 
 multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
@@ -18,12 +21,13 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     auto_pos_creator
     (
-        addPairsToWhitelist
-        removePairsFromWhitelist
-        createPosFromSingleToken
-        createPosFromTwoTokens
-        fullExitPos
+        init => init
+        addPairsToWhitelist => add_pairs_to_whitelist
+        removePairsFromWhitelist => remove_pairs_from_whitelist
+        createPosFromSingleToken => create_pos_from_single_token
+        createPosFromTwoTokens => create_pos_from_two_tokens
+        fullExitPos => full_exit_pos
     )
 }
 
-multiversx_sc_wasm_adapter::empty_callback! {}
+multiversx_sc_wasm_adapter::async_callback_empty! {}

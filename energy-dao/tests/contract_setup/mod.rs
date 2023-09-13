@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::{custom_rewards::CustomRewardsModule, FarmStaking};
 use farm_staking_proxy::{dual_yield_token::DualYieldTokenModule, FarmStakingProxy};
@@ -14,7 +16,7 @@ use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, testing_framework::*,
     DebugApi,
 };
-use pair::{config::ConfigModule, safe_price::SafePriceModule, Pair};
+use pair::{config::ConfigModule, Pair};
 
 use config::ConfigModule as OtherConfigModule;
 use energy_dao::{external_sc_interactions::energy_dao_config::EnergyDAOConfigModule, *};
@@ -445,7 +447,6 @@ where
 
             sc.lp_token_identifier()
                 .set(&managed_token_id!(FARMING_TOKEN_ID));
-            sc.set_max_observations_per_record(10);
             sc.state().set(State::Active);
         })
         .assert_ok();

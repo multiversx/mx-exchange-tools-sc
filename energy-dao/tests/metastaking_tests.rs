@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 mod contract_interactions;
 mod contract_setup;
 
@@ -22,6 +24,7 @@ fn energy_dao_metastaking_test() {
 
     // necessary to initialize the liquidity pool
     energy_dao_setup.b_mock.set_block_nonce(1);
+    energy_dao_setup.b_mock.set_block_round(1);
 
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
     let farm_staking_proxy_address = energy_dao_setup
@@ -79,6 +82,8 @@ fn energy_dao_metastaking_test() {
 
     // Users enter liquidity on multiple blocks for LP safe price computation
     energy_dao_setup.b_mock.set_block_nonce(5);
+    energy_dao_setup.b_mock.set_block_round(5);
+
     let user1_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user1,
         BASE_FARM_STAKING_TOKEN_ID,
@@ -88,6 +93,8 @@ fn energy_dao_metastaking_test() {
     );
 
     energy_dao_setup.b_mock.set_block_nonce(10);
+    energy_dao_setup.b_mock.set_block_round(10);
+
     let user2_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user2,
         BASE_FARM_STAKING_TOKEN_ID,
@@ -131,6 +138,8 @@ fn energy_dao_metastaking_test() {
 
     energy_dao_setup.b_mock.set_block_epoch(10u64);
     energy_dao_setup.b_mock.set_block_nonce(110u64);
+    energy_dao_setup.b_mock.set_block_round(110u64);
+
     energy_dao_setup.claim_user_metastaking_rewards(
         &user1,
         WRAPPED_METASTAKING_TOKEN_ID,
@@ -168,7 +177,7 @@ fn energy_dao_metastaking_test() {
         );
 
     // Check staking rewards
-    let user1_staking_rewards = 200_000u64;
+    let user1_staking_rewards = 148_000u64;
     let user2_staking_rewards = user1_staking_rewards / 2;
     energy_dao_setup.b_mock.check_esdt_balance(
         &user1,
@@ -221,6 +230,7 @@ fn energy_dao_metastaking_test() {
         );
 
     energy_dao_setup.b_mock.set_block_epoch(20u64);
+
     energy_dao_setup.unbond_metastaking(
         &user1,
         UNSTAKE_METASTAKING_TOKEN_ID,
@@ -256,6 +266,7 @@ fn energy_dao_metastaking_test() {
 
     // user 2 exits the contract after some more blocks
     energy_dao_setup.b_mock.set_block_nonce(210u64);
+    energy_dao_setup.b_mock.set_block_round(210u64);
 
     energy_dao_setup.unstake_metastaking(
         &user2,
@@ -276,6 +287,7 @@ fn energy_dao_metastaking_test() {
         );
 
     energy_dao_setup.b_mock.set_block_epoch(30u64);
+
     energy_dao_setup.unbond_metastaking(
         &user2,
         UNSTAKE_METASTAKING_TOKEN_ID,
@@ -295,7 +307,7 @@ fn energy_dao_metastaking_test() {
         );
 
     let user2_new_staking_rewards = 130_000u64;
-    let user2_base_token_fee = 1_500_000_003u64;
+    let user2_base_token_fee = 1_499_940_503u64;
 
     energy_dao_setup.b_mock.check_esdt_balance(
         &user2,

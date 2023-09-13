@@ -2,9 +2,10 @@
 members = [
   "auto-farm",
   "auto-farm/meta",
-  "auto-farm/interact-rs",
   "auto-pos-creator",
   "auto-pos-creator/meta",
+  "farm-extra-rewards-wrapper",
+  "farm-extra-rewards-wrapper/meta",
   "energy-dao",
   "energy-dao/meta",
   "tests-common"

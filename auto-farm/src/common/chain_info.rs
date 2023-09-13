@@ -1,3 +1,5 @@
+use multiversx_sc::{api::BlockchainApi, contract_base::BlockchainWrapper};
+
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
@@ -16,7 +18,7 @@ impl CurrentChainInfo {
             match CURRENT_CHAIN_INFO {
                 Some(cci) => cci,
                 None => {
-                    let api = Api::blockchain_api_impl();
+                    let api = BlockchainWrapper::<Api>::new();
                     let cci = CurrentChainInfo {
                         block: api.get_block_nonce(),
                         epoch: api.get_block_epoch(),

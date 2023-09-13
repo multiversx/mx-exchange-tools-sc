@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::{cell::RefCell, rc::Rc};
 
 use multiversx_sc::{
@@ -6,7 +8,7 @@ use multiversx_sc::{
 };
 use multiversx_sc_scenario::{
     managed_address, managed_token_id, rust_biguint,
-    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
+    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 

@@ -1,15 +1,16 @@
+#![allow(deprecated)]
+
 use std::cell::RefCell;
 use std::rc::Rc;
 
 use multiversx_sc::types::{Address, EsdtLocalRole, ManagedAddress, MultiValueEncoded};
-use multiversx_sc_scenario::whitebox::TxTokenTransfer;
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::*,
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::{BlockchainStateWrapper, ContractObjWrapper, TxTokenTransfer},
     DebugApi,
 };
 
 use pair::config::ConfigModule;
-use pair::safe_price::SafePriceModule;
 use pair::*;
 use pausable::{PausableModule, State};
 
@@ -59,7 +60,6 @@ where
                 sc.lp_token_identifier()
                     .set(&managed_token_id!(lp_token_id));
                 sc.state().set(State::Active);
-                sc.set_max_observations_per_record(10);
             })
             .assert_ok();
 

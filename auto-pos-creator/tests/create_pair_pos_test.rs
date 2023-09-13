@@ -1,13 +1,16 @@
+#![allow(deprecated)]
+
 use auto_pos_creator::{
     external_sc_interactions::pair_actions::PairTokenPayments,
     multi_contract_interactions::{create_pos::CreatePosModule, exit_pos::ExitPosModule},
 };
-use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
-use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::TxTokenTransfer,
-};
 use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
+use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::TxTokenTransfer,
+};
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
 use tests_common::{
     farm_staking_setup::STAKING_FARM_TOKEN_ID, farm_with_locked_rewards_setup::FARM_TOKEN_ID,
@@ -39,9 +42,9 @@ fn enter_lp_through_pos_creator_test() {
         farm_staking_proxy::contract_obj,
         auto_pos_creator::contract_obj,
     );
-    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
 
-    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_first_token_balance = 200_000_000u64;
     b_mock.borrow_mut().set_esdt_balance(
         &user_addr,
@@ -127,9 +130,9 @@ fn enter_lp_and_farm_through_pos_creator() {
         farm_staking_proxy::contract_obj,
         auto_pos_creator::contract_obj,
     );
-    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
 
-    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_second_token_balance = 200_000_000u64;
     b_mock.borrow_mut().set_esdt_balance(
         &user_addr,
@@ -223,15 +226,17 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         farm_staking_proxy::contract_obj,
         auto_pos_creator::contract_obj,
     );
-    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
 
-    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_third_token_balance = 200_000_000u64;
     b_mock.borrow_mut().set_esdt_balance(
         &user_addr,
         TOKEN_IDS[2],
         &rust_biguint!(user_third_token_balance),
     );
+
+    b_mock.borrow_mut().set_block_round(21);
 
     // enter pair and farm from C tokens
     let first_pair_addr = pos_creator_setup.pair_setups[0]
@@ -334,10 +339,10 @@ fn create_pos_from_two_tokens_balanced_ratio_test() {
         auto_pos_creator::contract_obj,
     );
 
-    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
 
     // ratio for first pair is A:B 1:2
-    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_first_token_balance = 100_000_000u64;
     let user_second_token_balance = 200_000_000u64;
     b_mock.borrow_mut().set_esdt_balance(
@@ -415,10 +420,10 @@ fn create_pos_from_two_tokens_wrong_ratio() {
         auto_pos_creator::contract_obj,
     );
 
-    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
 
     // ratio for first pair is A:B 1:2, try enter with 1:4 ratio
-    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_first_token_balance = 100_000_000u64;
     let user_second_token_balance = 400_000_000u64;
     b_mock.borrow_mut().set_esdt_balance(

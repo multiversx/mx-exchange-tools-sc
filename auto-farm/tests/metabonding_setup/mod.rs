@@ -1,12 +1,14 @@
+#![allow(deprecated)]
+
 use multiversx_sc::{codec::multi_types::OptionalValue, types::Address};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_buffer, managed_token_id, rust_biguint,
-    whitebox::{BlockchainStateWrapper, ContractObjWrapper},
+    testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
 
-use multiversx_sc_modules::pause::PauseModule;
 use metabonding::{project::ProjectModule, rewards::RewardsModule, Metabonding};
+use multiversx_sc_modules::pause::PauseModule;
 
 // associated private key - used for generating the signatures (please don't steal my funds)
 // 3eb200ef228e593d49a522f92587889fedfc091629d175873b64ca0ab3b4514d52773868c13654355cca16adb389b09201fabf5d9d4b795ebbdae5b361b46f20
@@ -54,7 +56,7 @@ where
     b_mock
         .execute_tx(&owner_addr, &mb_wrapper, &rust_zero, |sc| {
             let signer_addr = managed_address!(&Address::from(&SIGNER_ADDRESS));
-            sc.init(signer_addr, OptionalValue::None, OptionalValue::None);
+            sc.init(signer_addr, OptionalValue::None);
         })
         .assert_ok();
 

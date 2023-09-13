@@ -1,11 +1,11 @@
 #![cfg(feature = "enable-tests-common")]
+#![allow(deprecated)]
 
 use multiversx_sc::storage::mappers::StorageTokenWrapper;
 use multiversx_sc::types::{EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 
-use multiversx_sc_scenario::{
-    managed_biguint, managed_token_id, rust_biguint, whitebox::*, DebugApi,
-};
+use multiversx_sc_scenario::testing_framework::{BlockchainStateWrapper, ContractObjWrapper};
+use multiversx_sc_scenario::{managed_biguint, managed_token_id, rust_biguint, DebugApi};
 
 use config::*;
 

@@ -1,15 +1,17 @@
+#![allow(deprecated)]
+
 use auto_farm::common::rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper};
 use auto_farm::common::{common_storage::MAX_PERCENTAGE, unique_payments::UniquePayments};
 use common_structs::FarmTokenAttributes;
-use multiversx_sc::codec::Empty;
-use multiversx_sc::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
-use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, whitebox::TxTokenTransfer,
-    DebugApi,
-};
 use energy_factory::energy::EnergyModule;
 use energy_factory::locked_token_transfer::LockedTokenTransferModule;
 use energy_query::Energy;
+use multiversx_sc::codec::Empty;
+use multiversx_sc::types::{BigInt, EsdtTokenPayment, ManagedVec, MultiValueEncoded};
+use multiversx_sc_scenario::testing_framework::TxTokenTransfer;
+use multiversx_sc_scenario::{
+    managed_address, managed_biguint, managed_token_id, rust_biguint, DebugApi,
+};
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::LockedTokenAttributes;
 
@@ -31,7 +33,7 @@ const SECOND_FARM_INDEX: usize = 1;
 
 #[test]
 fn user_enter_and_claim_two_farms_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -132,7 +134,7 @@ fn user_enter_and_claim_two_farms_test() {
 
 #[test]
 fn claim_rewards_through_auto_farm() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
@@ -340,7 +342,7 @@ fn claim_rewards_through_auto_farm() {
 
 #[test]
 fn withdraw_specific_farm_tokens_test() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut farm_setup = FarmSetup::new(
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
