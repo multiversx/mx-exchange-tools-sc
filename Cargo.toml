@@ -2,7 +2,6 @@
 members = [
   "auto-farm",
   "auto-farm/meta",
-  "auto-farm/interact-rs",
   "auto-pos-creator",
   "auto-pos-creator/meta",
   "farm-extra-rewards-wrapper",

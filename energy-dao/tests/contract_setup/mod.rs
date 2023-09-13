@@ -447,7 +447,6 @@ where
 
             sc.lp_token_identifier()
                 .set(&managed_token_id!(FARMING_TOKEN_ID));
-            // sc.set_max_observations_per_record(10);
             sc.state().set(State::Active);
         })
         .assert_ok();
