@@ -2,7 +2,10 @@
 
 use auto_pos_creator::{
     external_sc_interactions::pair_actions::PairTokenPayments,
-    multi_contract_interactions::{create_pos::CreatePosModule, exit_pos::ExitPosModule},
+    multi_contract_interactions::{
+        create_pos::{CreatePosModule, StepsToPerform},
+        exit_pos::ExitPosModule,
+    },
 };
 use farm_staking::token_attributes::UnbondSftAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
@@ -66,7 +69,10 @@ fn enter_lp_through_pos_creator_test() {
             0,
             &rust_biguint!(user_first_token_balance),
             |sc| {
-                let _ = sc.create_pos_from_single_token(managed_address!(&second_pair_addr));
+                let _ = sc.create_pos_from_single_token(
+                    managed_address!(&second_pair_addr),
+                    StepsToPerform::EnterMetastaking,
+                );
             },
         )
         .assert_ok();
@@ -154,7 +160,10 @@ fn enter_lp_and_farm_through_pos_creator() {
             0,
             &rust_biguint!(user_second_token_balance),
             |sc| {
-                let _ = sc.create_pos_from_single_token(managed_address!(&second_pair_addr));
+                let _ = sc.create_pos_from_single_token(
+                    managed_address!(&second_pair_addr),
+                    StepsToPerform::EnterMetastaking,
+                );
             },
         )
         .assert_ok();
@@ -252,7 +261,10 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
             0,
             &rust_biguint!(user_third_token_balance),
             |sc| {
-                let _ = sc.create_pos_from_single_token(managed_address!(&first_pair_addr));
+                let _ = sc.create_pos_from_single_token(
+                    managed_address!(&first_pair_addr),
+                    StepsToPerform::EnterMetastaking,
+                );
             },
         )
         .assert_ok();
