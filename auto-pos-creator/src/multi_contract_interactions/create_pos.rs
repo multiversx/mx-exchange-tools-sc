@@ -7,8 +7,16 @@ use crate::{
 };
 
 multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 pub type DoubleSwapResult<M> = PairTokenPayments<M>;
+
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub enum StepsToPerform {
+    AddLiquidity,
+    EnterFarm,
+    EnterMetastaking,
+}
 
 #[multiversx_sc::module]
 pub trait CreatePosModule:
@@ -28,12 +36,13 @@ pub trait CreatePosModule:
     fn create_pos_from_single_token(
         &self,
         dest_pair_address: ManagedAddress,
+        steps: StepsToPerform,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
         let double_swap_result = self.buy_half_each_token(payment, &dest_pair_address);
 
-        self.create_pos_common(caller, dest_pair_address, double_swap_result)
+        self.create_pos_common(caller, dest_pair_address, double_swap_result, steps)
     }
 
     /// Create pos from two payments, entering the pair for the two tokens
@@ -41,7 +50,7 @@ pub trait CreatePosModule:
     /// performing swaps before adding liqudity if necessary
     #[payable("*")]
     #[endpoint(createPosFromTwoTokens)]
-    fn create_pos_from_two_tokens(&self) -> PaymentsVec<Self::Api> {
+    fn create_pos_from_two_tokens(&self, steps: StepsToPerform) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let [mut first_payment, mut second_payment] = self.call_value().multi_esdt();
         let wrapped_dest_pair_address = self.get_pair_address_for_tokens(
@@ -60,7 +69,7 @@ pub trait CreatePosModule:
         };
         self.balance_token_amounts_through_swaps(dest_pair_address.clone(), &mut pair_input_tokens);
 
-        self.create_pos_common(caller, dest_pair_address, pair_input_tokens)
+        self.create_pos_common(caller, dest_pair_address, pair_input_tokens, steps)
     }
 
     fn create_pos_common(
@@ -68,6 +77,7 @@ pub trait CreatePosModule:
         caller: ManagedAddress,
         dest_pair_address: ManagedAddress,
         pair_input_tokens: PairTokenPayments<Self::Api>,
+        steps: StepsToPerform,
     ) -> PaymentsVec<Self::Api> {
         let add_liq_result = self.call_pair_add_liquidity(
             dest_pair_address,
@@ -79,6 +89,12 @@ pub trait CreatePosModule:
         output_payments.push(add_liq_result.first_tokens_remaining);
         output_payments.push(add_liq_result.second_tokens_remaining);
 
+        if matches!(steps, StepsToPerform::AddLiquidity) {
+            output_payments.push(add_liq_result.lp_tokens);
+
+            return output_payments.send_and_return(&caller);
+        }
+
         let auto_farm_address = self.auto_farm_sc_address().get();
         let opt_farm_tokens =
             self.try_enter_farm_with_lp(&add_liq_result.lp_tokens, &caller, &auto_farm_address);
@@ -89,6 +105,12 @@ pub trait CreatePosModule:
         }
 
         let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
+        if matches!(steps, StepsToPerform::EnterFarm) {
+            output_payments.push(farm_tokens);
+
+            return output_payments.send_and_return(&caller);
+        }
+
         let opt_ms_tokens = self.try_enter_metastaking_with_lp_farm_tokens(
             &farm_tokens,
             &caller,
