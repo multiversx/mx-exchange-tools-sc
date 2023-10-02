@@ -39,7 +39,6 @@ pub trait CreatePosModule:
     + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
     + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
-    + crate::configs::auto_farm_config::AutoFarmConfigModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
@@ -141,12 +140,7 @@ pub trait CreatePosModule:
             return output_payments.send_and_return(&args.caller);
         }
 
-        let auto_farm_address = self.auto_farm_sc_address().get();
-        let opt_farm_tokens = self.try_enter_farm_with_lp(
-            &add_liq_result.lp_tokens,
-            &args.caller,
-            &auto_farm_address,
-        );
+        let opt_farm_tokens = self.try_enter_farm_with_lp(&add_liq_result.lp_tokens, &args.caller);
         require!(opt_farm_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
@@ -156,11 +150,8 @@ pub trait CreatePosModule:
             return output_payments.send_and_return(&args.caller);
         }
 
-        let opt_ms_tokens = self.try_enter_metastaking_with_lp_farm_tokens(
-            &farm_tokens,
-            &args.caller,
-            &auto_farm_address,
-        );
+        let opt_ms_tokens =
+            self.try_enter_metastaking_with_lp_farm_tokens(&farm_tokens, &args.caller);
         require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
@@ -295,18 +286,15 @@ pub trait CreatePosModule:
         &self,
         lp_tokens: &EsdtTokenPayment,
         user: &ManagedAddress,
-        auto_farm_address: &ManagedAddress,
     ) -> Option<EsdtTokenPayment> {
         let farm_id_for_lp_tokens = self
             .farm_for_farming_token(&lp_tokens.token_identifier)
-            .get_from_address(auto_farm_address);
+            .get();
         if farm_id_for_lp_tokens == NULL_ID {
             return None;
         }
 
-        let farm_address = self
-            .farm_ids()
-            .get_address_at_address(auto_farm_address, farm_id_for_lp_tokens)?;
+        let farm_address = self.farm_ids().get_address(farm_id_for_lp_tokens)?;
         let farm_tokens = self.call_enter_farm(farm_address, user.clone(), lp_tokens.clone());
 
         Some(farm_tokens)
@@ -316,18 +304,15 @@ pub trait CreatePosModule:
         &self,
         lp_farm_tokens: &EsdtTokenPayment,
         user: &ManagedAddress,
-        auto_farm_address: &ManagedAddress,
     ) -> Option<EsdtTokenPayment> {
         let ms_id_for_tokens = self
             .metastaking_for_lp_farm_token(&lp_farm_tokens.token_identifier)
-            .get_from_address(auto_farm_address);
+            .get();
         if ms_id_for_tokens == NULL_ID {
             return None;
         }
 
-        let ms_address = self
-            .metastaking_ids()
-            .get_address_at_address(auto_farm_address, ms_id_for_tokens)?;
+        let ms_address = self.metastaking_ids().get_address(ms_id_for_tokens)?;
         let ms_tokens = self
             .call_metastaking_stake(ms_address, user.clone(), lp_farm_tokens.clone())
             .dual_yield_tokens;

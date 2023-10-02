@@ -45,7 +45,6 @@ pub trait ExitPosModule:
     + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
     + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
-    + crate::configs::auto_farm_config::AutoFarmConfigModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
@@ -59,8 +58,7 @@ pub trait ExitPosModule:
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
 
-        let auto_farm_sc_address = self.auto_farm_sc_address().get();
-        let exit_type = self.get_exit_type(&payment.token_identifier, &auto_farm_sc_address);
+        let exit_type = self.get_exit_type(&payment.token_identifier);
         let mut output_payments = PaymentsWrapper::new();
 
         match exit_type {
@@ -101,31 +99,19 @@ pub trait ExitPosModule:
         output_payments.send_and_return(&caller)
     }
 
-    fn get_exit_type(
-        &self,
-        input_token: &TokenIdentifier,
-        auto_farm_address: &ManagedAddress,
-    ) -> ExitType<Self::Api> {
-        let ms_id = self
-            .metastaking_for_dual_yield_token(input_token)
-            .get_from_address(auto_farm_address);
+    fn get_exit_type(&self, input_token: &TokenIdentifier) -> ExitType<Self::Api> {
+        let ms_id = self.metastaking_for_dual_yield_token(input_token).get();
         if ms_id != NULL_ID {
-            let opt_ms_addr = self
-                .metastaking_ids()
-                .get_address_at_address(auto_farm_address, ms_id);
+            let opt_ms_addr = self.metastaking_ids().get_address(ms_id);
             require!(opt_ms_addr.is_some(), INVALID_INPUT_TOKEN_ERR_MSG);
 
             let ms_addr = unsafe { opt_ms_addr.unwrap_unchecked() };
             return ExitType::Metastaking(ms_addr);
         }
 
-        let farm_id = self
-            .farm_for_farm_token(input_token)
-            .get_from_address(auto_farm_address);
+        let farm_id = self.farm_for_farm_token(input_token).get();
         if farm_id != NULL_ID {
-            let opt_farm_addr = self
-                .farm_ids()
-                .get_address_at_address(auto_farm_address, farm_id);
+            let opt_farm_addr = self.farm_ids().get_address(farm_id);
             require!(opt_farm_addr.is_some(), INVALID_INPUT_TOKEN_ERR_MSG);
 
             let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
