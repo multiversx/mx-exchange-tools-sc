@@ -72,6 +72,10 @@ fn enter_lp_through_pos_creator_test() {
                 let _ = sc.create_pos_from_single_token(
                     managed_address!(&second_pair_addr),
                     StepsToPerform::EnterMetastaking,
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
                 );
             },
         )
@@ -108,7 +112,7 @@ fn enter_lp_through_pos_creator_test() {
             0,
             &rust_biguint!(181_818_181),
             |sc| {
-                let _ = sc.full_exit_pos();
+                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
@@ -163,6 +167,10 @@ fn enter_lp_and_farm_through_pos_creator() {
                 let _ = sc.create_pos_from_single_token(
                     managed_address!(&second_pair_addr),
                     StepsToPerform::EnterMetastaking,
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
                 );
             },
         )
@@ -209,7 +217,7 @@ fn enter_lp_and_farm_through_pos_creator() {
             1,
             &rust_biguint!(45_454_545),
             |sc| {
-                let _ = sc.full_exit_pos();
+                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
@@ -264,6 +272,10 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
                 let _ = sc.create_pos_from_single_token(
                     managed_address!(&first_pair_addr),
                     StepsToPerform::EnterMetastaking,
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
+                    1u32.into(),
                 );
             },
         )
@@ -315,7 +327,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
             1,
             &rust_biguint!(15_873_015),
             |sc| {
-                let _ = sc.full_exit_pos();
+                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
@@ -408,6 +420,8 @@ fn create_pos_from_two_tokens_balanced_ratio_test() {
                 sc.balance_token_amounts_through_swaps(
                     managed_address!(&first_pair_addr),
                     &mut pair_payments,
+                    1u32.into(),
+                    1u32.into(),
                 );
 
                 // check nothing changed
@@ -489,6 +503,8 @@ fn create_pos_from_two_tokens_wrong_ratio() {
                 sc.balance_token_amounts_through_swaps(
                     managed_address!(&first_pair_addr),
                     &mut pair_payments,
+                    1u32.into(),
+                    1u32.into(),
                 );
 
                 // check part of tokens was swapped to fix the ratio
