@@ -191,6 +191,9 @@ pub trait CreatePosModule:
         );
         require!(!tokens_to_pair_mapper.is_empty(), "Unknown pair SC");
 
+        let stored_pair_address = tokens_to_pair_mapper.get();
+        require!(&stored_pair_address == dest_pair, "Unknown pair SC");
+
         let first_amount = &input_tokens.amount / 2u32;
         let second_amount = &input_tokens.amount - &first_amount;
 
