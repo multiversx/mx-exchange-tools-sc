@@ -190,6 +190,9 @@ fn fees_collector_setup_test() {
         &mut b_mock.borrow_mut(),
         fees_collector::contract_obj,
         &energy_factory_addr,
+        &farm_setup.first_user,
+        &farm_setup.second_user,
+        &farm_setup.third_user,
     );
 }
 
@@ -221,6 +224,9 @@ fn fees_collector_claim_through_auto_farm_test() {
         &mut farm_setup.b_mock.borrow_mut(),
         fees_collector::contract_obj,
         &energy_factory_addr,
+        &farm_setup.first_user,
+        &farm_setup.second_user,
+        &farm_setup.third_user,
     );
 
     farm_setup

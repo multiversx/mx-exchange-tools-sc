@@ -153,16 +153,10 @@ pub trait MetastakingInteractionsModule:
             unstake_amount,
         );
 
-        let new_dual_yield_tokens = match unstake_result.opt_new_dual_yield_tokens {
-            Some(tokens) => tokens,
-            None => EsdtTokenPayment::new(dual_yield_token_id, 0u64, BigUint::zero()),
-        };
-
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
             &BigUint::zero(),
-            &new_dual_yield_tokens,
             unstake_result.lp_farm_rewards.clone(),
             unstake_result.staking_rewards.clone(),
             &division_safety_constant,

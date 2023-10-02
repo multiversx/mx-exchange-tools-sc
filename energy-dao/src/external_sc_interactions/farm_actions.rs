@@ -43,10 +43,7 @@ pub trait FarmActionsModule:
         farm_tokens: EsdtTokenPayment,
     ) -> ExitFarmWithPartialPosResultType<Self::Api> {
         self.farm_proxy(farm_address)
-            .exit_farm_endpoint(
-                farm_tokens.amount.clone(),
-                OptionalValue::<ManagedAddress>::None,
-            )
+            .exit_farm_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(farm_tokens)
             .execute_on_dest_context()
     }

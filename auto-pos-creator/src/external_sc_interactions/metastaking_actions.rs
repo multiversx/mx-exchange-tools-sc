@@ -27,12 +27,7 @@ pub trait MetastakingActionsModule {
         second_token_min_amont_out: BigUint,
     ) -> UnstakeResult<Self::Api> {
         self.metastaking_proxy(sc_address)
-            .unstake_farm_tokens(
-                first_token_min_amount_out,
-                second_token_min_amont_out,
-                dual_yield_tokens.amount.clone(),
-                user,
-            )
+            .unstake_farm_tokens(first_token_min_amount_out, second_token_min_amont_out, user)
             .with_esdt_transfer(dual_yield_tokens)
             .execute_on_dest_context()
     }

@@ -27,6 +27,9 @@ pub fn setup_fees_collector<FeesCollectorBuilder>(
     b_mock: &mut BlockchainStateWrapper,
     fees_collector_builder: FeesCollectorBuilder,
     energy_factory_address: &Address,
+    first_user_address: &Address,
+    second_user_address: &Address,
+    third_user_address: &Address,
 ) -> ContractObjWrapper<fees_collector::ContractObj<DebugApi>, FeesCollectorBuilder>
 where
     FeesCollectorBuilder: 'static + Copy + Fn() -> fees_collector::ContractObj<DebugApi>,
@@ -94,6 +97,13 @@ where
             sc.set_energy_factory_address(managed_address!(energy_factory_address));
             sc.set_locking_sc_address(managed_address!(energy_factory_address));
             sc.set_lock_epochs(LOCK_OPTIONS[2]);
+
+            sc.allow_external_claim_rewards(&managed_address!(first_user_address))
+                .set(true);
+            sc.allow_external_claim_rewards(&managed_address!(second_user_address))
+                .set(true);
+            sc.allow_external_claim_rewards(&managed_address!(third_user_address))
+                .set(true);
         })
         .assert_ok();
 

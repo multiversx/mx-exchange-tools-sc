@@ -44,7 +44,6 @@ pub trait MetastakingActionsModule:
             .unstake_farm_tokens(
                 BigUint::from(1u64), // pair_first_token_min_amount
                 BigUint::from(1u64), // pair_second_token_min_amount
-                exit_amount,
                 OptionalValue::<ManagedAddress>::None,
             )
             .with_esdt_transfer(full_dual_yield_position)
@@ -79,14 +78,11 @@ pub trait MetastakingActionsModule:
         initial_metastaking_state: &MetastakingState<Self::Api>,
         metastaking_state_mapper: &mut SingleValueMapper<MetastakingState<Self::Api>>,
         metastaking_token_supply_increase: &BigUint,
-        new_dual_yield_token: &EsdtTokenPayment,
         lp_farm_rewards: EsdtTokenPayment,
         staking_rewards: EsdtTokenPayment,
         division_safety_constant: &BigUint,
     ) {
         let mut metastaking_state = metastaking_state_mapper.get();
-        metastaking_state.dual_yield_amount = new_dual_yield_token.amount.clone();
-        metastaking_state.dual_yield_token_nonce = new_dual_yield_token.token_nonce;
 
         if lp_farm_rewards.amount == 0 && staking_rewards.amount == 0 {
             metastaking_state.metastaking_token_supply += metastaking_token_supply_increase;

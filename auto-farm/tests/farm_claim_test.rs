@@ -62,9 +62,9 @@ fn user_enter_and_claim_two_farms_test() {
     farm_setup.set_user_energy(&third_user, 1, 6, 1);
 
     farm_setup.enter_farm(FIRST_FARM_INDEX, &third_user, 1);
-    farm_setup.exit_farm(FIRST_FARM_INDEX, &third_user, 2, 1, 1);
+    farm_setup.exit_farm(FIRST_FARM_INDEX, &third_user, 2, 1);
     farm_setup.enter_farm(SECOND_FARM_INDEX, &third_user, 1);
-    farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1, 1);
+    farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1);
 
     // advance 1 week
     farm_setup.b_mock.borrow_mut().set_block_epoch(10);
@@ -230,9 +230,9 @@ fn claim_rewards_through_auto_farm() {
     farm_setup.set_user_energy(&third_user, 1, 6, 1);
 
     farm_setup.enter_farm(FIRST_FARM_INDEX, &third_user, 1);
-    farm_setup.exit_farm(FIRST_FARM_INDEX, &third_user, 2, 1, 1);
+    farm_setup.exit_farm(FIRST_FARM_INDEX, &third_user, 2, 1);
     farm_setup.enter_farm(SECOND_FARM_INDEX, &third_user, 1);
-    farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1, 1);
+    farm_setup.exit_farm(SECOND_FARM_INDEX, &third_user, 2, 1);
 
     // advance 1 week
     farm_setup.b_mock.borrow_mut().set_block_epoch(10);

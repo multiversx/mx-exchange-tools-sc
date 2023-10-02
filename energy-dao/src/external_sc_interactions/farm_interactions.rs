@@ -217,7 +217,7 @@ pub trait FarmInteractionsModule:
         self.claim_and_compute_user_rewards(&empty_payment, &farm_address, &mut farm_state_mapper);
 
         let exit_farm_result = self.call_exit_farm(farm_address, unstake_payment);
-        let (mut farming_tokens, locked_rewards_payment, _) = exit_farm_result.into_tuple();
+        let (mut farming_tokens, locked_rewards_payment) = exit_farm_result.into_tuple();
 
         farm_state_mapper.update(|config| {
             config.farm_unstaked_value -= &payment.amount;

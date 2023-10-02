@@ -140,10 +140,6 @@ pub trait ExitPosModule:
         output_payments.push(unstake_result.lp_farm_rewards);
         output_payments.push(unstake_result.staking_rewards);
         output_payments.push(unstake_result.unbond_staking_farm_token);
-
-        if let Some(new_dual_yield_tokens) = unstake_result.opt_new_dual_yield_tokens {
-            output_payments.push(new_dual_yield_tokens);
-        }
     }
 
     fn exit_farm(

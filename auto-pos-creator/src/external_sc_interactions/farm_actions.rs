@@ -34,7 +34,7 @@ pub trait FarmActionsModule {
     ) -> ExitFarmResultWrapper<Self::Api> {
         let raw_results: ExitFarmResultType<Self::Api> = self
             .farm_proxy(farm_address)
-            .exit_farm_endpoint(farm_tokens.amount.clone(), user)
+            .exit_farm_endpoint(user)
             .with_esdt_transfer(farm_tokens)
             .execute_on_dest_context();
         let (farming_tokens, rewards) = raw_results.into_tuple();
