@@ -11,6 +11,9 @@ multiversx_sc::derive_imports!();
 
 pub type DoubleSwapResult<M> = PairTokenPayments<M>;
 
+pub static COULD_NOT_CREATE_POS_ERR_MSG: &[u8] = b"Could not create position";
+pub static UNKNOWN_PAIR_ERR_MSG: &[u8] = b"Unknown pair SC";
+
 #[derive(TypeAbi, TopEncode, TopDecode)]
 pub enum StepsToPerform {
     AddLiquidity,
@@ -144,11 +147,7 @@ pub trait CreatePosModule:
             &args.caller,
             &auto_farm_address,
         );
-        if opt_farm_tokens.is_none() {
-            output_payments.push(add_liq_result.lp_tokens);
-
-            return output_payments.send_and_return(&args.caller);
-        }
+        require!(opt_farm_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
         if matches!(args.steps, StepsToPerform::EnterFarm) {
@@ -162,11 +161,7 @@ pub trait CreatePosModule:
             &args.caller,
             &auto_farm_address,
         );
-        if opt_ms_tokens.is_none() {
-            output_payments.push(farm_tokens);
-
-            return output_payments.send_and_return(&args.caller);
-        }
+        require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
         output_payments.push(ms_tokens);
@@ -189,10 +184,10 @@ pub trait CreatePosModule:
             &dest_pair_config.first_token_id,
             &dest_pair_config.second_token_id,
         );
-        require!(!tokens_to_pair_mapper.is_empty(), "Unknown pair SC");
+        require!(!tokens_to_pair_mapper.is_empty(), UNKNOWN_PAIR_ERR_MSG);
 
         let stored_pair_address = tokens_to_pair_mapper.get();
-        require!(&stored_pair_address == dest_pair, "Unknown pair SC");
+        require!(&stored_pair_address == dest_pair, UNKNOWN_PAIR_ERR_MSG);
 
         let first_amount = &input_tokens.amount / 2u32;
         let second_amount = &input_tokens.amount - &first_amount;

@@ -71,7 +71,7 @@ fn enter_lp_through_pos_creator_test() {
             |sc| {
                 let _ = sc.create_pos_from_single_token(
                     managed_address!(&second_pair_addr),
-                    StepsToPerform::EnterMetastaking,
+                    StepsToPerform::AddLiquidity,
                     1u32.into(),
                     1u32.into(),
                     1u32.into(),
@@ -166,7 +166,7 @@ fn enter_lp_and_farm_through_pos_creator() {
             |sc| {
                 let _ = sc.create_pos_from_single_token(
                     managed_address!(&second_pair_addr),
-                    StepsToPerform::EnterMetastaking,
+                    StepsToPerform::EnterFarm,
                     1u32.into(),
                     1u32.into(),
                     1u32.into(),
