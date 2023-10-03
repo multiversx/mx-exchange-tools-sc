@@ -147,19 +147,26 @@ pub trait MetastakingInteractionsModule:
         let unstake_amount = (&payment.amount * &metastaking_state.dual_yield_amount)
             / &metastaking_state.metastaking_token_supply;
 
-        let dual_yield_tokens =
-            EsdtTokenPayment::new(dual_yield_token_id, metastaking_state.dual_yield_token_nonce, unstake_amount);
+        let unstake_dual_yield_tokens = EsdtTokenPayment::new(
+            dual_yield_token_id.clone(),
+            metastaking_state.dual_yield_token_nonce,
+            unstake_amount.clone(),
+        );
 
-        let unstake_result = self.call_exit_metastaking(
-            metastaking_address.clone(),
-            dual_yield_tokens.clone()
+        let unstake_result =
+            self.call_exit_metastaking(metastaking_address.clone(), unstake_dual_yield_tokens);
+
+        let update_dual_yield_tokens = EsdtTokenPayment::new(
+            dual_yield_token_id,
+            metastaking_state.dual_yield_token_nonce,
+            metastaking_state.dual_yield_amount.clone()- unstake_amount,
         );
 
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
             &BigUint::zero(),
-            &dual_yield_tokens,
+            &update_dual_yield_tokens,
             unstake_result.lp_farm_rewards.clone(),
             unstake_result.staking_rewards.clone(),
             &division_safety_constant,
