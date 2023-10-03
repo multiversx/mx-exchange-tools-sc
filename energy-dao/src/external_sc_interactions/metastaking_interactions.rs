@@ -135,7 +135,7 @@ pub trait MetastakingInteractionsModule:
         let dual_yield_token_id = self.get_dual_yield_token(&metastaking_address);
         let farm_staking_address = self.get_staking_farm_address(&metastaking_address);
         let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
-        let full_dual_yield_position = EsdtTokenPayment::new(
+        let _full_dual_yield_position = EsdtTokenPayment::new(
             dual_yield_token_id.clone(),
             metastaking_state.dual_yield_token_nonce,
             metastaking_state.dual_yield_amount.clone(),
@@ -147,22 +147,26 @@ pub trait MetastakingInteractionsModule:
         let unstake_amount = (&payment.amount * &metastaking_state.dual_yield_amount)
             / &metastaking_state.metastaking_token_supply;
 
-        let unstake_result = self.call_exit_metastaking(
-            metastaking_address.clone(),
-            full_dual_yield_position,
-            unstake_amount,
+        let unstake_dual_yield_tokens = EsdtTokenPayment::new(
+            dual_yield_token_id.clone(),
+            metastaking_state.dual_yield_token_nonce,
+            unstake_amount.clone(),
         );
 
-        let new_dual_yield_tokens = match unstake_result.opt_new_dual_yield_tokens {
-            Some(tokens) => tokens,
-            None => EsdtTokenPayment::new(dual_yield_token_id, 0u64, BigUint::zero()),
-        };
+        let unstake_result =
+            self.call_exit_metastaking(metastaking_address.clone(), unstake_dual_yield_tokens);
+
+        let update_dual_yield_tokens = EsdtTokenPayment::new(
+            dual_yield_token_id,
+            metastaking_state.dual_yield_token_nonce,
+            metastaking_state.dual_yield_amount.clone() - unstake_amount,
+        );
 
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
             &BigUint::zero(),
-            &new_dual_yield_tokens,
+            &update_dual_yield_tokens,
             unstake_result.lp_farm_rewards.clone(),
             unstake_result.staking_rewards.clone(),
             &division_safety_constant,

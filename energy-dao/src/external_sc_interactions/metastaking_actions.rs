@@ -38,13 +38,11 @@ pub trait MetastakingActionsModule:
         &self,
         metastaking_address: ManagedAddress,
         full_dual_yield_position: EsdtTokenPayment,
-        exit_amount: BigUint,
     ) -> UnstakeResult<Self::Api> {
         self.metastaking_proxy(metastaking_address)
             .unstake_farm_tokens(
                 BigUint::from(1u64), // pair_first_token_min_amount
                 BigUint::from(1u64), // pair_second_token_min_amount
-                exit_amount,
                 OptionalValue::<ManagedAddress>::None,
             )
             .with_esdt_transfer(full_dual_yield_position)

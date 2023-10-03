@@ -233,29 +233,6 @@ where
             LP_TOKEN_IDS[0],
         );
 
-        // setup auto farm SC - only the storage so we can read it from auto pos creator
-        let auto_farm_wrapper = b_mock.borrow_mut().create_sc_account(
-            &rust_biguint!(0),
-            Some(&owner),
-            auto_farm::contract_obj,
-            "auto farm",
-        );
-
-        b_mock
-            .borrow_mut()
-            .execute_tx(&owner, &auto_farm_wrapper, &rust_biguint!(0), |sc| {
-                let mut farms = MultiValueEncoded::new();
-                farms.push(managed_address!(farm_setup.farm_wrappers[0].address_ref()));
-                farms.push(managed_address!(farm_setup.farm_wrappers[1].address_ref()));
-                farms.push(managed_address!(fs_wrapper.address_ref()));
-
-                sc.add_farms(farms);
-                sc.add_metastaking_scs(
-                    ManagedVec::from_single_item(managed_address!(ms_wrapper.address_ref())).into(),
-                );
-            })
-            .assert_ok();
-
         // setup auto pos creator sc
         let pos_creator_wrapper = b_mock.borrow_mut().create_sc_account(
             &rust_biguint!(0),
@@ -267,7 +244,17 @@ where
         b_mock
             .borrow_mut()
             .execute_tx(&owner, &pos_creator_wrapper, &rust_biguint!(0), |sc| {
-                sc.init(managed_address!(auto_farm_wrapper.address_ref()));
+                sc.init();
+
+                let mut farms = MultiValueEncoded::new();
+                farms.push(managed_address!(farm_setup.farm_wrappers[0].address_ref()));
+                farms.push(managed_address!(farm_setup.farm_wrappers[1].address_ref()));
+                farms.push(managed_address!(fs_wrapper.address_ref()));
+
+                sc.add_farms(farms);
+                sc.add_metastaking_scs(
+                    ManagedVec::from_single_item(managed_address!(ms_wrapper.address_ref())).into(),
+                );
 
                 let mut pairs = MultiValueEncoded::new();
                 pairs.push(managed_address!(first_pair_setup

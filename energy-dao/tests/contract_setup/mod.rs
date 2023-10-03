@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+#![allow(clippy::too_many_arguments)]
 
 use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::{custom_rewards::CustomRewardsModule, FarmStaking};

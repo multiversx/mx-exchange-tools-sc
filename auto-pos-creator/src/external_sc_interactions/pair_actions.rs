@@ -2,8 +2,6 @@ use pair::{AddLiquidityResultType, RemoveLiquidityResultType};
 
 multiversx_sc::imports!();
 
-pub const MIN_AMOUNT_OUT: u32 = 1;
-
 pub struct PairAddLiqResult<M: ManagedTypeApi> {
     pub lp_tokens: EsdtTokenPayment<M>,
     pub first_tokens_remaining: EsdtTokenPayment<M>,
@@ -26,6 +24,7 @@ pub trait PairActionsModule:
         from_tokens: TokenIdentifier,
         from_amount: BigUint,
         to_tokens: TokenIdentifier,
+        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         if from_tokens == to_tokens {
             return EsdtTokenPayment::new(from_tokens, 0, from_amount);
@@ -36,7 +35,7 @@ pub trait PairActionsModule:
             .unwrap_address();
         let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
 
-        self.call_pair_swap(pair_address, payment, to_tokens)
+        self.call_pair_swap(pair_address, payment, to_tokens, min_amount_out)
     }
 
     fn call_pair_swap(
@@ -44,9 +43,10 @@ pub trait PairActionsModule:
         pair_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
         requested_token_id: TokenIdentifier,
+        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         self.pair_proxy(pair_address)
-            .swap_tokens_fixed_input(requested_token_id, MIN_AMOUNT_OUT)
+            .swap_tokens_fixed_input(requested_token_id, min_amount_out)
             .with_esdt_transfer(input_tokens)
             .execute_on_dest_context()
     }
@@ -56,12 +56,14 @@ pub trait PairActionsModule:
         pair_address: ManagedAddress,
         first_tokens: EsdtTokenPayment,
         second_tokens: EsdtTokenPayment,
+        first_token_min_amount_out: BigUint,
+        second_token_min_amount_out: BigUint,
     ) -> PairAddLiqResult<Self::Api> {
         let first_token_full_amount = first_tokens.amount.clone();
         let second_token_full_amount = second_tokens.amount.clone();
         let raw_results: AddLiquidityResultType<Self::Api> = self
             .pair_proxy(pair_address)
-            .add_liquidity(MIN_AMOUNT_OUT, MIN_AMOUNT_OUT)
+            .add_liquidity(first_token_min_amount_out, second_token_min_amount_out)
             .with_esdt_transfer(first_tokens)
             .with_esdt_transfer(second_tokens)
             .execute_on_dest_context();
@@ -92,10 +94,12 @@ pub trait PairActionsModule:
         &self,
         pair_address: ManagedAddress,
         lp_tokens: EsdtTokenPayment,
+        first_token_min_amount_out: BigUint,
+        second_token_min_amount_out: BigUint,
     ) -> PairRemoveLiqResult<Self::Api> {
         let raw_results: RemoveLiquidityResultType<Self::Api> = self
             .pair_proxy(pair_address)
-            .remove_liquidity(MIN_AMOUNT_OUT, MIN_AMOUNT_OUT)
+            .remove_liquidity(first_token_min_amount_out, second_token_min_amount_out)
             .with_esdt_transfer(lp_tokens)
             .execute_on_dest_context();
         let (first_tokens, second_tokens) = raw_results.into_tuple();

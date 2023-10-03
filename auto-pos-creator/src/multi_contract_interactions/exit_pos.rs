@@ -11,6 +11,29 @@ pub enum ExitType<M: ManagedTypeApi> {
     Pair(ManagedAddress<M>),
 }
 
+pub struct MetastakingExitArgs<M: ManagedTypeApi> {
+    ms_address: ManagedAddress<M>,
+    user: ManagedAddress<M>,
+    ms_tokens: EsdtTokenPayment<M>,
+    first_token_min_amount_out: BigUint<M>,
+    second_token_min_amont_out: BigUint<M>,
+}
+
+pub struct FarmExitArgs<M: ManagedTypeApi> {
+    farm_address: ManagedAddress<M>,
+    user: ManagedAddress<M>,
+    farm_tokens: EsdtTokenPayment<M>,
+    first_token_min_amount_out: BigUint<M>,
+    second_token_min_amont_out: BigUint<M>,
+}
+
+pub struct RemoveLiqArgs<M: ManagedTypeApi> {
+    pair_address: ManagedAddress<M>,
+    lp_tokens: EsdtTokenPayment<M>,
+    first_token_min_amount_out: BigUint<M>,
+    second_token_min_amont_out: BigUint<M>,
+}
+
 static INVALID_INPUT_TOKEN_ERR_MSG: &[u8] = b"Invalid input token";
 
 #[multiversx_sc::module]
@@ -22,60 +45,73 @@ pub trait ExitPosModule:
     + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
     + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
-    + crate::configs::auto_farm_config::AutoFarmConfigModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
     #[payable("*")]
     #[endpoint(fullExitPos)]
-    fn full_exit_pos(&self) -> PaymentsVec<Self::Api> {
+    fn full_exit_pos(
+        &self,
+        first_token_min_amount_out: BigUint,
+        second_token_min_amont_out: BigUint,
+    ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
 
-        let auto_farm_sc_address = self.auto_farm_sc_address().get();
-        let exit_type = self.get_exit_type(&payment.token_identifier, &auto_farm_sc_address);
+        let exit_type = self.get_exit_type(&payment.token_identifier);
         let mut output_payments = PaymentsWrapper::new();
 
         match exit_type {
             ExitType::Metastaking(ms_addr) => {
-                self.unstake_metastaking(&mut output_payments, ms_addr, caller.clone(), payment)
+                let args = MetastakingExitArgs {
+                    ms_address: ms_addr,
+                    user: caller.clone(),
+                    ms_tokens: payment,
+                    first_token_min_amount_out,
+                    second_token_min_amont_out,
+                };
+
+                self.unstake_metastaking(&mut output_payments, args);
             }
             ExitType::Farm(farm_addr) => {
-                self.exit_farm(&mut output_payments, farm_addr, caller.clone(), payment)
+                let args = FarmExitArgs {
+                    farm_address: farm_addr,
+                    user: caller.clone(),
+                    farm_tokens: payment,
+                    first_token_min_amount_out,
+                    second_token_min_amont_out,
+                };
+
+                self.exit_farm(&mut output_payments, args);
             }
             ExitType::Pair(pair_addr) => {
-                self.remove_pair_liq(&mut output_payments, pair_addr, payment)
+                let args = RemoveLiqArgs {
+                    pair_address: pair_addr,
+                    lp_tokens: payment,
+                    first_token_min_amount_out,
+                    second_token_min_amont_out,
+                };
+
+                self.remove_pair_liq(&mut output_payments, args);
             }
         };
 
         output_payments.send_and_return(&caller)
     }
 
-    fn get_exit_type(
-        &self,
-        input_token: &TokenIdentifier,
-        auto_farm_address: &ManagedAddress,
-    ) -> ExitType<Self::Api> {
-        let ms_id = self
-            .metastaking_for_dual_yield_token(input_token)
-            .get_from_address(auto_farm_address);
+    fn get_exit_type(&self, input_token: &TokenIdentifier) -> ExitType<Self::Api> {
+        let ms_id = self.metastaking_for_dual_yield_token(input_token).get();
         if ms_id != NULL_ID {
-            let opt_ms_addr = self
-                .metastaking_ids()
-                .get_address_at_address(auto_farm_address, ms_id);
+            let opt_ms_addr = self.metastaking_ids().get_address(ms_id);
             require!(opt_ms_addr.is_some(), INVALID_INPUT_TOKEN_ERR_MSG);
 
             let ms_addr = unsafe { opt_ms_addr.unwrap_unchecked() };
             return ExitType::Metastaking(ms_addr);
         }
 
-        let farm_id = self
-            .farm_for_farm_token(input_token)
-            .get_from_address(auto_farm_address);
+        let farm_id = self.farm_for_farm_token(input_token).get();
         if farm_id != NULL_ID {
-            let opt_farm_addr = self
-                .farm_ids()
-                .get_address_at_address(auto_farm_address, farm_id);
+            let opt_farm_addr = self.farm_ids().get_address(farm_id);
             require!(opt_farm_addr.is_some(), INVALID_INPUT_TOKEN_ERR_MSG);
 
             let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
@@ -91,29 +127,27 @@ pub trait ExitPosModule:
     fn unstake_metastaking(
         &self,
         output_payments: &mut PaymentsWrapper<Self::Api>,
-        ms_address: ManagedAddress,
-        user: ManagedAddress,
-        ms_tokens: EsdtTokenPayment,
+        args: MetastakingExitArgs<Self::Api>,
     ) {
-        let unstake_result = self.call_metastaking_unstake(ms_address, user, ms_tokens);
+        let unstake_result = self.call_metastaking_unstake(
+            args.ms_address,
+            args.user,
+            args.ms_tokens,
+            args.first_token_min_amount_out,
+            args.second_token_min_amont_out,
+        );
         output_payments.push(unstake_result.other_token_payment);
         output_payments.push(unstake_result.lp_farm_rewards);
         output_payments.push(unstake_result.staking_rewards);
         output_payments.push(unstake_result.unbond_staking_farm_token);
-
-        if let Some(new_dual_yield_tokens) = unstake_result.opt_new_dual_yield_tokens {
-            output_payments.push(new_dual_yield_tokens);
-        }
     }
 
     fn exit_farm(
         &self,
         output_payments: &mut PaymentsWrapper<Self::Api>,
-        farm_address: ManagedAddress,
-        user: ManagedAddress,
-        farm_tokens: EsdtTokenPayment,
+        args: FarmExitArgs<Self::Api>,
     ) {
-        let exit_farm_result = self.call_exit_farm(farm_address, user, farm_tokens);
+        let exit_farm_result = self.call_exit_farm(args.farm_address, args.user, args.farm_tokens);
         output_payments.push(exit_farm_result.rewards);
 
         let lp_tokens = exit_farm_result.farming_tokens;
@@ -125,16 +159,27 @@ pub trait ExitPosModule:
         }
 
         let pair_addr = pair_addr_mapper.get();
-        self.remove_pair_liq(output_payments, pair_addr, lp_tokens);
+        let pair_args = RemoveLiqArgs {
+            pair_address: pair_addr,
+            lp_tokens,
+            first_token_min_amount_out: args.first_token_min_amount_out,
+            second_token_min_amont_out: args.second_token_min_amont_out,
+        };
+
+        self.remove_pair_liq(output_payments, pair_args);
     }
 
     fn remove_pair_liq(
         &self,
         output_payments: &mut PaymentsWrapper<Self::Api>,
-        pair_address: ManagedAddress,
-        lp_tokens: EsdtTokenPayment,
+        args: RemoveLiqArgs<Self::Api>,
     ) {
-        let remove_liq_result = self.call_pair_remove_liquidity(pair_address, lp_tokens);
+        let remove_liq_result = self.call_pair_remove_liquidity(
+            args.pair_address,
+            args.lp_tokens,
+            args.first_token_min_amount_out,
+            args.second_token_min_amont_out,
+        );
         output_payments.push(remove_liq_result.first_tokens);
         output_payments.push(remove_liq_result.second_tokens);
     }

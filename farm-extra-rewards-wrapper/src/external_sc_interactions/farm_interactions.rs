@@ -42,10 +42,10 @@ pub trait FarmInteractionsModule:
         let farm_addr = self.get_farm_address(&farm_token.token_identifier);
         let raw_results: ExitFarmWithPartialPosResultType<Self::Api> = self
             .farm_proxy(farm_addr)
-            .exit_farm_endpoint(farm_token.amount.clone(), user)
+            .exit_farm_endpoint(user)
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context();
-        let (farming_tokens, rewards, _) = raw_results.into_tuple();
+        let (farming_tokens, rewards) = raw_results.into_tuple();
 
         ExitFarmResultWrapper {
             farming_tokens,
