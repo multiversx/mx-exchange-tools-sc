@@ -1,12 +1,13 @@
 #![allow(deprecated)]
+#![allow(clippy::too_many_arguments)]
+#![allow(dead_code)]
 
 pub mod fees_collector_setup;
 pub mod metabonding_setup;
 
-use crate::fees_collector_setup::{FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID};
+use crate::fees_collector_setup::LOCKED_TOKEN_ID;
 use auto_farm::{
     common::{common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper},
-    external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule,
     external_sc_interactions::metabonding_actions::{
         MetabondingActionsModule, SingleMetabondingClaimArg,
     },
@@ -18,7 +19,7 @@ use auto_farm::{
     common::{rewards_wrapper::MergedRewardsWrapper, unique_payments::UniquePayments},
     registration::RegistrationModule,
 };
-use energy_factory::locked_token_transfer::LockedTokenTransferModule;
+
 use fees_collector_setup::setup_fees_collector;
 use metabonding_setup::*;
 use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};

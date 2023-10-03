@@ -159,7 +159,7 @@ pub trait MetastakingInteractionsModule:
         let update_dual_yield_tokens = EsdtTokenPayment::new(
             dual_yield_token_id,
             metastaking_state.dual_yield_token_nonce,
-            metastaking_state.dual_yield_amount.clone()- unstake_amount,
+            metastaking_state.dual_yield_amount.clone() - unstake_amount,
         );
 
         self.update_metastaking_after_claim(

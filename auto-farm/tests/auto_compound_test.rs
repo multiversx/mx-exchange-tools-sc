@@ -1,37 +1,8 @@
 #![allow(deprecated)]
+#![allow(clippy::too_many_arguments)]
+#![allow(dead_code)]
 
-use auto_farm::{
-    common::{
-        common_storage::MAX_PERCENTAGE,
-        rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
-        unique_payments::UniquePayments,
-    },
-    external_sc_interactions::{
-        fees_collector_actions::FeesCollectorActionsModule,
-        multi_contract_interactions::MultiContractInteractionsModule,
-    },
-    fees::FeesModule,
-    registration::RegistrationModule,
-    user_tokens::{
-        user_farm_tokens::{EndpointWrappers, UserFarmTokensModule},
-        user_rewards::UserRewardsModule,
-    },
-    whitelists::farms_whitelist::FarmsWhitelistModule,
-    AutoFarm,
-};
-use energy_factory::locked_token_transfer::LockedTokenTransferModule;
-use farm_staking::stake_farm::StakeFarmModule;
-use fees_collector_setup::{
-    setup_fees_collector, FIRST_TOKEN_ID, LOCKED_TOKEN_ID, SECOND_TOKEN_ID,
-};
-use multiversx_sc::{
-    codec::{multi_types::OptionalValue, Empty},
-    types::{EsdtTokenPayment, ManagedVec, MultiValueEncoded},
-};
-use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, DebugApi,
-};
-use sc_whitelist_module::SCWhitelistModule;
+use fees_collector_setup::FIRST_TOKEN_ID;
 
 use tests_common::farm_staking_setup::*;
 use tests_common::farm_with_locked_rewards_setup::*;

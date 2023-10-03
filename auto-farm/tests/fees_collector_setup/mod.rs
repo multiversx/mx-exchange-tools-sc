@@ -1,4 +1,6 @@
 #![allow(deprecated)]
+#![allow(clippy::too_many_arguments)]
+#![allow(dead_code)]
 
 use energy_query::EnergyQueryModule;
 use fees_collector::{
