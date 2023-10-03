@@ -19,7 +19,9 @@ pub trait AutoPosCreator:
     + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + multi_contract_interactions::create_pos::CreatePosModule
+    + multi_contract_interactions::create_pos_endpoints::CreatePosEndpointsModule
     + multi_contract_interactions::exit_pos::ExitPosModule
+    + multi_contract_interactions::exit_pos_endpoints::ExitPosEndpointsModule
 {
     #[init]
     fn init(&self) {}

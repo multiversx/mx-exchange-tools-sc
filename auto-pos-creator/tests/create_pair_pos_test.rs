@@ -4,7 +4,8 @@ use auto_pos_creator::{
     external_sc_interactions::pair_actions::PairTokenPayments,
     multi_contract_interactions::{
         create_pos::{CreatePosModule, StepsToPerform},
-        exit_pos::ExitPosModule,
+        create_pos_endpoints::CreatePosEndpointsModule,
+        exit_pos_endpoints::ExitPosEndpointsModule,
     },
 };
 use farm_staking::token_attributes::UnbondSftAttributes;
@@ -112,7 +113,7 @@ fn enter_lp_through_pos_creator_test() {
             0,
             &rust_biguint!(181_818_181),
             |sc| {
-                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
+                let _ = sc.full_exit_pos_endpoint(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
@@ -217,7 +218,7 @@ fn enter_lp_and_farm_through_pos_creator() {
             1,
             &rust_biguint!(45_454_545),
             |sc| {
-                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
+                let _ = sc.full_exit_pos_endpoint(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
@@ -327,7 +328,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
             1,
             &rust_biguint!(15_873_015),
             |sc| {
-                let _ = sc.full_exit_pos(1u32.into(), 1u32.into());
+                let _ = sc.full_exit_pos_endpoint(1u32.into(), 1u32.into());
             },
         )
         .assert_ok();
