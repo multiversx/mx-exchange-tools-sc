@@ -135,7 +135,7 @@ pub trait MetastakingInteractionsModule:
         let dual_yield_token_id = self.get_dual_yield_token(&metastaking_address);
         let farm_staking_address = self.get_staking_farm_address(&metastaking_address);
         let division_safety_constant = self.get_division_safety_constant(&farm_staking_address);
-        let full_dual_yield_position = EsdtTokenPayment::new(
+        let _full_dual_yield_position = EsdtTokenPayment::new(
             dual_yield_token_id.clone(),
             metastaking_state.dual_yield_token_nonce,
             metastaking_state.dual_yield_amount.clone(),
