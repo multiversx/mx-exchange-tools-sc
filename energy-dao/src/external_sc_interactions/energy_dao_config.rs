@@ -162,6 +162,8 @@ pub trait EnergyDAOConfigModule:
 
             let metastaking_state = MetastakingState {
                 metastaking_token_supply: BigUint::zero(),
+                dual_yield_amount: BigUint::zero(),
+                dual_yield_token_nonce: 0u64,
                 lp_farm_reward_token_nonce: 0u64,
                 lp_farm_reward_reserve: BigUint::zero(),
                 staking_reward_reserve: BigUint::zero(),
