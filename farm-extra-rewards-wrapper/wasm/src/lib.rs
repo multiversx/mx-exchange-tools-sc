@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           32
+// Endpoints:                           35
 // Async Callback:                       1
-// Total number of exported functions:  34
+// Total number of exported functions:  37
 
 #![no_std]
 
@@ -24,11 +24,14 @@ multiversx_sc_wasm_adapter::endpoints! {
         init => init
         getRewardPerShare => reward_per_share
         getRewardReserve => reward_reserve
+        allowExternalClaimBoostedRewards => allow_external_claim_boosted_rewards
         getFarmingTokenId => farming_token_id
         getRewardTokenId => reward_token_id
         getPerBlockRewardAmount => per_block_reward_amount
         getLastRewardBlockNonce => last_reward_block_nonce
         getDivisionSafetyConstant => division_safety_constant
+        getUserTotalFarmPosition => user_total_farm_position
+        getFarmPositionMigrationNonce => farm_position_migration_nonce
         registerFarmToken => register_farm_token
         getFarmTokenId => farm_token
         getFarmTokenSupply => farm_token_supply

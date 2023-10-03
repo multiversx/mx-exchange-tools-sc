@@ -40,7 +40,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "common-types"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
@@ -48,7 +48,7 @@ dependencies = [
 [[package]]
 name = "common_errors"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
@@ -56,7 +56,7 @@ dependencies = [
 [[package]]
 name = "common_structs"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "fixed-supply-token",
  "math",
@@ -68,7 +68,7 @@ dependencies = [
 [[package]]
 name = "config"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -81,7 +81,7 @@ dependencies = [
 [[package]]
 name = "contexts"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -150,7 +150,7 @@ dependencies = [
 [[package]]
 name = "energy-factory"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "legacy_token_decode_module",
@@ -167,7 +167,7 @@ dependencies = [
 [[package]]
 name = "energy-factory-mock"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "energy-query",
  "multiversx-sc",
@@ -176,7 +176,7 @@ dependencies = [
 [[package]]
 name = "energy-query"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "energy-factory",
  "multiversx-sc",
@@ -185,7 +185,7 @@ dependencies = [
 [[package]]
 name = "events"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "contexts",
@@ -195,7 +195,7 @@ dependencies = [
 [[package]]
 name = "farm"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -224,7 +224,7 @@ dependencies = [
 [[package]]
 name = "farm-boosted-yields"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common-types",
  "config",
@@ -239,7 +239,7 @@ dependencies = [
 [[package]]
 name = "farm-staking"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -271,7 +271,7 @@ dependencies = [
 [[package]]
 name = "farm-staking-proxy"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "config",
@@ -294,7 +294,7 @@ dependencies = [
 [[package]]
 name = "farm-with-locked-rewards"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -325,7 +325,7 @@ dependencies = [
 [[package]]
 name = "farm_base_impl"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -348,7 +348,7 @@ dependencies = [
 [[package]]
 name = "farm_token"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -363,7 +363,7 @@ dependencies = [
 [[package]]
 name = "fees-collector"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common-types",
  "common_errors",
@@ -382,7 +382,7 @@ dependencies = [
 [[package]]
 name = "fixed-supply-token"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
@@ -420,7 +420,7 @@ dependencies = [
 [[package]]
 name = "legacy_token_decode_module"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "multiversx-sc",
@@ -430,7 +430,7 @@ dependencies = [
 [[package]]
 name = "lkmex-transfer"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "energy-factory",
@@ -445,7 +445,7 @@ dependencies = [
 [[package]]
 name = "locked-token-wrapper"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "energy-factory",
@@ -462,7 +462,7 @@ dependencies = [
 [[package]]
 name = "locking_module"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "energy-factory",
  "multiversx-sc",
@@ -472,7 +472,7 @@ dependencies = [
 [[package]]
 name = "math"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
@@ -480,16 +480,16 @@ dependencies = [
 [[package]]
 name = "mergeable"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
 
 [[package]]
 name = "multiversx-sc"
-version = "0.43.2"
+version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "386c2727eba66bc5e502e470d7afa55fdd69aedff440c508bb9ba85aec36a52a"
+checksum = "5889db6e6f6814b221cf4c1cd2937aa047b419e2a80b08695d85b4a9f537bdfd"
 dependencies = [
  "bitflags",
  "hashbrown",
@@ -523,9 +523,9 @@ dependencies = [
 
 [[package]]
 name = "multiversx-sc-derive"
-version = "0.43.2"
+version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "050510b6b9836b24b4a73bb7878c58c268d56bde1c6eb0f9a88dce9a6518507b"
+checksum = "23fead13b29d79f702e021926402588e9a7822ed9dfadfdfe71c436dce100e4f"
 dependencies = [
  "hex",
  "proc-macro2",
@@ -536,18 +536,18 @@ dependencies = [
 
 [[package]]
 name = "multiversx-sc-modules"
-version = "0.43.2"
+version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b55fe3585cbc745bd7b9793be4bcb3aa7f1869ced7a0981f3d47e6a832c6311"
+checksum = "e5c160745bf0c997146fa816a19fba8a8d0517e99ed30cc514eca0967f2eed74"
 dependencies = [
  "multiversx-sc",
 ]
 
 [[package]]
 name = "multiversx-sc-wasm-adapter"
-version = "0.43.2"
+version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b059f22dfc3eb45aa015f6f20f28ed34dc42a65b42d282f8ac9b799b12e2942c"
+checksum = "9f6fce7b968fec7ea27f6fef909d4149e515e31aa2486a93dcd7c72a8a01e571"
 dependencies = [
  "multiversx-sc",
 ]
@@ -579,7 +579,7 @@ checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 [[package]]
 name = "pair"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -595,7 +595,7 @@ dependencies = [
 [[package]]
 name = "pausable"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
  "permissions_module",
@@ -604,7 +604,7 @@ dependencies = [
 [[package]]
 name = "permissions_module"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "bitflags",
  "common_errors",
@@ -613,9 +613,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.66"
+version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
+checksum = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328"
 dependencies = [
  "unicode-ident",
 ]
@@ -642,7 +642,7 @@ dependencies = [
 [[package]]
 name = "rewards"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -658,7 +658,7 @@ dependencies = [
 [[package]]
 name = "sc_whitelist_module"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "multiversx-sc",
@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "simple-lock"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "multiversx-sc",
@@ -676,9 +676,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.11.0"
+version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62bb4feee49fdd9f707ef802e22365a35de4b7b299de4763d44bfea899442ff9"
+checksum = "942b4a808e05215192e39f4ab80813e599068285906cc91aa64f923db842bd5a"
 
 [[package]]
 name = "syn"
@@ -694,7 +694,7 @@ dependencies = [
 [[package]]
 name = "token_merge_helper"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "multiversx-sc",
@@ -703,7 +703,7 @@ dependencies = [
 [[package]]
 name = "token_send"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_errors",
  "common_structs",
@@ -712,14 +712,14 @@ dependencies = [
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.11"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
+checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 
 [[package]]
 name = "unwrappable"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "multiversx-sc",
 ]
@@ -727,7 +727,7 @@ dependencies = [
 [[package]]
 name = "utils"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common_structs",
  "fixed-supply-token",
@@ -744,7 +744,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "week-timekeeping"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common-types",
  "multiversx-sc",
@@ -753,7 +753,7 @@ dependencies = [
 [[package]]
 name = "weekly-rewards-splitting"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=7f25a72#7f25a72c62d5920590563e4ccc56a47bd9a8ac21"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
 dependencies = [
  "common-types",
  "energy-query",
