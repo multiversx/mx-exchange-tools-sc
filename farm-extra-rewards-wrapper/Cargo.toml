@@ -10,67 +10,67 @@ path = "src/lib.rs"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.contexts]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.farm_base_impl]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.token_send]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.permissions_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.fixed-supply-token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.unwrappable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.math]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dependencies.auto-farm]
 path = "../auto-farm"
@@ -86,19 +86,19 @@ hex = "0.4"
 hex-literal = "0.3.4"
 
 [dependencies.multiversx-sc]
-version = "=0.43.2"
+version = "=0.43.3"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
-version = "=0.43.2"
+version = "=0.43.3"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.43.2"
+version = "=0.43.3"
 
 [dev-dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "3fe300e"
+rev = "a94a332"

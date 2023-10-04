@@ -26,7 +26,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         removePairsFromWhitelist => remove_pairs_from_whitelist
         createPosFromSingleToken => create_pos_from_single_token
         createPosFromTwoTokens => create_pos_from_two_tokens
-        fullExitPos => full_exit_pos
+        fullExitPos => full_exit_pos_endpoint
     )
 }
 
