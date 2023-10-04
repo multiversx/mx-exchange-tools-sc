@@ -6,6 +6,8 @@ members = [
   "auto-pos-creator/meta",
   "farm-extra-rewards-wrapper",
   "farm-extra-rewards-wrapper/meta",
+  "composable-tasks",
+  "composable-tasks/meta",
   "energy-dao",
   "energy-dao/meta",
   "tests-common"

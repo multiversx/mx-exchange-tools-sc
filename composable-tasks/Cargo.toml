@@ -1,0 +1,35 @@
+[package]
+name = "composable-tasks"
+version = "0.0.0"
+authors = [ "you",]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/composable_tasks.rs"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dependencies.multiversx-sc]
+version = "0.43.3"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "0.43.3"
+
+
+[dependencies.farm]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.farm-with-locked-rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.multiversx_wegld_swap_sc]
+git = "https://github.com/multiversx/mx-contracts-rs"
+rev = "6370ddf"

@@ -477,6 +477,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "composable-tasks"
+version = "0.0.0"
+dependencies = [
+ "farm",
+ "farm-with-locked-rewards",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "multiversx_wegld_swap_sc",
+ "num-bigint",
+ "pair",
+]
+
+[[package]]
+name = "composable-tasks-meta"
+version = "0.0.0"
+dependencies = [
+ "composable-tasks",
+ "multiversx-sc-meta",
+]
+
+[[package]]
 name = "config"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
@@ -1899,6 +1920,15 @@ dependencies = [
  "sha3 0.9.1",
  "tokio",
  "zeroize",
+]
+
+[[package]]
+name = "multiversx_wegld_swap_sc"
+version = "0.43.3"
+source = "git+https://github.com/multiversx/mx-contracts-rs?rev=6370ddf#6370ddfa7d162686705742317356202fc1bbba8d"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-modules",
 ]
 
 [[package]]
