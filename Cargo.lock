@@ -1618,6 +1618,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "locked-token-pos-creator"
+version = "0.0.0"
+dependencies = [
+ "energy-factory",
+ "energy-query",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+ "pair",
+ "proxy_dex",
+ "utils",
+]
+
+[[package]]
+name = "locked-token-pos-creator-meta"
+version = "0.0.0"
+dependencies = [
+ "locked-token-pos-creator",
+ "multiversx-sc-meta",
+]
+
+[[package]]
 name = "locked-token-wrapper"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
@@ -2197,6 +2219,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "proxy_dex"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
+dependencies = [
+ "common_structs",
+ "energy-factory",
+ "energy-query",
+ "farm",
+ "farm-with-locked-rewards",
+ "fixed-supply-token",
+ "itertools",
+ "legacy_token_decode_module",
+ "locking_module",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "simple-lock",
+ "token_merge_helper",
+ "token_send",
+ "utils",
 ]
 
 [[package]]
