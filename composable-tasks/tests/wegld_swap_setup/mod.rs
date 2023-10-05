@@ -49,12 +49,12 @@ where
 
         let initial_token_balance = 10_000_000_000u64;
         b_mock.borrow_mut().set_esdt_balance(
-            &wegld_swap_wrapper.address_ref(),
+            wegld_swap_wrapper.address_ref(),
             WEGLD_TOKEN_ID,
             &rust_biguint!(initial_token_balance),
         );
         b_mock.borrow_mut().set_egld_balance(
-            &wegld_swap_wrapper.address_ref(),
+            wegld_swap_wrapper.address_ref(),
             &rust_biguint!(initial_token_balance),
         );
 

@@ -46,19 +46,19 @@ fn unwrap_single_task_test() {
             &composable_tasks_setup.ct_wrapper,
             WEGLD_TOKEN_ID,
             0,
-            &rust_biguint!(user_first_token_balance.clone()),
+            &rust_biguint!(user_first_token_balance),
             |sc| {
                 let no_args = ManagedVec::new();
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::UnwrapEGLD, no_args).into());
 
-                let _ = sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
             },
         )
         .assert_ok();
 
     b_mock.borrow_mut().check_egld_balance(
-        &composable_tasks_setup.ct_wrapper.address_ref(),
+        composable_tasks_setup.ct_wrapper.address_ref(),
         &rust_biguint!(user_first_token_balance),
     );
 }
@@ -90,14 +90,14 @@ fn unwrap_send_test() {
             &composable_tasks_setup.ct_wrapper,
             WEGLD_TOKEN_ID,
             0,
-            &rust_biguint!(user_first_token_balance.clone()),
+            &rust_biguint!(user_first_token_balance),
             |sc| {
                 let no_args = ManagedVec::new();
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::UnwrapEGLD, no_args.clone()).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                let _ = sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
             },
         )
         .assert_ok();
@@ -130,14 +130,14 @@ fn wrap_send_test() {
         .execute_tx(
             &first_user_addr,
             &composable_tasks_setup.ct_wrapper,
-            &rust_biguint!(user_first_token_balance.clone()),
+            &rust_biguint!(user_first_token_balance),
             |sc| {
                 let no_args = ManagedVec::new();
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::WrapEGLD, no_args.clone()).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                let _ = sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
             },
         )
         .assert_ok();

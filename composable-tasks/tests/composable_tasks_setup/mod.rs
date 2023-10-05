@@ -63,7 +63,7 @@ where
         let b_mock_new = BlockchainStateWrapper::new();
         let b_mock_ref = RefCell::new(b_mock_new);
         let b_mock_rc = Rc::new(b_mock_ref);
-        let b_mock = b_mock_rc.clone();
+        let b_mock = b_mock_rc;
 
         let owner = b_mock.borrow_mut().create_user_account(&rust_zero);
         let first_user = Address::from(hex_literal::hex!(

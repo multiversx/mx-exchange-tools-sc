@@ -33,8 +33,8 @@ pub trait TaskCall:
             let payment_for_current_task = payment_for_next_task.clone();
 
             payment_for_next_task = match task_type {
-                TaskType::WrapEGLD => self.wrap_egld().into(),
-                TaskType::UnwrapEGLD => self.unwrap_egld().into(),
+                TaskType::WrapEGLD => self.wrap_egld(),
+                TaskType::UnwrapEGLD => self.unwrap_egld(),
                 TaskType::Swap => {
                     require!(
                         !payment_for_current_task.token_identifier.is_egld(),
