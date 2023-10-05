@@ -32,15 +32,7 @@ pub trait CreatePairPosModule:
         add_liq_second_token_min_amount: BigUint,
     ) -> AddLiquidityProxyResult<Self::Api> {
         let payment = self.call_value().egld_or_single_esdt();
-        let wegld_token_id = self.wegld_token_id().get();
-        let payment_esdt = if payment.token_identifier.is_egld() {
-            self.call_wrap_egld(payment.amount)
-        } else if payment.token_identifier == EgldOrEsdtTokenIdentifier::esdt(wegld_token_id) {
-            payment.unwrap_esdt()
-        } else {
-            sc_panic!("Invalid payment");
-        };
-
+        let payment_esdt = self.get_esdt_payment(payment);
         let args = AddLiquidityArguments {
             payment: payment_esdt,
             swap_min_amount_out,
@@ -48,10 +40,11 @@ pub trait CreatePairPosModule:
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,
         };
+
         let add_liq_result = self.create_pair_pos_from_single_token(args);
 
         let mut output_payments =
-            ManagedVec::from_single_item(add_liq_result.wrapped_token.clone());
+            ManagedVec::from_single_item(add_liq_result.wrapped_lp_token.clone());
         if add_liq_result.locked_token_leftover.amount > 0 {
             output_payments.push(add_liq_result.locked_token_leftover.clone());
         }
@@ -63,6 +56,17 @@ pub trait CreatePairPosModule:
         self.send().direct_multi(&caller, &output_payments);
 
         add_liq_result
+    }
+
+    fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
+        let wegld_token_id = self.wegld_token_id().get();
+        if payment.token_identifier.is_egld() {
+            self.call_wrap_egld(payment.amount)
+        } else if payment.token_identifier == EgldOrEsdtTokenIdentifier::esdt(wegld_token_id) {
+            payment.unwrap_esdt()
+        } else {
+            sc_panic!("Invalid payment");
+        }
     }
 
     fn create_pair_pos_from_single_token(

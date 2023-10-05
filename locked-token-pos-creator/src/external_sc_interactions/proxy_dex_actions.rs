@@ -1,11 +1,11 @@
-use proxy_dex::proxy_pair::ProxyTrait as _;
+use proxy_dex::{proxy_farm::ProxyTrait as _, proxy_pair::ProxyTrait as _};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopDecode, TopEncode)]
 pub struct AddLiquidityProxyResult<M: ManagedTypeApi> {
-    pub wrapped_token: EsdtTokenPayment<M>,
+    pub wrapped_lp_token: EsdtTokenPayment<M>,
     pub locked_token_leftover: EsdtTokenPayment<M>,
     pub wegld_leftover: EsdtTokenPayment<M>,
 }
@@ -33,10 +33,22 @@ pub trait ProxyDexActionsModule {
         let output_payments_vec = output_payments.to_vec();
 
         AddLiquidityProxyResult {
-            wrapped_token: output_payments_vec.get(0),
+            wrapped_lp_token: output_payments_vec.get(0),
             locked_token_leftover: output_payments_vec.get(1),
             wegld_leftover: output_payments_vec.get(2),
         }
+    }
+
+    fn call_enter_farm_proxy(
+        &self,
+        payment: EsdtTokenPayment,
+        farm_address: ManagedAddress,
+    ) -> EsdtTokenPayment {
+        let proxy_dex_address = self.proxy_dex_address().get();
+        self.proxy_dex_proxy(proxy_dex_address)
+            .enter_farm_proxy_endpoint(farm_address)
+            .with_esdt_transfer(payment)
+            .execute_on_dest_context()
     }
 
     #[storage_mapper("proxyDexAddress")]
