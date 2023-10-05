@@ -6,7 +6,7 @@ multiversx_sc::derive_imports!();
 #[derive(TypeAbi, TopEncode, TopDecode, PartialEq, ManagedVecItem)]
 pub enum TaskType {
     WrapEGLD,
-    UnwrapEgld,
+    UnwrapEGLD,
     Swap,
     SendEsdt,
 }
@@ -34,7 +34,7 @@ pub trait TaskCall:
 
             payment_for_next_task = match task_type {
                 TaskType::WrapEGLD => self.wrap_egld().into(),
-                TaskType::UnwrapEgld => self.unwrap_egld().into(),
+                TaskType::UnwrapEGLD => self.unwrap_egld().into(),
                 TaskType::Swap => {
                     require!(
                         !payment_for_current_task.token_identifier.is_egld(),
