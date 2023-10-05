@@ -1,0 +1,42 @@
+[package]
+name = "locked-token-pos-creator"
+version = "0.0.0"
+authors = [ "you",]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies.multiversx-sc]
+version = "=0.43.3"
+
+[dependencies.energy-query]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.utils]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.energy-factory]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.proxy_dex]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dependencies.common_structs]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "=0.43.3"

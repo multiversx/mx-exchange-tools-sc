@@ -69,6 +69,9 @@ pub trait AutoFarm:
             .set_if_empty(fees_collector_sc_address);
     }
 
+    #[endpoint]
+    fn upgrade(&self) {}
+
     #[only_owner]
     #[endpoint(changeProxyClaimAddress)]
     fn change_proxy_claim_address(&self, new_proxy_claim_address: ManagedAddress) {
