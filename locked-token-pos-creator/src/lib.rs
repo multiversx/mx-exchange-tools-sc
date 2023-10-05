@@ -2,6 +2,7 @@
 
 multiversx_sc::imports!();
 
+pub mod create_farm_pos;
 pub mod create_pair_pos;
 pub mod external_sc_interactions;
 
