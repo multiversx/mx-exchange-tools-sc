@@ -25,4 +25,7 @@ pub trait AutoPosCreator:
 {
     #[init]
     fn init(&self) {}
+
+    #[endpoint]
+    fn upgrade(&self) {}
 }

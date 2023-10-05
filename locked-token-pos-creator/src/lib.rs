@@ -41,4 +41,7 @@ pub trait LockedTokenPosCreatorContract:
 
         self.set_energy_factory_address(energy_factory_adddress);
     }
+
+    #[endpoint]
+    fn upgrade(&self) {}
 }
