@@ -3,7 +3,7 @@ multiversx_sc::imports!();
 use multiversx_wegld_swap_sc::ProxyTrait as _;
 
 #[multiversx_sc::module]
-pub trait WrapEgldModule {
+pub trait WegldSwapModule {
 
     fn wrap_egld(
         &self,
@@ -27,8 +27,9 @@ pub trait WrapEgldModule {
             .unwrap_egld()
             .with_esdt_transfer(wrap_egld_payment)
             .execute_on_dest_context()
-
     }
+
+    
     #[proxy]
     fn wrap_egld_proxy(&self, sc_address: ManagedAddress) -> multiversx_wegld_swap_sc::Proxy<Self::Api>;
 

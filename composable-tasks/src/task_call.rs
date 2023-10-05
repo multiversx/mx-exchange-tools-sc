@@ -15,10 +15,10 @@ pub enum TaskType {
 pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
-    + external_sc_interactions::wrap_egld::WrapEgldModule
+    + external_sc_interactions::wegld_swap::WegldSwapModule
 {
     #[payable("*")]
-    #[endpoint(composeTasks2)]
+    #[endpoint(composeTasks)]
     fn compose_tasks(
         &self,
         final_destination: ManagedAddress,

@@ -33,3 +33,7 @@ rev = "a94a332"
 [dependencies.multiversx_wegld_swap_sc]
 git = "https://github.com/multiversx/mx-contracts-rs"
 rev = "6370ddf"
+
+[dev-dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"

@@ -487,6 +487,7 @@ dependencies = [
  "multiversx_wegld_swap_sc",
  "num-bigint",
  "pair",
+ "pausable",
 ]
 
 [[package]]
