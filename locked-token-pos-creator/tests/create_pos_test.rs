@@ -38,6 +38,8 @@ fn create_pair_and_farm_pos_test() {
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
+
+    #[allow(clippy::redundant_clone)] // clippy is dumb
     let b_mock = proxy_dex_setup.b_mock.clone();
     let pos_creator_wrapper = b_mock.borrow_mut().create_sc_account(
         &rust_biguint!(0),
@@ -83,8 +85,8 @@ fn create_pair_and_farm_pos_test() {
         )
         .assert_ok();
 
-    let first_user = proxy_dex_setup.first_user.clone();
-    let second_user = proxy_dex_setup.second_user.clone();
+    let first_user = &proxy_dex_setup.first_user;
+    let second_user = &proxy_dex_setup.second_user;
     let locked_token_amount = rust_biguint!(1_000_000_000);
     let other_token_amount = rust_biguint!(500_000_000);
     let expected_lp_token_amount = rust_biguint!(497);
@@ -108,7 +110,7 @@ fn create_pair_and_farm_pos_test() {
     b_mock
         .borrow_mut()
         .execute_esdt_multi_transfer(
-            &second_user,
+            second_user,
             &proxy_dex_setup.proxy_wrapper,
             &payments,
             |sc| {
@@ -144,7 +146,7 @@ fn create_pair_and_farm_pos_test() {
         .assert_ok();
 
     proxy_dex_setup.b_mock.borrow().check_nft_balance(
-        &first_user,
+        first_user,
         WRAPPED_LP_TOKEN_ID,
         2,
         &expected_lp_token_amount,
@@ -211,7 +213,7 @@ fn create_pair_and_farm_pos_test() {
 
     // check user balance
     b_mock.borrow().check_nft_balance(
-        &first_user,
+        first_user,
         WRAPPED_FARM_TOKEN_ID,
         1,
         &expected_lp_token_amount,
