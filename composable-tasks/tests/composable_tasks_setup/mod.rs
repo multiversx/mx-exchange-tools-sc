@@ -2,20 +2,20 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{pair_setup::PairSetup, wegld_swap_setup::WegldSwapSetup};
+use crate::{pair_setup::PairSetup, wegld_swap_setup::{WegldSwapSetup, WEGLD_TOKEN_ID}};
 
-use composable_tasks::{ComposableTasksContract, external_sc_interactions::wegld_swap::WegldSwapModule};
+use composable_tasks::{ComposableTasksContract, external_sc_interactions::{wegld_swap::WegldSwapModule, pair_actions::PairActionsModule}};
 use multiversx_sc::{hex_literal, types::Address};
 use multiversx_sc_scenario::{
     managed_biguint, rust_biguint,
     testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
-    DebugApi, managed_address,
+    DebugApi, managed_address, managed_token_id,
 };
 use pair::safe_price::SafePriceModule;
 
 pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
-pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
-pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPTHIRD-123456"];
+pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", WEGLD_TOKEN_ID];
+pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPWEGLD-123456"];
 
 pub struct ComposableTasksSetup<PairBuilder, WegldSwapBuilder, ComposableTasksBuilder>
 where
@@ -141,7 +141,7 @@ where
 
         // add initial liquidity
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
-        second_pair_setup.add_liquidity(&owner, 1_000_000_000, 6_000_000_000);
+        second_pair_setup.add_liquidity(&owner, 1_000_000_000, 1_000_000_000);
         third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
 
         // setup price observations
@@ -202,6 +202,24 @@ where
 
                 let wegld_swap_addr: &Address = wegld_swap_setup.wegld_swap_wrapper.address_ref();
                 sc.wrap_egld_addr().set(managed_address!(wegld_swap_addr));
+
+                sc.pair_address_for_tokens(
+                    &managed_token_id!(TOKEN_IDS[0]),
+                    &managed_token_id!(TOKEN_IDS[1]),
+                )
+                .set(managed_address!(first_pair_setup.pair_wrapper.address_ref()));
+
+                sc.pair_address_for_tokens(
+                    &managed_token_id!(TOKEN_IDS[0]),
+                    &managed_token_id!(TOKEN_IDS[2]),
+                )
+                .set(managed_address!(second_pair_setup.pair_wrapper.address_ref()));
+
+                sc.pair_address_for_tokens(
+                    &managed_token_id!(TOKEN_IDS[1]),
+                    &managed_token_id!(TOKEN_IDS[2]),
+                )
+                .set(managed_address!(third_pair_setup.pair_wrapper.address_ref()));
 
 
                 // TODO: Add to storage Pairs

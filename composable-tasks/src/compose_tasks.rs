@@ -53,7 +53,7 @@ pub trait TaskCall:
                     )
                     .into()
                 }
-                TaskType::SendEsdt => {
+                _ => {
                     self.send().direct(
                         &final_destination,
                         &payment_for_current_task.token_identifier,
