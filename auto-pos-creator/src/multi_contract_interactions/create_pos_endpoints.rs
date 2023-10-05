@@ -19,9 +19,6 @@ pub trait CreatePosEndpointsModule:
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + super::create_pos::CreatePosModule
 {
-    /// Create pos from two payments, entering the pair for the two tokens
-    /// It will try doing this with the optimal amounts,
-    /// performing swaps before adding liqudity if necessary
     #[payable("*")]
     #[endpoint(createPosFromSingleToken)]
     fn create_pos_from_single_token(

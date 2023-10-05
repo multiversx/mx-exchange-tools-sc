@@ -1622,13 +1622,27 @@ name = "locked-token-pos-creator"
 version = "0.0.0"
 dependencies = [
  "common_structs",
+ "config",
  "energy-factory",
  "energy-query",
+ "farm",
+ "farm-boosted-yields",
+ "farm-with-locked-rewards",
+ "farm_base_impl",
+ "farm_token",
+ "hex",
+ "locking_module",
  "multiversx-sc",
+ "multiversx-sc-modules",
  "multiversx-sc-scenario",
  "num-bigint",
+ "num-traits",
  "pair",
+ "pausable",
  "proxy_dex",
+ "rewards",
+ "sc_whitelist_module",
+ "simple-lock",
  "utils",
 ]
 
