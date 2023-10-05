@@ -1,3 +1,4 @@
+use common_structs::Epoch;
 use energy_factory::virtual_lock::ProxyTrait as _;
 
 multiversx_sc::imports!();
@@ -7,7 +8,7 @@ pub trait EnergyFactoryActionsModule: energy_query::EnergyQueryModule {
     fn call_lock_virtual(
         &self,
         payment: EsdtTokenPayment,
-        lock_epochs: u64,
+        lock_epochs: Epoch,
         user: ManagedAddress,
     ) -> EsdtTokenPayment {
         let energy_factory_address = self.energy_factory_address().get();

@@ -1,3 +1,5 @@
+use common_structs::Epoch;
+
 use crate::external_sc_interactions::proxy_dex_actions::AddLiquidityProxyResult;
 
 multiversx_sc::imports!();
@@ -17,7 +19,7 @@ pub trait CreatePairPosModule:
     fn create_pair_pos_from_single_token(
         &self,
         swap_min_amount_out: BigUint,
-        lock_epochs: u64,
+        lock_epochs: Epoch,
         add_liq_first_token_min_amount: BigUint,
         add_liq_second_token_min_amount: BigUint,
     ) -> AddLiquidityProxyResult<Self::Api> {

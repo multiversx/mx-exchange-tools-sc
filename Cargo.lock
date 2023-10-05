@@ -1621,6 +1621,7 @@ dependencies = [
 name = "locked-token-pos-creator"
 version = "0.0.0"
 dependencies = [
+ "common_structs",
  "energy-factory",
  "energy-query",
  "multiversx-sc",

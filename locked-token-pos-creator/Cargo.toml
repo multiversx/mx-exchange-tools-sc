@@ -31,6 +31,10 @@ rev = "a94a332"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "a94a332"
 
+[dependencies.common_structs]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 
