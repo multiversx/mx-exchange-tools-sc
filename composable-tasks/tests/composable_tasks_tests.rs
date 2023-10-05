@@ -2,7 +2,7 @@
 
 use composable_tasks::compose_tasks::{TaskCall, TaskType};
 use composable_tasks_setup::{ComposableTasksSetup, TOKEN_IDS};
-use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
+use multiversx_sc::{types::{ManagedVec, MultiValueEncoded}, codec::multi_types::OptionalValue};
 use multiversx_sc_scenario::*;
 use wegld_swap_setup::WEGLD_TOKEN_ID;
 
@@ -52,13 +52,14 @@ fn unwrap_single_task_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::UnwrapEGLD, no_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
+    // Funds are sent back to the caller
     b_mock.borrow_mut().check_egld_balance(
-        composable_tasks_setup.ct_wrapper.address_ref(),
+        &first_user_addr,
         &rust_biguint!(user_first_token_balance),
     );
 }
@@ -97,11 +98,12 @@ fn unwrap_send_test() {
                 tasks.push((TaskType::UnwrapEGLD, no_args.clone()).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
+    // Funds are sent to the destination
     b_mock
         .borrow_mut()
         .check_egld_balance(&second_user_addr, &rust_biguint!(user_first_token_balance));
@@ -137,11 +139,12 @@ fn wrap_send_test() {
                 tasks.push((TaskType::WrapEGLD, no_args.clone()).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
+    // Funds are sent to the destination
     b_mock.borrow_mut().check_esdt_balance(
         &second_user_addr,
         WEGLD_TOKEN_ID,
@@ -185,21 +188,20 @@ fn swap_single_task_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::Swap, swap_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
     let expected_balance = 166_666_666u64;
+
+    // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
-        composable_tasks_setup.ct_wrapper.address_ref(),
+        &first_user_addr,
         TOKEN_IDS[0],
         &rust_biguint!(expected_balance),
     );
 
-    b_mock
-        .borrow_mut()
-        .check_esdt_balance(&first_user_addr, TOKEN_IDS[0], &rust_biguint!(0));
 }
 
 
@@ -241,12 +243,14 @@ fn swap_send_test() {
                 tasks.push((TaskType::Swap, swap_args).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
     let expected_balance = 166_666_666u64;
+
+    // Funds are sent to the destination
     b_mock.borrow_mut().check_esdt_balance(
         &second_user_addr,
         TOKEN_IDS[0],
@@ -296,12 +300,14 @@ fn wrap_swap_send_test() {
                 tasks.push((TaskType::Swap, swap_args).into());
                 tasks.push((TaskType::SendEsdt, no_args).into());
 
-                sc.compose_tasks(managed_address!(&second_user_addr), tasks);
+                sc.compose_tasks(OptionalValue::Some(managed_address!(&second_user_addr)), tasks);
             },
         )
         .assert_ok();
 
     let expected_balance = 166_666_666u64;
+
+    // Funds are sent to the destination
     b_mock.borrow_mut().check_esdt_balance(
         &second_user_addr,
         TOKEN_IDS[0],

@@ -21,11 +21,17 @@ pub trait TaskCall:
     #[endpoint(composeTasks)]
     fn compose_tasks(
         &self,
-        final_destination: ManagedAddress,
+        opt_dest_addr: OptionalValue<ManagedAddress>,
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
         let payment = self.call_value().egld_or_single_esdt();
         let mut payment_for_next_task = payment;
+
+        let caller = self.blockchain().get_caller();
+        let dest_addr = match opt_dest_addr {
+            OptionalValue::Some(opt_caller) => opt_caller,
+            OptionalValue::None => caller.clone(),
+        };
 
         for task in tasks.into_iter() {
             let (task_type, args) = task.into_tuple();
@@ -55,7 +61,7 @@ pub trait TaskCall:
                 }
                 _ => {
                     self.send().direct(
-                        &final_destination,
+                        &dest_addr,
                         &payment_for_current_task.token_identifier,
                         payment_for_current_task.token_nonce,
                         &payment_for_current_task.amount,
@@ -64,5 +70,12 @@ pub trait TaskCall:
                 }
             };
         }
+        self.send().direct(
+            &caller,
+            &payment_for_next_task.token_identifier,
+            payment_for_next_task.token_nonce,
+            &payment_for_next_task.amount,
+        );
+
     }
 }
