@@ -1,6 +1,9 @@
 use common_structs::PaymentsVec;
 
-use crate::external_sc_interactions::pair_actions::PairTokenPayments;
+use crate::{
+    external_sc_interactions::pair_actions::PairTokenPayments,
+    multi_contract_interactions::create_pos::COULD_NOT_CREATE_POS_ERR_MSG,
+};
 
 use super::create_pos::{CreatePosArgs, StepsToPerform};
 
@@ -98,6 +101,38 @@ pub trait CreatePosEndpointsModule:
         };
 
         self.create_pos_common(args)
+    }
+
+    #[payable("*")]
+    #[endpoint(createPosFromLp)]
+    fn create_pos_from_lp(&self, steps: StepsToPerform) -> EsdtTokenPayment {
+        require!(
+            !matches!(steps, StepsToPerform::AddLiquidity),
+            "Invalid step"
+        );
+
+        let caller = self.blockchain().get_caller();
+        let payment = self.call_value().single_esdt();
+
+        let opt_farm_tokens = self.try_enter_farm_with_lp(&payment, &caller);
+        require!(opt_farm_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+
+        let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
+        if matches!(steps, StepsToPerform::EnterFarm) {
+            self.send()
+                .direct_non_zero_esdt_payment(&caller, &farm_tokens);
+
+            return farm_tokens;
+        }
+
+        let opt_ms_tokens = self.try_enter_metastaking_with_lp_farm_tokens(&farm_tokens, &caller);
+        require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+
+        let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
+        self.send()
+            .direct_non_zero_esdt_payment(&caller, &ms_tokens);
+
+        ms_tokens
     }
 
     fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {

@@ -516,3 +516,65 @@ fn create_pos_from_two_tokens_wrong_ratio() {
         )
         .assert_ok();
 }
+
+#[test]
+fn create_pos_from_lp_test() {
+    let mut pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
+
+    // ratio for first pair is A:B 1:2
+    let user_addr = pos_creator_setup.farm_setup.first_user;
+    let user_first_token_balance = 100_000_000u64;
+    let user_second_token_balance = 200_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_second_token_balance),
+    );
+
+    pos_creator_setup.pair_setups[0].add_liquidity(
+        &user_addr,
+        user_first_token_balance,
+        user_second_token_balance,
+    );
+
+    let lp_balance = 100_000_000u32;
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, LP_TOKEN_IDS[0], &rust_biguint!(lp_balance));
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            LP_TOKEN_IDS[0],
+            0,
+            &rust_biguint!(lp_balance),
+            |sc| {
+                sc.create_pos_from_lp(StepsToPerform::EnterMetastaking);
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        DUAL_YIELD_TOKEN_ID,
+        1,
+        &rust_biguint!(90_909_090),
+        None,
+    );
+}
