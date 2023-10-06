@@ -530,7 +530,7 @@ fn create_pos_from_lp_test() {
 
     let b_mock = pos_creator_setup.farm_setup.b_mock;
 
-    // ratio for first pair is A:B 1:2, try enter with 1:4 ratio
+    // ratio for first pair is A:B 1:2
     let user_addr = pos_creator_setup.farm_setup.first_user;
     let user_first_token_balance = 100_000_000u64;
     let user_second_token_balance = 200_000_000u64;
