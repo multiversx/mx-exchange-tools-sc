@@ -10,6 +10,7 @@ path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
 version = "=0.43.3"
+features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
@@ -37,6 +38,55 @@ rev = "a94a332"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
+num-traits = "0.2"
+hex = "0.4"
 
 [dev-dependencies.multiversx-sc-scenario]
 version = "=0.43.3"
+
+[dev-dependencies.multiversx-sc-modules]
+version = "=0.43.3"
+
+[dependencies.simple-lock]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.farm_base_impl]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.config]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.farm_token]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.sc_whitelist_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.farm-boosted-yields]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.farm]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.farm-with-locked-rewards]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"
+
+[dev-dependencies.locking_module]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "a94a332"

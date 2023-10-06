@@ -17,6 +17,7 @@ pub trait LockedTokenPosCreatorContract:
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
 {
+    /// This contract needs the burn role for MEX token
     #[init]
     fn init(
         &self,
