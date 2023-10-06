@@ -17,6 +17,7 @@ pub trait CreatePosEndpointsModule:
     + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
+    + crate::external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
     + super::create_pos::CreatePosModule
 {
     #[payable("*")]
@@ -31,9 +32,10 @@ pub trait CreatePosEndpointsModule:
         add_liq_second_token_min_amount_out: BigUint,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let payment = self.call_value().single_esdt();
+        let payment = self.call_value().egld_or_single_esdt();
+        let payment_esdt = self.get_esdt_payment(payment);
         let double_swap_result = self.buy_half_each_token(
-            payment,
+            payment_esdt,
             &dest_pair_address,
             buy_token_first_token_min_amount_out,
             buy_token_second_token_min_amount_out,
@@ -96,5 +98,13 @@ pub trait CreatePosEndpointsModule:
         };
 
         self.create_pos_common(args)
+    }
+
+    fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
+        if payment.token_identifier.is_egld() {
+            self.call_wrap_egld(payment.amount)
+        } else {
+            payment.unwrap_esdt()
+        }
     }
 }
