@@ -28,6 +28,8 @@ pub trait TaskCall:
         let mut payment_for_next_task = payment;
 
         let caller = self.blockchain().get_caller();
+
+        #[allow(clippy::redundant_clone)] // clippy is dumb
         let dest_addr = match opt_dest_addr {
             OptionalValue::Some(opt_caller) => opt_caller,
             OptionalValue::None => caller.clone(),
