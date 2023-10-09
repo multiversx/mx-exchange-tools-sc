@@ -10,21 +10,15 @@ Example of tasks:
 - wrapEGLD
 - unwrapEGLD
 - Swap
-- Send ESDT to third party
+- Send EGLD/ESDT to third party
 
-```
-pub enum TaskType {
-    WrapEGLD,
-    UnwrapEGLD,
-    Swap,
-    SendEsdt,
-}
-```
 
 Example of actions:
 - Wrap EGLD & send to third party
 - Swap ESDT to wEGLD & unwrap to EGLD
 - Wrap EGLD & swap to ESDT & send to third party
+
+> **_Note:_** If the last task is **not** `Send tokens`, the resulted payment will be returned to the caller. Otherwise, the payment goes to the destination. 
 
 ## Task Structure
 
@@ -32,7 +26,7 @@ A task receives an `EgldOrEsdtPayment` and outputs one as well.
 The resulted `EgldOrEsdtPayment` is forwarded to the next task.
 If one task fails, the whole process will fail.
 
-## Compose Tasks
+The `composeTasks` endpoint:
 ```
     #[payable("*")]
     #[endpoint(composeTasks)]
@@ -43,4 +37,27 @@ If one task fails, the whole process will fail.
     )
 ```
 
+where `TaskType`:
+
+```
+pub enum TaskType {
+    WrapEGLD,
+    UnwrapEGLD,
+    Swap,
+    SendEsdt,
+}
+```
+
+
 > **_WARNING:_**  If you provide a wrong destination address, the payment will be sent there.
+
+Most of the tasks don't require arguments, but some do (like `Swap`). An example of calling `Swap` task:
+
+```
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(TOKEN_ID));
+                swap_args.push(managed_buffer!(b"1"));
+
+                let mut tasks = MultiValueEncoded::new();
+                tasks.push((TaskType::Swap, swap_args).into());
+```

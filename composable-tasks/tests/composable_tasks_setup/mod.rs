@@ -2,24 +2,39 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{pair_setup::PairSetup, wegld_swap_setup::{WegldSwapSetup, WEGLD_TOKEN_ID}};
+use crate::{
+    pair_setup::PairSetup,
+    wegld_swap_setup::{WegldSwapSetup, WEGLD_TOKEN_ID},
+};
 
-use composable_tasks::{ComposableTasksContract, external_sc_interactions::{wegld_swap::WegldSwapModule, pair_actions::PairActionsModule}};
+use composable_tasks::{
+    external_sc_interactions::{
+        pair_actions::PairActionsModule, router_actions::RouterActionsModule,
+        wegld_swap::WegldSwapModule,
+    },
+    ComposableTasksContract,
+};
 use multiversx_sc::{hex_literal, types::Address};
 use multiversx_sc_scenario::{
-    managed_biguint, rust_biguint,
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
-    DebugApi, managed_address, managed_token_id,
+    DebugApi,
 };
 use pair::safe_price::SafePriceModule;
+use router::factory::{FactoryModule, PairTokens};
 
 pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", WEGLD_TOKEN_ID];
 pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPWEGLD-123456"];
 
-pub struct ComposableTasksSetup<PairBuilder, WegldSwapBuilder, ComposableTasksBuilder>
-where
+pub struct ComposableTasksSetup<
+    PairBuilder,
+    RouterBuilder,
+    WegldSwapBuilder,
+    ComposableTasksBuilder,
+> where
     PairBuilder: 'static + Copy + Fn() -> pair::ContractObj<DebugApi>,
+    RouterBuilder: 'static + Copy + Fn() -> router::ContractObj<DebugApi>,
     WegldSwapBuilder: 'static + Copy + Fn() -> multiversx_wegld_swap_sc::ContractObj<DebugApi>,
     ComposableTasksBuilder: 'static + Copy + Fn() -> composable_tasks::ContractObj<DebugApi>,
 {
@@ -29,14 +44,16 @@ where
     pub second_user: Address,
     pub pair_setups: Vec<PairSetup<PairBuilder>>,
     pub wegld_swap_setup: WegldSwapSetup<WegldSwapBuilder>,
+    pub router_wrapper: ContractObjWrapper<router::ContractObj<DebugApi>, RouterBuilder>,
     pub ct_wrapper:
         ContractObjWrapper<composable_tasks::ContractObj<DebugApi>, ComposableTasksBuilder>,
 }
 
-impl<PairBuilder, WegldSwapBuilder, ComposableTasksBuilder>
-    ComposableTasksSetup<PairBuilder, WegldSwapBuilder, ComposableTasksBuilder>
+impl<PairBuilder, RouterBuilder, WegldSwapBuilder, ComposableTasksBuilder>
+    ComposableTasksSetup<PairBuilder, RouterBuilder, WegldSwapBuilder, ComposableTasksBuilder>
 where
     PairBuilder: 'static + Copy + Fn() -> pair::ContractObj<DebugApi>,
+    RouterBuilder: 'static + Copy + Fn() -> router::ContractObj<DebugApi>,
     WegldSwapBuilder: 'static + Copy + Fn() -> multiversx_wegld_swap_sc::ContractObj<DebugApi>,
     ComposableTasksBuilder: 'static + Copy + Fn() -> composable_tasks::ContractObj<DebugApi>,
 {
@@ -56,6 +73,7 @@ where
     // C_total = 9B
     pub fn new(
         pair_builder: PairBuilder,
+        router_builder: RouterBuilder,
         wegld_swap_builder: WegldSwapBuilder,
         ct_builder: ComposableTasksBuilder,
     ) -> Self {
@@ -80,6 +98,13 @@ where
         b_mock
             .borrow_mut()
             .create_user_account_fixed_address(&second_user, &rust_zero);
+
+        let router_wrapper = b_mock.borrow_mut().create_sc_account(
+            &rust_zero,
+            Some(&owner),
+            router_builder,
+            "router",
+        );
 
         // setup composable tasks sc
         let ct_wrapper = b_mock.borrow_mut().create_sc_account(
@@ -173,7 +198,7 @@ where
                     |sc| {
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
-                            &managed_biguint!(6_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -197,6 +222,45 @@ where
 
         b_mock
             .borrow_mut()
+            .execute_tx(&owner, &router_wrapper, &rust_zero, |sc| {
+                // sc.init(OptionalValue::None);
+                sc.init_factory(Option::None);
+
+                sc.pair_map().insert(
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
+                    },
+                    managed_address!(second_pair_setup.pair_wrapper.address_ref()),
+                );
+
+                sc.address_pair_map().insert(
+                    managed_address!(second_pair_setup.pair_wrapper.address_ref()),
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
+                    },
+                );
+                sc.pair_map().insert(
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[1]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
+                    },
+                    managed_address!(third_pair_setup.pair_wrapper.address_ref()),
+                );
+
+                sc.address_pair_map().insert(
+                    managed_address!(third_pair_setup.pair_wrapper.address_ref()),
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[1]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
+                    },
+                );
+            })
+            .assert_ok();
+
+        b_mock
+            .borrow_mut()
             .execute_tx(&owner, &ct_wrapper, &rust_biguint!(0), |sc| {
                 sc.init();
 
@@ -207,21 +271,28 @@ where
                     &managed_token_id!(TOKEN_IDS[0]),
                     &managed_token_id!(TOKEN_IDS[1]),
                 )
-                .set(managed_address!(first_pair_setup.pair_wrapper.address_ref()));
+                .set(managed_address!(first_pair_setup
+                    .pair_wrapper
+                    .address_ref()));
 
                 sc.pair_address_for_tokens(
                     &managed_token_id!(TOKEN_IDS[0]),
                     &managed_token_id!(TOKEN_IDS[2]),
                 )
-                .set(managed_address!(second_pair_setup.pair_wrapper.address_ref()));
+                .set(managed_address!(second_pair_setup
+                    .pair_wrapper
+                    .address_ref()));
 
                 sc.pair_address_for_tokens(
                     &managed_token_id!(TOKEN_IDS[1]),
                     &managed_token_id!(TOKEN_IDS[2]),
                 )
-                .set(managed_address!(third_pair_setup.pair_wrapper.address_ref()));
+                .set(managed_address!(third_pair_setup
+                    .pair_wrapper
+                    .address_ref()));
 
-
+                sc.router_addr_mapper()
+                    .set(managed_address!(router_wrapper.address_ref()));
                 // TODO: Add to storage Pairs
             })
             .assert_ok();
@@ -235,6 +306,7 @@ where
             second_user,
             pair_setups,
             wegld_swap_setup,
+            router_wrapper,
             ct_wrapper,
         }
     }
