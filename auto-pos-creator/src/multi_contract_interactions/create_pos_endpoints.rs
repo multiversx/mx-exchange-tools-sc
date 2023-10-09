@@ -128,11 +128,11 @@ pub trait CreatePosEndpointsModule:
             return output_payments.send_and_return(&caller);
         }
 
-        let opt_ms_tokens =
+        let opt_stake_result =
             self.try_enter_metastaking_with_lp_farm_tokens(&enter_result.new_farm_token, &caller);
-        require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+        require!(opt_stake_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
-        let stake_result = unsafe { opt_ms_tokens.unwrap_unchecked() };
+        let stake_result = unsafe { opt_stake_result.unwrap_unchecked() };
         output_payments.push(stake_result.boosted_rewards);
         output_payments.push(stake_result.dual_yield_tokens);
 
