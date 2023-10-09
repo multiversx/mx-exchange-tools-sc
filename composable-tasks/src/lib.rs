@@ -11,6 +11,7 @@ pub trait ComposableTasksContract:
     compose_tasks::TaskCall
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
+    + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldSwapModule
 {
     #[init]

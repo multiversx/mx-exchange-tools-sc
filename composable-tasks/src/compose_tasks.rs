@@ -8,6 +8,7 @@ pub enum TaskType {
     WrapEGLD,
     UnwrapEGLD,
     Swap,
+    RouterSwap,
     SendEsdt,
 }
 
@@ -15,6 +16,7 @@ pub enum TaskType {
 pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
+    + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldSwapModule
 {
     #[payable("*")]
@@ -60,6 +62,14 @@ pub trait TaskCall:
                         min_amount_out,
                     )
                     .into()
+                },
+                TaskType::RouterSwap => {
+                    require!(
+                        !payment_for_current_task.token_identifier.is_egld(),
+                        "EGLD can't be swapped!"
+                    );
+                    let payment_in = payment_for_current_task.unwrap_esdt();
+                    self.multi_pair_swap(payment_in, args)
                 }
                 _ => {
                     self.send().direct(
