@@ -1,9 +1,12 @@
 use auto_farm::common::address_to_id_mapper::NULL_ID;
 use common_structs::PaymentsVec;
+use farm_staking_proxy::result_types::StakeProxyResult;
 
 use crate::{
     common::payments_wrapper::PaymentsWrapper,
-    external_sc_interactions::pair_actions::PairTokenPayments,
+    external_sc_interactions::{
+        farm_actions::EnterFarmResultWrapper, pair_actions::PairTokenPayments,
+    },
 };
 
 multiversx_sc::imports!();
@@ -61,22 +64,25 @@ pub trait CreatePosModule:
             return output_payments.send_and_return(&args.caller);
         }
 
-        let opt_farm_tokens = self.try_enter_farm_with_lp(&add_liq_result.lp_tokens, &args.caller);
-        require!(opt_farm_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+        let opt_enter_result = self.try_enter_farm_with_lp(&add_liq_result.lp_tokens, &args.caller);
+        require!(opt_enter_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
-        let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
+        let enter_result = unsafe { opt_enter_result.unwrap_unchecked() };
+        output_payments.push(enter_result.rewards);
+
         if matches!(args.steps, StepsToPerform::EnterFarm) {
-            output_payments.push(farm_tokens);
+            output_payments.push(enter_result.new_farm_token);
 
             return output_payments.send_and_return(&args.caller);
         }
 
-        let opt_ms_tokens =
-            self.try_enter_metastaking_with_lp_farm_tokens(&farm_tokens, &args.caller);
-        require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+        let opt_stake_result = self
+            .try_enter_metastaking_with_lp_farm_tokens(&enter_result.new_farm_token, &args.caller);
+        require!(opt_stake_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
-        let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
-        output_payments.push(ms_tokens);
+        let stake_result = unsafe { opt_stake_result.unwrap_unchecked() };
+        output_payments.push(stake_result.boosted_rewards);
+        output_payments.push(stake_result.dual_yield_tokens);
 
         output_payments.send_and_return(&args.caller)
     }
@@ -207,7 +213,7 @@ pub trait CreatePosModule:
         &self,
         lp_tokens: &EsdtTokenPayment,
         user: &ManagedAddress,
-    ) -> Option<EsdtTokenPayment> {
+    ) -> Option<EnterFarmResultWrapper<Self::Api>> {
         let farm_id_for_lp_tokens = self
             .farm_for_farming_token(&lp_tokens.token_identifier)
             .get();
@@ -216,16 +222,16 @@ pub trait CreatePosModule:
         }
 
         let farm_address = self.farm_ids().get_address(farm_id_for_lp_tokens)?;
-        let farm_tokens = self.call_enter_farm(farm_address, user.clone(), lp_tokens.clone());
+        let enter_result = self.call_enter_farm(farm_address, user.clone(), lp_tokens.clone());
 
-        Some(farm_tokens)
+        Some(enter_result)
     }
 
     fn try_enter_metastaking_with_lp_farm_tokens(
         &self,
         lp_farm_tokens: &EsdtTokenPayment,
         user: &ManagedAddress,
-    ) -> Option<EsdtTokenPayment> {
+    ) -> Option<StakeProxyResult<Self::Api>> {
         let ms_id_for_tokens = self
             .metastaking_for_lp_farm_token(&lp_farm_tokens.token_identifier)
             .get();
@@ -234,10 +240,9 @@ pub trait CreatePosModule:
         }
 
         let ms_address = self.metastaking_ids().get_address(ms_id_for_tokens)?;
-        let ms_tokens = self
-            .call_metastaking_stake(ms_address, user.clone(), lp_farm_tokens.clone())
-            .dual_yield_tokens;
+        let stake_result =
+            self.call_metastaking_stake(ms_address, user.clone(), lp_farm_tokens.clone());
 
-        Some(ms_tokens)
+        Some(stake_result)
     }
 }
