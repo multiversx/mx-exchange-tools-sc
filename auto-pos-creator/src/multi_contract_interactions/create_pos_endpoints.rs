@@ -1,6 +1,7 @@
 use common_structs::PaymentsVec;
 
 use crate::{
+    common::payments_wrapper::PaymentsWrapper,
     external_sc_interactions::pair_actions::PairTokenPayments,
     multi_contract_interactions::create_pos::COULD_NOT_CREATE_POS_ERR_MSG,
 };
@@ -105,7 +106,7 @@ pub trait CreatePosEndpointsModule:
 
     #[payable("*")]
     #[endpoint(createPosFromLp)]
-    fn create_pos_from_lp(&self, steps: StepsToPerform) -> EsdtTokenPayment {
+    fn create_pos_from_lp(&self, steps: StepsToPerform) -> PaymentsVec<Self::Api> {
         require!(
             !matches!(steps, StepsToPerform::AddLiquidity),
             "Invalid step"
@@ -114,25 +115,28 @@ pub trait CreatePosEndpointsModule:
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
 
-        let opt_farm_tokens = self.try_enter_farm_with_lp(&payment, &caller);
-        require!(opt_farm_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+        let opt_enter_result = self.try_enter_farm_with_lp(&payment, &caller);
+        require!(opt_enter_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
-        let farm_tokens = unsafe { opt_farm_tokens.unwrap_unchecked() };
+        let enter_result = unsafe { opt_enter_result.unwrap_unchecked() };
+        let mut output_payments = PaymentsWrapper::new();
+        output_payments.push(enter_result.rewards);
+
         if matches!(steps, StepsToPerform::EnterFarm) {
-            self.send()
-                .direct_non_zero_esdt_payment(&caller, &farm_tokens);
+            output_payments.push(enter_result.new_farm_token);
 
-            return farm_tokens;
+            return output_payments.send_and_return(&caller);
         }
 
-        let opt_ms_tokens = self.try_enter_metastaking_with_lp_farm_tokens(&farm_tokens, &caller);
-        require!(opt_ms_tokens.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
+        let opt_stake_result =
+            self.try_enter_metastaking_with_lp_farm_tokens(&enter_result.new_farm_token, &caller);
+        require!(opt_stake_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
-        let ms_tokens = unsafe { opt_ms_tokens.unwrap_unchecked() };
-        self.send()
-            .direct_non_zero_esdt_payment(&caller, &ms_tokens);
+        let stake_result = unsafe { opt_stake_result.unwrap_unchecked() };
+        output_payments.push(stake_result.boosted_rewards);
+        output_payments.push(stake_result.dual_yield_tokens);
 
-        ms_tokens
+        output_payments.send_and_return(&caller)
     }
 
     fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
