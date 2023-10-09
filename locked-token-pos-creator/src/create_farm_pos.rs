@@ -51,13 +51,16 @@ pub trait CreateFarmPosModule:
             output_payments.push(add_liq_result.wegld_leftover.clone());
         }
 
+        let caller = self.blockchain().get_caller();
         let farm_address = self.farm_address().get();
-        let wrapped_farm_token =
-            self.call_enter_farm_proxy(add_liq_result.wrapped_lp_token, farm_address);
+        let wrapped_farm_token = self.call_enter_farm_proxy(
+            caller.clone(),
+            add_liq_result.wrapped_lp_token,
+            farm_address,
+        );
 
         output_payments.push(wrapped_farm_token.clone());
 
-        let caller = self.blockchain().get_caller();
         self.send().direct_multi(&caller, &output_payments);
 
         CreateFarmPosResult {

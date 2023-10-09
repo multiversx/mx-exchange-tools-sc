@@ -52,6 +52,18 @@ fn create_pair_and_farm_pos_test() {
         .borrow_mut()
         .execute_tx(
             &proxy_dex_setup.owner,
+            &proxy_dex_setup.proxy_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(pos_creator_wrapper.address_ref()));
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
             &pos_creator_wrapper,
             &rust_biguint!(0),
             |sc| {

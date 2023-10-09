@@ -29,76 +29,76 @@ version = "=0.43.3"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.simple-lock]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-boosted-yields]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.locking_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"

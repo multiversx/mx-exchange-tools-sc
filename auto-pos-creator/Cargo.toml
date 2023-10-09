@@ -19,51 +19,51 @@ path = "../auto-farm"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -80,8 +80,8 @@ features = ["enable-tests-common"]
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "a94a332"
+rev = "cd4d21b"

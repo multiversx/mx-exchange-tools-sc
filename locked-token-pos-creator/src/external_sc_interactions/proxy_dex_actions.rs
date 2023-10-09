@@ -41,12 +41,13 @@ pub trait ProxyDexActionsModule {
 
     fn call_enter_farm_proxy(
         &self,
+        user: ManagedAddress,
         payment: EsdtTokenPayment,
         farm_address: ManagedAddress,
     ) -> EsdtTokenPayment {
         let proxy_dex_address = self.proxy_dex_address().get();
         self.proxy_dex_proxy(proxy_dex_address)
-            .enter_farm_proxy_endpoint(farm_address)
+            .enter_farm_proxy_endpoint(farm_address, user)
             .with_esdt_transfer(payment)
             .execute_on_dest_context()
     }
