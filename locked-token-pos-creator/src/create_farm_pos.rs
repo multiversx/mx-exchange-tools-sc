@@ -8,6 +8,7 @@ multiversx_sc::derive_imports!();
 #[derive(TypeAbi, TopEncode, TopDecode)]
 pub struct CreateFarmPosResult<M: ManagedTypeApi> {
     pub wrapped_farm_token: EsdtTokenPayment<M>,
+    pub rewards: EsdtTokenPayment<M>,
     pub locked_token_leftover: EsdtTokenPayment<M>,
     pub wegld_leftover: EsdtTokenPayment<M>,
 }
@@ -53,20 +54,22 @@ pub trait CreateFarmPosModule:
 
         let caller = self.blockchain().get_caller();
         let farm_address = self.farm_address().get();
-        let wrapped_farm_token = self.call_enter_farm_proxy(
+        let enter_result = self.call_enter_farm_proxy(
             caller.clone(),
             add_liq_result.wrapped_lp_token,
             farm_address,
         );
 
-        output_payments.push(wrapped_farm_token.clone());
+        output_payments.push(enter_result.wrapped_farm_token.clone());
+        output_payments.push(enter_result.rewards.clone());
 
         self.send().direct_multi(&caller, &output_payments);
 
         CreateFarmPosResult {
             wegld_leftover: add_liq_result.wegld_leftover,
             locked_token_leftover: add_liq_result.locked_token_leftover,
-            wrapped_farm_token,
+            wrapped_farm_token: enter_result.wrapped_farm_token,
+            rewards: enter_result.rewards,
         }
     }
 
