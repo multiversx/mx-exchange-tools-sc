@@ -1,4 +1,7 @@
-use proxy_dex::{proxy_farm::ProxyTrait as _, proxy_pair::ProxyTrait as _};
+use proxy_dex::{
+    proxy_farm::{EnterFarmProxyResultType, ProxyTrait as _},
+    proxy_pair::ProxyTrait as _,
+};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -8,6 +11,12 @@ pub struct AddLiquidityProxyResult<M: ManagedTypeApi> {
     pub wrapped_lp_token: EsdtTokenPayment<M>,
     pub locked_token_leftover: EsdtTokenPayment<M>,
     pub wegld_leftover: EsdtTokenPayment<M>,
+}
+
+#[derive(TypeAbi, TopDecode, TopEncode)]
+pub struct EnterFarmProxyResult<M: ManagedTypeApi> {
+    pub wrapped_farm_token: EsdtTokenPayment<M>,
+    pub rewards: EsdtTokenPayment<M>,
 }
 
 #[multiversx_sc::module]
@@ -44,12 +53,20 @@ pub trait ProxyDexActionsModule {
         user: ManagedAddress,
         payment: EsdtTokenPayment,
         farm_address: ManagedAddress,
-    ) -> EsdtTokenPayment {
+    ) -> EnterFarmProxyResult<Self::Api> {
         let proxy_dex_address = self.proxy_dex_address().get();
-        self.proxy_dex_proxy(proxy_dex_address)
+        let result: EnterFarmProxyResultType<Self::Api> = self
+            .proxy_dex_proxy(proxy_dex_address)
             .enter_farm_proxy_endpoint(farm_address, user)
             .with_esdt_transfer(payment)
-            .execute_on_dest_context()
+            .execute_on_dest_context();
+
+        let (wrapped_farm_token, rewards) = result.into_tuple();
+
+        EnterFarmProxyResult {
+            wrapped_farm_token,
+            rewards,
+        }
     }
 
     #[storage_mapper("proxyDexAddress")]
