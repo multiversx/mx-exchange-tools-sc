@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           29
+// Endpoints:                           30
 // Async Callback (empty):               1
-// Total number of exported functions:  31
+// Total number of exported functions:  32
 
 #![no_std]
 
@@ -22,6 +22,7 @@ multiversx_sc_wasm_adapter::endpoints! {
     auto_farm
     (
         init => init
+        upgrade => upgrade
         changeProxyClaimAddress => change_proxy_claim_address
         register => register
         withdrawAllAndUnregister => withdraw_all_and_unregister
