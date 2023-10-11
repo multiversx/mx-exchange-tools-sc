@@ -14,7 +14,7 @@ static LAST_ID_SUFFIX: &[u8] = b"lastId";
 
 static UNKNOW_ADDR_ERR_MSG: &[u8] = b"Unknown address";
 
-pub type AddressId = u32;
+pub type AddressId = u64;
 pub const NULL_ID: AddressId = 0;
 
 pub struct AddressToIdMapper<SA>
