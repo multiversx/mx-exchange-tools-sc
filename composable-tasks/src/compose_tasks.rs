@@ -12,6 +12,14 @@ pub enum TaskType {
     SendEsdt,
 }
 
+// #[derive(TypeAbi, TopEncode, ManagedVecItem)]
+// pub struct EndpointCall<M: ManagedTypeApi> {
+//     pub endpoint_name: ManagedBuffer<M>,
+//     pub endpoint_args: MultiValueEncoded<M, ManagedBuffer<M>>,
+// }
+
+pub type EndpointCall<M> = MultiValue3<ManagedAddress<M>, ManagedBuffer<M>, MultiValueEncoded<M, ManagedBuffer<M>>>;
+
 #[multiversx_sc::module]
 pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
@@ -62,7 +70,7 @@ pub trait TaskCall:
                         min_amount_out,
                     )
                     .into()
-                },
+                }
                 TaskType::RouterSwap => {
                     require!(
                         !payment_for_current_task.token_identifier.is_egld(),
@@ -88,6 +96,43 @@ pub trait TaskCall:
             payment_for_next_task.token_nonce,
             &payment_for_next_task.amount,
         );
+    }
 
+    #[payable("*")]
+    #[endpoint(composeTasksv2)]
+    fn compose_tasks_v2(
+        &self,
+        opt_final_dest_payment: OptionalValue<ManagedAddress>,
+        tasks: MultiValueEncoded<EndpointCall<Self::Api>>,
+    ) {
+        let payment = self.call_value().egld_or_single_esdt();
+        let payment_for_next_task = payment;
+
+        let caller = self.blockchain().get_caller();
+
+        #[allow(clippy::redundant_clone)] // clippy is dumb
+        let final_payment_addr = match opt_final_dest_payment {
+            OptionalValue::Some(opt_caller) => opt_caller,
+            OptionalValue::None => caller.clone(),
+        };
+
+        for task in tasks.into_iter() {
+            let (dest_addr, endpoint_name, args) = task.into_tuple();
+
+            let payment_for_current_task = payment_for_next_task.clone();
+            let _payment_for_next_task = self
+                .send()
+                .contract_call::<EsdtTokenPayment>(dest_addr, endpoint_name)
+                .with_egld_or_single_esdt_transfer(payment_for_current_task.clone())
+                .with_raw_arguments(args.to_arg_buffer())
+                .transfer_execute();
+        }
+
+        self.send().direct(
+            &final_payment_addr,
+            &payment_for_next_task.token_identifier,
+            payment_for_next_task.token_nonce,
+            &payment_for_next_task.amount,
+        );
     }
 }
