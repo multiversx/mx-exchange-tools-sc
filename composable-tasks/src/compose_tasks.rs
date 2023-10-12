@@ -12,12 +12,6 @@ pub enum TaskType {
     SendEsdt,
 }
 
-// #[derive(TypeAbi, TopEncode, ManagedVecItem)]
-// pub struct EndpointCall<M: ManagedTypeApi> {
-//     pub endpoint_name: ManagedBuffer<M>,
-//     pub endpoint_args: MultiValueEncoded<M, ManagedBuffer<M>>,
-// }
-
 pub type EndpointCall<M> = MultiValue3<ManagedAddress<M>, ManagedBuffer<M>, MultiValueEncoded<M, ManagedBuffer<M>>>;
 
 #[multiversx_sc::module]
