@@ -6,6 +6,7 @@ type SwapOperationType<M> =
 use core::convert::TryFrom;
 
 use router::multi_pair_swap::ProxyTrait as _;
+pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
 #[multiversx_sc::module]
 pub trait RouterActionsModule {
@@ -13,7 +14,7 @@ pub trait RouterActionsModule {
         &self,
         start_payment: EsdtTokenPayment<Self::Api>,
         swap_args: ManagedVec<ManagedBuffer<Self::Api>>,
-    ) -> ManagedVec<EsdtTokenPayment> {
+    ) -> EgldOrEsdtTokenPayment {
         let router_addr = self.router_addr().get();
 
         let mut swap_operations = MultiValueEncoded::new();
@@ -23,10 +24,6 @@ pub trait RouterActionsModule {
         loop {
             let pair_address_arg = match swap_args_iter.next() {
                 Some(addr) => ManagedAddress::try_from(addr).unwrap_or_else(|err| sc_panic!(err)),
-                None => break,
-            };
-            let function = match swap_args_iter.next() {
-                Some(func) => func,
                 None => break,
             };
             let token_wanted = match swap_args_iter.next() {
@@ -39,7 +36,7 @@ pub trait RouterActionsModule {
             };
             swap_operations.push(SwapOperationType::from((
                 pair_address_arg,
-                function,
+                ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
                 token_wanted.clone(),
                 amount_wanted.clone(),
             )));
@@ -53,7 +50,11 @@ pub trait RouterActionsModule {
             .with_esdt_transfer(start_payment)
             .execute_on_dest_context();
 
-        resulted_payments
+        require!(
+            resulted_payments.len() == 1,
+            "Router should output only 1 payment"
+        );
+        EgldOrEsdtTokenPayment::from(resulted_payments.get(0))
     }
 
     #[proxy]

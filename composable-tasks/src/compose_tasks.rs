@@ -24,7 +24,7 @@ pub trait TaskCall:
     #[endpoint(composeTasks)]
     fn compose_tasks(
         &self,
-        // expected_token_out: EgldOrEsdtTokenPayment,
+        expected_token_out: EgldOrEsdtTokenPayment,
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
         let payment = self.call_value().egld_or_single_esdt();
@@ -64,18 +64,13 @@ pub trait TaskCall:
                         "EGLD can't be swapped!"
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
-                    let resulted_payments = self.multi_pair_swap(payment_in, args);
-                    self.send().direct_multi(
-                        &caller,
-                        &resulted_payments
-                    );
-                    return;
+                    self.multi_pair_swap(payment_in, args)
                 }
                 TaskType::SendEgldOrEsdt => {
-                    // require!(
-                    //     expected_token_out.eq(&payment_for_current_task),
-                    //     "Incorrect output payment!"
-                    // );
+                    require!(
+                        expected_token_out.eq(&payment_for_current_task),
+                        "Incorrect output payment!"
+                    );
 
                     let dest_addr =
                         ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(caller);
@@ -91,11 +86,12 @@ pub trait TaskCall:
             };
         }
 
-        // require!(
-        //     expected_token_out.eq(&payment_for_next_task),
-        //     "Incorrect output payment!"
-        // );
+        require!(
+            expected_token_out.eq(&payment_for_next_task),
+            "Incorrect output payment!"
+        );
 
+        // TODO send ManagedVec payments
         self.send().direct(
             &caller,
             &payment_for_next_task.token_identifier,
