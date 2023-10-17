@@ -2,10 +2,7 @@
 
 use composable_tasks::compose_tasks::{TaskCall, TaskType};
 use composable_tasks_setup::{ComposableTasksSetup, TOKEN_IDS};
-use multiversx_sc::{
-    codec::multi_types::OptionalValue,
-    types::{ManagedVec, MultiValueEncoded},
-};
+use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::*;
 use wegld_swap_setup::WEGLD_TOKEN_ID;
 
@@ -36,7 +33,6 @@ fn unwrap_single_task_test() {
 
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
-    let second_user_addr = composable_tasks_setup.second_user;
 
     let user_first_token_balance = 200_000_000u64;
 
@@ -59,10 +55,7 @@ fn unwrap_single_task_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::UnwrapEGLD, no_args).into());
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -103,15 +96,15 @@ fn unwrap_send_test() {
             0,
             &rust_biguint!(user_first_token_balance),
             |sc| {
-                let no_args = ManagedVec::new();
                 let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::UnwrapEGLD, no_args.clone()).into());
-                tasks.push((TaskType::SendEsdt, no_args).into());
+                let no_args = ManagedVec::new();
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                tasks.push((TaskType::UnwrapEGLD, no_args).into());
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -150,13 +143,13 @@ fn wrap_send_test() {
             |sc| {
                 let no_args = ManagedVec::new();
                 let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::WrapEGLD, no_args.clone()).into());
-                tasks.push((TaskType::SendEsdt, no_args).into());
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                tasks.push((TaskType::WrapEGLD, no_args).into());
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -180,7 +173,6 @@ fn swap_single_task_test() {
 
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
-    let second_user_addr = composable_tasks_setup.second_user;
 
     let user_first_token_balance = 200_000_000u64;
 
@@ -206,10 +198,7 @@ fn swap_single_task_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::Swap, swap_args).into());
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -258,15 +247,14 @@ fn swap_send_test() {
                 swap_args.push(managed_buffer!(TOKEN_IDS[0]));
                 swap_args.push(managed_buffer!(b"1"));
 
-                let no_args = ManagedVec::new();
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
+
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::Swap, swap_args).into());
-                tasks.push((TaskType::SendEsdt, no_args).into());
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -316,16 +304,15 @@ fn wrap_swap_send_test() {
                 swap_args.push(managed_buffer!(b"1"));
 
                 let no_args = ManagedVec::new();
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
                 let mut tasks = MultiValueEncoded::new();
 
-                tasks.push((TaskType::WrapEGLD, no_args.clone()).into());
+                tasks.push((TaskType::WrapEGLD, no_args).into());
                 tasks.push((TaskType::Swap, swap_args).into());
-                tasks.push((TaskType::SendEsdt, no_args).into());
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -345,6 +332,105 @@ fn wrap_swap_send_test() {
 }
 
 #[test]
+fn swap_unwrap_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let user_first_token_balance = 200_000_000u64;
+
+    b_mock
+        .borrow_mut()
+        .set_esdt_balance(&first_user_addr, TOKEN_IDS[0], &rust_biguint!(user_first_token_balance));
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            TOKEN_IDS[0],
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(TOKEN_IDS[2]));
+                swap_args.push(managed_buffer!(b"1"));
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::Swap, swap_args).into());
+                tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
+
+                sc.compose_tasks(tasks);
+            },
+        )
+        .assert_ok();
+
+    let expected_balance = 166_666_666u64;
+
+    b_mock
+        .borrow_mut()
+        .check_egld_balance(&first_user_addr, &rust_biguint!(expected_balance));
+}
+
+
+#[test]
+fn swap_unwrap_wrap_send_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let user_first_token_balance = 200_000_000u64;
+
+    b_mock
+        .borrow_mut()
+        .set_esdt_balance(&first_user_addr, TOKEN_IDS[0], &rust_biguint!(user_first_token_balance));
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            TOKEN_IDS[0],
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(TOKEN_IDS[2]));
+                swap_args.push(managed_buffer!(b"1"));
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::Swap, swap_args).into());
+                tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
+                tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
+
+                sc.compose_tasks(tasks);
+            },
+        )
+        .assert_ok();
+
+    let expected_balance = 166_666_666u64;
+    
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&first_user_addr, TOKEN_IDS[2], &rust_biguint!(expected_balance));
+}
+
+
+#[test]
 fn swap_router_single_task_test() {
     let composable_tasks_setup = ComposableTasksSetup::new(
         pair::contract_obj,
@@ -355,7 +441,6 @@ fn swap_router_single_task_test() {
 
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
-    let second_user_addr = composable_tasks_setup.second_user;
 
     let third_pair_addr = composable_tasks_setup.pair_setups[2]
         .pair_wrapper
@@ -369,7 +454,7 @@ fn swap_router_single_task_test() {
         &rust_biguint!(user_first_token_balance),
     );
 
-    let expected_balance = 10_000u64;
+    let expected_balance = 62_500_000u64;
 
     b_mock
         .borrow_mut()
@@ -391,10 +476,7 @@ fn swap_router_single_task_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::RouterSwap, swap_args).into());
 
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
+                sc.compose_tasks(tasks);
             },
         )
         .assert_ok();
@@ -402,72 +484,6 @@ fn swap_router_single_task_test() {
     // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
-        TOKEN_IDS[1],
-        &rust_biguint!(expected_balance),
-    );
-}
-
-#[test]
-fn swap_router_send_task_test() {
-    let composable_tasks_setup = ComposableTasksSetup::new(
-        pair::contract_obj,
-        router::contract_obj,
-        multiversx_wegld_swap_sc::contract_obj,
-        composable_tasks::contract_obj,
-    );
-
-    let b_mock = composable_tasks_setup.b_mock;
-    let first_user_addr = composable_tasks_setup.first_user;
-    let second_user_addr = composable_tasks_setup.second_user;
-
-    let third_pair_addr = composable_tasks_setup.pair_setups[2]
-        .pair_wrapper
-        .address_ref();
-
-    let user_first_token_balance = 200_000_000u64;
-
-    b_mock.borrow_mut().set_esdt_balance(
-        &first_user_addr,
-        WEGLD_TOKEN_ID,
-        &rust_biguint!(user_first_token_balance),
-    );
-
-    let expected_balance = 10_000u64;
-
-    b_mock
-        .borrow_mut()
-        .execute_esdt_transfer(
-            &first_user_addr,
-            &composable_tasks_setup.ct_wrapper,
-            WEGLD_TOKEN_ID,
-            0,
-            &rust_biguint!(user_first_token_balance),
-            |sc| {
-                let mut swap_args = ManagedVec::new();
-                swap_args.push(managed_buffer!(third_pair_addr.as_bytes()));
-                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-                swap_args.push(managed_buffer!(TOKEN_IDS[1]));
-                swap_args.push(managed_buffer!(
-                    &rust_biguint!(expected_balance).to_bytes_be()
-                ));
-
-                let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::RouterSwap, swap_args).into());
-
-                let no_args = ManagedVec::new();
-                tasks.push((TaskType::SendEsdt, no_args).into());
-
-                sc.compose_tasks(
-                    OptionalValue::Some(managed_address!(&second_user_addr)),
-                    tasks,
-                );
-            },
-        )
-        .assert_ok();
-
-    // Funds are sent back to the caller
-    b_mock.borrow_mut().check_esdt_balance(
-        &second_user_addr,
         TOKEN_IDS[1],
         &rust_biguint!(expected_balance),
     );

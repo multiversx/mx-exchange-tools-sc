@@ -7,13 +7,13 @@ pub trait WegldSwapModule {
 
     fn wrap_egld(
         &self,
+        payment: EgldOrEsdtTokenPayment, 
     ) -> EgldOrEsdtTokenPayment {
-        let egld_payment = self.call_value().egld_value();
         let wrap_egld_addr = self.wrap_egld_addr().get();
 
         let wrapped_egld: EsdtTokenPayment = self.wrap_egld_proxy(wrap_egld_addr)
             .wrap_egld()
-            .with_egld_transfer(egld_payment.clone_value())
+            .with_egld_transfer(payment.amount)
             .execute_on_dest_context();
 
         EgldOrEsdtTokenPayment::from(wrapped_egld)
@@ -21,15 +21,15 @@ pub trait WegldSwapModule {
 
     fn unwrap_egld(
         &self,
+        payment: EgldOrEsdtTokenPayment, 
     ) -> EgldOrEsdtTokenPayment {
-        let wrap_egld_payment = self.call_value().single_esdt();
         let wrap_egld_addr = self.wrap_egld_addr().get();
 
         let _: IgnoreValue = self.wrap_egld_proxy(wrap_egld_addr)
             .unwrap_egld()
-            .with_esdt_transfer(wrap_egld_payment.clone())
+            .with_esdt_transfer(payment.clone().unwrap_esdt())
             .execute_on_dest_context();
-        EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, wrap_egld_payment.amount)
+        EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, payment.amount)
     }
 
     

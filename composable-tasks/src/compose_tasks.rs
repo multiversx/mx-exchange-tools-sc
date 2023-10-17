@@ -1,3 +1,5 @@
+use core::convert::TryFrom;
+
 use crate::external_sc_interactions;
 
 multiversx_sc::imports!();
@@ -9,13 +11,12 @@ pub enum TaskType {
     UnwrapEGLD,
     Swap,
     RouterSwap,
-    SendEsdt,
+    SendEgldOrEsdt,
 }
 
 #[multiversx_sc::module]
 pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
-    + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldSwapModule
 {
@@ -23,7 +24,7 @@ pub trait TaskCall:
     #[endpoint(composeTasks)]
     fn compose_tasks(
         &self,
-        opt_dest_addr: OptionalValue<ManagedAddress>,
+        // expected_token_out: EgldOrEsdtTokenPayment,
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
         let payment = self.call_value().egld_or_single_esdt();
@@ -31,20 +32,14 @@ pub trait TaskCall:
 
         let caller = self.blockchain().get_caller();
 
-        #[allow(clippy::redundant_clone)] // clippy is dumb
-        let dest_addr = match opt_dest_addr {
-            OptionalValue::Some(opt_caller) => opt_caller,
-            OptionalValue::None => caller.clone(),
-        };
-
         for task in tasks.into_iter() {
             let (task_type, args) = task.into_tuple();
 
             let payment_for_current_task = payment_for_next_task.clone();
 
             payment_for_next_task = match task_type {
-                TaskType::WrapEGLD => self.wrap_egld(),
-                TaskType::UnwrapEGLD => self.unwrap_egld(),
+                TaskType::WrapEGLD => self.wrap_egld(payment_for_current_task),
+                TaskType::UnwrapEGLD => self.unwrap_egld(payment_for_current_task),
                 TaskType::Swap => {
                     require!(
                         !payment_for_current_task.token_identifier.is_egld(),
@@ -62,16 +57,29 @@ pub trait TaskCall:
                         min_amount_out,
                     )
                     .into()
-                },
+                }
                 TaskType::RouterSwap => {
                     require!(
                         !payment_for_current_task.token_identifier.is_egld(),
                         "EGLD can't be swapped!"
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
-                    self.multi_pair_swap(payment_in, args)
+                    let resulted_payments = self.multi_pair_swap(payment_in, args);
+                    self.send().direct_multi(
+                        &caller,
+                        &resulted_payments
+                    );
+                    return;
                 }
-                _ => {
+                TaskType::SendEgldOrEsdt => {
+                    // require!(
+                    //     expected_token_out.eq(&payment_for_current_task),
+                    //     "Incorrect output payment!"
+                    // );
+
+                    let dest_addr =
+                        ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(caller);
+
                     self.send().direct(
                         &dest_addr,
                         &payment_for_current_task.token_identifier,
@@ -82,12 +90,17 @@ pub trait TaskCall:
                 }
             };
         }
+
+        // require!(
+        //     expected_token_out.eq(&payment_for_next_task),
+        //     "Incorrect output payment!"
+        // );
+
         self.send().direct(
             &caller,
             &payment_for_next_task.token_identifier,
             payment_for_next_task.token_nonce,
             &payment_for_next_task.amount,
         );
-
     }
 }

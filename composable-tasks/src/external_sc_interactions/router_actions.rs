@@ -13,8 +13,8 @@ pub trait RouterActionsModule {
         &self,
         start_payment: EsdtTokenPayment<Self::Api>,
         swap_args: ManagedVec<ManagedBuffer<Self::Api>>,
-    ) -> EgldOrEsdtTokenPayment {
-        let router_addr = self.router_addr_mapper().get();
+    ) -> ManagedVec<EsdtTokenPayment> {
+        let router_addr = self.router_addr().get();
 
         let mut swap_operations = MultiValueEncoded::new();
         let mut swap_args_iter = swap_args.into_iter();
@@ -47,23 +47,18 @@ pub trait RouterActionsModule {
             last_payment.amount = amount_wanted;
         }
 
-        // for swap in swap_operations.iter() {
-        //     let pair_addr = swap
-        //     swap_operations.push()
-        // }
-
-        let _: IgnoreValue = self
+        let resulted_payments: ManagedVec<EsdtTokenPayment> = self
             .router_proxy(router_addr)
             .multi_pair_swap(swap_operations)
             .with_esdt_transfer(start_payment)
             .execute_on_dest_context();
 
-        last_payment
+        resulted_payments
     }
 
     #[proxy]
     fn router_proxy(&self, sc_address: ManagedAddress) -> router::Proxy<Self::Api>;
 
     #[storage_mapper("routerAddr")]
-    fn router_addr_mapper(&self) -> SingleValueMapper<ManagedAddress>;
+    fn router_addr(&self) -> SingleValueMapper<ManagedAddress>;
 }

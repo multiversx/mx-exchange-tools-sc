@@ -8,10 +8,7 @@ use crate::{
 };
 
 use composable_tasks::{
-    external_sc_interactions::{
-        pair_actions::PairActionsModule, router_actions::RouterActionsModule,
-        wegld_swap::WegldSwapModule,
-    },
+    config::ConfigModule,
     ComposableTasksContract,
 };
 use multiversx_sc::{hex_literal, types::Address};
@@ -265,34 +262,27 @@ where
                 sc.init();
 
                 let wegld_swap_addr: &Address = wegld_swap_setup.wegld_swap_wrapper.address_ref();
-                sc.wrap_egld_addr().set(managed_address!(wegld_swap_addr));
+                sc.set_wrap_egld_address(managed_address!(wegld_swap_addr));
 
-                sc.pair_address_for_tokens(
+                sc.set_pair_address_for_tokens(
                     &managed_token_id!(TOKEN_IDS[0]),
                     &managed_token_id!(TOKEN_IDS[1]),
-                )
-                .set(managed_address!(first_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
+                    managed_address!(first_pair_setup.pair_wrapper.address_ref()),
+                );
 
-                sc.pair_address_for_tokens(
+                sc.set_pair_address_for_tokens(
                     &managed_token_id!(TOKEN_IDS[0]),
                     &managed_token_id!(TOKEN_IDS[2]),
-                )
-                .set(managed_address!(second_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
+                    managed_address!(second_pair_setup.pair_wrapper.address_ref()),
+                );
 
-                sc.pair_address_for_tokens(
+                sc.set_pair_address_for_tokens(
                     &managed_token_id!(TOKEN_IDS[1]),
                     &managed_token_id!(TOKEN_IDS[2]),
-                )
-                .set(managed_address!(third_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
+                    managed_address!(third_pair_setup.pair_wrapper.address_ref()),
+                );
 
-                sc.router_addr_mapper()
-                    .set(managed_address!(router_wrapper.address_ref()));
+                sc.set_router_address(managed_address!(router_wrapper.address_ref()));
                 // TODO: Add to storage Pairs
             })
             .assert_ok();
