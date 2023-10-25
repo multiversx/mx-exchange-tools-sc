@@ -133,7 +133,8 @@ pub trait CreatePosEndpointsModule:
         require!(opt_stake_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let stake_result = unsafe { opt_stake_result.unwrap_unchecked() };
-        output_payments.push(stake_result.boosted_rewards);
+        output_payments.push(stake_result.staking_boosted_rewards);
+        output_payments.push(stake_result.lp_farm_boosted_rewards);
         output_payments.push(stake_result.dual_yield_tokens);
 
         output_payments.send_and_return(&caller)

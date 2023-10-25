@@ -87,15 +87,13 @@ pub trait MetastakingInteractionsModule:
             ERROR_EXTERNAL_CONTRACT_OUTPUT
         );
 
-        let locked_token_id = self.get_locked_token_id();
-        let empty_lp_farm_rewards = EsdtTokenPayment::new(locked_token_id, 0u64, BigUint::zero());
         self.update_metastaking_after_claim(
             &metastaking_state,
             &mut metastaking_state_mapper,
             &new_farm_token.amount,
             &enter_metastaking_result.dual_yield_tokens,
-            empty_lp_farm_rewards,
-            enter_metastaking_result.boosted_rewards, // they are given in reward tokens, not in locked lp farm tokens
+            enter_metastaking_result.lp_farm_boosted_rewards,
+            enter_metastaking_result.staking_boosted_rewards, // they are given in reward tokens, not in locked lp farm tokens
             &division_safety_constant,
         );
 

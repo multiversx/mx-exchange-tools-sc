@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           46
+// Endpoints:                           47
 // Async Callback:                       1
-// Total number of exported functions:  48
+// Total number of exported functions:  49
 
 #![no_std]
 
@@ -22,6 +22,7 @@ multiversx_sc_wasm_adapter::endpoints! {
     energy_dao
     (
         init => init
+        upgrade => upgrade
         registerWrappedFarmToken => register_wrapped_farm_token
         registerUnstakeFarmToken => register_unstake_farm_token
         registerWrappedMetastakingToken => register_wrapped_metastaking_token

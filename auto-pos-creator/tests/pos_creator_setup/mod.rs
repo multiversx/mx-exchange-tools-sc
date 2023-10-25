@@ -226,6 +226,7 @@ where
             &mut b_mock.borrow_mut(),
             metastaking_builder,
             &owner,
+            farm_setup.energy_factory_wrapper.address_ref(),
             farm_setup.farm_wrappers[0].address_ref(),
             fs_wrapper.address_ref(),
             first_pair_setup.pair_wrapper.address_ref(),

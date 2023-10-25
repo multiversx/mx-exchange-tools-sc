@@ -14,27 +14,27 @@ features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dependencies.proxy_dex]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -49,44 +49,44 @@ version = "=0.43.3"
 
 [dependencies.simple-lock]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.farm_base_impl]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.farm-boosted-yields]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
 
 [dev-dependencies.locking_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "cd4d21b"
+rev = "1b70768"
