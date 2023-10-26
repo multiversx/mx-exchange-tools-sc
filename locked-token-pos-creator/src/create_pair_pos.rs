@@ -1,8 +1,9 @@
+multiversx_sc::imports!();
+
+use auto_pos_creator::configs;
 use common_structs::Epoch;
 
 use crate::external_sc_interactions::proxy_dex_actions::AddLiquidityProxyResult;
-
-multiversx_sc::imports!();
 
 pub struct AddLiquidityArguments<M: ManagedTypeApi> {
     pub payment: EsdtTokenPayment<M>,
@@ -20,6 +21,7 @@ pub trait CreatePairPosModule:
     + crate::external_sc_interactions::proxy_dex_actions::ProxyDexActionsModule
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
+    + configs::pairs_config::PairsConfigModule
 {
     /// lock_epochs must be one of the values allowed by energy_factory
     #[payable("*")]
@@ -32,9 +34,9 @@ pub trait CreatePairPosModule:
         add_liq_second_token_min_amount: BigUint,
     ) -> AddLiquidityProxyResult<Self::Api> {
         let payment = self.call_value().egld_or_single_esdt();
-        let payment_esdt = self.get_esdt_payment(payment);
+        let wegld_payment = self.get_wegld_payment(payment);
         let args = AddLiquidityArguments {
-            payment: payment_esdt,
+            payment: wegld_payment,
             swap_min_amount_out,
             lock_epochs,
             add_liq_first_token_min_amount,
@@ -58,14 +60,26 @@ pub trait CreatePairPosModule:
         add_liq_result
     }
 
-    fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
+    fn get_wegld_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
+        require!(payment.token_identifier.is_valid(), "Invalid payment");
         let wegld_token_id = self.wegld_token_id().get();
         if payment.token_identifier.is_egld() {
-            self.call_wrap_egld(payment.amount)
-        } else if payment.token_identifier == EgldOrEsdtTokenIdentifier::esdt(wegld_token_id) {
-            payment.unwrap_esdt()
+            return self.call_wrap_egld(payment.amount);
+        };
+        let esdt_payment = payment.unwrap_esdt();
+        if esdt_payment.token_identifier == wegld_token_id {
+            esdt_payment
         } else {
-            sc_panic!("Invalid payment");
+            let pair_address = self
+                .get_pair_address_for_tokens(&wegld_token_id, &esdt_payment.token_identifier)
+                .unwrap_address();
+            let wegld_payment = self.call_pair_swap(
+                pair_address,
+                esdt_payment,
+                wegld_token_id,
+                BigUint::from(1u64),
+            );
+            wegld_payment
         }
     }
 
@@ -85,8 +99,16 @@ pub trait CreatePairPosModule:
         );
 
         let mex_token_id = self.get_base_token_id();
-        let mex_tokens =
-            self.call_pair_swap(half_wegld_payment, mex_token_id, args.swap_min_amount_out);
+        let wegld_token_id = self.wegld_token_id().get();
+        let mex_pair_address = self
+            .get_pair_address_for_tokens(&wegld_token_id, &mex_token_id)
+            .unwrap_address();
+        let mex_tokens = self.call_pair_swap(
+            mex_pair_address.clone(),
+            half_wegld_payment,
+            mex_token_id,
+            args.swap_min_amount_out,
+        );
 
         let caller = self.blockchain().get_caller();
         let locked_tokens = self.call_lock_virtual(mex_tokens, args.lock_epochs, caller);
@@ -95,10 +117,9 @@ pub trait CreatePairPosModule:
         proxy_payments.push(remaining_wegld);
         proxy_payments.push(locked_tokens);
 
-        let pair_address = self.mex_wegld_pair_address().get();
         self.call_add_liquidity_proxy(
             proxy_payments,
-            pair_address,
+            mex_pair_address,
             args.add_liq_first_token_min_amount,
             args.add_liq_second_token_min_amount,
         )

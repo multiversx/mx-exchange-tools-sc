@@ -1,9 +1,9 @@
-use common_structs::Epoch;
-
-use crate::create_pair_pos::AddLiquidityArguments;
-
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
+
+use crate::create_pair_pos::AddLiquidityArguments;
+use auto_pos_creator::configs;
+use common_structs::Epoch;
 
 #[derive(TypeAbi, TopEncode, TopDecode)]
 pub struct CreateFarmPosResult<M: ManagedTypeApi> {
@@ -22,6 +22,7 @@ pub trait CreateFarmPosModule:
     + crate::create_pair_pos::CreatePairPosModule
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
+    + configs::pairs_config::PairsConfigModule
 {
     #[payable("*")]
     #[endpoint(createFarmPosFromSingleToken)]
@@ -33,9 +34,9 @@ pub trait CreateFarmPosModule:
         add_liq_second_token_min_amount: BigUint,
     ) -> CreateFarmPosResult<Self::Api> {
         let payment = self.call_value().egld_or_single_esdt();
-        let payment_esdt = self.get_esdt_payment(payment);
+        let wegld_payment = self.get_wegld_payment(payment);
         let args = AddLiquidityArguments {
-            payment: payment_esdt,
+            payment: wegld_payment,
             swap_min_amount_out,
             lock_epochs,
             add_liq_first_token_min_amount,

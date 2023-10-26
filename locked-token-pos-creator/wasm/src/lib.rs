@@ -5,21 +5,30 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            7
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:   9
 
 #![no_std]
-#![allow(internal_features)]
+
+// Configuration that works with rustc < 1.73.0.
+// TODO: Recommended rustc version: 1.73.0 or newer.
 #![feature(lang_items)]
 
 multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
 
 multiversx_sc_wasm_adapter::endpoints! {
-    empty
+    locked_token_pos_creator
     (
         init => init
+        upgrade => upgrade
+        createPairPosFromSingleToken => create_pair_pos_from_single_token_endpoint
+        createFarmPosFromSingleToken => create_farm_pos_from_single_token
+        setEnergyFactoryAddress => set_energy_factory_address
+        getEnergyFactoryAddress => energy_factory_address
+        addPairsToWhitelist => add_pairs_to_whitelist
+        removePairsFromWhitelist => remove_pairs_from_whitelist
     )
 }
 

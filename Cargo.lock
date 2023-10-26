@@ -1623,6 +1623,7 @@ dependencies = [
 name = "locked-token-pos-creator"
 version = "0.0.0"
 dependencies = [
+ "auto-pos-creator",
  "common_structs",
  "config",
  "energy-factory",

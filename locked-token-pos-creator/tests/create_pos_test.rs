@@ -2,12 +2,13 @@
 
 mod proxy_dex_test_setup;
 
+use auto_pos_creator::configs::pairs_config::PairsConfigModule;
 use config::ConfigModule;
 use locked_token_pos_creator::{
     create_farm_pos::CreateFarmPosModule, create_pair_pos::CreatePairPosModule,
     LockedTokenPosCreatorContract,
 };
-use multiversx_sc::types::{EsdtLocalRole, EsdtTokenPayment};
+use multiversx_sc::types::{EsdtLocalRole, EsdtTokenPayment, MultiValueEncoded};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     whitebox_legacy::TxTokenTransfer, DebugApi,
@@ -71,10 +72,13 @@ fn create_pair_and_farm_pos_test() {
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
                     managed_token_id!(WEGLD_TOKEN_ID),
-                    managed_address!(proxy_dex_setup.pair_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
                 );
+
+                let mut pair_addresses = MultiValueEncoded::new();
+                pair_addresses.push(managed_address!(proxy_dex_setup.pair_wrapper.address_ref()));
+                sc.add_pairs_to_whitelist(pair_addresses);
             },
         )
         .assert_ok();
