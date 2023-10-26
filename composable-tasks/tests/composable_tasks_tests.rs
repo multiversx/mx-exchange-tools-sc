@@ -436,6 +436,7 @@ fn swap_unwrap_wrap_send_test() {
 
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
+    let second_user_addr = composable_tasks_setup.second_user;
 
     let user_first_token_balance = 200_000_000u64;
 
@@ -465,6 +466,11 @@ fn swap_unwrap_wrap_send_test() {
                 tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
                 tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
 
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
                     EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(WEGLD_TOKEN_ID)),
                     0,
@@ -477,7 +483,7 @@ fn swap_unwrap_wrap_send_test() {
         .assert_ok();
 
     b_mock.borrow_mut().check_esdt_balance(
-        &first_user_addr,
+        &second_user_addr,
         WEGLD_TOKEN_ID,
         &rust_biguint!(expected_balance),
     );

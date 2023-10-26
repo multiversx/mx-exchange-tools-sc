@@ -67,10 +67,7 @@ pub trait TaskCall:
                     self.multi_pair_swap(payment_in, args)
                 }
                 TaskType::SendEgldOrEsdt => {
-                    require!(
-                        expected_token_out.eq(&payment_for_current_task),
-                        "Incorrect output payment!"
-                    );
+                    self.require_min_expected_token(&expected_token_out, &payment_for_current_task);
 
                     let dest_addr =
                         ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(caller);
@@ -85,18 +82,25 @@ pub trait TaskCall:
                 }
             };
         }
+        self.require_min_expected_token(&expected_token_out, &payment_for_next_task);
 
-        require!(
-            expected_token_out.eq(&payment_for_next_task),
-            "Incorrect output payment!"
-        );
-
-        // TODO send ManagedVec payments
         self.send().direct(
             &caller,
             &payment_for_next_task.token_identifier,
             payment_for_next_task.token_nonce,
             &payment_for_next_task.amount,
+        );
+    }
+
+    fn require_min_expected_token(
+        &self,
+        expected_token: &EgldOrEsdtTokenPayment,
+        token_out: &EgldOrEsdtTokenPayment,
+    ) {
+        require!(
+            expected_token.token_identifier == token_out.token_identifier
+                && expected_token.amount <= token_out.amount,
+            "The output token is less than minimum required by user!"
         );
     }
 }
