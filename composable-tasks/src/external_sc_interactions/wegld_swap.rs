@@ -10,6 +10,7 @@ pub trait WegldSwapModule {
         payment: EgldOrEsdtTokenPayment, 
     ) -> EgldOrEsdtTokenPayment {
         let wrap_egld_addr = self.wrap_egld_addr().get();
+        require!(payment.token_identifier.is_egld(), "Payment token is not EGLD!");
 
         let wrapped_egld: EsdtTokenPayment = self.wrap_egld_proxy(wrap_egld_addr)
             .wrap_egld()

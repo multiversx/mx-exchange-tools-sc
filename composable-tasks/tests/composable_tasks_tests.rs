@@ -426,6 +426,79 @@ fn swap_unwrap_test() {
 }
 
 #[test]
+fn wrap_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let user_first_token_balance = 200_000_000u64;
+
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        WEGLD_TOKEN_ID,
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
+
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(WEGLD_TOKEN_ID)),
+                    0,
+                    managed_biguint!(user_first_token_balance),
+                );
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        ).assert_error(4, "Payment token is not EGLD!");
+
+
+    b_mock.borrow_mut().set_egld_balance(
+        &first_user_addr,
+        &rust_biguint!(user_first_token_balance),
+    );
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
+
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(WEGLD_TOKEN_ID)),
+                    0,
+                    managed_biguint!(user_first_token_balance),
+                );
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_ok();
+}
+
+
+#[test]
 fn swap_unwrap_wrap_send_test() {
     let composable_tasks_setup = ComposableTasksSetup::new(
         pair::contract_obj,
