@@ -145,7 +145,7 @@ pub trait CreateFarmPosModule:
             if enter_result.rewards.amount > 0 {
                 output_payments.push(enter_result.rewards.clone());
             }
-            output_payments.push(enter_result.wrapped_farm_token.clone());
+            output_payments.push(enter_result.wrapped_farm_token);
         }
 
         self.send().direct_multi(&caller, &output_payments);
