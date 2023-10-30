@@ -18,7 +18,7 @@ pub enum TaskType {
 pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
-    + external_sc_interactions::wegld_swap::WegldSwapModule
+    + external_sc_interactions::wegld_swap::WegldWrapModule
 {
     #[payable("*")]
     #[endpoint(composeTasks)]

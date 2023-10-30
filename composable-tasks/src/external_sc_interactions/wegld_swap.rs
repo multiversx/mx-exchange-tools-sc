@@ -3,7 +3,7 @@ multiversx_sc::imports!();
 use multiversx_wegld_swap_sc::ProxyTrait as _;
 
 #[multiversx_sc::module]
-pub trait WegldSwapModule {
+pub trait WegldWrapModule {
 
     fn wrap_egld(
         &self,

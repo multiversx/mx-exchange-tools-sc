@@ -8,7 +8,7 @@ use crate::external_sc_interactions;
 pub trait ConfigModule:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
-    + external_sc_interactions::wegld_swap::WegldSwapModule
+    + external_sc_interactions::wegld_swap::WegldWrapModule
 {
 
     #[only_owner]
