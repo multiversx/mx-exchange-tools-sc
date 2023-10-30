@@ -75,7 +75,6 @@ fn create_pair_and_farm_pos_test() {
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
                     managed_token_id!(WEGLD_TOKEN_ID),
-                    managed_token_id!(MEX_TOKEN_ID),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
                 );
@@ -293,7 +292,6 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
                     managed_token_id!(WEGLD_TOKEN_ID),
-                    managed_token_id!(MEX_TOKEN_ID),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
                 );

@@ -34,9 +34,9 @@ pub trait CreateFarmPosModule:
         add_liq_second_token_min_amount: BigUint,
     ) -> CreateFarmPosResult<Self::Api> {
         let payment = self.call_value().egld_or_single_esdt();
-        let wegld_payment = self.get_wegld_payment(payment);
+        let esdt_payment = self.get_esdt_payment(payment);
         let args = AddLiquidityArguments {
-            payment: wegld_payment,
+            payment: esdt_payment,
             swap_min_amount_out,
             lock_epochs,
             add_liq_first_token_min_amount,
@@ -91,6 +91,7 @@ pub trait CreateFarmPosModule:
         let [first_payment, second_payment] = self.call_value().multi_esdt();
 
         let locked_token_id = self.get_locked_token_id();
+        let base_token_id = self.get_base_token_id();
         let wegld_token_id = self.wegld_token_id().get();
 
         if matches!(steps, StepsToPerform::EnterMetastaking) {
@@ -111,9 +112,8 @@ pub trait CreateFarmPosModule:
             "Invalid payment tokens"
         );
 
-        let reward_token_id = self.reward_token_id().get();
         let wrapped_dest_pair_address =
-            self.get_pair_address_for_tokens(&wegld_token_id, &reward_token_id);
+            self.get_pair_address_for_tokens(&wegld_token_id, &base_token_id);
 
         let mut proxy_payments = ManagedVec::new();
         proxy_payments.push(first_payment);
@@ -152,9 +152,6 @@ pub trait CreateFarmPosModule:
 
         output_payments
     }
-
-    #[storage_mapper("rewardTokenId")]
-    fn reward_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
     #[storage_mapper("wegldMexLpFarmAddress")]
     fn farm_address(&self) -> SingleValueMapper<ManagedAddress>;
