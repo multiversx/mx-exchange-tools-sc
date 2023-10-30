@@ -25,7 +25,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         upgrade => upgrade
         createPairPosFromSingleToken => create_pair_pos_from_single_token_endpoint
         createFarmPosFromSingleToken => create_farm_pos_from_single_token
-        createFarmPosFromTwoTokens => create_farm_pos_from_two_tokens
+        createLpOrFarmPosFromTwoTokens => create_lp_or_farm_pos_from_two_tokens
         setEnergyFactoryAddress => set_energy_factory_address
         getEnergyFactoryAddress => energy_factory_address
         addPairsToWhitelist => add_pairs_to_whitelist

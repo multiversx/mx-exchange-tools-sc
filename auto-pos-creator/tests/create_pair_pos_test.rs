@@ -17,7 +17,8 @@ use multiversx_sc_scenario::{
 };
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
 use tests_common::{
-    farm_staking_setup::STAKING_FARM_TOKEN_ID, farm_with_locked_rewards_setup::FARM_TOKEN_ID,
+    farm_staking_setup::STAKING_FARM_TOKEN_ID,
+    farm_with_locked_rewards_setup::{FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID},
 };
 
 pub mod metastaking_setup;
@@ -575,6 +576,131 @@ fn create_pos_from_lp_test() {
         DUAL_YIELD_TOKEN_ID,
         1,
         &rust_biguint!(90_909_090),
+        None,
+    );
+}
+
+#[test]
+fn create_pos_with_farm_boosted_rewards_test() {
+    let mut pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+
+    let b_mock = pos_creator_setup.farm_setup.b_mock.clone();
+
+    let user_addr = pos_creator_setup.farm_setup.first_user.clone();
+    let user2_addr = pos_creator_setup.farm_setup.second_user.clone();
+    let user_first_token_balance = 100_000_000u64;
+    let user_second_token_balance = 200_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_second_token_balance),
+    );
+    b_mock
+        .borrow_mut()
+        .set_esdt_balance(&user2_addr, TOKEN_IDS[0], &rust_biguint!(1));
+
+    pos_creator_setup.pair_setups[0].add_liquidity(
+        &user_addr,
+        user_first_token_balance,
+        user_second_token_balance,
+    );
+
+    let lp_balance = 100_000_000u32;
+    b_mock
+        .borrow()
+        .check_esdt_balance(&user_addr, LP_TOKEN_IDS[0], &rust_biguint!(lp_balance));
+
+    // Energy setup
+
+    b_mock.borrow_mut().set_block_epoch(2);
+
+    // first user enter farm
+    pos_creator_setup
+        .farm_setup
+        .set_user_energy(&user_addr, 1_000, 2, 1);
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            LP_TOKEN_IDS[0],
+            0,
+            &rust_biguint!(lp_balance / 2),
+            |sc| {
+                sc.create_pos_from_lp(StepsToPerform::EnterFarm);
+            },
+        )
+        .assert_ok();
+
+    // second user enter farm
+    b_mock.borrow_mut().set_block_nonce(10);
+
+    // random tx on end of week 1, to cummulate rewards
+    b_mock.borrow_mut().set_block_epoch(6);
+    pos_creator_setup
+        .farm_setup
+        .set_user_energy(&user_addr, 1_000, 6, 1);
+    pos_creator_setup
+        .farm_setup
+        .set_user_energy(&user2_addr, 1, 6, 1);
+
+    pos_creator_setup.farm_setup.enter_farm(0, &user2_addr, 1);
+    pos_creator_setup.farm_setup.exit_farm(0, &user2_addr, 2, 1);
+
+    // advance 1 week
+    b_mock.borrow_mut().set_block_epoch(10);
+    pos_creator_setup
+        .farm_setup
+        .set_user_energy(&user_addr, 1_000, 10, 1);
+
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        LOCKED_REWARD_TOKEN_ID,
+        1,
+        &rust_biguint!(0),
+        None,
+    );
+
+    // On new enter (including Metastaking), user should receive boosted rewards from farm
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            LP_TOKEN_IDS[0],
+            0,
+            &rust_biguint!(lp_balance / 2),
+            |sc| {
+                sc.create_pos_from_lp(StepsToPerform::EnterMetastaking);
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        DUAL_YIELD_TOKEN_ID,
+        1,
+        &rust_biguint!(45_454_545u64),
+        None,
+    );
+
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        LOCKED_REWARD_TOKEN_ID,
+        1,
+        &rust_biguint!(2_500u64),
         None,
     );
 }
