@@ -54,20 +54,6 @@ where
     WegldSwapBuilder: 'static + Copy + Fn() -> multiversx_wegld_swap_sc::ContractObj<DebugApi>,
     ComposableTasksBuilder: 'static + Copy + Fn() -> composable_tasks::ContractObj<DebugApi>,
 {
-    // Pairs setup:
-    // 3 pools (A, B), (A, C), (B, C),
-    // A:B 1:2
-    // A:C 1:6
-    // B:C 1:3
-
-    // Pools: (B = billion)
-    // (A, B) => (1B, 2B)
-    // (A, C) => (1B, 6B)
-    // (B, C) => (1B, 3B)
-    //
-    // A_total = 2B
-    // B_total = 3B
-    // C_total = 9B
     pub fn new(
         pair_builder: PairBuilder,
         router_builder: RouterBuilder,

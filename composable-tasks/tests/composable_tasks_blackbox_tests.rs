@@ -82,8 +82,6 @@ impl ComposableTasksTestState {
         let wegld_contract = WegldContract::new(WEGLD_ADDRESS_EXPR);
         let router_contract = RouterContract::new(ROUTER_ADDRESS_EXPR);
         let pairs = vec![PairContract::new(PAIR1_ADDRESS_EXPR), PairContract::new(PAIR2_ADDRESS_EXPR)];
-        // pairs.push(PairContract::new(PAIR1_ADDRESS_EXPR));
-        // pairs.push(PairContract::new(PAIR2_ADDRESS_EXPR));
 
         Self {
             world,
