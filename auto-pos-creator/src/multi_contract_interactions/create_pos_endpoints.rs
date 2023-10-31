@@ -30,20 +30,13 @@ pub trait CreatePosEndpointsModule:
         &self,
         dest_pair_address: ManagedAddress,
         steps: StepsToPerform,
-        buy_token_first_token_min_amount_out: BigUint,
-        buy_token_second_token_min_amount_out: BigUint,
         add_liq_first_token_min_amount_out: BigUint,
         add_liq_second_token_min_amount_out: BigUint,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().egld_or_single_esdt();
         let payment_esdt = self.get_esdt_payment(payment);
-        let double_swap_result = self.buy_half_each_token(
-            payment_esdt,
-            &dest_pair_address,
-            buy_token_first_token_min_amount_out,
-            buy_token_second_token_min_amount_out,
-        );
+        let double_swap_result = self.buy_half_each_token(payment_esdt, &dest_pair_address);
         let args = CreatePosArgs {
             caller,
             dest_pair_address,
@@ -64,8 +57,6 @@ pub trait CreatePosEndpointsModule:
     fn create_pos_from_two_tokens(
         &self,
         steps: StepsToPerform,
-        swap_min_amount_out_first_token: BigUint,
-        swap_min_amount_out_second_token: BigUint,
         add_liq_first_token_min_amount_out: BigUint,
         add_liq_second_token_min_amount_out: BigUint,
     ) -> PaymentsVec<Self::Api> {
@@ -85,12 +76,7 @@ pub trait CreatePosEndpointsModule:
             first_tokens: first_payment,
             second_tokens: second_payment,
         };
-        self.balance_token_amounts_through_swaps(
-            dest_pair_address.clone(),
-            &mut pair_input_tokens,
-            swap_min_amount_out_first_token,
-            swap_min_amount_out_second_token,
-        );
+        self.balance_token_amounts_through_swaps(dest_pair_address.clone(), &mut pair_input_tokens);
 
         let args = CreatePosArgs {
             caller,

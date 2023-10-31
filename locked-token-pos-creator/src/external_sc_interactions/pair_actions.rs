@@ -13,10 +13,9 @@ pub trait PairActionsModule {
         pair_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
         requested_token_id: TokenIdentifier,
-        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         self.pair_proxy(pair_address)
-            .swap_tokens_fixed_input(requested_token_id, min_amount_out)
+            .swap_tokens_fixed_input(requested_token_id, BigUint::from(1u64))
             .with_esdt_transfer(input_tokens)
             .execute_on_dest_context()
     }
