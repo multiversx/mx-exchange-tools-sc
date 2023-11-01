@@ -81,7 +81,8 @@ pub trait CreatePosModule:
         require!(opt_stake_result.is_some(), COULD_NOT_CREATE_POS_ERR_MSG);
 
         let stake_result = unsafe { opt_stake_result.unwrap_unchecked() };
-        output_payments.push(stake_result.boosted_rewards);
+        output_payments.push(stake_result.staking_boosted_rewards);
+        output_payments.push(stake_result.lp_farm_boosted_rewards);
         output_payments.push(stake_result.dual_yield_tokens);
 
         output_payments.send_and_return(&args.caller)
@@ -91,8 +92,6 @@ pub trait CreatePosModule:
         &self,
         input_tokens: EsdtTokenPayment,
         dest_pair: &ManagedAddress,
-        min_first_token: BigUint,
-        min_second_token: BigUint,
     ) -> DoubleSwapResult<Self::Api> {
         require!(input_tokens.token_nonce == 0, "Only fungible ESDT accepted");
         self.require_sc_address(dest_pair);
@@ -114,13 +113,11 @@ pub trait CreatePosModule:
             input_tokens.token_identifier.clone(),
             first_amount,
             dest_pair_config.first_token_id,
-            min_first_token,
         );
         let second_swap_tokens = self.perform_tokens_swap(
             input_tokens.token_identifier,
             second_amount,
             dest_pair_config.second_token_id,
-            min_second_token,
         );
 
         DoubleSwapResult {
@@ -133,8 +130,6 @@ pub trait CreatePosModule:
         &self,
         dest_pair_address: ManagedAddress,
         payments: &mut PairTokenPayments<Self::Api>,
-        first_token_min_amount_out: BigUint,
-        second_token_min_amount_out: BigUint,
     ) {
         let pair_reserves = self.get_pair_reserves(
             &dest_pair_address,
@@ -154,29 +149,21 @@ pub trait CreatePosModule:
 
         let first_token_id = &payments.first_tokens.token_identifier;
         let second_token_id = &payments.second_tokens.token_identifier;
-        let (swap_tokens_in, requested_token_id, min_amount_out) =
+        let (swap_tokens_in, requested_token_id) =
             if payments.second_tokens.amount > first_tokens_price_in_second_token {
                 let extra_second_tokens =
                     &payments.second_tokens.amount - &first_tokens_price_in_second_token;
                 let swap_amount = extra_second_tokens / 2u32;
                 let swap_tokens_in = EsdtTokenPayment::new(second_token_id.clone(), 0, swap_amount);
 
-                (
-                    swap_tokens_in,
-                    first_token_id.clone(),
-                    first_token_min_amount_out,
-                )
+                (swap_tokens_in, first_token_id.clone())
             } else {
                 let extra_first_tokens =
                     &payments.first_tokens.amount - &second_tokens_price_in_first_token;
                 let swap_amount = extra_first_tokens / 2u32;
                 let swap_tokens_in = EsdtTokenPayment::new(first_token_id.clone(), 0, swap_amount);
 
-                (
-                    swap_tokens_in,
-                    second_token_id.clone(),
-                    second_token_min_amount_out,
-                )
+                (swap_tokens_in, second_token_id.clone())
             };
 
         if swap_tokens_in.amount == 0 {
@@ -184,12 +171,8 @@ pub trait CreatePosModule:
         }
 
         let swap_amount = swap_tokens_in.amount.clone();
-        let received_tokens = self.call_pair_swap(
-            dest_pair_address,
-            swap_tokens_in,
-            requested_token_id,
-            min_amount_out,
-        );
+        let received_tokens =
+            self.call_pair_swap(dest_pair_address, swap_tokens_in, requested_token_id);
         if &received_tokens.token_identifier == first_token_id {
             payments.second_tokens.amount -= swap_amount;
             payments.first_tokens.amount += received_tokens.amount;

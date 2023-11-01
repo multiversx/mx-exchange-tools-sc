@@ -314,6 +314,7 @@ where
                 managed_biguint!(MIN_FARM_AMOUNT_FOR_BOOSTED_YIELDS),
             );
             sc.set_locking_sc_address(managed_address!(simple_lock_addr));
+            sc.set_energy_factory_address(managed_address!(simple_lock_addr));
             sc.set_lock_epochs(EPOCHS_IN_YEAR);
         })
         .assert_ok();

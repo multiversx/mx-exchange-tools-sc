@@ -6,6 +6,8 @@ pub mod create_farm_pos;
 pub mod create_pair_pos;
 pub mod external_sc_interactions;
 
+use auto_pos_creator::configs;
+
 #[multiversx_sc::contract]
 pub trait LockedTokenPosCreatorContract:
     create_pair_pos::CreatePairPosModule
@@ -16,6 +18,7 @@ pub trait LockedTokenPosCreatorContract:
     + external_sc_interactions::proxy_dex_actions::ProxyDexActionsModule
     + energy_query::EnergyQueryModule
     + utils::UtilsModule
+    + configs::pairs_config::PairsConfigModule
 {
     /// This contract needs the burn role for MEX token
     #[init]
@@ -24,19 +27,16 @@ pub trait LockedTokenPosCreatorContract:
         energy_factory_adddress: ManagedAddress,
         egld_wrapper_address: ManagedAddress,
         wegld_token_id: TokenIdentifier,
-        mex_wegld_pair_address: ManagedAddress,
         mex_wegld_lp_farm_address: ManagedAddress,
         proxy_dex_address: ManagedAddress,
     ) {
         self.require_sc_address(&egld_wrapper_address);
         self.require_valid_token_id(&wegld_token_id);
-        self.require_sc_address(&mex_wegld_pair_address);
         self.require_sc_address(&mex_wegld_lp_farm_address);
         self.require_sc_address(&proxy_dex_address);
 
         self.egld_wrapper_sc_address().set(egld_wrapper_address);
         self.wegld_token_id().set(wegld_token_id);
-        self.mex_wegld_pair_address().set(mex_wegld_pair_address);
         self.farm_address().set(mex_wegld_lp_farm_address);
         self.proxy_dex_address().set(proxy_dex_address);
 
