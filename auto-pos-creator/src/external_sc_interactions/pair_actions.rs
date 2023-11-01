@@ -1,6 +1,8 @@
+multiversx_sc::imports!();
+
 use pair::{AddLiquidityResultType, RemoveLiquidityResultType};
 
-multiversx_sc::imports!();
+pub const SWAP_MIN_AMOUNT: u64 = 1;
 
 pub struct PairAddLiqResult<M: ManagedTypeApi> {
     pub lp_tokens: EsdtTokenPayment<M>,
@@ -24,7 +26,6 @@ pub trait PairActionsModule:
         from_tokens: TokenIdentifier,
         from_amount: BigUint,
         to_tokens: TokenIdentifier,
-        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         if from_tokens == to_tokens {
             return EsdtTokenPayment::new(from_tokens, 0, from_amount);
@@ -35,7 +36,7 @@ pub trait PairActionsModule:
             .unwrap_address();
         let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
 
-        self.call_pair_swap(pair_address, payment, to_tokens, min_amount_out)
+        self.call_pair_swap(pair_address, payment, to_tokens)
     }
 
     fn call_pair_swap(
@@ -43,10 +44,9 @@ pub trait PairActionsModule:
         pair_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
         requested_token_id: TokenIdentifier,
-        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         self.pair_proxy(pair_address)
-            .swap_tokens_fixed_input(requested_token_id, min_amount_out)
+            .swap_tokens_fixed_input(requested_token_id, BigUint::from(SWAP_MIN_AMOUNT))
             .with_esdt_transfer(input_tokens)
             .execute_on_dest_context()
     }

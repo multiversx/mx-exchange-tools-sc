@@ -7,7 +7,6 @@ use crate::external_sc_interactions::proxy_dex_actions::AddLiquidityProxyResult;
 
 pub struct AddLiquidityArguments<M: ManagedTypeApi> {
     pub payment: EsdtTokenPayment<M>,
-    pub swap_min_amount_out: BigUint<M>,
     pub lock_epochs: Epoch,
     pub add_liq_first_token_min_amount: BigUint<M>,
     pub add_liq_second_token_min_amount: BigUint<M>,
@@ -28,7 +27,6 @@ pub trait CreatePairPosModule:
     #[endpoint(createPairPosFromSingleToken)]
     fn create_pair_pos_from_single_token_endpoint(
         &self,
-        swap_min_amount_out: BigUint,
         lock_epochs: Epoch,
         add_liq_first_token_min_amount: BigUint,
         add_liq_second_token_min_amount: BigUint,
@@ -37,7 +35,6 @@ pub trait CreatePairPosModule:
         let esdt_payment = self.get_esdt_payment(payment);
         let args = AddLiquidityArguments {
             payment: esdt_payment,
-            swap_min_amount_out,
             lock_epochs,
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,
@@ -80,7 +77,7 @@ pub trait CreatePairPosModule:
         let pair_address = self
             .get_pair_address_for_tokens(&wegld_token_id, &payment.token_identifier)
             .unwrap_address();
-        self.call_pair_swap(pair_address, payment, wegld_token_id, BigUint::from(1u64))
+        self.call_pair_swap(pair_address, payment, wegld_token_id)
     }
 
     fn create_pair_pos_from_single_token(
@@ -106,7 +103,6 @@ pub trait CreatePairPosModule:
                     mex_pair_address.clone(),
                     mex_tokens_to_swap,
                     wegld_token_id.clone(),
-                    args.swap_min_amount_out,
                 );
                 let mex_tokens_amount_to_lock = args.payment.amount - half_payment;
                 (half_wegld_payment.amount, mex_tokens_amount_to_lock)
@@ -119,7 +115,6 @@ pub trait CreatePairPosModule:
                     mex_pair_address.clone(),
                     wegld_to_swap,
                     mex_token_id.clone(),
-                    args.swap_min_amount_out,
                 );
                 (half_wegld_payment_amount, mex_tokens_to_lock.amount)
             };

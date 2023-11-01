@@ -28,7 +28,6 @@ pub trait CreateFarmPosModule:
     #[endpoint(createFarmPosFromSingleToken)]
     fn create_farm_pos_from_single_token(
         &self,
-        swap_min_amount_out: BigUint,
         lock_epochs: Epoch,
         add_liq_first_token_min_amount: BigUint,
         add_liq_second_token_min_amount: BigUint,
@@ -37,7 +36,6 @@ pub trait CreateFarmPosModule:
         let esdt_payment = self.get_esdt_payment(payment);
         let args = AddLiquidityArguments {
             payment: esdt_payment,
-            swap_min_amount_out,
             lock_epochs,
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,

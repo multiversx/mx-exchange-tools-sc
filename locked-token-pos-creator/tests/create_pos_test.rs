@@ -152,7 +152,6 @@ fn create_pair_and_farm_pos_test() {
             &rust_biguint!(1_000),
             |sc| {
                 let add_liq_result = sc.create_pair_pos_from_single_token_endpoint(
-                    managed_biguint!(1u64),
                     LOCK_OPTIONS[0],
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),
@@ -218,7 +217,6 @@ fn create_pair_and_farm_pos_test() {
             &rust_biguint!(1_000),
             |sc| {
                 let create_farm_pos_result = sc.create_farm_pos_from_single_token(
-                    managed_biguint!(1u64),
                     LOCK_OPTIONS[0],
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),

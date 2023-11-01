@@ -1,5 +1,7 @@
 multiversx_sc::imports!();
 
+pub const SWAP_MIN_AMOUNT: u64 = 1;
+
 pub struct PairAddLiqResult<M: ManagedTypeApi> {
     pub lp_tokens: EsdtTokenPayment<M>,
     pub first_tokens_remaining: EsdtTokenPayment<M>,
@@ -13,10 +15,9 @@ pub trait PairActionsModule {
         pair_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
         requested_token_id: TokenIdentifier,
-        min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
         self.pair_proxy(pair_address)
-            .swap_tokens_fixed_input(requested_token_id, min_amount_out)
+            .swap_tokens_fixed_input(requested_token_id, BigUint::from(SWAP_MIN_AMOUNT))
             .with_esdt_transfer(input_tokens)
             .execute_on_dest_context()
     }
