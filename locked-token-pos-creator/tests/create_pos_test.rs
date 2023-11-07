@@ -587,7 +587,7 @@ fn create_energy_position_test() {
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
-            &first_user,
+            first_user,
             &pos_creator_wrapper,
             WEGLD_TOKEN_ID,
             0,
