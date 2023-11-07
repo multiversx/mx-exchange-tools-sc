@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            7
+// Endpoints:                            8
 // Async Callback (empty):               1
-// Total number of exported functions:   9
+// Total number of exported functions:  10
 
 #![no_std]
 
@@ -28,6 +28,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         createPosFromSingleToken => create_pos_from_single_token
         createPosFromTwoTokens => create_pos_from_two_tokens
         createPosFromLp => create_pos_from_lp
+        createFarmStakingPosFromSingleToken => create_farm_staking_pos_from_single_token
         fullExitPos => full_exit_pos_endpoint
     )
 }
