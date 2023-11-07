@@ -23,6 +23,7 @@ use proxy_dex::{
 };
 use proxy_dex_test_setup::*;
 use sc_whitelist_module::SCWhitelistModule;
+use simple_lock::locked_token::LockedTokenAttributes;
 
 #[test]
 fn setup_test() {
@@ -471,6 +472,146 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
             WRAPPED_FARM_TOKEN_ID,
             1,
             &rust_biguint!(expected_lp_token_amount),
+            None,
+        );
+}
+
+#[test]
+fn create_energy_position_test() {
+    let proxy_dex_setup = ProxySetup::new(
+        proxy_dex::contract_obj,
+        pair::contract_obj,
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+    );
+
+    #[allow(clippy::redundant_clone)]
+    let b_mock = proxy_dex_setup.b_mock.clone();
+    let pos_creator_wrapper = b_mock.borrow_mut().create_sc_account(
+        &rust_biguint!(0),
+        Some(&proxy_dex_setup.owner),
+        locked_token_pos_creator::contract_obj,
+        "random path ssss",
+    );
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &proxy_dex_setup.proxy_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(pos_creator_wrapper.address_ref()));
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &pos_creator_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.init(
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
+                    managed_token_id!(WEGLD_TOKEN_ID),
+                    managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
+                );
+
+                let mut pair_addresses = MultiValueEncoded::new();
+                pair_addresses.push(managed_address!(proxy_dex_setup.pair_wrapper.address_ref()));
+                sc.add_pairs_to_whitelist(pair_addresses);
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow_mut().set_esdt_local_roles(
+        pos_creator_wrapper.address_ref(),
+        MEX_TOKEN_ID,
+        &[EsdtLocalRole::Burn],
+    );
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &proxy_dex_setup.simple_lock_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(pos_creator_wrapper.address_ref()));
+            },
+        )
+        .assert_ok();
+
+    let first_user = &proxy_dex_setup.first_user;
+    let second_user = &proxy_dex_setup.second_user;
+    let locked_token_amount = rust_biguint!(1_000_000_000);
+    let other_token_amount = rust_biguint!(500_000_000);
+
+    // set the price to 1 EGLD = 2 MEX
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: WEGLD_TOKEN_ID.to_vec(),
+            nonce: 0,
+            value: other_token_amount.clone(),
+        },
+        TxTokenTransfer {
+            token_identifier: LOCKED_TOKEN_ID.to_vec(),
+            nonce: 2,
+            value: locked_token_amount.clone(),
+        },
+    ];
+
+    // add initial liquidity
+    let pair_addr = proxy_dex_setup.pair_wrapper.address_ref().clone();
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            second_user,
+            &proxy_dex_setup.proxy_wrapper,
+            &payments,
+            |sc| {
+                sc.add_liquidity_proxy(
+                    managed_address!(&pair_addr),
+                    managed_biguint!(other_token_amount.to_u64().unwrap()),
+                    managed_biguint!(locked_token_amount.to_u64().unwrap()),
+                );
+            },
+        )
+        .assert_ok();
+
+    let expected_locked_token_amount = 1_993u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user,
+            &pos_creator_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(1_000),
+            |sc| {
+                let locked_mex_payment = sc.create_energy_position(LOCK_OPTIONS[2]);
+                assert_eq!(
+                    locked_mex_payment.token_identifier,
+                    managed_token_id!(LOCKED_TOKEN_ID)
+                );
+                assert_eq!(locked_mex_payment.token_nonce, 3);
+                assert_eq!(locked_mex_payment.amount, expected_locked_token_amount);
+            },
+        )
+        .assert_ok();
+
+    proxy_dex_setup
+        .b_mock
+        .borrow()
+        .check_nft_balance::<LockedTokenAttributes<DebugApi>>(
+            first_user,
+            LOCKED_TOKEN_ID,
+            3,
+            &rust_biguint!(expected_locked_token_amount),
             None,
         );
 }

@@ -146,32 +146,47 @@ pub trait CreatePosEndpointsModule:
 
         let farming_token_id = self.get_farm_staking_farming_token_id(&farm_staking_address);
         let first_payment = payments.get(0);
-        if first_payment.token_identifier == farming_token_id {
-            return self.call_farm_staking_stake(farm_staking_address, caller, payments);
-        };
+        let (new_farm_token, boosted_rewards_payment) =
+            if first_payment.token_identifier == farming_token_id {
+                self.call_farm_staking_stake(farm_staking_address, caller.clone(), payments)
+                    .into_tuple()
+            } else {
+                payments.remove(0);
 
-        payments.remove(0);
+                let wegld_token_id = self.wegld_token_id().get();
+                let wegld_token_payment = if first_payment.token_identifier != wegld_token_id {
+                    self.perform_tokens_swap(
+                        first_payment.token_identifier,
+                        first_payment.amount,
+                        wegld_token_id,
+                    )
+                } else {
+                    first_payment
+                };
 
-        let wegld_token_id = self.wegld_token_id().get();
-        let wegld_token_payment = if first_payment.token_identifier != wegld_token_id {
-            self.perform_tokens_swap(
-                first_payment.token_identifier,
-                first_payment.amount,
-                wegld_token_id,
-            )
-        } else {
-            first_payment
-        };
+                let farming_token_first_payment = self.perform_tokens_swap(
+                    wegld_token_payment.token_identifier,
+                    wegld_token_payment.amount,
+                    farming_token_id,
+                );
+                let mut farming_token_payments =
+                    PaymentsVec::from_single_item(farming_token_first_payment);
+                farming_token_payments.append_vec(payments);
 
-        let farming_token_first_payment = self.perform_tokens_swap(
-            wegld_token_payment.token_identifier,
-            wegld_token_payment.amount,
-            farming_token_id,
-        );
-        let mut farming_token_payments = PaymentsVec::from_single_item(farming_token_first_payment);
-        farming_token_payments.append_vec(payments);
+                self.call_farm_staking_stake(
+                    farm_staking_address,
+                    caller.clone(),
+                    farming_token_payments,
+                )
+                .into_tuple()
+            };
 
-        self.call_farm_staking_stake(farm_staking_address, caller, farming_token_payments)
+        self.send()
+            .direct_non_zero_esdt_payment(&caller, &new_farm_token);
+        self.send()
+            .direct_non_zero_esdt_payment(&caller, &boosted_rewards_payment);
+
+        (new_farm_token, boosted_rewards_payment).into()
     }
 
     fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {

@@ -75,6 +75,15 @@ pub trait LockedTokenPosCreatorContract:
         };
 
         let mex_payment = self.call_pair_swap(mex_pair_address, wegld_payment, mex_token_id);
-        self.call_lock_virtual(mex_payment, lock_epochs, caller)
+        let output_payment = self.call_lock_virtual(mex_payment, lock_epochs, caller.clone());
+
+        self.send().direct_esdt(
+            &caller,
+            &output_payment.token_identifier,
+            output_payment.token_nonce,
+            &output_payment.amount,
+        );
+
+        output_payment
     }
 }
