@@ -583,17 +583,27 @@ fn create_energy_position_test() {
         )
         .assert_ok();
 
-    let expected_locked_token_amount = 1_993u64;
+    // Create energy position from base token
+    let expected_locked_token_amount = 1_00064;
+    b_mock.borrow_mut().set_esdt_balance(
+        first_user,
+        MEX_TOKEN_ID,
+        &rust_biguint!(expected_locked_token_amount),
+    );
+
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
             first_user,
             &pos_creator_wrapper,
-            WEGLD_TOKEN_ID,
+            MEX_TOKEN_ID,
             0,
-            &rust_biguint!(1_000),
+            &rust_biguint!(expected_locked_token_amount),
             |sc| {
-                let locked_mex_payment = sc.create_energy_position(LOCK_OPTIONS[2]);
+                let locked_mex_payment = sc.create_energy_position(
+                    LOCK_OPTIONS[2],
+                    managed_biguint!(expected_locked_token_amount),
+                );
                 assert_eq!(
                     locked_mex_payment.token_identifier,
                     managed_token_id!(LOCKED_TOKEN_ID)
@@ -612,6 +622,42 @@ fn create_energy_position_test() {
             LOCKED_TOKEN_ID,
             3,
             &rust_biguint!(expected_locked_token_amount),
+            None,
+        );
+
+    // Create energy position from other token (swaps the input)
+    let expected_locked_token_amount2 = 1_993u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            first_user,
+            &pos_creator_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(1_000u64),
+            |sc| {
+                let locked_mex_payment = sc.create_energy_position(
+                    LOCK_OPTIONS[2],
+                    managed_biguint!(expected_locked_token_amount2),
+                );
+                assert_eq!(
+                    locked_mex_payment.token_identifier,
+                    managed_token_id!(LOCKED_TOKEN_ID)
+                );
+                assert_eq!(locked_mex_payment.token_nonce, 3);
+                assert_eq!(locked_mex_payment.amount, expected_locked_token_amount2);
+            },
+        )
+        .assert_ok();
+
+    proxy_dex_setup
+        .b_mock
+        .borrow()
+        .check_nft_balance::<LockedTokenAttributes<DebugApi>>(
+            first_user,
+            LOCKED_TOKEN_ID,
+            3,
+            &rust_biguint!(expected_locked_token_amount + expected_locked_token_amount2),
             None,
         );
 }

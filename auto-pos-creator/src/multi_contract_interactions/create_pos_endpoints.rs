@@ -133,6 +133,7 @@ pub trait CreatePosEndpointsModule:
     fn create_farm_staking_pos_from_single_token(
         &self,
         farm_staking_address: ManagedAddress,
+        min_amount_out: BigUint,
     ) -> EnterFarmResultType<Self::Api> {
         let caller = self.blockchain().get_caller();
         let raw_payments = self.call_value().any_payment();
@@ -180,6 +181,8 @@ pub trait CreatePosEndpointsModule:
                 )
                 .into_tuple()
             };
+
+        require!(new_farm_token.amount >= min_amount_out, "Slippage exceeded");
 
         self.send()
             .direct_non_zero_esdt_payment(&caller, &new_farm_token);

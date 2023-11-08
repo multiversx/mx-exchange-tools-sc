@@ -728,9 +728,10 @@ fn enter_farm_staking_through_pos_creator_test() {
             &rust_biguint!(payment_token_balance),
             |sc| {
                 let (new_farm_token, _boosted_rewards_payment) = sc
-                    .create_farm_staking_pos_from_single_token(managed_address!(
-                        farm_staking_address
-                    ))
+                    .create_farm_staking_pos_from_single_token(
+                        managed_address!(farm_staking_address),
+                        managed_biguint!(expected_output_amount),
+                    )
                     .into_tuple();
 
                 assert_eq!(

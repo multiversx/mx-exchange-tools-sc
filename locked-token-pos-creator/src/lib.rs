@@ -49,33 +49,39 @@ pub trait LockedTokenPosCreatorContract:
 
     #[payable("*")]
     #[endpoint(createEnergyPosition)]
-    fn create_energy_position(&self, lock_epochs: Epoch) -> EsdtTokenPayment {
+    fn create_energy_position(
+        &self,
+        lock_epochs: Epoch,
+        min_amount_out: BigUint,
+    ) -> EsdtTokenPayment {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().egld_or_single_esdt();
         let esdt_payment = self.get_esdt_payment(payment);
         let mex_token_id = self.get_base_token_id();
         let wegld_token_id = self.wegld_token_id().get();
 
-        if esdt_payment.token_identifier == mex_token_id {
-            return self.call_lock_virtual(esdt_payment, lock_epochs, caller);
-        }
-
-        let mex_pair_address = self
-            .get_pair_address_for_tokens(&wegld_token_id, &mex_token_id)
-            .unwrap_address();
-
-        let wegld_payment = if esdt_payment.token_identifier == wegld_token_id {
-            esdt_payment
+        let output_payment = if esdt_payment.token_identifier == mex_token_id {
+            self.call_lock_virtual(esdt_payment, lock_epochs, caller.clone())
         } else {
-            let token_pair_address = self
-                .get_pair_address_for_tokens(&wegld_token_id, &esdt_payment.token_identifier)
+            let mex_pair_address = self
+                .get_pair_address_for_tokens(&wegld_token_id, &mex_token_id)
                 .unwrap_address();
 
-            self.call_pair_swap(token_pair_address, esdt_payment, wegld_token_id)
-        };
+            let wegld_payment = if esdt_payment.token_identifier == wegld_token_id {
+                esdt_payment
+            } else {
+                let token_pair_address = self
+                    .get_pair_address_for_tokens(&wegld_token_id, &esdt_payment.token_identifier)
+                    .unwrap_address();
 
-        let mex_payment = self.call_pair_swap(mex_pair_address, wegld_payment, mex_token_id);
-        let output_payment = self.call_lock_virtual(mex_payment, lock_epochs, caller.clone());
+                self.call_pair_swap(token_pair_address, esdt_payment, wegld_token_id)
+            };
+
+            let mex_payment = self.call_pair_swap(mex_pair_address, wegld_payment, mex_token_id);
+            require!(mex_payment.amount >= min_amount_out, "Slippage exceeded");
+
+            self.call_lock_virtual(mex_payment, lock_epochs, caller.clone())
+        };
 
         self.send().direct_esdt(
             &caller,
