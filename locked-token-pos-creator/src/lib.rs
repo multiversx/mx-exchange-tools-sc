@@ -78,10 +78,10 @@ pub trait LockedTokenPosCreatorContract:
             };
 
             let mex_payment = self.call_pair_swap(mex_pair_address, wegld_payment, mex_token_id);
-            require!(mex_payment.amount >= min_amount_out, "Slippage exceeded");
-
             self.call_lock_virtual(mex_payment, lock_epochs, caller.clone())
         };
+
+        require!(output_payment.amount >= min_amount_out, "Slippage exceeded");
 
         self.send().direct_esdt(
             &caller,
