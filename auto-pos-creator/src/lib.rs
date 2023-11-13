@@ -17,6 +17,7 @@ pub trait AutoPosCreator:
     + configs::pairs_config::PairsConfigModule
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
+    + external_sc_interactions::farm_staking_actions::FarmStakingActionsModule
     + external_sc_interactions::metastaking_actions::MetastakingActionsModule
     + external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
     + multi_contract_interactions::create_pos::CreatePosModule

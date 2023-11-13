@@ -249,7 +249,7 @@ where
             .execute_tx(&owner, &pos_creator_wrapper, &rust_biguint!(0), |sc| {
                 sc.init(
                     managed_address!(pos_creator_wrapper.address_ref()), // unused
-                    managed_token_id!(WEGLD_TOKEN_ID),
+                    managed_token_id!(TOKEN_IDS[1]),
                 );
 
                 let mut farms = MultiValueEncoded::new();

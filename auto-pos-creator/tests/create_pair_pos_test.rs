@@ -8,12 +8,12 @@ use auto_pos_creator::{
         exit_pos_endpoints::ExitPosEndpointsModule,
     },
 };
-use farm_staking::token_attributes::UnbondSftAttributes;
+use farm_staking::token_attributes::{StakingFarmTokenAttributes, UnbondSftAttributes};
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use multiversx_sc::{codec::Empty, types::EsdtTokenPayment};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
-    testing_framework::TxTokenTransfer,
+    testing_framework::TxTokenTransfer, DebugApi,
 };
 use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
 use tests_common::{
@@ -693,4 +693,64 @@ fn create_pos_with_farm_boosted_rewards_test() {
         &rust_biguint!(2_500u64),
         None,
     );
+}
+
+#[test]
+fn enter_farm_staking_through_pos_creator_test() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
+
+    let user_addr = pos_creator_setup.farm_setup.first_user;
+    let payment_token_balance = 1_000u64;
+    let expected_output_amount = 166u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(payment_token_balance),
+    );
+
+    // user enter (B, C) pair with token A
+    let farm_staking_address = pos_creator_setup.fs_wrapper.address_ref();
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            TOKEN_IDS[2],
+            0,
+            &rust_biguint!(payment_token_balance),
+            |sc| {
+                let (new_farm_token, _boosted_rewards_payment) = sc
+                    .create_farm_staking_pos_from_single_token(
+                        managed_address!(farm_staking_address),
+                        managed_biguint!(expected_output_amount),
+                    )
+                    .into_tuple();
+
+                assert_eq!(
+                    new_farm_token.token_identifier,
+                    managed_token_id!(STAKING_FARM_TOKEN_ID)
+                );
+                assert_eq!(new_farm_token.token_nonce, 1);
+                assert_eq!(new_farm_token.amount, expected_output_amount);
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow()
+        .check_nft_balance::<StakingFarmTokenAttributes<DebugApi>>(
+            &user_addr,
+            STAKING_FARM_TOKEN_ID,
+            1,
+            &rust_biguint!(expected_output_amount),
+            None,
+        );
 }
