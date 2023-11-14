@@ -4,6 +4,8 @@ members = [
   "auto-farm/meta",
   "auto-pos-creator",
   "auto-pos-creator/meta",
+  "locked-token-pos-creator",
+  "locked-token-pos-creator/meta",
   "farm-extra-rewards-wrapper",
   "farm-extra-rewards-wrapper/meta",
   "composable-tasks",

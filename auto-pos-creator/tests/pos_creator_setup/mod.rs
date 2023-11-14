@@ -9,7 +9,8 @@ use auto_farm::whitelists::{
 use auto_pos_creator::{configs::pairs_config::PairsConfigModule, AutoPosCreator};
 use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, rust_biguint, testing_framework::ContractObjWrapper, DebugApi,
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::ContractObjWrapper, DebugApi,
 };
 use sc_whitelist_module::SCWhitelistModule;
 use tests_common::{
@@ -21,6 +22,7 @@ use pair::safe_price::SafePriceModule;
 
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
 pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPTHIRD-123456"];
+pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
 
 pub struct PosCreatorSetup<
     FarmBuilder,
@@ -224,6 +226,7 @@ where
             &mut b_mock.borrow_mut(),
             metastaking_builder,
             &owner,
+            farm_setup.energy_factory_wrapper.address_ref(),
             farm_setup.farm_wrappers[0].address_ref(),
             fs_wrapper.address_ref(),
             first_pair_setup.pair_wrapper.address_ref(),
@@ -244,7 +247,10 @@ where
         b_mock
             .borrow_mut()
             .execute_tx(&owner, &pos_creator_wrapper, &rust_biguint!(0), |sc| {
-                sc.init();
+                sc.init(
+                    managed_address!(pos_creator_wrapper.address_ref()), // unused
+                    managed_token_id!(TOKEN_IDS[1]),
+                );
 
                 let mut farms = MultiValueEncoded::new();
                 farms.push(managed_address!(farm_setup.farm_wrappers[0].address_ref()));

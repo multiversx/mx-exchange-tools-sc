@@ -5,7 +5,10 @@ use farm::{
 
 multiversx_sc::imports!();
 
-// pub struct ExitFarmResultType<M: ManagedTypeApi>
+pub struct EnterFarmResultWrapper<M: ManagedTypeApi> {
+    pub new_farm_token: EsdtTokenPayment<M>,
+    pub rewards: EsdtTokenPayment<M>,
+}
 
 #[multiversx_sc::module]
 pub trait FarmActionsModule {
@@ -14,16 +17,18 @@ pub trait FarmActionsModule {
         farm_address: ManagedAddress,
         user: ManagedAddress,
         farming_tokens: EsdtTokenPayment,
-    ) -> EsdtTokenPayment {
+    ) -> EnterFarmResultWrapper<Self::Api> {
         let raw_results: EnterFarmResultType<Self::Api> = self
             .farm_proxy(farm_address)
             .enter_farm_endpoint(user)
             .with_esdt_transfer(farming_tokens)
             .execute_on_dest_context();
 
-        // no rewards on simple enter
-        let (new_farm_token, _) = raw_results.into_tuple();
-        new_farm_token
+        let (new_farm_token, rewards) = raw_results.into_tuple();
+        EnterFarmResultWrapper {
+            new_farm_token,
+            rewards,
+        }
     }
 
     fn call_exit_farm(

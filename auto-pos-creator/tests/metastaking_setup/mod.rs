@@ -30,6 +30,7 @@ pub fn setup_metastaking<MetastakingObjBuilder>(
     b_mock: &mut BlockchainStateWrapper,
     ms_builder: MetastakingObjBuilder,
     owner: &Address,
+    energy_factory_address: &Address,
     lp_farm_address: &Address,
     staking_farm_address: &Address,
     pair_address: &Address,
@@ -48,6 +49,7 @@ where
     b_mock
         .execute_tx(owner, &proxy_wrapper, &rust_zero, |sc| {
             sc.init(
+                managed_address!(energy_factory_address),
                 managed_address!(lp_farm_address),
                 managed_address!(staking_farm_address),
                 managed_address!(pair_address),

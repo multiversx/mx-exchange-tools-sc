@@ -210,6 +210,7 @@ where
         let farm_staking_proxy_wrapper = setup_farm_staking_proxy(
             &mut b_mock,
             &owner_address,
+            energy_factory_wrapper.address_ref(),
             pair_wrapper.address_ref(),
             &farm_wrapper,
             &farm_staking_wrapper,
@@ -617,6 +618,7 @@ where
 fn setup_farm_staking_proxy<FarmStakingProxyObjBuilder, FarmObjBuilder, FarmStakingObjBuilder>(
     b_mock: &mut BlockchainStateWrapper,
     owner: &Address,
+    energy_factory_address: &Address,
     pair_address: &Address,
     lp_farm_wrapper: &ContractObjWrapper<
         farm_with_locked_rewards::ContractObj<DebugApi>,
@@ -644,13 +646,14 @@ where
     b_mock
         .execute_tx(owner, &farm_staking_proxy_wrapper, &rust_zero, |sc| {
             sc.init(
+                managed_address!(energy_factory_address),
                 managed_address!(lp_farm_wrapper.address_ref()),
                 managed_address!(farm_staking_wrapper.address_ref()),
                 managed_address!(pair_address),
                 managed_token_id!(BASE_FARM_STAKING_TOKEN_ID),
                 managed_token_id!(FARM_TOKEN_ID),
                 managed_token_id!(STAKING_FARM_TOKEN_ID),
-                managed_token_id!(FARM_TOKEN_ID),
+                managed_token_id!(FARMING_TOKEN_ID),
             );
 
             sc.dual_yield_token()

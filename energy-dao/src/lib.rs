@@ -51,4 +51,7 @@ pub trait EnergyDAO:
         let caller = self.blockchain().get_caller();
         self.add_permissions(caller, Permissions::OWNER);
     }
+
+    #[endpoint]
+    fn upgrade(&self) {}
 }
