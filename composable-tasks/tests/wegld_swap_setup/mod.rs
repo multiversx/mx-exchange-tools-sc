@@ -65,7 +65,6 @@ where
             &wegld_token_roles[..],
         );
 
-
         WegldSwapSetup {
             b_mock,
             wegld_swap_wrapper,

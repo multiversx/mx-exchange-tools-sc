@@ -81,7 +81,10 @@ impl ComposableTasksTestState {
         let composable_tasks_contract = ComposableTasksContract::new(COMPOSABLE_TASKS_ADDRESS_EXPR);
         let wegld_contract = WegldContract::new(WEGLD_ADDRESS_EXPR);
         let router_contract = RouterContract::new(ROUTER_ADDRESS_EXPR);
-        let pairs = vec![PairContract::new(PAIR1_ADDRESS_EXPR), PairContract::new(PAIR2_ADDRESS_EXPR)];
+        let pairs = vec![
+            PairContract::new(PAIR1_ADDRESS_EXPR),
+            PairContract::new(PAIR2_ADDRESS_EXPR),
+        ];
 
         Self {
             world,
@@ -136,8 +139,7 @@ impl ComposableTasksTestState {
         let pair1_code = self.world.code_expression(PAIR_PATH_EXPR);
         let pair2_code = self.world.code_expression(PAIR_PATH_EXPR);
 
-        self
-            .world
+        self.world
             .set_state_step(SetStateStep::new().new_address(
                 OWNER_ADDRESS_EXPR,
                 3,

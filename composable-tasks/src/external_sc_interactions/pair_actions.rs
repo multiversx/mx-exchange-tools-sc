@@ -19,8 +19,7 @@ impl<M: ManagedTypeApi> PairAddressForTokens<M> {
 }
 
 #[multiversx_sc::module]
-pub trait PairActionsModule
-{
+pub trait PairActionsModule {
     fn perform_tokens_swap(
         &self,
         from_tokens: TokenIdentifier,
@@ -78,5 +77,4 @@ pub trait PairActionsModule
         first_token_id: &TokenIdentifier,
         second_token_id: &TokenIdentifier,
     ) -> SingleValueMapper<ManagedAddress>;
-
 }

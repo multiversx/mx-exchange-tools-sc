@@ -10,7 +10,6 @@ use multiversx_sc_scenario::{
     DebugApi,
 };
 
-
 use pair::config::ConfigModule;
 use pair::*;
 use pausable::{PausableModule, State};

@@ -7,10 +7,7 @@ use crate::{
     wegld_swap_setup::{WegldSwapSetup, WEGLD_TOKEN_ID},
 };
 
-use composable_tasks::{
-    config::ConfigModule,
-    ComposableTasksContract,
-};
+use composable_tasks::{config::ConfigModule, ComposableTasksContract};
 use multiversx_sc::{hex_literal, types::Address};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
