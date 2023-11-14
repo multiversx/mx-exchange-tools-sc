@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
 version = "=0.44.0"
-features = ["esdt-token-payment-legacy-decode"]
+features = ["esdt-token-payment-legacy-decode", "back-transfers"]
 
 [dependencies.auto-pos-creator]
 path = "../auto-pos-creator"
@@ -28,6 +28,10 @@ git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "bd02b83"
 
 [dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "bd02b83"
+
+[dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "bd02b83"
 

@@ -16,6 +16,7 @@ pub trait AutoPosCreator:
     + utils::UtilsModule
     + configs::pairs_config::PairsConfigModule
     + external_sc_interactions::pair_actions::PairActionsModule
+    + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::farm_actions::FarmActionsModule
     + external_sc_interactions::farm_staking_actions::FarmStakingActionsModule
     + external_sc_interactions::metastaking_actions::MetastakingActionsModule
@@ -26,12 +27,9 @@ pub trait AutoPosCreator:
     + multi_contract_interactions::exit_pos_endpoints::ExitPosEndpointsModule
 {
     #[init]
-    fn init(&self, egld_wrapper_address: ManagedAddress, wegld_token_id: TokenIdentifier) {
+    fn init(&self, egld_wrapper_address: ManagedAddress) {
         self.require_sc_address(&egld_wrapper_address);
-        self.require_valid_token_id(&wegld_token_id);
-
         self.egld_wrapper_sc_address().set(egld_wrapper_address);
-        self.wegld_token_id().set(wegld_token_id);
     }
 
     #[endpoint]

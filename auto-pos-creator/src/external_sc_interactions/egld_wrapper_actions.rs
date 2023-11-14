@@ -21,9 +21,6 @@ pub trait EgldWrapperActionsModule {
             .execute_on_dest_context()
     }
 
-    #[storage_mapper("wegldTokenId")]
-    fn wegld_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
     #[storage_mapper("egldWrapperScAddress")]
     fn egld_wrapper_sc_address(&self) -> SingleValueMapper<ManagedAddress>;
 

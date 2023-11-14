@@ -35,4 +35,7 @@ pub trait MetastakingActionsModule {
     #[proxy]
     fn metastaking_proxy(&self, sc_address: ManagedAddress)
         -> farm_staking_proxy::Proxy<Self::Api>;
+
+    #[storage_mapper("lpFarmAddress")]
+    fn lp_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
 }

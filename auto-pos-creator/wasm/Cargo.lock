@@ -60,6 +60,7 @@ dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",
  "pair",
+ "router",
  "utils",
 ]
 
@@ -651,6 +652,19 @@ dependencies = [
  "multiversx-sc-modules",
  "pausable",
  "permissions_module",
+ "token_send",
+]
+
+[[package]]
+name = "router"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83#bd02b83fa276d11a24fb435bb5a8a69164f442eb"
+dependencies = [
+ "locking_module",
+ "multiversx-sc",
+ "pair",
+ "pausable",
+ "simple-lock",
  "token_send",
 ]
 
