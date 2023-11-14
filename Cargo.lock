@@ -186,6 +186,7 @@ dependencies = [
  "num-traits",
  "pair",
  "pausable",
+ "router",
  "sc_whitelist_module",
  "tests-common",
  "utils",
@@ -1537,6 +1538,7 @@ dependencies = [
  "pausable",
  "proxy_dex",
  "rewards",
+ "router",
  "sc_whitelist_module",
  "simple-lock",
  "utils",
@@ -2295,6 +2297,19 @@ dependencies = [
  "multiversx-sc-modules",
  "pausable",
  "permissions_module",
+ "token_send",
+]
+
+[[package]]
+name = "router"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83#bd02b83fa276d11a24fb435bb5a8a69164f442eb"
+dependencies = [
+ "locking_module",
+ "multiversx-sc",
+ "pair",
+ "pausable",
+ "simple-lock",
  "token_send",
 ]
 

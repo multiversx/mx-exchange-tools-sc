@@ -52,4 +52,7 @@ pub trait FarmActionsModule {
 
     #[proxy]
     fn farm_proxy(&self, sc_address: ManagedAddress) -> farm_with_locked_rewards::Proxy<Self::Api>;
+
+    #[storage_mapper("pair_contract_address")]
+    fn pair_contract_address(&self) -> SingleValueMapper<ManagedAddress>;
 }

@@ -21,24 +21,6 @@ pub type PairTokenPayments<M> = PairRemoveLiqResult<M>;
 pub trait PairActionsModule:
     crate::configs::pairs_config::PairsConfigModule + utils::UtilsModule
 {
-    fn perform_tokens_swap(
-        &self,
-        from_tokens: TokenIdentifier,
-        from_amount: BigUint,
-        to_tokens: TokenIdentifier,
-    ) -> EsdtTokenPayment {
-        if from_tokens == to_tokens {
-            return EsdtTokenPayment::new(from_tokens, 0, from_amount);
-        }
-
-        let pair_address = self
-            .get_pair_address_for_tokens(&from_tokens, &to_tokens)
-            .unwrap_address();
-        let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
-
-        self.call_pair_swap(pair_address, payment, to_tokens)
-    }
-
     fn call_pair_swap(
         &self,
         pair_address: ManagedAddress,
@@ -59,8 +41,6 @@ pub trait PairActionsModule:
         first_token_min_amount_out: BigUint,
         second_token_min_amount_out: BigUint,
     ) -> PairAddLiqResult<Self::Api> {
-        let first_token_full_amount = first_tokens.amount.clone();
-        let second_token_full_amount = second_tokens.amount.clone();
         let raw_results: AddLiquidityResultType<Self::Api> = self
             .pair_proxy(pair_address)
             .add_liquidity(first_token_min_amount_out, second_token_min_amount_out)
@@ -68,20 +48,7 @@ pub trait PairActionsModule:
             .with_esdt_transfer(second_tokens)
             .execute_on_dest_context();
 
-        let (lp_tokens, first_tokens_used, second_tokens_used) = raw_results.into_tuple();
-        let first_tokens_remaining_amount = first_token_full_amount - first_tokens_used.amount;
-        let second_tokens_remaining_amount = second_token_full_amount - second_tokens_used.amount;
-
-        let first_tokens_remaining = EsdtTokenPayment::new(
-            first_tokens_used.token_identifier,
-            0,
-            first_tokens_remaining_amount,
-        );
-        let second_tokens_remaining = EsdtTokenPayment::new(
-            second_tokens_used.token_identifier,
-            0,
-            second_tokens_remaining_amount,
-        );
+        let (lp_tokens, first_tokens_remaining, second_tokens_remaining) = raw_results.into_tuple();
 
         PairAddLiqResult {
             lp_tokens,

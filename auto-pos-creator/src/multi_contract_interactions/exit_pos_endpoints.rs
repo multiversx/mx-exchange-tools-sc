@@ -1,10 +1,10 @@
+multiversx_sc::imports!();
+
 use common_structs::PaymentsVec;
 
 use crate::common::payments_wrapper::PaymentsWrapper;
 
-use super::exit_pos::{ExitType, FarmExitArgs, MetastakingExitArgs, RemoveLiqArgs};
-
-multiversx_sc::imports!();
+use super::exit_pos::{FarmExitArgs, MetastakingExitArgs, RemoveLiqArgs};
 
 #[multiversx_sc::module]
 pub trait ExitPosEndpointsModule:
@@ -20,52 +20,75 @@ pub trait ExitPosEndpointsModule:
     + super::exit_pos::ExitPosModule
 {
     #[payable("*")]
-    #[endpoint(fullExitPos)]
-    fn full_exit_pos_endpoint(
+    #[endpoint(exitMetastakingPos)]
+    fn exit_metastaking_pos_endpoint(
         &self,
+        metastaking_address: ManagedAddress,
         first_token_min_amount_out: BigUint,
         second_token_min_amont_out: BigUint,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
-
-        let exit_type = self.get_exit_type(&payment.token_identifier);
         let mut output_payments = PaymentsWrapper::new();
 
-        match exit_type {
-            ExitType::Metastaking(ms_addr) => {
-                let args = MetastakingExitArgs {
-                    ms_address: ms_addr,
-                    user: caller.clone(),
-                    ms_tokens: payment,
-                    first_token_min_amount_out,
-                    second_token_min_amont_out,
-                };
-
-                self.unstake_metastaking(&mut output_payments, args);
-            }
-            ExitType::Farm(farm_addr) => {
-                let args = FarmExitArgs {
-                    farm_address: farm_addr,
-                    user: caller.clone(),
-                    farm_tokens: payment,
-                    first_token_min_amount_out,
-                    second_token_min_amont_out,
-                };
-
-                self.exit_farm(&mut output_payments, args);
-            }
-            ExitType::Pair(pair_addr) => {
-                let args = RemoveLiqArgs {
-                    pair_address: pair_addr,
-                    lp_tokens: payment,
-                    first_token_min_amount_out,
-                    second_token_min_amont_out,
-                };
-
-                self.remove_pair_liq(&mut output_payments, args);
-            }
+        let args = MetastakingExitArgs {
+            ms_address: metastaking_address,
+            user: caller.clone(),
+            ms_tokens: payment,
+            first_token_min_amount_out,
+            second_token_min_amont_out,
         };
+
+        self.unstake_metastaking(&mut output_payments, args);
+
+        output_payments.send_and_return(&caller)
+    }
+
+    #[payable("*")]
+    #[endpoint(exitFarmPos)]
+    fn exit_farm_pos(
+        &self,
+        farm_address: ManagedAddress,
+        first_token_min_amount_out: BigUint,
+        second_token_min_amont_out: BigUint,
+    ) -> PaymentsVec<Self::Api> {
+        let caller = self.blockchain().get_caller();
+        let payment = self.call_value().single_esdt();
+        let mut output_payments = PaymentsWrapper::new();
+
+        let args = FarmExitArgs {
+            farm_address,
+            user: caller.clone(),
+            farm_tokens: payment,
+            first_token_min_amount_out,
+            second_token_min_amont_out,
+        };
+
+        self.exit_farm(&mut output_payments, args);
+
+        output_payments.send_and_return(&caller)
+    }
+
+    #[payable("*")]
+    #[endpoint(exitLpPos)]
+    fn exit_lp_pos(
+        &self,
+        pair_address: ManagedAddress,
+        first_token_min_amount_out: BigUint,
+        second_token_min_amont_out: BigUint,
+    ) -> PaymentsVec<Self::Api> {
+        let caller = self.blockchain().get_caller();
+        let payment = self.call_value().single_esdt();
+        let mut output_payments = PaymentsWrapper::new();
+
+        let args = RemoveLiqArgs {
+            pair_address,
+            lp_tokens: payment,
+            first_token_min_amount_out,
+            second_token_min_amont_out,
+        };
+
+        self.remove_pair_liq(&mut output_payments, args);
 
         output_payments.send_and_return(&caller)
     }
