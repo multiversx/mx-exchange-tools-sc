@@ -5,21 +5,27 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            4
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:   6
 
 #![no_std]
-#![allow(internal_features)]
+
+// Configuration that works with rustc < 1.73.0.
+// TODO: Recommended rustc version: 1.73.0 or newer.
 #![feature(lang_items)]
 
 multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
 
 multiversx_sc_wasm_adapter::endpoints! {
-    empty
+    composable_tasks
     (
         init => init
+        composeTasks => compose_tasks
+        setWrapEgldAddr => set_wrap_egld_address
+        setrouterAddr => set_router_address
+        setPairAddrForTokens => set_pair_address_for_tokens
     )
 }
 
