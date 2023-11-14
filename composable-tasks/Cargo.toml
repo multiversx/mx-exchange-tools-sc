@@ -19,6 +19,7 @@ git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "bd02b83"
 [dependencies.multiversx-sc]
 version = "0.44.0"
+features = ["back-transfers"]
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"

@@ -465,13 +465,12 @@ fn wrap_test() {
 
                 sc.compose_tasks(expected_token_out, tasks);
             },
-        ).assert_error(4, "Payment token is not EGLD!");
+        )
+        .assert_error(4, "Payment token is not EGLD!");
 
-
-    b_mock.borrow_mut().set_egld_balance(
-        &first_user_addr,
-        &rust_biguint!(user_first_token_balance),
-    );
+    b_mock
+        .borrow_mut()
+        .set_egld_balance(&first_user_addr, &rust_biguint!(user_first_token_balance));
 
     b_mock
         .borrow_mut()
@@ -480,7 +479,6 @@ fn wrap_test() {
             &composable_tasks_setup.ct_wrapper,
             &rust_biguint!(user_first_token_balance),
             |sc| {
-
                 let mut tasks = MultiValueEncoded::new();
 
                 tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
@@ -496,7 +494,6 @@ fn wrap_test() {
         )
         .assert_ok();
 }
-
 
 #[test]
 fn swap_unwrap_wrap_send_test() {
@@ -542,7 +539,6 @@ fn swap_unwrap_wrap_send_test() {
                 let mut send_args = ManagedVec::new();
                 send_args.push(managed_buffer!(second_user_addr.as_bytes()));
                 tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
-
 
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
                     EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(WEGLD_TOKEN_ID)),

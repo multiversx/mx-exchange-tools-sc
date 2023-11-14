@@ -474,7 +474,7 @@ dependencies = [
  "farm-with-locked-rewards",
  "multiversx-sc",
  "multiversx-sc-scenario",
- "multiversx_wegld_swap_sc",
+ "multiversx-wegld-swap-sc",
  "num-bigint",
  "pair",
  "pausable",
@@ -1849,9 +1849,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "multiversx_wegld_swap_sc"
-version = "0.43.3"
-source = "git+https://github.com/multiversx/mx-contracts-rs?rev=6370ddf#6370ddfa7d162686705742317356202fc1bbba8d"
+name = "multiversx-wegld-swap-sc"
+version = "0.44.0"
+source = "git+https://github.com/multiversx/mx-contracts-rs?rev=3ec6ea1#3ec6ea1fbc51d08968fd332b22f6bab3efa099f8"
 dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",
@@ -2333,7 +2333,7 @@ dependencies = [
 [[package]]
 name = "router"
 version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=a94a332#a94a3329c988a6f002e43878474fa6934afc99cf"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83#bd02b83fa276d11a24fb435bb5a8a69164f442eb"
 dependencies = [
  "locking_module",
  "multiversx-sc",

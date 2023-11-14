@@ -44,17 +44,18 @@ pub trait RouterActionsModule {
             last_payment.amount = amount_wanted;
         }
 
-        let resulted_payments: ManagedVec<EsdtTokenPayment> = self
+        let ((), back_transfers) = self
             .router_proxy(router_addr)
             .multi_pair_swap(swap_operations)
             .with_esdt_transfer(start_payment)
-            .execute_on_dest_context();
+            .execute_on_dest_context_with_back_transfers();
 
+        let returned_esdt_payments = back_transfers.esdt_payments;
         require!(
-            resulted_payments.len() == 1,
+            returned_esdt_payments.len() == 1,
             "Router should output only 1 payment"
         );
-        EgldOrEsdtTokenPayment::from(resulted_payments.get(0))
+        EgldOrEsdtTokenPayment::from(returned_esdt_payments.get(0))
     }
 
     #[proxy]

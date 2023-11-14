@@ -2,9 +2,9 @@
 
 multiversx_sc::imports!();
 
-pub mod external_sc_interactions;
 pub mod compose_tasks;
 pub mod config;
+pub mod external_sc_interactions;
 
 #[multiversx_sc::contract]
 pub trait ComposableTasksContract:
