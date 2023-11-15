@@ -91,15 +91,11 @@ pub trait CreatePosModule:
         let raw_payments = self.call_value().any_payment();
         match raw_payments {
             EgldOrMultiEsdtPayment::Egld(egld_amount) => (
-                EgldOrEsdtTokenPayment::new(
-                    EgldOrEsdtTokenIdentifier::egld(),
-                    0,
-                    egld_amount.clone(),
-                ),
+                EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, egld_amount),
                 ManagedVec::new(),
             ),
             EgldOrMultiEsdtPayment::MultiEsdt(mut esdt_payments) => {
-                require!(esdt_payments.len() > 0, "Invalid payments");
+                require!(!esdt_payments.is_empty(), "Invalid payments");
                 let first_payment = self.pop_first_payment(&mut esdt_payments);
 
                 (EgldOrEsdtTokenPayment::from(first_payment), esdt_payments)
