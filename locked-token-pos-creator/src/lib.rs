@@ -7,7 +7,10 @@ pub mod create_pair_pos;
 pub mod create_pos;
 pub mod external_sc_interactions;
 
-use auto_pos_creator::configs::{self, pairs_config::SwapOperationType};
+use auto_pos_creator::{
+    configs::{self},
+    external_sc_interactions::router_actions::SwapOperationType,
+};
 use common_structs::Epoch;
 
 #[multiversx_sc::contract]

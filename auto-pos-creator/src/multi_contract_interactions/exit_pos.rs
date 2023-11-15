@@ -27,13 +27,9 @@ pub struct RemoveLiqArgs<M: ManagedTypeApi> {
 
 #[multiversx_sc::module]
 pub trait ExitPosModule:
-    crate::external_sc_interactions::pair_actions::PairActionsModule
+    utils::UtilsModule
     + crate::configs::pairs_config::PairsConfigModule
-    + utils::UtilsModule
-    + auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
-    + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule
-    + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
-    + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
