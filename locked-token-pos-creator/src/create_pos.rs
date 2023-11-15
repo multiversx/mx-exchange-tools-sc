@@ -1,5 +1,6 @@
 use auto_pos_creator::{
-    common::payments_wrapper::PaymentsWrapper, configs::pairs_config::SwapOperationType,
+    common::payments_wrapper::PaymentsWrapper,
+    external_sc_interactions::router_actions::SwapOperationType,
 };
 use common_structs::Epoch;
 
@@ -43,7 +44,7 @@ pub trait CreatePosModule:
         }
     }
 
-    fn swap_half_input_payment(
+    fn swap_half_input_payment_if_needed(
         &self,
         first_payment: &mut EsdtTokenPayment,
         pair_address: ManagedAddress,
@@ -54,6 +55,12 @@ pub trait CreatePosModule:
             pair_config.second_token_id
         } else if first_payment.token_identifier == pair_config.second_token_id {
             pair_config.first_token_id
+        } else if first_payment.token_identifier == pair_config.lp_token_id {
+            return EsdtTokenPayment::new(
+                first_payment.token_identifier.clone(),
+                0,
+                BigUint::zero(),
+            );
         } else {
             sc_panic!("The output token identifier is not part of the LP")
         };

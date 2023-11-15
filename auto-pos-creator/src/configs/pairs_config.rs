@@ -6,9 +6,6 @@ pub struct PairConfig<M: ManagedTypeApi> {
     pub second_token_id: TokenIdentifier<M>,
 }
 
-pub type SwapOperationType<M> =
-    MultiValue4<ManagedAddress<M>, ManagedBuffer<M>, TokenIdentifier<M>, BigUint<M>>;
-
 #[multiversx_sc::module]
 pub trait PairsConfigModule: utils::UtilsModule {
     fn get_pair_config(&self, pair_address: &ManagedAddress) -> PairConfig<Self::Api> {

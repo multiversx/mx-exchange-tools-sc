@@ -1,3 +1,4 @@
+use common_structs::PaymentsVec;
 use farm::{
     base_functions::{ExitFarmResultType, ExitFarmResultWrapper},
     EnterFarmResultType,
@@ -16,12 +17,12 @@ pub trait FarmActionsModule {
         &self,
         farm_address: ManagedAddress,
         user: ManagedAddress,
-        farming_tokens: EsdtTokenPayment,
+        tokens: PaymentsVec<Self::Api>,
     ) -> EnterFarmResultWrapper<Self::Api> {
         let raw_results: EnterFarmResultType<Self::Api> = self
             .farm_proxy(farm_address)
             .enter_farm_endpoint(user)
-            .with_esdt_transfer(farming_tokens)
+            .with_multi_token_transfer(tokens)
             .execute_on_dest_context();
 
         let (new_farm_token, rewards) = raw_results.into_tuple();

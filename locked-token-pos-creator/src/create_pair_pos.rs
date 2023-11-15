@@ -1,6 +1,9 @@
 multiversx_sc::imports!();
 
-use auto_pos_creator::configs::{self, pairs_config::SwapOperationType};
+use auto_pos_creator::{
+    configs::{self},
+    external_sc_interactions::router_actions::SwapOperationType,
+};
 use common_structs::{Epoch, PaymentsVec};
 
 use crate::create_pos;
@@ -39,7 +42,7 @@ pub trait CreatePairPosModule:
         let pair_address = self.pair_address().get();
         let mut first_token_payment = self.process_payment(payment, swap_operations);
         let second_token_payment =
-            self.swap_half_input_payment(&mut first_token_payment, pair_address.clone());
+            self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
         let (other_tokens, locked_tokens) = self.prepare_payments(
             lock_epochs,

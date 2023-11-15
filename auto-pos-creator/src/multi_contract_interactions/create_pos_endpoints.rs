@@ -2,17 +2,16 @@ multiversx_sc::imports!();
 
 use common_structs::PaymentsVec;
 
-use crate::{common::payments_wrapper::PaymentsWrapper, configs::pairs_config::SwapOperationType};
+use crate::{
+    common::payments_wrapper::PaymentsWrapper,
+    external_sc_interactions::router_actions::SwapOperationType,
+};
 
 #[multiversx_sc::module]
 pub trait CreatePosEndpointsModule:
-    crate::external_sc_interactions::pair_actions::PairActionsModule
+    utils::UtilsModule
     + crate::configs::pairs_config::PairsConfigModule
-    + utils::UtilsModule
-    + auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
-    + auto_farm::whitelists::metastaking_whitelist::MetastakingWhitelistModule
-    + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
-    + auto_farm::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::router_actions::RouterActionsModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::farm_staking_actions::FarmStakingActionsModule
@@ -36,7 +35,7 @@ pub trait CreatePosEndpointsModule:
 
         let mut first_token_payment = self.process_payment(payment, swap_operations);
         let second_token_payment =
-            self.swap_half_input_payment(&mut first_token_payment, pair_address.clone());
+            self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
         let (new_lp_tokens, mut output_payments) = self.create_lp_pos(
             first_token_payment,
@@ -85,18 +84,20 @@ pub trait CreatePosEndpointsModule:
         swap_operations: MultiValueEncoded<SwapOperationType<Self::Api>>,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let payment = self.call_value().egld_or_single_esdt();
+        let (first_payment, additional_payments) = self.split_first_payment();
 
         let pair_address = self.pair_contract_address().get_from_address(&farm_address);
         self.require_sc_address(&pair_address);
 
-        let mut first_token_payment = self.process_payment(payment, swap_operations);
+        let mut first_token_payment = self.process_payment(first_payment, swap_operations);
         let second_token_payment =
-            self.swap_half_input_payment(&mut first_token_payment, pair_address.clone());
+            self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
         let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
+            caller.clone(),
             first_token_payment,
             second_token_payment,
+            additional_payments,
             add_liq_first_token_min_amount_out,
             add_liq_second_token_min_amount_out,
             pair_address,
@@ -120,11 +121,14 @@ pub trait CreatePosEndpointsModule:
         let pair_address = self.pair_contract_address().get_from_address(&farm_address);
         self.require_sc_address(&pair_address);
 
-        let [first_token_payment, second_token_payment] = self.call_value().multi_esdt();
+        let (first_token_payment, second_token_payment, additional_payments) =
+            self.split_first_two_payments();
 
         let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
+            caller.clone(),
             first_token_payment,
             second_token_payment,
+            additional_payments,
             add_liq_first_token_min_amount_out,
             add_liq_second_token_min_amount_out,
             pair_address,
@@ -145,7 +149,7 @@ pub trait CreatePosEndpointsModule:
         swap_operations: MultiValueEncoded<SwapOperationType<Self::Api>>,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let payment = self.call_value().egld_or_single_esdt();
+        let (first_payment, additional_payments) = self.split_first_payment();
 
         let farm_address = self
             .lp_farm_address()
@@ -153,13 +157,15 @@ pub trait CreatePosEndpointsModule:
         let pair_address = self.pair_contract_address().get_from_address(&farm_address);
         self.require_sc_address(&pair_address);
 
-        let mut first_token_payment = self.process_payment(payment, swap_operations);
+        let mut first_token_payment = self.process_payment(first_payment, swap_operations);
         let second_token_payment =
-            self.swap_half_input_payment(&mut first_token_payment, pair_address.clone());
+            self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
         let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(
+            caller.clone(),
             first_token_payment,
             second_token_payment,
+            additional_payments,
             add_liq_first_token_min_amount_out,
             add_liq_second_token_min_amount_out,
             pair_address,
@@ -187,11 +193,14 @@ pub trait CreatePosEndpointsModule:
         let pair_address = self.pair_contract_address().get_from_address(&farm_address);
         self.require_sc_address(&pair_address);
 
-        let [first_token_payment, second_token_payment] = self.call_value().multi_esdt();
+        let (first_token_payment, second_token_payment, additional_payments) =
+            self.split_first_two_payments();
 
         let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(
+            caller.clone(),
             first_token_payment,
             second_token_payment,
+            additional_payments,
             add_liq_first_token_min_amount_out,
             add_liq_second_token_min_amount_out,
             pair_address,
@@ -213,7 +222,7 @@ pub trait CreatePosEndpointsModule:
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
 
-        let (first_payment, additional_payments) = self.split_payments();
+        let (first_payment, additional_payments) = self.split_first_payment();
 
         let token_payment = self.process_payment(first_payment, swap_operations);
         let farming_token_id = self.get_farm_staking_farming_token_id(&farm_staking_address);

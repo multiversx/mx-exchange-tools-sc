@@ -14,9 +14,6 @@ features = ["esdt-token-payment-legacy-decode", "back-transfers"]
 [dependencies.multiversx-sc-modules]
 version = "=0.44.0"
 
-[dependencies.auto-farm]
-path = "../auto-farm"
-
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "bd02b83"
@@ -39,7 +36,7 @@ rev = "bd02b83"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bd02b83"
+rev = "a59a6f4"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
