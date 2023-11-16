@@ -3,8 +3,8 @@
 multiversx_sc::imports!();
 
 pub mod create_farm_pos;
+pub mod create_locked_pos;
 pub mod create_pair_pos;
-pub mod create_pos;
 pub mod external_sc_interactions;
 
 use auto_pos_creator::{
@@ -15,17 +15,20 @@ use common_structs::Epoch;
 
 #[multiversx_sc::contract]
 pub trait LockedTokenPosCreatorContract:
-    create_pos::CreatePosModule
+    configs::pairs_config::PairsConfigModule
+    + utils::UtilsModule
+    + energy_query::EnergyQueryModule
+    + create_locked_pos::CreateLockedPosModule
     + create_pair_pos::CreatePairPosModule
     + create_farm_pos::CreateFarmPosModule
-    + external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
     + external_sc_interactions::energy_factory_actions::EnergyFactoryActionsModule
     + external_sc_interactions::proxy_dex_actions::ProxyDexActionsModule
-    + energy_query::EnergyQueryModule
-    + utils::UtilsModule
-    + configs::pairs_config::PairsConfigModule
+    + auto_pos_creator::multi_contract_interactions::create_pos::CreatePosModule
+    + auto_pos_creator::external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
     + auto_pos_creator::external_sc_interactions::pair_actions::PairActionsModule
     + auto_pos_creator::external_sc_interactions::router_actions::RouterActionsModule
+    + auto_pos_creator::external_sc_interactions::farm_actions::FarmActionsModule
+    + auto_pos_creator::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
     /// This contract needs the burn role for MEX token
     #[init]
