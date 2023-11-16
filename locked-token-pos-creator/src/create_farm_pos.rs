@@ -1,7 +1,6 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-use crate::create_pos;
 use auto_pos_creator::{
     configs::{self},
     external_sc_interactions::router_actions::SwapOperationType,
@@ -10,16 +9,19 @@ use common_structs::{Epoch, PaymentsVec};
 
 #[multiversx_sc::module]
 pub trait CreateFarmPosModule:
-    create_pos::CreatePosModule
-    + crate::external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
+    configs::pairs_config::PairsConfigModule
+    + utils::UtilsModule
+    + energy_query::EnergyQueryModule
     + crate::external_sc_interactions::energy_factory_actions::EnergyFactoryActionsModule
     + crate::external_sc_interactions::proxy_dex_actions::ProxyDexActionsModule
+    + crate::create_locked_pos::CreateLockedPosModule
     + crate::create_pair_pos::CreatePairPosModule
-    + energy_query::EnergyQueryModule
-    + utils::UtilsModule
-    + configs::pairs_config::PairsConfigModule
+    + auto_pos_creator::multi_contract_interactions::create_pos::CreatePosModule
+    + auto_pos_creator::external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
     + auto_pos_creator::external_sc_interactions::pair_actions::PairActionsModule
     + auto_pos_creator::external_sc_interactions::router_actions::RouterActionsModule
+    + auto_pos_creator::external_sc_interactions::farm_actions::FarmActionsModule
+    + auto_pos_creator::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
     #[payable("*")]
     #[endpoint(createFarmPosFromSingleToken)]
@@ -31,26 +33,27 @@ pub trait CreateFarmPosModule:
         swap_operations: MultiValueEncoded<SwapOperationType<Self::Api>>,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let payment = self.call_value().egld_or_single_esdt();
+        let (first_payment, additional_payments) = self.split_first_payment();
 
         let pair_address = self.pair_address().get();
         let farm_address = self.farm_address().get();
 
-        let mut first_token_payment = self.process_payment(payment, swap_operations);
+        let mut first_token_payment = self.process_payment(first_payment, swap_operations);
         let second_token_payment =
             self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
-        let (other_tokens, locked_tokens) = self.prepare_payments(
+        let (other_tokens, locked_tokens) = self.prepare_locked_payments(
             lock_epochs,
             caller.clone(),
             first_token_payment,
             second_token_payment,
         );
 
-        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
+        let (new_farm_tokens, mut output_payments) = self.create_locked_farm_pos(
             caller.clone(),
             other_tokens,
             locked_tokens,
+            additional_payments,
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,
             pair_address,
@@ -69,15 +72,17 @@ pub trait CreateFarmPosModule:
         add_liq_second_token_min_amount: BigUint,
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
-        let [first_payment, second_payment] = self.call_value().multi_esdt();
+        let (first_token_payment, second_token_payment, additional_payments) =
+            self.split_first_two_payments();
 
         let pair_address = self.pair_address().get();
         let farm_address = self.farm_address().get();
 
-        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
+        let (new_farm_tokens, mut output_payments) = self.create_locked_farm_pos(
             caller.clone(),
-            first_payment,
-            second_payment,
+            first_token_payment,
+            second_token_payment,
+            additional_payments,
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,
             pair_address,

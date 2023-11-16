@@ -185,7 +185,7 @@ dependencies = [
  "num-traits",
  "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
- "router 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=a59a6f4)",
+ "router",
  "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "tests-common",
  "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
@@ -1628,7 +1628,7 @@ dependencies = [
  "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "proxy_dex",
  "rewards",
- "router 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
+ "router",
  "sc_whitelist_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
@@ -2462,19 +2462,6 @@ dependencies = [
  "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=a59a6f4)",
  "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=a59a6f4)",
  "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=a59a6f4)",
-]
-
-[[package]]
-name = "router"
-version = "0.0.0"
-source = "git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83#bd02b83fa276d11a24fb435bb5a8a69164f442eb"
-dependencies = [
- "locking_module 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
- "multiversx-sc",
- "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
- "pausable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
- "simple-lock 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
- "token_send 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
 ]
 
 [[package]]

@@ -33,7 +33,7 @@ rev = "bd02b83"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bd02b83"
+rev = "a59a6f4"
 
 [dependencies.proxy_dex]
 git = "https://github.com/multiversx/mx-exchange-sc"

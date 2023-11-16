@@ -24,12 +24,12 @@ multiversx_sc_wasm_adapter::endpoints! {
         init => init
         upgrade => upgrade
         createEnergyPosition => create_energy_position
+        setEnergyFactoryAddress => set_energy_factory_address
+        getEnergyFactoryAddress => energy_factory_address
         createPairPosFromSingleToken => create_pair_pos_from_single_token_endpoint
         createPairPosFromTwoTokens => create_pair_pos_from_two_tokens_endpoint
         createFarmPosFromSingleToken => create_farm_pos_from_single_token
         createFarmPosFromTwoTokens => create_farm_pos_from_two_tokens
-        setEnergyFactoryAddress => set_energy_factory_address
-        getEnergyFactoryAddress => energy_factory_address
     )
 }
 
