@@ -30,7 +30,6 @@ pub trait LockedTokenPosCreatorContract:
     + auto_pos_creator::external_sc_interactions::farm_actions::FarmActionsModule
     + auto_pos_creator::external_sc_interactions::metastaking_actions::MetastakingActionsModule
 {
-    /// This contract needs the burn role for MEX token
     #[init]
     fn init(
         &self,
