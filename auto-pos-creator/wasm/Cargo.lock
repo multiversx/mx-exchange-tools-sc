@@ -36,6 +36,7 @@ dependencies = [
  "mergeable 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "multiversx-sc",
  "multiversx-sc-modules",
+ "multiversx-wegld-swap-sc",
  "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
  "router",
  "utils 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
@@ -634,6 +635,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25a23b0a10bf77174c11178d510555cc875e1f557d4256cbbe4d9c2dbf60d00d"
 dependencies = [
  "multiversx-sc",
+]
+
+[[package]]
+name = "multiversx-wegld-swap-sc"
+version = "0.44.0"
+source = "git+https://github.com/multiversx/mx-contracts-rs/?rev=236d891#236d891e75eb5e56c3e07ecf6c84153ead0f12bb"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-modules",
 ]
 
 [[package]]

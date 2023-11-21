@@ -26,7 +26,7 @@ pub trait AutoPosCreator:
     fn init(&self, egld_wrapper_address: ManagedAddress, router_address: ManagedAddress) {
         self.require_sc_address(&egld_wrapper_address);
         self.require_sc_address(&router_address);
-        self.egld_wrapper_sc_address().set(egld_wrapper_address);
+        self.egld_wrapper_address().set(egld_wrapper_address);
         self.router_address().set(router_address);
     }
 

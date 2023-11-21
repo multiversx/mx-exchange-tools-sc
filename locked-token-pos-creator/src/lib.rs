@@ -46,7 +46,7 @@ pub trait LockedTokenPosCreatorContract:
         self.require_sc_address(&proxy_dex_address);
         self.require_sc_address(&router_address);
 
-        self.egld_wrapper_sc_address().set(egld_wrapper_address);
+        self.egld_wrapper_address().set(egld_wrapper_address);
         self.pair_address().set(mex_wegld_lp_pair_address);
         self.farm_address().set(mex_wegld_lp_farm_address);
         self.proxy_dex_address().set(proxy_dex_address);
