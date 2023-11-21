@@ -181,6 +181,7 @@ dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",
  "multiversx-sc-scenario",
+ "multiversx-wegld-swap-sc",
  "num-bigint",
  "num-traits",
  "pair 0.0.0 (git+https://github.com/multiversx/mx-exchange-sc?rev=bd02b83)",
@@ -1941,6 +1942,15 @@ dependencies = [
  "sha3 0.9.1",
  "tokio",
  "zeroize",
+]
+
+[[package]]
+name = "multiversx-wegld-swap-sc"
+version = "0.44.0"
+source = "git+https://github.com/multiversx/mx-contracts-rs/?rev=236d891#236d891e75eb5e56c3e07ecf6c84153ead0f12bb"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-modules",
 ]
 
 [[package]]

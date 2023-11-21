@@ -28,7 +28,6 @@ pub trait CreatePosModule:
         swap_operations: MultiValueEncoded<SwapOperationType<Self::Api>>,
     ) -> EsdtTokenPayment {
         let esdt_payment = self.get_esdt_payment(payment);
-        require!(esdt_payment.token_nonce == 0, "Only fungible ESDT accepted");
 
         if !swap_operations.is_empty() {
             self.call_router_swap(esdt_payment, swap_operations)
@@ -64,26 +63,24 @@ pub trait CreatePosModule:
             &first_payment.amount / 2u64,
         );
         first_payment.amount -= &swap_input_payment.amount;
-        let swap_payment =
+        let second_payment =
             self.call_pair_swap(pair_address.clone(), swap_input_payment, other_token_id);
 
         self.check_router_pair(
             pair_address,
             first_payment.token_identifier.clone(),
-            swap_payment.token_identifier.clone(),
+            second_payment.token_identifier.clone(),
         );
 
         // Reverse tokens if needed
-        let second_payment = if first_payment.token_identifier == pair_config.second_token_id {
+        if first_payment.token_identifier == pair_config.second_token_id {
             let reversed_payment = first_payment.clone();
-            first_payment.token_identifier = swap_payment.token_identifier;
-            first_payment.amount = swap_payment.amount;
+            first_payment.token_identifier = second_payment.token_identifier;
+            first_payment.amount = second_payment.amount;
             reversed_payment
         } else {
-            swap_payment
-        };
-
-        second_payment
+            second_payment
+        }
     }
 
     fn get_esdt_payment(&self, payment: EgldOrEsdtTokenPayment) -> EsdtTokenPayment {
@@ -92,7 +89,7 @@ pub trait CreatePosModule:
             self.call_wrap_egld(payment.amount)
         } else {
             let esdt_payment = payment.unwrap_esdt();
-            require!(esdt_payment.token_nonce == 0, "Invalid payment");
+            require!(esdt_payment.token_nonce == 0, "Only fungible ESDT accepted");
             esdt_payment
         }
     }

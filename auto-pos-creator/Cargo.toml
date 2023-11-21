@@ -66,6 +66,10 @@ rev = "bd02b83"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "bd02b83"
 
+[dependencies.multiversx-wegld-swap-sc]
+git = "https://github.com/multiversx/mx-contracts-rs/"
+rev = "236d891"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 num-traits = "0.2"
