@@ -45,7 +45,7 @@ pub trait CreatePosModule:
         let pair_config = self.get_pair_config(&pair_address);
 
         let other_token_id = if first_payment.token_identifier == pair_config.first_token_id {
-            pair_config.second_token_id
+            pair_config.second_token_id.clone()
         } else if first_payment.token_identifier == pair_config.second_token_id {
             pair_config.first_token_id
         } else if first_payment.token_identifier == pair_config.lp_token_id {
@@ -64,14 +64,24 @@ pub trait CreatePosModule:
             &first_payment.amount / 2u64,
         );
         first_payment.amount -= &swap_input_payment.amount;
-        let second_payment =
+        let swap_payment =
             self.call_pair_swap(pair_address.clone(), swap_input_payment, other_token_id);
 
         self.check_router_pair(
             pair_address,
             first_payment.token_identifier.clone(),
-            second_payment.token_identifier.clone(),
+            swap_payment.token_identifier.clone(),
         );
+
+        // Reverse tokens if needed
+        let second_payment = if first_payment.token_identifier == pair_config.second_token_id {
+            let reversed_payment = first_payment.clone();
+            first_payment.token_identifier = swap_payment.token_identifier;
+            first_payment.amount = swap_payment.amount;
+            reversed_payment
+        } else {
+            swap_payment
+        };
 
         second_payment
     }
@@ -124,6 +134,11 @@ pub trait CreatePosModule:
     ) -> (EsdtTokenPayment, PaymentsWrapper<Self::Api>) {
         let mut output_payments = PaymentsWrapper::new();
         if second_token_payment.amount == 0 {
+            let lp_token_id = self.lp_token_identifier().get_from_address(&pair_address);
+            require!(
+                first_token_payment.token_identifier == lp_token_id,
+                "Wrong LP token"
+            );
             return (first_token_payment, output_payments);
         }
         let add_liq_result = self.call_pair_add_liquidity(
