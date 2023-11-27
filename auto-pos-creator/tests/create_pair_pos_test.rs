@@ -605,6 +605,123 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
 }
 
 #[test]
+fn enter_metastaking_with_merge_through_pos_creator_test() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        router::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
+
+    let user_addr = pos_creator_setup.farm_setup.first_user;
+    let user_third_token_balance = 300_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(user_third_token_balance),
+    );
+
+    // user enter (A, B) metastaking farm with token C
+    let second_pair_addr = pos_creator_setup.pair_setups[1]
+        .pair_wrapper
+        .address_ref()
+        .clone();
+    let ms_addr = pos_creator_setup.ms_wrapper.address_ref().clone();
+    let expected_dual_yield_tokens = 22_727_271u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            TOKEN_IDS[2], // Token C
+            0,
+            &rust_biguint!(user_third_token_balance),
+            |sc| {
+                // swap_operation -> pair_address, function, token_wanted, amount
+                let mut swap_operations = MultiValueEncoded::new();
+                let swap_operation: SwapOperationType<DebugApi> = (
+                    managed_address!(&second_pair_addr),
+                    ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+                    managed_token_id!(TOKEN_IDS[0]), // Want token B
+                    BigUint::from(1u64),
+                )
+                    .into();
+                swap_operations.push(swap_operation);
+                let output_payments = sc.create_metastaking_pos_from_single_token(
+                    managed_address!(&ms_addr),
+                    1u32.into(),
+                    1u32.into(),
+                    swap_operations,
+                );
+
+                assert_eq!(
+                    output_payments.get(1).token_identifier,
+                    managed_token_id!(DUAL_YIELD_TOKEN_ID)
+                );
+                assert_eq!(
+                    output_payments.get(1).amount,
+                    managed_biguint!(expected_dual_yield_tokens)
+                );
+            },
+        )
+        .assert_ok();
+
+    // Enter metastaking again, with the previous dual yield tokens, as additional payments
+    // Use the same input LP token amount as the one obtained in the first operation
+    let exact_input_amount = 23_255_813u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        LP_TOKEN_IDS[0],
+        &rust_biguint!(exact_input_amount),
+    );
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: LP_TOKEN_IDS[0].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(exact_input_amount),
+        },
+        TxTokenTransfer {
+            token_identifier: DUAL_YIELD_TOKEN_ID.to_vec(),
+            nonce: 1,
+            value: rust_biguint!(expected_dual_yield_tokens),
+        },
+    ];
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            &payments,
+            |sc| {
+                let output_payments = sc.create_metastaking_pos_from_single_token(
+                    managed_address!(&ms_addr),
+                    1u32.into(),
+                    1u32.into(),
+                    MultiValueEncoded::new(),
+                );
+
+                // There should be only 1 output payment, as we provided directly LP tokens
+                // The amount should be equal with double the first obtained amount
+                assert_eq!(output_payments.len(), 1);
+                assert_eq!(
+                    output_payments.get(0).token_identifier,
+                    managed_token_id!(DUAL_YIELD_TOKEN_ID)
+                );
+                assert_eq!(
+                    output_payments.get(0).amount,
+                    managed_biguint!(expected_dual_yield_tokens * 2)
+                );
+            },
+        )
+        .assert_ok();
+}
+
+#[test]
 fn create_metastaking_pos_from_two_tokens_test() {
     let pos_creator_setup = PosCreatorSetup::new(
         farm_with_locked_rewards::contract_obj,
