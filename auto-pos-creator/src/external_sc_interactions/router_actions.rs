@@ -32,32 +32,18 @@ pub trait RouterActionsModule {
     ) -> EsdtTokenPayment {
         let router_address = self.router_address().get();
 
-        // TODO - remove when backTransfers are implemented
-        let output_payments: ManagedVec<EsdtTokenPayment> = self
+        let ((), back_transfers) = self
             .router_proxy(router_address)
             .multi_pair_swap(swap_operations)
             .with_esdt_transfer(input_tokens)
-            .execute_on_dest_context();
+            .execute_on_dest_context_with_back_transfers();
 
         require!(
-            output_payments.len() == 1,
+            back_transfers.esdt_payments.len() == 1,
             "Wrong number of output tokens. Use only fixed input swaps"
         );
 
-        output_payments.get(0)
-
-        // let ((), back_transfers) = self
-        //     .router_proxy(router_address)
-        //     .multi_pair_swap(swap_operations)
-        //     .with_esdt_transfer(input_tokens)
-        //     .execute_on_dest_context_with_back_transfers();
-
-        // require!(
-        //     back_transfers.esdt_payments.len() == 1,
-        //     "Wrong number of output tokens. Use only fixed input swaps"
-        // );
-
-        // back_transfers.esdt_payments.get(0)
+        back_transfers.esdt_payments.get(0)
     }
 
     #[proxy]
