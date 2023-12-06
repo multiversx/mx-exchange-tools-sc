@@ -11,24 +11,33 @@ pub trait WegldWrapModule {
             "Payment token is not EGLD!"
         );
 
-        let wrapped_egld: EsdtTokenPayment = self
+        let ((), back_transfers) = self
             .wrap_egld_proxy(wrap_egld_addr)
             .wrap_egld()
             .with_egld_transfer(payment.amount)
-            .execute_on_dest_context();
+            .execute_on_dest_context_with_back_transfers();
 
-        EgldOrEsdtTokenPayment::from(wrapped_egld)
+        let returned_wrapped_egld = back_transfers.esdt_payments;
+        require!(
+            returned_wrapped_egld.len() == 1,
+            "wrap_egld should output only 1 payment"
+        );
+
+        EgldOrEsdtTokenPayment::from(returned_wrapped_egld.get(0))
     }
 
     fn unwrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {
         let wrap_egld_addr = self.wrap_egld_addr().get();
 
-        let _: IgnoreValue = self
+        let ((), back_transfers) = self
             .wrap_egld_proxy(wrap_egld_addr)
             .unwrap_egld()
             .with_esdt_transfer(payment.clone().unwrap_esdt())
-            .execute_on_dest_context();
-        EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, payment.amount)
+            .execute_on_dest_context_with_back_transfers();
+
+        let returned_egld = back_transfers.total_egld_amount;
+
+        EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, returned_egld)
     }
 
     #[proxy]
