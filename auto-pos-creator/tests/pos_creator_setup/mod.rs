@@ -1,16 +1,13 @@
 #![allow(deprecated)]
 
 use crate::pair_setup::PairSetup;
+use crate::router_setup::RouterSetup;
 
 use super::metastaking_setup::setup_metastaking;
-use auto_farm::whitelists::{
-    farms_whitelist::FarmsWhitelistModule, metastaking_whitelist::MetastakingWhitelistModule,
-};
-use auto_pos_creator::{configs::pairs_config::PairsConfigModule, AutoPosCreator};
-use multiversx_sc::types::{ManagedVec, MultiValueEncoded};
+use auto_pos_creator::AutoPosCreator;
+use farm::exit_penalty::ExitPenaltyModule;
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint,
-    testing_framework::ContractObjWrapper, DebugApi,
+    managed_address, managed_biguint, rust_biguint, testing_framework::ContractObjWrapper, DebugApi,
 };
 use sc_whitelist_module::SCWhitelistModule;
 use tests_common::{
@@ -28,6 +25,7 @@ pub struct PosCreatorSetup<
     FarmBuilder,
     EnergyFactoryBuilder,
     PairBuilder,
+    RouterBuilder,
     FarmStakingBuilder,
     MetastakingBuilder,
     PosCreatorBuilder,
@@ -35,12 +33,14 @@ pub struct PosCreatorSetup<
     FarmBuilder: 'static + Copy + Fn() -> farm_with_locked_rewards::ContractObj<DebugApi>,
     EnergyFactoryBuilder: 'static + Copy + Fn() -> energy_factory::ContractObj<DebugApi>,
     PairBuilder: 'static + Copy + Fn() -> pair::ContractObj<DebugApi>,
+    RouterBuilder: 'static + Copy + Fn() -> router::ContractObj<DebugApi>,
     FarmStakingBuilder: 'static + Copy + Fn() -> farm_staking::ContractObj<DebugApi>,
     MetastakingBuilder: 'static + Copy + Fn() -> farm_staking_proxy::ContractObj<DebugApi>,
     PosCreatorBuilder: 'static + Copy + Fn() -> auto_pos_creator::ContractObj<DebugApi>,
 {
     pub farm_setup: FarmSetup<FarmBuilder, EnergyFactoryBuilder>,
     pub pair_setups: Vec<PairSetup<PairBuilder>>,
+    pub router_setup: RouterSetup<RouterBuilder>,
     pub fs_wrapper: ContractObjWrapper<farm_staking::ContractObj<DebugApi>, FarmStakingBuilder>,
     pub ms_wrapper:
         ContractObjWrapper<farm_staking_proxy::ContractObj<DebugApi>, MetastakingBuilder>,
@@ -52,6 +52,7 @@ impl<
         FarmBuilder,
         EnergyFactoryBuilder,
         PairBuilder,
+        RouterBuilder,
         FarmStakingBuilder,
         MetastakingBuilder,
         PosCreatorBuilder,
@@ -60,6 +61,7 @@ impl<
         FarmBuilder,
         EnergyFactoryBuilder,
         PairBuilder,
+        RouterBuilder,
         FarmStakingBuilder,
         MetastakingBuilder,
         PosCreatorBuilder,
@@ -68,6 +70,7 @@ where
     FarmBuilder: 'static + Copy + Fn() -> farm_with_locked_rewards::ContractObj<DebugApi>,
     EnergyFactoryBuilder: 'static + Copy + Fn() -> energy_factory::ContractObj<DebugApi>,
     PairBuilder: 'static + Copy + Fn() -> pair::ContractObj<DebugApi>,
+    RouterBuilder: 'static + Copy + Fn() -> router::ContractObj<DebugApi>,
     FarmStakingBuilder: 'static + Copy + Fn() -> farm_staking::ContractObj<DebugApi>,
     MetastakingBuilder: 'static + Copy + Fn() -> farm_staking_proxy::ContractObj<DebugApi>,
     PosCreatorBuilder: 'static + Copy + Fn() -> auto_pos_creator::ContractObj<DebugApi>,
@@ -90,6 +93,7 @@ where
         farm_builder: FarmBuilder,
         energy_factory_builder: EnergyFactoryBuilder,
         pair_builder: PairBuilder,
+        router_builder: RouterBuilder,
         farm_staking_builder: FarmStakingBuilder,
         metastaking_builder: MetastakingBuilder,
         pos_creator_builder: PosCreatorBuilder,
@@ -134,6 +138,12 @@ where
             TOKEN_IDS[2],
             LP_TOKEN_IDS[2],
         );
+        let mut router_setup = RouterSetup::new(
+            b_mock.clone(),
+            router_builder,
+            &owner,
+            first_pair_setup.pair_wrapper.address_ref(),
+        );
 
         let first_token_total_amount = 2_000_000_000u64;
         let second_token_total_amount = 3_000_000_000u64;
@@ -157,6 +167,25 @@ where
         let mut block_round: u64 = 1;
         b_mock.borrow_mut().set_block_round(block_round);
 
+        // whitelist pairs in router
+        router_setup.whitelist_pair(
+            &owner,
+            &first_pair_setup.first_token_id,
+            &first_pair_setup.second_token_id,
+            first_pair_setup.pair_wrapper.address_ref(),
+        );
+        router_setup.whitelist_pair(
+            &owner,
+            &second_pair_setup.first_token_id,
+            &second_pair_setup.second_token_id,
+            second_pair_setup.pair_wrapper.address_ref(),
+        );
+        router_setup.whitelist_pair(
+            &owner,
+            &third_pair_setup.first_token_id,
+            &third_pair_setup.second_token_id,
+            third_pair_setup.pair_wrapper.address_ref(),
+        );
         // add initial liquidity
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
         second_pair_setup.add_liquidity(&owner, 1_000_000_000, 6_000_000_000);
@@ -249,31 +278,8 @@ where
             .execute_tx(&owner, &pos_creator_wrapper, &rust_biguint!(0), |sc| {
                 sc.init(
                     managed_address!(pos_creator_wrapper.address_ref()), // unused
-                    managed_token_id!(TOKEN_IDS[1]),
+                    managed_address!(router_setup.router_wrapper.address_ref()),
                 );
-
-                let mut farms = MultiValueEncoded::new();
-                farms.push(managed_address!(farm_setup.farm_wrappers[0].address_ref()));
-                farms.push(managed_address!(farm_setup.farm_wrappers[1].address_ref()));
-                farms.push(managed_address!(fs_wrapper.address_ref()));
-
-                sc.add_farms(farms);
-                sc.add_metastaking_scs(
-                    ManagedVec::from_single_item(managed_address!(ms_wrapper.address_ref())).into(),
-                );
-
-                let mut pairs = MultiValueEncoded::new();
-                pairs.push(managed_address!(first_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
-                pairs.push(managed_address!(second_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
-                pairs.push(managed_address!(third_pair_setup
-                    .pair_wrapper
-                    .address_ref()));
-
-                sc.add_pairs_to_whitelist(pairs);
             })
             .assert_ok();
 
@@ -298,6 +304,7 @@ where
             .assert_ok();
 
         // add auto pos SC and metastaking SC to LP farm whitelist
+        // add pair address in farm contract
         b_mock
             .borrow_mut()
             .execute_tx(
@@ -309,6 +316,13 @@ where
                         .add(&managed_address!(pos_creator_wrapper.address_ref()));
                     sc.sc_whitelist_addresses()
                         .add(&managed_address!(ms_wrapper.address_ref()));
+
+                    sc.pair_contract_address()
+                        .set(managed_address!(first_pair_setup
+                            .pair_wrapper
+                            .address_ref()));
+
+                    sc.penalty_percent().set(0u64);
                 },
             )
             .assert_ok();
@@ -322,6 +336,13 @@ where
                 |sc| {
                     sc.sc_whitelist_addresses()
                         .add(&managed_address!(pos_creator_wrapper.address_ref()));
+
+                    sc.pair_contract_address()
+                        .set(managed_address!(second_pair_setup
+                            .pair_wrapper
+                            .address_ref()));
+
+                    sc.penalty_percent().set(0u64);
                 },
             )
             .assert_ok();
@@ -331,6 +352,7 @@ where
         PosCreatorSetup {
             farm_setup,
             pair_setups,
+            router_setup,
             fs_wrapper,
             ms_wrapper,
             pos_creator_wrapper,

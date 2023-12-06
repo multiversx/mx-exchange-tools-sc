@@ -2,16 +2,15 @@
 
 mod proxy_dex_test_setup;
 
-use auto_pos_creator::{
-    configs::pairs_config::PairsConfigModule,
-    multi_contract_interactions::create_pos::StepsToPerform,
-};
+use auto_pos_creator::external_sc_interactions::router_actions::SwapOperationType;
 use config::ConfigModule;
 use locked_token_pos_creator::{
     create_farm_pos::CreateFarmPosModule, create_pair_pos::CreatePairPosModule,
     LockedTokenPosCreatorContract,
 };
-use multiversx_sc::types::{EsdtLocalRole, EsdtTokenPayment, MultiValueEncoded};
+use multiversx_sc::types::{
+    BigUint, EsdtLocalRole, EsdtTokenPayment, ManagedBuffer, MultiValueEncoded,
+};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     whitebox_legacy::TxTokenTransfer, DebugApi,
@@ -22,6 +21,7 @@ use proxy_dex::{
     wrapped_lp_attributes::WrappedLpTokenAttributes,
 };
 use proxy_dex_test_setup::*;
+use router::multi_pair_swap::SWAP_TOKENS_FIXED_INPUT_FUNC_NAME;
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::LockedTokenAttributes;
 
@@ -30,6 +30,7 @@ fn setup_test() {
     let _ = ProxySetup::new(
         proxy_dex::contract_obj,
         pair::contract_obj,
+        router::contract_obj,
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
@@ -40,6 +41,7 @@ fn create_pair_and_farm_pos_test() {
     let proxy_dex_setup = ProxySetup::new(
         proxy_dex::contract_obj,
         pair::contract_obj,
+        router::contract_obj,
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
@@ -74,15 +76,12 @@ fn create_pair_and_farm_pos_test() {
             |sc| {
                 sc.init(
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
-                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
-                    managed_token_id!(WEGLD_TOKEN_ID),
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.pair_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.router_wrapper.address_ref()),
                 );
-
-                let mut pair_addresses = MultiValueEncoded::new();
-                pair_addresses.push(managed_address!(proxy_dex_setup.pair_wrapper.address_ref()));
-                sc.add_pairs_to_whitelist(pair_addresses);
             },
         )
         .assert_ok();
@@ -156,10 +155,12 @@ fn create_pair_and_farm_pos_test() {
                     LOCK_OPTIONS[0],
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),
+                    MultiValueEncoded::new(),
                 );
-                assert_eq!(add_liq_result.locked_token_leftover.amount, 0u64);
-                assert_eq!(add_liq_result.wegld_leftover.amount, 2u64);
-                assert_eq!(add_liq_result.wrapped_lp_token.amount, 497u64);
+
+                // A vec of non empty payments is returned, so only first token dust and lp tokens are returned
+                assert_eq!(add_liq_result.get(0).amount, 2u64);
+                assert_eq!(add_liq_result.get(1).amount, 497u64);
             },
         )
         .assert_ok();
@@ -221,10 +222,10 @@ fn create_pair_and_farm_pos_test() {
                     LOCK_OPTIONS[0],
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),
+                    MultiValueEncoded::new(),
                 );
-                assert_eq!(create_farm_pos_result.locked_token_leftover.amount, 0u64);
-                assert_eq!(create_farm_pos_result.wegld_leftover.amount, 2u64);
-                assert_eq!(create_farm_pos_result.wrapped_farm_token.amount, 497u64);
+                assert_eq!(create_farm_pos_result.get(0).amount, 2u64);
+                assert_eq!(create_farm_pos_result.get(1).amount, 497u64);
             },
         )
         .assert_ok();
@@ -255,6 +256,7 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
     let proxy_dex_setup = ProxySetup::new(
         proxy_dex::contract_obj,
         pair::contract_obj,
+        router::contract_obj,
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
@@ -289,15 +291,12 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
             |sc| {
                 sc.init(
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
-                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
-                    managed_token_id!(WEGLD_TOKEN_ID),
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.pair_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.router_wrapper.address_ref()),
                 );
-
-                let mut pair_addresses = MultiValueEncoded::new();
-                pair_addresses.push(managed_address!(proxy_dex_setup.pair_wrapper.address_ref()));
-                sc.add_pairs_to_whitelist(pair_addresses);
             },
         )
         .assert_ok();
@@ -379,8 +378,7 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
             &pos_creator_wrapper,
             &add_liquidity_payments,
             |sc| {
-                let output_payments = sc.create_lp_or_farm_pos_from_two_tokens(
-                    StepsToPerform::AddLiquidity,
+                let output_payments = sc.create_pair_pos_from_two_tokens_endpoint(
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),
                 );
@@ -451,8 +449,7 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
             &pos_creator_wrapper,
             &enter_farm_payments,
             |sc| {
-                let output_payments = sc.create_lp_or_farm_pos_from_two_tokens(
-                    StepsToPerform::EnterFarm,
+                let output_payments = sc.create_farm_pos_from_two_tokens(
                     managed_biguint!(1u64),
                     managed_biguint!(1u64),
                 );
@@ -481,6 +478,7 @@ fn create_energy_position_test() {
     let proxy_dex_setup = ProxySetup::new(
         proxy_dex::contract_obj,
         pair::contract_obj,
+        router::contract_obj,
         farm_with_locked_rewards::contract_obj,
         energy_factory::contract_obj,
     );
@@ -515,15 +513,12 @@ fn create_energy_position_test() {
             |sc| {
                 sc.init(
                     managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
-                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()), // not used
-                    managed_token_id!(WEGLD_TOKEN_ID),
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.pair_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
                     managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.router_wrapper.address_ref()),
                 );
-
-                let mut pair_addresses = MultiValueEncoded::new();
-                pair_addresses.push(managed_address!(proxy_dex_setup.pair_wrapper.address_ref()));
-                sc.add_pairs_to_whitelist(pair_addresses);
             },
         )
         .assert_ok();
@@ -603,6 +598,7 @@ fn create_energy_position_test() {
                 let locked_mex_payment = sc.create_energy_position(
                     LOCK_OPTIONS[2],
                     managed_biguint!(expected_locked_token_amount),
+                    MultiValueEncoded::new(),
                 );
                 assert_eq!(
                     locked_mex_payment.token_identifier,
@@ -636,9 +632,20 @@ fn create_energy_position_test() {
             0,
             &rust_biguint!(1_000u64),
             |sc| {
+                // swap_operation -> pair_address, function, token_wanted, amount
+                let mut swap_operations = MultiValueEncoded::new();
+                let swap_operation: SwapOperationType<DebugApi> = (
+                    managed_address!(&pair_addr),
+                    ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+                    managed_token_id!(MEX_TOKEN_ID),
+                    BigUint::from(1u64),
+                )
+                    .into();
+                swap_operations.push(swap_operation);
                 let locked_mex_payment = sc.create_energy_position(
                     LOCK_OPTIONS[2],
                     managed_biguint!(expected_locked_token_amount2),
+                    swap_operations,
                 );
                 assert_eq!(
                     locked_mex_payment.token_identifier,
