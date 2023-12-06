@@ -21,24 +21,6 @@ pub type PairTokenPayments<M> = PairRemoveLiqResult<M>;
 pub trait PairActionsModule:
     crate::configs::pairs_config::PairsConfigModule + utils::UtilsModule
 {
-    fn perform_tokens_swap(
-        &self,
-        from_tokens: TokenIdentifier,
-        from_amount: BigUint,
-        to_tokens: TokenIdentifier,
-    ) -> EsdtTokenPayment {
-        if from_tokens == to_tokens {
-            return EsdtTokenPayment::new(from_tokens, 0, from_amount);
-        }
-
-        let pair_address = self
-            .get_pair_address_for_tokens(&from_tokens, &to_tokens)
-            .unwrap_address();
-        let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
-
-        self.call_pair_swap(pair_address, payment, to_tokens)
-    }
-
     fn call_pair_swap(
         &self,
         pair_address: ManagedAddress,

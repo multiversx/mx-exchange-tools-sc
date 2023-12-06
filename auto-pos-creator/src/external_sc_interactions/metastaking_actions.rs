@@ -1,3 +1,4 @@
+use common_structs::PaymentsVec;
 pub use farm_staking_proxy::proxy_actions::stake::ProxyTrait as OtherProxyTrait2;
 pub use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as OtherProxyTrait;
 use farm_staking_proxy::result_types::{StakeProxyResult, UnstakeResult};
@@ -10,11 +11,11 @@ pub trait MetastakingActionsModule {
         &self,
         sc_address: ManagedAddress,
         user: ManagedAddress,
-        lp_farm_tokens: EsdtTokenPayment,
+        payments: PaymentsVec<Self::Api>,
     ) -> StakeProxyResult<Self::Api> {
         self.metastaking_proxy(sc_address)
             .stake_farm_tokens(user)
-            .with_esdt_transfer(lp_farm_tokens)
+            .with_multi_token_transfer(payments)
             .execute_on_dest_context()
     }
 
@@ -35,4 +36,7 @@ pub trait MetastakingActionsModule {
     #[proxy]
     fn metastaking_proxy(&self, sc_address: ManagedAddress)
         -> farm_staking_proxy::Proxy<Self::Api>;
+
+    #[storage_mapper("lpFarmAddress")]
+    fn lp_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
 }
