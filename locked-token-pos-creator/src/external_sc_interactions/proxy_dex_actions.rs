@@ -51,14 +51,14 @@ pub trait ProxyDexActionsModule {
     fn call_enter_farm_proxy(
         &self,
         user: ManagedAddress,
-        payment: EsdtTokenPayment,
+        payments: ManagedVec<EsdtTokenPayment>,
         farm_address: ManagedAddress,
     ) -> EnterFarmProxyResult<Self::Api> {
         let proxy_dex_address = self.proxy_dex_address().get();
         let result: EnterFarmProxyResultType<Self::Api> = self
             .proxy_dex_proxy(proxy_dex_address)
             .enter_farm_proxy_endpoint(farm_address, user)
-            .with_esdt_transfer(payment)
+            .with_multi_token_transfer(payments)
             .execute_on_dest_context();
 
         let (wrapped_farm_token, rewards) = result.into_tuple();
