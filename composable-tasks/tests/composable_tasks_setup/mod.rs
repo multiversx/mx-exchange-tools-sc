@@ -246,27 +246,7 @@ where
 
                 let wegld_swap_addr: &Address = wegld_swap_setup.wegld_swap_wrapper.address_ref();
                 sc.set_wrap_egld_address(managed_address!(wegld_swap_addr));
-
-                sc.set_pair_address_for_tokens(
-                    &managed_token_id!(TOKEN_IDS[0]),
-                    &managed_token_id!(TOKEN_IDS[1]),
-                    managed_address!(first_pair_setup.pair_wrapper.address_ref()),
-                );
-
-                sc.set_pair_address_for_tokens(
-                    &managed_token_id!(TOKEN_IDS[0]),
-                    &managed_token_id!(TOKEN_IDS[2]),
-                    managed_address!(second_pair_setup.pair_wrapper.address_ref()),
-                );
-
-                sc.set_pair_address_for_tokens(
-                    &managed_token_id!(TOKEN_IDS[1]),
-                    &managed_token_id!(TOKEN_IDS[2]),
-                    managed_address!(third_pair_setup.pair_wrapper.address_ref()),
-                );
-
                 sc.set_router_address(managed_address!(router_wrapper.address_ref()));
-                // TODO: Add to storage Pairs
             })
             .assert_ok();
 

@@ -27,8 +27,7 @@ pub trait TaskCall:
         expected_token_out: EgldOrEsdtTokenPayment,
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
-        let payment = self.call_value().egld_or_single_esdt();
-        let mut payment_for_next_task = payment;
+        let mut payment_for_next_task = self.call_value().egld_or_single_esdt();
 
         let caller = self.blockchain().get_caller();
 
@@ -47,11 +46,13 @@ pub trait TaskCall:
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
 
+                    require!(args.len() == 2, "Swap requires only 2 argumnets");
+
                     let token_out = TokenIdentifier::from(args.get(0).clone_value());
                     let min_amount_out = BigUint::from(args.get(1).clone_value());
 
                     self.perform_tokens_swap(
-                        payment_in.token_identifier.clone(),
+                        payment_in.token_identifier,
                         payment_in.amount,
                         token_out,
                         min_amount_out,

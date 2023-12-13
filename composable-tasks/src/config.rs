@@ -15,20 +15,8 @@ pub trait ConfigModule:
     }
 
     #[only_owner]
-    #[endpoint(setrouterAddr)]
+    #[endpoint(setRouterAddr)]
     fn set_router_address(&self, new_addr: ManagedAddress) {
         self.router_addr().set(new_addr);
-    }
-
-    #[only_owner]
-    #[endpoint(setPairAddrForTokens)]
-    fn set_pair_address_for_tokens(
-        &self,
-        first_token_id: &TokenIdentifier,
-        second_token_id: &TokenIdentifier,
-        new_addr: ManagedAddress,
-    ) {
-        self.pair_address_for_tokens(first_token_id, second_token_id)
-            .set(new_addr);
     }
 }
