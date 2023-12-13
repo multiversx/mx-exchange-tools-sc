@@ -26,6 +26,10 @@ pub trait RouterActionsModule {
                 Some(addr) => ManagedAddress::try_from(addr).unwrap_or_else(|err| sc_panic!(err)),
                 None => break,
             };
+            let function_wanted = match swap_args_iter.next() {
+                Some(function) => ManagedBuffer::from(function),
+                None => break,
+            };
             let token_wanted = match swap_args_iter.next() {
                 Some(token) => TokenIdentifier::from(token),
                 None => break,
@@ -36,7 +40,7 @@ pub trait RouterActionsModule {
             };
             swap_operations.push(SwapOperationType::from((
                 pair_address_arg,
-                ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+                function_wanted,
                 token_wanted.clone(),
                 amount_wanted.clone(),
             )));
