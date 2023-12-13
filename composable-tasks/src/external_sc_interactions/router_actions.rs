@@ -5,7 +5,7 @@ type SwapOperationType<M> =
 
 use core::convert::TryFrom;
 
-use router::multi_pair_swap::ProxyTrait as _;
+use router::{multi_pair_swap::ProxyTrait as _, factory::ProxyTrait as _};
 pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
 #[multiversx_sc::module]
@@ -56,6 +56,19 @@ pub trait RouterActionsModule {
             "Router should output only 1 payment"
         );
         EgldOrEsdtTokenPayment::from(returned_esdt_payments.get(0))
+    }
+
+    #[view(getPair)]
+    fn get_pair(
+        &self,
+        first_token_id: TokenIdentifier,
+        second_token_id: TokenIdentifier,
+    ) -> ManagedAddress {
+        let router_addr = self.router_addr().get();
+
+        self.router_proxy(router_addr)
+            .get_pair(first_token_id, second_token_id)
+            .execute_on_dest_context()
     }
 
     #[proxy]
