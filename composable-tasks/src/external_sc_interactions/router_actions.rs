@@ -27,7 +27,7 @@ pub trait RouterActionsModule {
                 None => break,
             };
             let function_wanted = match swap_args_iter.next() {
-                Some(function) => ManagedBuffer::from(function),
+                Some(function) => function,
                 None => break,
             };
             let token_wanted = match swap_args_iter.next() {

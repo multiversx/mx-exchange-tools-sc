@@ -24,7 +24,7 @@ pub trait TaskCall:
     #[endpoint(composeTasks)]
     fn compose_tasks(
         &self,
-        expected_token_out: EgldOrEsdtTokenPayment,
+        min_expected_token_out: EgldOrEsdtTokenPayment,
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
         let mut payment_for_next_task = self.call_value().egld_or_single_esdt();
@@ -64,11 +64,16 @@ pub trait TaskCall:
                         !payment_for_current_task.token_identifier.is_egld(),
                         "EGLD can't be swapped!"
                     );
+                    require!(
+                        args.len() % 4 == 0,
+                        "Invalid number of router swap arguments"
+                    );
                     let payment_in = payment_for_current_task.unwrap_esdt();
                     self.multi_pair_swap(payment_in, args)
                 }
                 TaskType::SendEgldOrEsdt => {
-                    self.require_min_expected_token(&expected_token_out, &payment_for_current_task);
+                    self.require_min_expected_token(&min_expected_token_out, &payment_for_current_task);
+                    require!(args.len() == 1, "Invalid number of arguments!");
 
                     let dest_addr =
                         ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(caller);
@@ -83,7 +88,7 @@ pub trait TaskCall:
                 }
             };
         }
-        self.require_min_expected_token(&expected_token_out, &payment_for_next_task);
+        self.require_min_expected_token(&min_expected_token_out, &payment_for_next_task);
 
         self.send().direct(
             &caller,
