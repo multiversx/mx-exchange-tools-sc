@@ -595,6 +595,7 @@ fn swap_router_single_task_test() {
             |sc| {
                 let mut swap_args = ManagedVec::new();
                 swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
                 swap_args.push(managed_buffer!(TOKEN_IDS[0]));
                 swap_args.push(managed_buffer!(
                     &rust_biguint!(expected_balance).to_bytes_be()
@@ -659,6 +660,7 @@ fn swap_router_send_task_test() {
             |sc| {
                 let mut swap_args = ManagedVec::new();
                 swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
                 swap_args.push(managed_buffer!(TOKEN_IDS[0]));
                 swap_args.push(managed_buffer!(
                     &rust_biguint!(expected_balance).to_bytes_be()
