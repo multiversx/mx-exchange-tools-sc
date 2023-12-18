@@ -2,7 +2,7 @@
 
 ## Overview
 
-This smart contract enables users to compose multiple actions while interacting with various Smart Contracts from MultiversX ecosystem, including xEchange.
+This smart contract enables users to compose multiple actions while interacting with various Smart Contracts from MultiversX ecosystem, including xExchange.
 It streamlines the process of interacting with WrapEGld and xExchange and provides a convenient way to perform multiple actions in a single transaction on the blockchain.
 
 Complex actions are formed of multiple tasks. The tasks are performed synchronously, one after the other.
