@@ -5,6 +5,8 @@ use crate::external_sc_interactions;
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
+pub type PaymentsVec<M> = ManagedVec<M, EsdtTokenPayment<M>>;
+
 #[derive(TypeAbi, TopEncode, TopDecode, PartialEq, ManagedVecItem)]
 pub enum TaskType {
     WrapEGLD,
@@ -28,6 +30,7 @@ pub trait TaskCall:
         tasks: MultiValueEncoded<MultiValue2<TaskType, ManagedVec<ManagedBuffer>>>,
     ) {
         let mut payment_for_next_task = self.call_value().egld_or_single_esdt();
+        let mut payments_to_return = PaymentsVec::new();
 
         let caller = self.blockchain().get_caller();
 
@@ -69,33 +72,61 @@ pub trait TaskCall:
                         "Invalid number of router swap arguments"
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
-                    self.multi_pair_swap(payment_in, args)
+                    let returned_payments_by_router = self.multi_pair_swap(payment_in, args);
+
+                    let payment_out = match returned_payments_by_router.len() {
+                        1 => {
+                            EgldOrEsdtTokenPayment::from(returned_payments_by_router.get(0))
+                        },
+                        2 => {
+                            payments_to_return.push(returned_payments_by_router.get(0));
+                            EgldOrEsdtTokenPayment::from(returned_payments_by_router.get(1))
+                        }
+                        _ => sc_panic!("Router returned unknown number of payments!")
+                    };
+
+                    payment_out
                 }
                 TaskType::SendEgldOrEsdt => {
-                    self.require_min_expected_token(&min_expected_token_out, &payment_for_current_task);
+                    self.require_min_expected_token(
+                        &min_expected_token_out,
+                        &payment_for_current_task,
+                    );
                     require!(args.len() == 1, "Invalid number of arguments!");
 
                     let dest_addr =
                         ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(caller);
 
-                    self.send().direct(
-                        &dest_addr,
-                        &payment_for_current_task.token_identifier,
-                        payment_for_current_task.token_nonce,
-                        &payment_for_current_task.amount,
-                    );
+                    if payment_for_current_task.token_identifier.is_egld() {
+                        self.send()
+                            .direct_egld(&dest_addr, &payment_for_current_task.amount);
+                    } else {
+                        payments_to_return.push(EsdtTokenPayment::new(
+                            payment_for_current_task.token_identifier.unwrap_esdt(),
+                            payment_for_current_task.token_nonce,
+                            payment_for_current_task.amount,
+                        ));
+                    }
+
+                    self.send().direct_multi(&dest_addr, &payments_to_return);
+
                     return;
                 }
             };
         }
         self.require_min_expected_token(&min_expected_token_out, &payment_for_next_task);
 
-        self.send().direct(
-            &caller,
-            &payment_for_next_task.token_identifier,
-            payment_for_next_task.token_nonce,
-            &payment_for_next_task.amount,
-        );
+        if payment_for_next_task.token_identifier.is_egld() {
+            self.send()
+                .direct_egld(&caller, &payment_for_next_task.amount);
+        } else {
+            payments_to_return.push(EsdtTokenPayment::new(
+                payment_for_next_task.token_identifier.unwrap_esdt(),
+                payment_for_next_task.token_nonce,
+                payment_for_next_task.amount,
+            ));
+        }
+        self.send().direct_multi(&caller, &payments_to_return);
     }
 
     fn require_min_expected_token(

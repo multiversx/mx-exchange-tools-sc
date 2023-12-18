@@ -14,7 +14,7 @@ pub trait RouterActionsModule {
         &self,
         start_payment: EsdtTokenPayment<Self::Api>,
         swap_args: ManagedVec<ManagedBuffer<Self::Api>>,
-    ) -> EgldOrEsdtTokenPayment {
+    ) -> ManagedVec<EsdtTokenPayment> {
         let router_addr = self.router_addr().get();
 
         let mut swap_operations = MultiValueEncoded::new();
@@ -54,12 +54,10 @@ pub trait RouterActionsModule {
             .with_esdt_transfer(start_payment)
             .execute_on_dest_context_with_back_transfers();
 
-        let returned_esdt_payments = back_transfers.esdt_payments;
-        require!(
-            returned_esdt_payments.len() == 1,
-            "Router should output only 1 payment"
-        );
-        EgldOrEsdtTokenPayment::from(returned_esdt_payments.get(0))
+            back_transfers.esdt_payments
+        // let returned_esdt_payments = back_transfers.esdt_payments;
+
+        // EgldOrEsdtTokenPayment::from(returned_esdt_payments.get(1))
     }
 
     #[view(getPair)]
