@@ -12,32 +12,32 @@ path = "src/lib.rs"
 num-bigint = "0.4.2"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "0.45.1"
+version = "0.45.2"
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "c6093ee"
+rev = "b202319"
 
 [dependencies.multiversx-sc]
-version = "0.45.1"
+version = "0.45.2"
 features = ["back-transfers"]
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "c6093ee"
+rev = "b202319"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "c6093ee"
+rev = "b202319"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "c6093ee"
+rev = "b202319"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "c6093ee"
+rev = "b202319"
 
 [dependencies.multiversx-wegld-swap-sc]
 git = "https://github.com/multiversx/mx-contracts-rs"
-rev = "44fd7eb"
+rev = "7e6df3d"
