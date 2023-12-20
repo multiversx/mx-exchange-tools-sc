@@ -551,8 +551,8 @@ dependencies = [
 
 [[package]]
 name = "multiversx-wegld-swap-sc"
-version = "0.45.1"
-source = "git+https://github.com/multiversx/mx-contracts-rs/?rev=ec189d2#ec189d206eb57531be20f2547b792e6ae747e983"
+version = "0.45.2"
+source = "git+https://github.com/multiversx/mx-contracts-rs/?rev=7e6df3d#7e6df3d37b2913e8529f8ecebcc45a4700f3505d"
 dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",

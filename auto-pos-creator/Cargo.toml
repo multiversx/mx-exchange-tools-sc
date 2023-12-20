@@ -72,13 +72,13 @@ rev = "b202319"
 
 [dependencies.multiversx-wegld-swap-sc]
 git = "https://github.com/multiversx/mx-contracts-rs/"
-rev = "ec189d2"
+rev = "7e6df3d"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
 num-traits = "0.2"
 hex = "0.4"
-hex-literal = "0.3.4"
+hex-literal = "0.4.1"
 
 [dev-dependencies.multiversx-sc-scenario]
 version = "=0.45.2"
