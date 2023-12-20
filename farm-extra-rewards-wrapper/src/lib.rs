@@ -42,6 +42,6 @@ pub trait FarmExtraRewardsWrapper:
             .set(&division_safety_constant);
     }
 
-    #[endpoint]
+    #[upgrade]
     fn upgrade(&self) {}
 }
