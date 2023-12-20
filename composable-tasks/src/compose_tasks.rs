@@ -49,7 +49,7 @@ pub trait TaskCall:
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
 
-                    require!(args.len() == 2, "Swap requires only 2 argumnets");
+                    require!(args.len() == 2, "Swap requires only 2 arguments");
 
                     let token_out = TokenIdentifier::from(args.get(0).clone_value());
                     let min_amount_out = BigUint::from(args.get(1).clone_value());

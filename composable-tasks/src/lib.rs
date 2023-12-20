@@ -16,4 +16,7 @@ pub trait ComposableTasksContract:
 {
     #[init]
     fn init(&self) {}
+
+    #[upgrade]
+    fn upgrade(&self) {}
 }
