@@ -72,20 +72,12 @@ pub trait TaskCall:
                         "Invalid number of router swap arguments"
                     );
                     let payment_in = payment_for_current_task.unwrap_esdt();
-                    let returned_payments_by_router = self.multi_pair_swap(payment_in, args);
+                    let mut returned_payments_by_router = self.multi_pair_swap(payment_in, args);
 
-                    let payment_out = match returned_payments_by_router.len() {
-                        1 => {
-                            EgldOrEsdtTokenPayment::from(returned_payments_by_router.get(0))
-                        },
-                        2 => {
-                            payments_to_return.push(returned_payments_by_router.get(0));
-                            EgldOrEsdtTokenPayment::from(returned_payments_by_router.get(1))
-                        }
-                        _ => sc_panic!("Router returned unknown number of payments!")
-                    };
-
-                    payment_out
+                    let last_payment_index = returned_payments_by_router.len() - 1;
+                    let payment_out = returned_payments_by_router.take(last_payment_index);
+                    payments_to_return.append_vec(returned_payments_by_router);
+                    EgldOrEsdtTokenPayment::from(payment_out)
                 }
                 TaskType::SendEgldOrEsdt => {
                     self.require_min_expected_token(
@@ -107,9 +99,9 @@ pub trait TaskCall:
                             payment_for_current_task.amount,
                         ));
                     }
-
-                    self.send().direct_multi(&dest_addr, &payments_to_return);
-
+                    if !payments_to_return.is_empty() {
+                        self.send().direct_multi(&dest_addr, &payments_to_return);
+                    }
                     return;
                 }
             };
@@ -126,7 +118,9 @@ pub trait TaskCall:
                 payment_for_next_task.amount,
             ));
         }
-        self.send().direct_multi(&caller, &payments_to_return);
+        if !payments_to_return.is_empty() {
+            self.send().direct_multi(&caller, &payments_to_return);
+        }
     }
 
     fn require_min_expected_token(
