@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            4
+// Endpoints:                            5
 // Async Callback (empty):               1
-// Total number of exported functions:   6
+// Total number of exported functions:   7
 
 #![no_std]
 
@@ -22,6 +22,7 @@ multiversx_sc_wasm_adapter::endpoints! {
     composable_tasks
     (
         init => init
+        upgrade => upgrade
         composeTasks => compose_tasks
         setWrapEgldAddr => set_wrap_egld_address
         setRouterAddr => set_router_address
