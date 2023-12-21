@@ -624,7 +624,7 @@ fn swap_router_single_task_test() {
 }
 
 #[test]
-fn multiple_swap_token_fixed_output_router_test() {
+fn swap_token_fixed_output_router_test() {
     let composable_tasks_setup = ComposableTasksSetup::new(
         pair::contract_obj,
         router::contract_obj,
@@ -690,6 +690,90 @@ fn multiple_swap_token_fixed_output_router_test() {
         &first_user_addr,
         TOKEN_IDS[0],
         &rust_biguint!(expected_balance),
+    );
+}
+
+#[test]
+fn multiple_swap_token_multiple_fixed_output_router_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let first_pair_addr = composable_tasks_setup.pair_setups[0]
+        .pair_wrapper
+        .address_ref();
+
+    let second_pair_addr = composable_tasks_setup.pair_setups[1]
+        .pair_wrapper
+        .address_ref();
+
+    let user_first_token_balance = 200_000_001u64;
+
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        WEGLD_TOKEN_ID,
+        &rust_biguint!(user_first_token_balance),
+    );
+
+    let amount_tokens_out_tokens_0 = 166_666_666u64;
+    let amount_tokens_out_tokens_1 = 10_000u64;
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                swap_args.push(managed_buffer!(TOKEN_IDS[0]));
+                swap_args.push(managed_buffer!(
+                    &rust_biguint!(amount_tokens_out_tokens_0).to_bytes_be()
+                ));
+
+                swap_args.push(managed_buffer!(first_pair_addr.as_bytes()));
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                swap_args.push(managed_buffer!(TOKEN_IDS[1]));
+                swap_args.push(managed_buffer!(
+                    &rust_biguint!(amount_tokens_out_tokens_1).to_bytes_be()
+                ));
+
+                let mut tasks = MultiValueEncoded::new();
+                tasks.push((TaskType::RouterSwap, swap_args).into());
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[1])),
+                    0,
+                    managed_biguint!(amount_tokens_out_tokens_1),
+                );
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_ok();
+
+    let expected_balance_tokens_0 = 166_661_665u64;
+
+    // Funds are sent back to the caller
+    b_mock.borrow_mut().check_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(expected_balance_tokens_0),
+    );
+    // Funds are sent back to the caller
+    b_mock.borrow_mut().check_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(amount_tokens_out_tokens_1),
     );
 }
 

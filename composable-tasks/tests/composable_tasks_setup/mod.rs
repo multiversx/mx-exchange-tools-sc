@@ -209,6 +209,22 @@ where
                 sc.pair_map().insert(
                     PairTokens {
                         first_token_id: managed_token_id!(TOKEN_IDS[0]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[1]),
+                    },
+                    managed_address!(first_pair_setup.pair_wrapper.address_ref()),
+                );
+
+                sc.address_pair_map().insert(
+                    managed_address!(first_pair_setup.pair_wrapper.address_ref()),
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[1]),
+                    },
+                );
+
+                sc.pair_map().insert(
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
                         second_token_id: managed_token_id!(TOKEN_IDS[2]),
                     },
                     managed_address!(second_pair_setup.pair_wrapper.address_ref()),

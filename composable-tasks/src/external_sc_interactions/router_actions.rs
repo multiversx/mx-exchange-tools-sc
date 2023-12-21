@@ -55,9 +55,6 @@ pub trait RouterActionsModule {
             .execute_on_dest_context_with_back_transfers();
 
             back_transfers.esdt_payments
-        // let returned_esdt_payments = back_transfers.esdt_payments;
-
-        // EgldOrEsdtTokenPayment::from(returned_esdt_payments.get(1))
     }
 
     #[view(getPair)]
