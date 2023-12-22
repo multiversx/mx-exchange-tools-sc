@@ -762,6 +762,7 @@ fn multiple_swap_token_multiple_fixed_output_router_test() {
         .assert_ok();
 
     let expected_balance_tokens_0 = 166_661_665u64;
+    let expected_balance_tokens_2 = 1u64;
 
     // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
@@ -769,11 +770,15 @@ fn multiple_swap_token_multiple_fixed_output_router_test() {
         TOKEN_IDS[0],
         &rust_biguint!(expected_balance_tokens_0),
     );
-    // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[1],
         &rust_biguint!(amount_tokens_out_tokens_1),
+    );
+    b_mock.borrow_mut().check_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(expected_balance_tokens_2),
     );
 }
 
