@@ -2,6 +2,10 @@ multiversx_sc::imports!();
 
 use crate::external_sc_interactions;
 
+pub const SWAP_ARGS_LEN: usize = 2;
+pub const ROUTER_SWAP_ARGS_LEN: usize = 4;
+pub const SEND_TOKENS_ARGS_LEN: usize = 1;
+
 #[multiversx_sc::module]
 pub trait ConfigModule:
     external_sc_interactions::pair_actions::PairActionsModule

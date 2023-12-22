@@ -1,6 +1,6 @@
 use core::convert::TryFrom;
 
-use crate::external_sc_interactions;
+use crate::{external_sc_interactions, config::{SWAP_ARGS_LEN, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN}};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -47,9 +47,9 @@ pub trait TaskCall:
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
                 TaskType::SendEgldOrEsdt => {
-                    require!(args.len() == 1, "Invalid number of arguments!");
+                    require!(args.len() == SEND_TOKENS_ARGS_LEN, "Invalid number of arguments!");
                     let new_destination =
-                        ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or(dest_addr);
+                        ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or_else(|err| sc_panic!(err));
 
                     dest_addr = new_destination;
                     break;
@@ -75,7 +75,7 @@ pub trait TaskCall:
         );
         let payment_in = payment_for_current_task.unwrap_esdt();
 
-        require!(args.len() == 2, "Swap requires only 2 arguments");
+        require!(args.len() == SWAP_ARGS_LEN, "Incorrect arguments for swap task!");
 
         let token_out = TokenIdentifier::from(args.get(0).clone_value());
         let min_amount_out = BigUint::from(args.get(1).clone_value());
@@ -100,7 +100,7 @@ pub trait TaskCall:
             "EGLD can't be swapped!"
         );
         require!(
-            args.len() % 4 == 0,
+            args.len() % ROUTER_SWAP_ARGS_LEN == 0,
             "Invalid number of router swap arguments"
         );
         let payment_in = payment_for_current_task.unwrap_esdt();
