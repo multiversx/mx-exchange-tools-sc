@@ -1733,7 +1733,7 @@ dependencies = [
 [[package]]
 name = "multiversx-wegld-swap-sc"
 version = "0.45.2"
-source = "git+https://github.com/multiversx/mx-contracts-rs/?rev=7e6df3d#7e6df3d37b2913e8529f8ecebcc45a4700f3505d"
+source = "git+https://github.com/multiversx/mx-contracts-rs?rev=7e6df3d#7e6df3d37b2913e8529f8ecebcc45a4700f3505d"
 dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",

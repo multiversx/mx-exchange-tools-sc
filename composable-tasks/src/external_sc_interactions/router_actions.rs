@@ -5,7 +5,7 @@ type SwapOperationType<M> =
 
 use core::convert::TryFrom;
 
-use router::{multi_pair_swap::ProxyTrait as _, factory::ProxyTrait as _};
+use router::{factory::ProxyTrait as _, multi_pair_swap::ProxyTrait as _};
 pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
 #[multiversx_sc::module]
@@ -54,7 +54,7 @@ pub trait RouterActionsModule {
             .with_esdt_transfer(start_payment)
             .execute_on_dest_context_with_back_transfers();
 
-            back_transfers.esdt_payments
+        back_transfers.esdt_payments
     }
 
     #[view(getPair)]
