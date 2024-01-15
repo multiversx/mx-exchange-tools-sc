@@ -69,7 +69,7 @@ pub trait AutoFarm:
             .set_if_empty(fees_collector_sc_address);
     }
 
-    #[endpoint]
+    #[upgrade]
     fn upgrade(&self) {}
 
     #[only_owner]

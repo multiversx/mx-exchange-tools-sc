@@ -30,6 +30,6 @@ pub trait AutoPosCreator:
         self.router_address().set(router_address);
     }
 
-    #[endpoint]
+    #[upgrade]
     fn upgrade(&self) {}
 }
