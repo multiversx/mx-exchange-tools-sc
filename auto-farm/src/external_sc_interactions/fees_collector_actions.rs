@@ -43,7 +43,7 @@ pub trait FeesCollectorActionsModule:
     fn call_fees_collector_claim(&self, user: ManagedAddress) -> PaymentsVec<Self::Api> {
         let sc_address = self.fees_collector_sc_address().get();
         self.fees_collector_proxy(sc_address)
-            .claim_rewards(user)
+            .claim_rewards_endpoint(user)
             .execute_on_dest_context()
     }
 
