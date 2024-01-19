@@ -38,13 +38,7 @@ pub trait ExitPosModule:
         output_payments: &mut PaymentsWrapper<Self::Api>,
         args: MetastakingExitArgs<Self::Api>,
     ) {
-        let unstake_result = self.call_metastaking_unstake(
-            args.ms_address,
-            args.user,
-            args.ms_tokens,
-            args.first_token_min_amount_out,
-            args.second_token_min_amont_out,
-        );
+        let unstake_result = self.call_metastaking_unstake(args);
         output_payments.push(unstake_result.other_token_payment);
         output_payments.push(unstake_result.lp_farm_rewards);
         output_payments.push(unstake_result.staking_rewards);
