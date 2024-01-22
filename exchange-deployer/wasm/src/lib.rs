@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           12
+// Endpoints:                           13
 // Async Callback (empty):               1
-// Total number of exported functions:  14
+// Total number of exported functions:  15
 
 #![no_std]
 #![allow(internal_features)]
@@ -23,6 +23,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         upgrade => upgrade
         setActionFee => set_action_fee
         setDefaultActionFee => set_default_action_fee
+        claimFees => claim_fees
         getActionFee => get_action_fee
         getFeeToken => fee_token
         setRouterAddress => set_router_address

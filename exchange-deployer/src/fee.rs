@@ -29,6 +29,20 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
         self.default_action_fee().set(default_action_fee);
     }
 
+    #[only_owner]
+    #[endpoint(claimFees)]
+    fn claim_fees(&self) {
+        let total_fees = self.total_fees().take();
+        if total_fees == 0 {
+            return;
+        }
+
+        let caller = self.blockchain().get_caller();
+        let fees_token_id = self.fee_token().get();
+        self.send()
+            .direct_esdt(&caller, &fees_token_id, 0, &total_fees);
+    }
+
     #[view(getActionFee)]
     fn get_action_fee(&self, action_type: DeployActionType) -> BigUint {
         let custom_fee = self.custom_action_fee(action_type).get();
@@ -51,7 +65,9 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
             "Not enough tokens for fee"
         );
 
-        payment.amount -= fee_for_action;
+        payment.amount -= &fee_for_action;
+
+        self.total_fees().update(|total| *total += fee_for_action);
 
         self.send().direct_non_zero_esdt_payment(caller, &payment);
     }
@@ -69,4 +85,7 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
 
     #[storage_mapper("defaultActionFee")]
     fn default_action_fee(&self) -> SingleValueMapper<BigUint>;
+
+    #[storage_mapper("totalFees")]
+    fn total_fees(&self) -> SingleValueMapper<BigUint>;
 }

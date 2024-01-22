@@ -63,6 +63,13 @@
             "outputs": []
         },
         {
+            "name": "claimFees",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
             "name": "getActionFee",
             "mutability": "readonly",
             "inputs": [
