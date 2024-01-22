@@ -157,6 +157,186 @@
             "outputs": []
         },
         {
+            "name": "setSimpleLockSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deploySimpleLock",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockIssueFarmProxyToken",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Add a farm to the whitelist.",
+                "Currently, two types of farms are supported, denoted by the `farm_type` argument:",
+                "`0` - SimpleFarm - rewards are fungible tokens",
+                "`1` - FarmWithLockedRewards - rewards are META ESDT locked tokens"
+            ],
+            "name": "simpleLockAddFarmToWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farm_type",
+                    "type": "FarmType"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockRemoveFarmFromWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farm_type",
+                    "type": "FarmType"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockIssueLpProxyToken",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Add a liquidity pool to the whitelist.",
+                "If the token pair does not have an associated pool, users may not add liquidity.",
+                "",
+                "`first_token_id` and `second_token_id` MUST match the LP's order,",
+                "otherwise all attempts at adding liquidity will fail",
+                "",
+                "May not add pools for both pairs, i.e. (first, second) and (second, first)"
+            ],
+            "name": "simpleLockAddLpToWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "lp_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockRemoveLpFromWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "lp_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "pause",
             "onlyOwner": true,
             "mutability": "mutable",
@@ -214,6 +394,19 @@
                 {
                     "name": "Metastaking",
                     "discriminant": 6
+                }
+            ]
+        },
+        "FarmType": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "SimpleFarm",
+                    "discriminant": 0
+                },
+                {
+                    "name": "FarmWithLockedRewards",
+                    "discriminant": 1
                 }
             ]
         }

@@ -1,5 +1,7 @@
 multiversx_sc::imports!();
 
+pub const GAS_AFTER_ASYNC: u64 = 10_000;
+
 #[multiversx_sc::module]
 pub trait CommonModule {
     fn get_default_code_metadata(&self) -> CodeMetadata {

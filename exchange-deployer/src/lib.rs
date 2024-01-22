@@ -10,6 +10,7 @@ pub mod fee;
 pub trait ExchangeDeployer:
     fee::FeeModule
     + deploy_types::liquidity_pool::LiquidityPoolModule
+    + deploy_types::simple_lock::SimpleLockModule
     + deploy_types::common::CommonModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule

@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           13
+// Endpoints:                           21
 // Async Callback (empty):               1
-// Total number of exported functions:  15
+// Total number of exported functions:  23
 
 #![no_std]
 #![allow(internal_features)]
@@ -30,6 +30,14 @@ multiversx_sc_wasm_adapter::endpoints! {
         setRouterOwnerAddress => set_router_owner_address
         setPairSourceAddress => set_pair_source_address
         deployLiquidityPool => deploy_liquidity_pool
+        setSimpleLockSourceAddress => set_simple_lock_source_address
+        deploySimpleLock => deploy_simple_lock
+        simpleLockIssueFarmProxyToken => simple_lock_issue_farm_proxy_token
+        simpleLockAddFarmToWhitelist => simple_lock_add_farm_to_whitelist
+        simpleLockRemoveFarmFromWhitelist => simple_lock_remove_farm_from_whitelist
+        simpleLockIssueLpProxyToken => simple_lock_issue_lp_proxy_token
+        simpleLockAddLpToWhitelist => simple_lock_add_lp_to_whitelist
+        simpleLockRemoveLpFromWhitelist => simple_lock_remove_lp_from_whitelist
         pause => pause_endpoint
         unpause => unpause_endpoint
         isPaused => paused_status

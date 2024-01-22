@@ -93,6 +93,7 @@ dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",
  "pair",
+ "simple-lock",
  "utils",
 ]
 
