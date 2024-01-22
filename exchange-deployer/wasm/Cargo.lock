@@ -133,6 +133,7 @@ version = "0.0.0"
 dependencies = [
  "farm",
  "farm-staking",
+ "farm-staking-proxy",
  "multiversx-sc",
  "multiversx-sc-modules",
  "pair",
@@ -223,6 +224,31 @@ dependencies = [
  "utils",
  "week-timekeeping",
  "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm-staking-proxy"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=0c7f45e#0c7f45e74d9b39ccdf27588ed6bf0a19dbc501cd"
+dependencies = [
+ "common_structs",
+ "config",
+ "energy-query",
+ "farm",
+ "farm-staking",
+ "farm-with-locked-rewards",
+ "fixed-supply-token",
+ "hex-literal 0.3.4",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "pausable",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "unwrappable",
+ "utils",
 ]
 
 [[package]]
@@ -329,6 +355,12 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hex-literal"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
+
+[[package]]
+name = "hex-literal"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
@@ -385,7 +417,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c94b173dc5ff0e157f767275fe6b7a1b4d2ad343bef7b66cd22a6353e016b93"
 dependencies = [
  "bitflags",
- "hex-literal",
+ "hex-literal 0.4.1",
  "multiversx-sc-codec",
  "multiversx-sc-derive",
  "num-traits",

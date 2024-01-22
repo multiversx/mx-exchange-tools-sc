@@ -42,6 +42,10 @@
             {
                 "name": "farm_staking_source_address",
                 "type": "Address"
+            },
+            {
+                "name": "metastaking_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []
@@ -592,6 +596,68 @@
                 {
                     "name": "min_unbond_epochs",
                     "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMetastakingSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "metastaking_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setEnergyFactoryAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "energy_factory_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployMetastaking",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "lp_farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "staking_farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "staking_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "lp_farm_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "staking_farm_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "lp_token_id",
+                    "type": "TokenIdentifier"
                 }
             ],
             "outputs": []
