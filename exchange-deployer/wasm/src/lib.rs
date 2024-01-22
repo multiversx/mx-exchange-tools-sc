@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           21
+// Endpoints:                           31
 // Async Callback (empty):               1
-// Total number of exported functions:  23
+// Total number of exported functions:  33
 
 #![no_std]
 #![allow(internal_features)]
@@ -38,6 +38,16 @@ multiversx_sc_wasm_adapter::endpoints! {
         simpleLockIssueLpProxyToken => simple_lock_issue_lp_proxy_token
         simpleLockAddLpToWhitelist => simple_lock_add_lp_to_whitelist
         simpleLockRemoveLpFromWhitelist => simple_lock_remove_lp_from_whitelist
+        setProxyDexSourceAddress => set_proxy_dex_source_address
+        deployProxyDex => deploy_proxy_dex
+        proxyDexRegisterProxyPair => proxy_dex_register_proxy_pair
+        proxyDexSetTransferRoleWrappedLpToken => proxy_dex_set_transfer_role_wrapped_lp_token
+        proxyDexRegisterProxyFarm => proxy_dex_register_proxy_farm
+        proxyDexSetTransferRoleWrappedFarmToken => proxy_dex_set_transfer_role_wrapped_farm_token
+        proxyDexAddPairToIntermediate => proxy_dex_add_pair_to_intermediate
+        proxyDexRemoveIntermediatedPair => proxy_dex_remove_intermediated_pair
+        proxyDexAddFarmToIntermediate => proxy_dex_add_farm_to_intermediate
+        proxyDexRemoveIntermediatedFarm => proxy_dex_remove_intermediated_farm
         pause => pause_endpoint
         unpause => unpause_endpoint
         isPaused => paused_status

@@ -748,6 +748,7 @@ dependencies = [
  "multiversx-sc-scenario",
  "num-bigint",
  "pair",
+ "proxy_dex",
  "simple-lock",
  "utils",
 ]

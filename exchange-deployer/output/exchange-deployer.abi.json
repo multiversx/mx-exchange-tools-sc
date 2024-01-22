@@ -30,6 +30,10 @@
             {
                 "name": "simple_lock_source_address",
                 "type": "Address"
+            },
+            {
+                "name": "proxy_dex_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []
@@ -336,6 +340,174 @@
                 {
                     "name": "second_token_id",
                     "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setProxyDexSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployProxyDex",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "old_locked_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "old_factory_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "energy_factory_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRegisterProxyPair",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexSetTransferRoleWrappedLpToken",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRegisterProxyFarm",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexSetTransferRoleWrappedFarmToken",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexAddPairToIntermediate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRemoveIntermediatedPair",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexAddFarmToIntermediate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRemoveIntermediatedFarm",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
                 }
             ],
             "outputs": []
