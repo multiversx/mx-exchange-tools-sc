@@ -59,6 +59,12 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
         mut payment: EsdtTokenPayment,
         action_type: DeployActionType,
     ) {
+        let fee_token = self.fee_token().get();
+        require!(
+            payment.token_identifier == fee_token,
+            "Invalid token for fees"
+        );
+
         let fee_for_action = self.get_action_fee(action_type);
         require!(
             payment.amount >= fee_for_action,
