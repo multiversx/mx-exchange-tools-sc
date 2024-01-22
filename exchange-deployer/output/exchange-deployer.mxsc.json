@@ -1,0 +1,32 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.76.0-nightly",
+            "commitHash": "d86d65bbc19b928387f68427fcc3a0da498d8a19",
+            "commitDate": "2023-12-10",
+            "channel": "Nightly",
+            "short": "rustc 1.76.0-nightly (d86d65bbc 2023-12-10)"
+        },
+        "contractCrate": {
+            "name": "exchange-deployer",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.46.1"
+        }
+    },
+    "abi": {
+        "name": "ExchangeDeployer",
+        "constructor": {
+            "inputs": [],
+            "outputs": []
+        },
+        "endpoints": [],
+        "esdtAttributes": [],
+        "hasCallback": false,
+        "types": {}
+    },
+    "size": 231,
+    "code": "0061736d01000000010d036000006000017f60027f7f00023e0303656e760f6765744e756d417267756d656e7473000103656e760b7369676e616c4572726f72000203656e760e636865636b4e6f5061796d656e74000003030200000503010003060f027f00419980080b7f0041a080080b073705066d656d6f7279020004696e697400030863616c6c4261636b00040a5f5f646174615f656e6403000b5f5f686561705f6261736503010a170212001002100004404180800841191001000b0b02000b0b210100418080080b1977726f6e67206e756d626572206f6620617267756d656e7473"
+}
