@@ -9,10 +9,19 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
+features = ["esdt-token-payment-legacy-decode"]
 version = "=0.46.1"
 
 [dependencies.multiversx-sc-modules]
 version = "=0.46.1"
+
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "0c7f45e"
+
+[dependencies.utils]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "0c7f45e"
 
 [dev-dependencies]
 num-bigint = "0.4.2"

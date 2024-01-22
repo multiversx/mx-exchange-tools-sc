@@ -22,6 +22,10 @@
             {
                 "name": "default_action_fee",
                 "type": "BigUint"
+            },
+            {
+                "name": "pair_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []
@@ -82,6 +86,68 @@
                     "type": "TokenIdentifier"
                 }
             ]
+        },
+        {
+            "name": "setRouterAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setRouterOwnerAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_owner_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPairSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "pair_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployLiquidityPool",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "total_fee_percent",
+                    "type": "u64"
+                },
+                {
+                    "name": "special_fee_percent",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
         },
         {
             "name": "pause",

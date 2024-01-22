@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            8
+// Endpoints:                           12
 // Async Callback (empty):               1
-// Total number of exported functions:  10
+// Total number of exported functions:  14
 
 #![no_std]
 #![allow(internal_features)]
@@ -25,6 +25,10 @@ multiversx_sc_wasm_adapter::endpoints! {
         setDefaultActionFee => set_default_action_fee
         getActionFee => get_action_fee
         getFeeToken => fee_token
+        setRouterAddress => set_router_address
+        setRouterOwnerAddress => set_router_owner_address
+        setPairSourceAddress => set_pair_source_address
+        deployLiquidityPool => deploy_liquidity_pool
         pause => pause_endpoint
         unpause => unpause_endpoint
         isPaused => paused_status
