@@ -38,6 +38,10 @@
             {
                 "name": "farm_source_address",
                 "type": "Address"
+            },
+            {
+                "name": "farm_staking_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []
@@ -550,6 +554,44 @@
                 {
                     "name": "pair_contract_address",
                     "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setFarmStakingSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "farm_staking_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployFarmStaking",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "division_safety_constant",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "max_apr",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_unbond_epochs",
+                    "type": "u64"
                 }
             ],
             "outputs": []

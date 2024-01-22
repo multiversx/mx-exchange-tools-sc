@@ -13,6 +13,7 @@ pub trait ExchangeDeployer:
     + deploy_types::simple_lock::SimpleLockModule
     + deploy_types::proxy_dex::ProxyDexModule
     + deploy_types::farm::FarmModule
+    + deploy_types::farm_staking::FarmStakingModule
     + deploy_types::common::CommonModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule
@@ -25,6 +26,7 @@ pub trait ExchangeDeployer:
         simple_lock_source_address: ManagedAddress,
         proxy_dex_source_address: ManagedAddress,
         farm_source_address: ManagedAddress,
+        farm_staking_source_address: ManagedAddress,
     ) {
         self.set_paused(true);
 
@@ -33,6 +35,7 @@ pub trait ExchangeDeployer:
         self.set_simple_lock_source_address(simple_lock_source_address);
         self.set_proxy_dex_source_address(proxy_dex_source_address);
         self.set_farm_source_address(farm_source_address);
+        self.set_farm_staking_source_address(farm_staking_source_address);
     }
 
     #[upgrade]

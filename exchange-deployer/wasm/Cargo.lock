@@ -132,6 +132,7 @@ name = "exchange-deployer"
 version = "0.0.0"
 dependencies = [
  "farm",
+ "farm-staking",
  "multiversx-sc",
  "multiversx-sc-modules",
  "pair",
@@ -188,6 +189,38 @@ dependencies = [
  "multiversx-sc",
  "pausable",
  "permissions_module",
+ "week-timekeeping",
+ "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm-staking"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=0c7f45e#0c7f45e74d9b39ccdf27588ed6bf0a19dbc501cd"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "contexts",
+ "energy-factory",
+ "energy-query",
+ "events",
+ "farm",
+ "farm-boosted-yields",
+ "farm_base_impl",
+ "farm_token",
+ "fixed-supply-token",
+ "math",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "utils",
  "week-timekeeping",
  "weekly-rewards-splitting",
 ]

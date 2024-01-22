@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           33
+// Endpoints:                           35
 // Async Callback (empty):               1
-// Total number of exported functions:  35
+// Total number of exported functions:  37
 
 #![no_std]
 #![allow(internal_features)]
@@ -50,6 +50,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         proxyDexRemoveIntermediatedFarm => proxy_dex_remove_intermediated_farm
         setFarmSourceAddress => set_farm_source_address
         deployFarm => deploy_farm
+        setFarmStakingSourceAddress => set_farm_staking_source_address
+        deployFarmStaking => deploy_farm_staking
         pause => pause_endpoint
         unpause => unpause_endpoint
         isPaused => paused_status
