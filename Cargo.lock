@@ -743,6 +743,7 @@ dependencies = [
 name = "exchange-deployer"
 version = "0.0.0"
 dependencies = [
+ "farm",
  "multiversx-sc",
  "multiversx-sc-modules",
  "multiversx-sc-scenario",

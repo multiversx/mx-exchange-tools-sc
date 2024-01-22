@@ -31,6 +31,10 @@ rev = "0c7f45e"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "0c7f45e"
 
+[dependencies.farm]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "0c7f45e"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 

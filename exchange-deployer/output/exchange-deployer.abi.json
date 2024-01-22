@@ -34,6 +34,10 @@
             {
                 "name": "proxy_dex_source_address",
                 "type": "Address"
+            },
+            {
+                "name": "farm_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []
@@ -507,6 +511,44 @@
                 },
                 {
                     "name": "farm_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setFarmSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "farm_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployFarm",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "reward_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "division_safety_constant",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "pair_contract_address",
                     "type": "Address"
                 }
             ],
