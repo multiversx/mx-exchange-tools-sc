@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            8
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:  10
 
 #![no_std]
 #![allow(internal_features)]
@@ -20,6 +20,14 @@ multiversx_sc_wasm_adapter::endpoints! {
     exchange_deployer
     (
         init => init
+        upgrade => upgrade
+        setActionFee => set_action_fee
+        setDefaultActionFee => set_default_action_fee
+        getActionFee => get_action_fee
+        getFeeToken => fee_token
+        pause => pause_endpoint
+        unpause => unpause_endpoint
+        isPaused => paused_status
     )
 }
 

@@ -18,11 +18,131 @@
     },
     "name": "ExchangeDeployer",
     "constructor": {
-        "inputs": [],
+        "inputs": [
+            {
+                "name": "default_action_fee",
+                "type": "BigUint"
+            }
+        ],
         "outputs": []
     },
-    "endpoints": [],
+    "endpoints": [
+        {
+            "name": "upgrade",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setActionFee",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "type_amount_pairs",
+                    "type": "variadic<multi<DeployActionType,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setDefaultActionFee",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "default_action_fee",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getActionFee",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "action_type",
+                    "type": "DeployActionType"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getFeeToken",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "TokenIdentifier"
+                }
+            ]
+        },
+        {
+            "name": "pause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
     "esdtAttributes": [],
     "hasCallback": false,
-    "types": {}
+    "types": {
+        "DeployActionType": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "None",
+                    "discriminant": 0
+                },
+                {
+                    "name": "LiquidityPool",
+                    "discriminant": 1
+                },
+                {
+                    "name": "SimpleLock",
+                    "discriminant": 2
+                },
+                {
+                    "name": "ProxyDex",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Farm",
+                    "discriminant": 4
+                },
+                {
+                    "name": "FarmStaking",
+                    "discriminant": 5
+                },
+                {
+                    "name": "Metastaking",
+                    "discriminant": 6
+                }
+            ]
+        }
+    }
 }

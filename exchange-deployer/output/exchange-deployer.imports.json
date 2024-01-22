@@ -1,5 +1,27 @@
 [
+  "bigIntFinishUnsigned",
+  "bigIntGetUnsignedArgument",
+  "bigIntSign",
   "checkNoPayment",
+  "getArgumentLength",
   "getNumArguments",
-  "signalError"
+  "mBufferAppend",
+  "mBufferAppendBytes",
+  "mBufferEq",
+  "mBufferFinish",
+  "mBufferFromBigIntUnsigned",
+  "mBufferGetArgument",
+  "mBufferGetByteSlice",
+  "mBufferGetLength",
+  "mBufferNew",
+  "mBufferSetBytes",
+  "mBufferStorageLoad",
+  "mBufferStorageStore",
+  "mBufferToBigIntUnsigned",
+  "managedCaller",
+  "managedOwnerAddress",
+  "managedSignalError",
+  "signalError",
+  "smallIntFinishSigned",
+  "smallIntGetUnsignedArgument"
 ]
