@@ -39,6 +39,23 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
         self.default_action_fee().get()
     }
 
+    fn take_fee(
+        &self,
+        caller: &ManagedAddress,
+        mut payment: EsdtTokenPayment,
+        action_type: DeployActionType,
+    ) {
+        let fee_for_action = self.get_action_fee(action_type);
+        require!(
+            payment.amount >= fee_for_action,
+            "Not enough tokens for fee"
+        );
+
+        payment.amount -= fee_for_action;
+
+        self.send().direct_non_zero_esdt_payment(caller, &payment);
+    }
+
     fn require_non_zero_fee(&self, fee_amount: &BigUint) {
         require!(fee_amount > &0, "Cannot set fee to 0");
     }

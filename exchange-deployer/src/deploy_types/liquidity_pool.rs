@@ -1,7 +1,14 @@
+use crate::action_type::DeployActionType;
+
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
-pub trait LiquidityPoolModule: super::common::CommonModule + utils::UtilsModule {
+pub trait LiquidityPoolModule:
+    crate::fee::FeeModule
+    + super::common::CommonModule
+    + utils::UtilsModule
+    + multiversx_sc_modules::pause::PauseModule
+{
     #[only_owner]
     #[endpoint(setRouterAddress)]
     fn set_router_address(&self, router_address: ManagedAddress) {
@@ -33,9 +40,14 @@ pub trait LiquidityPoolModule: super::common::CommonModule + utils::UtilsModule 
         total_fee_percent: u64,
         special_fee_percent: u64,
     ) {
+        self.require_not_paused();
+
+        let caller = self.blockchain().get_caller();
+        let payment = self.call_value().single_esdt();
+        self.take_fee(&caller, payment, DeployActionType::LiquidityPool);
+
         let router_address = self.router_address().get();
         let router_owner_address = self.router_owner_address().get();
-        let caller = self.blockchain().get_caller();
         let mut admins = MultiValueEncoded::new();
         admins.push(caller.clone());
 
