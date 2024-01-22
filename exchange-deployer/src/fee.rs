@@ -14,6 +14,7 @@ pub trait FeeModule: multiversx_sc_modules::pause::PauseModule {
 
         for pair in type_amount_pairs {
             let (action_type, fee_amount) = pair.into_tuple();
+            require!(action_type != DeployActionType::None, "Invalid action type");
             self.require_non_zero_fee(&fee_amount);
 
             self.custom_action_fee(action_type).set(fee_amount);
