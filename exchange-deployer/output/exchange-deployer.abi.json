@@ -26,6 +26,10 @@
             {
                 "name": "pair_source_address",
                 "type": "Address"
+            },
+            {
+                "name": "simple_lock_source_address",
+                "type": "Address"
             }
         ],
         "outputs": []

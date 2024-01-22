@@ -16,11 +16,17 @@ pub trait ExchangeDeployer:
     + multiversx_sc_modules::pause::PauseModule
 {
     #[init]
-    fn init(&self, default_action_fee: BigUint, pair_source_address: ManagedAddress) {
+    fn init(
+        &self,
+        default_action_fee: BigUint,
+        pair_source_address: ManagedAddress,
+        simple_lock_source_address: ManagedAddress,
+    ) {
         self.set_paused(true);
 
         self.set_default_action_fee(default_action_fee);
         self.set_pair_source_address(pair_source_address);
+        self.set_simple_lock_source_address(simple_lock_source_address);
     }
 
     #[upgrade]
