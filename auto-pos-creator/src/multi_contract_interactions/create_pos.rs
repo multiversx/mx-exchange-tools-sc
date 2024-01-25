@@ -6,11 +6,35 @@ use common_structs::PaymentsVec;
 use crate::{
     common::payments_wrapper::PaymentsWrapper,
     external_sc_interactions::{
-        pair_actions::PairTokenPayments, router_actions::SwapOperationType,
+        pair_actions::{PairAddLiqArgs, PairTokenPayments},
+        router_actions::SwapOperationType,
     },
 };
 
 pub type DoubleSwapResult<M> = PairTokenPayments<M>;
+
+pub struct CreateFarmPosArgs<M: ManagedTypeApi> {
+    pub caller: ManagedAddress<M>,
+    pub first_token_payment: EsdtTokenPayment<M>,
+    pub second_token_payment: EsdtTokenPayment<M>,
+    pub additional_payments: PaymentsVec<M>,
+    pub add_liq_first_token_min_amount_out: BigUint<M>,
+    pub add_liq_second_token_min_amount_out: BigUint<M>,
+    pub pair_address: ManagedAddress<M>,
+    pub farm_address: ManagedAddress<M>,
+}
+
+pub struct CreateMetastakingPosArgs<M: ManagedTypeApi> {
+    pub caller: ManagedAddress<M>,
+    pub first_token_payment: EsdtTokenPayment<M>,
+    pub second_token_payment: EsdtTokenPayment<M>,
+    pub additional_payments: PaymentsVec<M>,
+    pub add_liq_first_token_min_amount_out: BigUint<M>,
+    pub add_liq_second_token_min_amount_out: BigUint<M>,
+    pub pair_address: ManagedAddress<M>,
+    pub farm_address: ManagedAddress<M>,
+    pub metastaking_address: ManagedAddress<M>,
+}
 
 #[multiversx_sc::module]
 pub trait CreatePosModule:
@@ -123,28 +147,21 @@ pub trait CreatePosModule:
 
     fn create_lp_pos(
         &self,
-        first_token_payment: EsdtTokenPayment,
-        second_token_payment: EsdtTokenPayment,
-        add_liq_first_token_min_amount_out: BigUint,
-        add_liq_second_token_min_amount_out: BigUint,
-        pair_address: ManagedAddress,
+        args: PairAddLiqArgs<Self::Api>,
     ) -> (EsdtTokenPayment, PaymentsWrapper<Self::Api>) {
         let mut output_payments = PaymentsWrapper::new();
-        if second_token_payment.amount == 0 {
-            let lp_token_id = self.lp_token_identifier().get_from_address(&pair_address);
+        if args.second_tokens.amount == 0 {
+            let lp_token_id = self
+                .lp_token_identifier()
+                .get_from_address(&args.pair_address);
             require!(
-                first_token_payment.token_identifier == lp_token_id,
+                args.first_tokens.token_identifier == lp_token_id,
                 "Wrong LP token"
             );
-            return (first_token_payment, output_payments);
+            return (args.first_tokens, output_payments);
         }
-        let add_liq_result = self.call_pair_add_liquidity(
-            pair_address,
-            first_token_payment,
-            second_token_payment,
-            add_liq_first_token_min_amount_out,
-            add_liq_second_token_min_amount_out,
-        );
+
+        let add_liq_result = self.call_pair_add_liquidity(args);
 
         output_payments.push(add_liq_result.first_tokens_remaining);
         output_payments.push(add_liq_result.second_tokens_remaining);
@@ -154,26 +171,20 @@ pub trait CreatePosModule:
 
     fn create_farm_pos(
         &self,
-        caller: ManagedAddress,
-        first_token_payment: EsdtTokenPayment,
-        second_token_payment: EsdtTokenPayment,
-        additional_payments: PaymentsVec<Self::Api>,
-        add_liq_first_token_min_amount_out: BigUint,
-        add_liq_second_token_min_amount_out: BigUint,
-        pair_address: ManagedAddress,
-        farm_address: ManagedAddress,
+        args: CreateFarmPosArgs<Self::Api>,
     ) -> (EsdtTokenPayment, PaymentsWrapper<Self::Api>) {
-        let (lp_tokens, mut output_payments) = self.create_lp_pos(
-            first_token_payment,
-            second_token_payment,
-            add_liq_first_token_min_amount_out,
-            add_liq_second_token_min_amount_out,
-            pair_address,
-        );
+        let pair_args = PairAddLiqArgs {
+            pair_address: args.pair_address,
+            first_tokens: args.first_token_payment,
+            second_tokens: args.second_token_payment,
+            first_token_min_amount_out: args.add_liq_first_token_min_amount_out,
+            second_token_min_amount_out: args.add_liq_second_token_min_amount_out,
+        };
+        let (lp_tokens, mut output_payments) = self.create_lp_pos(pair_args);
 
         let mut payments = PaymentsVec::from_single_item(lp_tokens);
-        payments.append_vec(additional_payments);
-        let enter_result = self.call_enter_farm(farm_address, caller, payments);
+        payments.append_vec(args.additional_payments);
+        let enter_result = self.call_enter_farm(args.farm_address, args.caller, payments);
         output_payments.push(enter_result.rewards);
 
         (enter_result.new_farm_token, output_payments)
@@ -181,30 +192,24 @@ pub trait CreatePosModule:
 
     fn create_metastaking_pos(
         &self,
-        caller: ManagedAddress,
-        first_token_payment: EsdtTokenPayment,
-        second_token_payment: EsdtTokenPayment,
-        additional_payments: PaymentsVec<Self::Api>,
-        add_liq_first_token_min_amount_out: BigUint,
-        add_liq_second_token_min_amount_out: BigUint,
-        pair_address: ManagedAddress,
-        farm_address: ManagedAddress,
-        metastaking_address: ManagedAddress,
+        args: CreateMetastakingPosArgs<Self::Api>,
     ) -> (EsdtTokenPayment, PaymentsWrapper<Self::Api>) {
-        let (farm_tokens, mut output_payments) = self.create_farm_pos(
-            caller.clone(),
-            first_token_payment,
-            second_token_payment,
-            PaymentsVec::new(),
-            add_liq_first_token_min_amount_out,
-            add_liq_second_token_min_amount_out,
-            pair_address,
-            farm_address,
-        );
+        let farm_args = CreateFarmPosArgs {
+            caller: args.caller.clone(),
+            first_token_payment: args.first_token_payment,
+            second_token_payment: args.second_token_payment,
+            additional_payments: PaymentsVec::new(),
+            add_liq_first_token_min_amount_out: args.add_liq_first_token_min_amount_out,
+            add_liq_second_token_min_amount_out: args.add_liq_second_token_min_amount_out,
+            pair_address: args.pair_address,
+            farm_address: args.farm_address,
+        };
+        let (farm_tokens, mut output_payments) = self.create_farm_pos(farm_args);
 
         let mut payments = PaymentsVec::from_single_item(farm_tokens);
-        payments.append_vec(additional_payments);
-        let stake_result = self.call_metastaking_stake(metastaking_address, caller, payments);
+        payments.append_vec(args.additional_payments);
+        let stake_result =
+            self.call_metastaking_stake(args.metastaking_address, args.caller, payments);
 
         output_payments.push(stake_result.staking_boosted_rewards);
         output_payments.push(stake_result.lp_farm_boosted_rewards);

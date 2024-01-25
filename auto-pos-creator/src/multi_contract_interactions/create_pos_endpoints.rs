@@ -4,8 +4,10 @@ use common_structs::PaymentsVec;
 
 use crate::{
     common::payments_wrapper::PaymentsWrapper,
-    external_sc_interactions::router_actions::SwapOperationType,
+    external_sc_interactions::{pair_actions::PairAddLiqArgs, router_actions::SwapOperationType},
 };
+
+use super::create_pos::{CreateFarmPosArgs, CreateMetastakingPosArgs};
 
 #[multiversx_sc::module]
 pub trait CreatePosEndpointsModule:
@@ -37,13 +39,14 @@ pub trait CreatePosEndpointsModule:
         let second_token_payment =
             self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
-        let (new_lp_tokens, mut output_payments) = self.create_lp_pos(
-            first_token_payment,
-            second_token_payment,
-            add_liq_first_token_min_amount_out,
-            add_liq_second_token_min_amount_out,
+        let args = PairAddLiqArgs {
             pair_address,
-        );
+            first_tokens: first_token_payment,
+            second_tokens: second_token_payment,
+            first_token_min_amount_out: add_liq_first_token_min_amount_out,
+            second_token_min_amount_out: add_liq_second_token_min_amount_out,
+        };
+        let (new_lp_tokens, mut output_payments) = self.create_lp_pos(args);
         output_payments.push(new_lp_tokens);
 
         output_payments.send_and_return(&caller)
@@ -62,13 +65,14 @@ pub trait CreatePosEndpointsModule:
 
         let [first_token_payment, second_token_payment] = self.call_value().multi_esdt();
 
-        let (new_lp_tokens, mut output_payments) = self.create_lp_pos(
-            first_token_payment,
-            second_token_payment,
-            add_liq_first_token_min_amount_out,
-            add_liq_second_token_min_amount_out,
+        let args = PairAddLiqArgs {
             pair_address,
-        );
+            first_tokens: first_token_payment,
+            second_tokens: second_token_payment,
+            first_token_min_amount_out: add_liq_first_token_min_amount_out,
+            second_token_min_amount_out: add_liq_second_token_min_amount_out,
+        };
+        let (new_lp_tokens, mut output_payments) = self.create_lp_pos(args);
         output_payments.push(new_lp_tokens);
 
         output_payments.send_and_return(&caller)
@@ -93,8 +97,8 @@ pub trait CreatePosEndpointsModule:
         let second_token_payment =
             self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
-        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
-            caller.clone(),
+        let args = CreateFarmPosArgs {
+            caller: caller.clone(),
             first_token_payment,
             second_token_payment,
             additional_payments,
@@ -102,7 +106,8 @@ pub trait CreatePosEndpointsModule:
             add_liq_second_token_min_amount_out,
             pair_address,
             farm_address,
-        );
+        };
+        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(args);
         output_payments.push(new_farm_tokens);
 
         output_payments.send_and_return(&caller)
@@ -124,8 +129,8 @@ pub trait CreatePosEndpointsModule:
         let (first_token_payment, second_token_payment, additional_payments) =
             self.split_first_two_payments();
 
-        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(
-            caller.clone(),
+        let args = CreateFarmPosArgs {
+            caller: caller.clone(),
             first_token_payment,
             second_token_payment,
             additional_payments,
@@ -133,7 +138,8 @@ pub trait CreatePosEndpointsModule:
             add_liq_second_token_min_amount_out,
             pair_address,
             farm_address,
-        );
+        };
+        let (new_farm_tokens, mut output_payments) = self.create_farm_pos(args);
         output_payments.push(new_farm_tokens);
 
         output_payments.send_and_return(&caller)
@@ -161,8 +167,8 @@ pub trait CreatePosEndpointsModule:
         let second_token_payment =
             self.swap_half_input_payment_if_needed(&mut first_token_payment, pair_address.clone());
 
-        let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(
-            caller.clone(),
+        let args = CreateMetastakingPosArgs {
+            caller: caller.clone(),
             first_token_payment,
             second_token_payment,
             additional_payments,
@@ -171,7 +177,8 @@ pub trait CreatePosEndpointsModule:
             pair_address,
             farm_address,
             metastaking_address,
-        );
+        };
+        let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(args);
         output_payments.push(new_metastaking_tokens);
 
         output_payments.send_and_return(&caller)
@@ -196,8 +203,8 @@ pub trait CreatePosEndpointsModule:
         let (first_token_payment, second_token_payment, additional_payments) =
             self.split_first_two_payments();
 
-        let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(
-            caller.clone(),
+        let args = CreateMetastakingPosArgs {
+            caller: caller.clone(),
             first_token_payment,
             second_token_payment,
             additional_payments,
@@ -206,7 +213,8 @@ pub trait CreatePosEndpointsModule:
             pair_address,
             farm_address,
             metastaking_address,
-        );
+        };
+        let (new_metastaking_tokens, mut output_payments) = self.create_metastaking_pos(args);
         output_payments.push(new_metastaking_tokens);
 
         output_payments.send_and_return(&caller)
