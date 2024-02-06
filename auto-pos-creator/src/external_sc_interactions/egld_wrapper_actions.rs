@@ -4,10 +4,19 @@ multiversx_sc::imports!();
 pub trait EgldWrapperActionsModule {
     fn call_wrap_egld(&self, egld_amount: BigUint) -> EsdtTokenPayment {
         let wrapper_sc_address = self.egld_wrapper_address().get();
-        self.egld_wrapper_proxy(wrapper_sc_address)
+        let ((), back_transfers) = self
+            .egld_wrapper_proxy(wrapper_sc_address)
             .wrap_egld()
             .with_egld_transfer(egld_amount)
-            .execute_on_dest_context()
+            .execute_on_dest_context_with_back_transfers();
+
+        let returned_wrapped_egld = back_transfers.esdt_payments;
+        require!(
+            returned_wrapped_egld.len() == 1,
+            "wrap_egld should output only 1 payment"
+        );
+
+        returned_wrapped_egld.get(0)
     }
 
     #[storage_mapper("egldWrapperAddress")]
