@@ -1,6 +1,13 @@
 use core::convert::TryFrom;
 
-use crate::{external_sc_interactions, config::{SWAP_ARGS_LEN, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN}};
+use router::multi_pair_swap::{
+    SWAP_TOKENS_FIXED_INPUT_FUNC_NAME, SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME,
+};
+
+use crate::{
+    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
+    external_sc_interactions,
+};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -42,14 +49,19 @@ pub trait TaskCall:
             payment_for_next_task = match task_type {
                 TaskType::WrapEGLD => self.wrap_egld(payment_for_current_task),
                 TaskType::UnwrapEGLD => self.unwrap_egld(payment_for_current_task),
-                TaskType::Swap => self.swap(payment_for_current_task, args),
+                TaskType::Swap => {
+                    self.swap(payment_for_current_task, &mut payments_to_return, args)
+                }
                 TaskType::RouterSwap => {
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
                 TaskType::SendEgldOrEsdt => {
-                    require!(args.len() == SEND_TOKENS_ARGS_LEN, "Invalid number of arguments!");
-                    let new_destination =
-                        ManagedAddress::try_from(args.get(0).clone_value()).unwrap_or_else(|err| sc_panic!(err));
+                    require!(
+                        args.len() == SEND_TOKENS_ARGS_LEN,
+                        "Invalid number of arguments!"
+                    );
+                    let new_destination = ManagedAddress::try_from(args.get(0).clone_value())
+                        .unwrap_or_else(|err| sc_panic!(err));
 
                     dest_addr = new_destination;
                     break;
@@ -67,6 +79,7 @@ pub trait TaskCall:
     fn swap(
         &self,
         payment_for_current_task: EgldOrEsdtTokenPayment,
+        payments_to_return: &mut PaymentsVec<Self::Api>,
         args: ManagedVec<ManagedBuffer>,
     ) -> EgldOrEsdtTokenPayment {
         require!(
@@ -75,18 +88,47 @@ pub trait TaskCall:
         );
         let payment_in = payment_for_current_task.unwrap_esdt();
 
-        require!(args.len() == SWAP_ARGS_LEN, "Incorrect arguments for swap task!");
+        require!(
+            args.len() == SWAP_ARGS_LEN,
+            "Incorrect arguments for swap task!"
+        );
 
-        let token_out = TokenIdentifier::from(args.get(0).clone_value());
-        let min_amount_out = BigUint::from(args.get(1).clone_value());
+        let function_in_out = args.get(0).clone_value();
+        let token_out = TokenIdentifier::from(args.get(1).clone_value());
+        let min_amount_out = BigUint::from(args.get(2).clone_value());
 
-        self.perform_tokens_swap(
-            payment_in.token_identifier,
-            payment_in.amount,
-            token_out,
-            min_amount_out,
-        )
-        .into()
+        // if function_in_out
+        let swap_tokens_fixed_input_function =
+            ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME);
+        let swap_tokens_fixed_output_function =
+            ManagedBuffer::from(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME);
+        require!(
+            function_in_out == swap_tokens_fixed_input_function
+                || function_in_out == swap_tokens_fixed_output_function,
+            "Invalid function name for swap"
+        );
+
+        let payment_out = if function_in_out == swap_tokens_fixed_input_function {
+            self.perform_swap_tokens_fixed_input(
+                payment_in.token_identifier,
+                payment_in.amount,
+                token_out,
+                min_amount_out,
+            )
+        } else {
+            let returned_payments_by_pair = self.perform_swap_tokens_fixed_output(
+                payment_in.token_identifier,
+                payment_in.amount,
+                token_out,
+                min_amount_out,
+            );
+            let payment_out = returned_payments_by_pair.get(0);
+            let payment_in_leftover = returned_payments_by_pair.get(1);
+            payments_to_return.push(payment_in_leftover);
+            payment_out
+        };
+
+        payment_out.into()
     }
 
     fn router_swap(
