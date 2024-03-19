@@ -629,6 +629,69 @@ fn wrap_swap_tokens_fixed_output_test() {
     );
 }
 
+fn _wrap_swap_tokens_fixed_output_exact_amount_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+    let second_user_addr = composable_tasks_setup.second_user;
+
+    let user_first_token_balance = 200_000_000u64;
+
+    b_mock.borrow_mut().set_egld_balance(
+        &first_user_addr,
+        &rust_biguint!(user_first_token_balance),
+    );
+    let expected_balance = 166_666_666u64;
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                swap_args.push(managed_buffer!(TOKEN_IDS[0]));
+                swap_args.push(managed_buffer!(
+                    &rust_biguint!(expected_balance).to_bytes_be()
+                ));
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
+                tasks.push((TaskType::Swap, swap_args).into());
+
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[0])),
+                    0,
+                    managed_biguint!(expected_balance),
+                );
+
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_ok();
+
+    // rest of the swap (166_666_666 swapped to 200_000_000 and 1 remaining)
+    b_mock.borrow_mut().check_esdt_balance(
+        &second_user_addr,
+        WEGLD_TOKEN_ID,
+        &rust_biguint!(1u64),
+    );
+}
+
 
 #[test]
 fn swap_tokens_fixed_output_unwrap_test() {
