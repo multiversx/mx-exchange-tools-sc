@@ -6,7 +6,6 @@ type SwapOperationType<M> =
 use core::convert::TryFrom;
 
 use router::{factory::ProxyTrait as _, multi_pair_swap::ProxyTrait as _};
-pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
 #[multiversx_sc::module]
 pub trait RouterActionsModule {
