@@ -8,7 +8,6 @@ pub const SEND_TOKENS_ARGS_LEN: usize = 1;
 pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 pub const SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME: &[u8] = b"swapTokensFixedOutput";
 
-
 #[multiversx_sc::module]
 pub trait ConfigModule:
     external_sc_interactions::pair_actions::PairActionsModule

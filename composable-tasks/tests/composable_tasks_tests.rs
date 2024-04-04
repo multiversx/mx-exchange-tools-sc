@@ -564,7 +564,6 @@ fn swap_unwrap_wrap_send_test() {
     );
 }
 
-
 #[test]
 fn wrap_swap_tokens_fixed_output_test() {
     let composable_tasks_setup = ComposableTasksSetup::new(
@@ -580,10 +579,9 @@ fn wrap_swap_tokens_fixed_output_test() {
 
     let user_first_token_balance = 200_000_001u64;
 
-    b_mock.borrow_mut().set_egld_balance(
-        &first_user_addr,
-        &rust_biguint!(user_first_token_balance),
-    );
+    b_mock
+        .borrow_mut()
+        .set_egld_balance(&first_user_addr, &rust_biguint!(user_first_token_balance));
     let expected_balance = 166_666_666u64;
 
     b_mock
@@ -615,18 +613,15 @@ fn wrap_swap_tokens_fixed_output_test() {
                     managed_biguint!(expected_balance),
                 );
 
-
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
         .assert_ok();
 
     // rest of the swap (166_666_666 swapped to 200_000_000 and 1 remaining)
-    b_mock.borrow_mut().check_esdt_balance(
-        &second_user_addr,
-        WEGLD_TOKEN_ID,
-        &rust_biguint!(1u64),
-    );
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&second_user_addr, WEGLD_TOKEN_ID, &rust_biguint!(1u64));
 }
 
 fn _wrap_swap_tokens_fixed_output_exact_amount_test() {
@@ -643,10 +638,9 @@ fn _wrap_swap_tokens_fixed_output_exact_amount_test() {
 
     let user_first_token_balance = 200_000_000u64;
 
-    b_mock.borrow_mut().set_egld_balance(
-        &first_user_addr,
-        &rust_biguint!(user_first_token_balance),
-    );
+    b_mock
+        .borrow_mut()
+        .set_egld_balance(&first_user_addr, &rust_biguint!(user_first_token_balance));
     let expected_balance = 166_666_666u64;
 
     b_mock
@@ -678,20 +672,16 @@ fn _wrap_swap_tokens_fixed_output_exact_amount_test() {
                     managed_biguint!(expected_balance),
                 );
 
-
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
         .assert_ok();
 
     // rest of the swap (166_666_666 swapped to 200_000_000 and 1 remaining)
-    b_mock.borrow_mut().check_esdt_balance(
-        &second_user_addr,
-        WEGLD_TOKEN_ID,
-        &rust_biguint!(1u64),
-    );
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&second_user_addr, WEGLD_TOKEN_ID, &rust_biguint!(1u64));
 }
-
 
 #[test]
 fn swap_tokens_fixed_output_unwrap_test() {
@@ -746,21 +736,16 @@ fn swap_tokens_fixed_output_unwrap_test() {
                     managed_biguint!(expected_balance),
                 );
 
-
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
         .assert_ok();
 
     // rest of the input token
-    b_mock.borrow_mut().check_esdt_balance(
-        &second_user_addr,
-        TOKEN_IDS[0],
-        &rust_biguint!(1u64),
-    );
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&second_user_addr, TOKEN_IDS[0], &rust_biguint!(1u64));
 }
-
-
 
 ///////// ROUTER ////////////
 #[test]

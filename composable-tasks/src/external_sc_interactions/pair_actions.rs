@@ -26,20 +26,34 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
         &self,
         from_tokens: TokenIdentifier,
         from_amount: BigUint,
-        to_tokens: TokenIdentifier,
+        to_token_id: TokenIdentifier,
         min_amount_out: BigUint,
     ) -> EsdtTokenPayment {
-        if from_tokens == to_tokens {
+        if from_tokens == to_token_id {
             return EsdtTokenPayment::new(from_tokens, 0, from_amount);
         }
 
-        let pair_address = self.get_pair(from_tokens.clone(), to_tokens.clone());
+        let pair_address = self.get_pair(from_tokens.clone(), to_token_id.clone());
         let payment = EsdtTokenPayment::new(from_tokens, 0, from_amount);
 
-        self.pair_proxy(pair_address)
-            .swap_tokens_fixed_input(to_tokens, min_amount_out)
+        let ((), back_transfers) = self
+            .pair_proxy(pair_address)
+            .swap_tokens_fixed_input(to_token_id.clone(), min_amount_out)
             .with_esdt_transfer(payment)
-            .execute_on_dest_context()
+            .execute_on_dest_context_with_back_transfers();
+
+        require!(
+            back_transfers.esdt_payments.len() == 1,
+            "Swap tokens fixed output: Back transfers expected 1 payment"
+        );
+
+        let payment_out = back_transfers.esdt_payments.get(0);
+        require!(
+            payment_out.token_identifier == to_token_id,
+            "Wrong returned token identifier!"
+        );
+
+        payment_out
     }
 
     fn perform_swap_tokens_fixed_output(
@@ -72,7 +86,10 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
         );
 
         let payment_out = back_transfers.esdt_payments.get(0);
-        require!(payment_out.token_identifier == to_token_id, "Wrong returned token identifier!");
+        require!(
+            payment_out.token_identifier == to_token_id,
+            "Wrong returned token identifier!"
+        );
 
         back_transfers.esdt_payments
     }
