@@ -328,7 +328,7 @@ fn enter_lp_and_farm_through_pos_creator() {
                 let swap_operation: SwapOperationType<DebugApi> = (
                     managed_address!(&second_pair_addr),
                     ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
-                    managed_token_id!(TOKEN_IDS[0]), // Want token B
+                    managed_token_id!(TOKEN_IDS[0]), // Want token A
                     BigUint::from(1u64),
                 )
                     .into();
@@ -343,10 +343,10 @@ fn enter_lp_and_farm_through_pos_creator() {
         )
         .assert_ok();
 
-    // User adds liquidity in pool B-C, using token A
-    // Route: All tokens A are swapped to token B
-    // Half of the swap output is then swapped to token C
-    // Add liquidity using the resulted tokens B and C
+    // User adds liquidity in pool (A, B), using token C
+    // Route: All tokens C are swapped to token A
+    // Half of the swap output is then swapped to token B
+    // Add liquidity using the resulted tokens A and B
     let expected_remaining_second_token = 3_780_718u64;
     let expected_farm_token = 43_478_260u64;
 
@@ -1140,6 +1140,107 @@ fn create_pos_with_farm_boosted_rewards_test() {
         LOCKED_REWARD_TOKEN_ID,
         1,
         &rust_biguint!(2_500u64),
+        None,
+    );
+}
+
+#[test]
+fn create_farm_from_lp_test() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        router::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
+
+    let user_addr = pos_creator_setup.farm_setup.first_user;
+    let user_third_token_balance = 600_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(user_third_token_balance),
+    );
+
+    let first_pair_addr = pos_creator_setup.pair_setups[0]
+        .pair_wrapper
+        .address_ref()
+        .clone();
+    let second_pair_addr = pos_creator_setup.pair_setups[1]
+        .pair_wrapper
+        .address_ref()
+        .clone();
+
+    // user enter (A, B) LP with token C
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            TOKEN_IDS[2], // Token C
+            0,
+            &rust_biguint!(user_third_token_balance),
+            |sc| {
+                // swap_operation -> pair_address, function, token_wanted, amount
+                let mut swap_operations = MultiValueEncoded::new();
+                let swap_operation: SwapOperationType<DebugApi> = (
+                    managed_address!(&second_pair_addr),
+                    ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+                    managed_token_id!(TOKEN_IDS[0]), // Want token A
+                    BigUint::from(1u64),
+                )
+                    .into();
+                swap_operations.push(swap_operation);
+
+                let _ = sc.create_lp_pos_from_single_token(
+                    managed_address!(&first_pair_addr),
+                    1u32.into(),
+                    1u32.into(),
+                    swap_operations,
+                );
+            },
+        )
+        .assert_ok();
+
+    let expected_lp_tokens = 43_478_260u64;
+    b_mock.borrow().check_esdt_balance(
+        &user_addr,
+        LP_TOKEN_IDS[0],
+        &rust_biguint!(expected_lp_tokens),
+    );
+
+    let farm_addr = pos_creator_setup.farm_setup.farm_wrappers[0]
+        .address_ref()
+        .clone();
+
+    // user enter farm from LP token
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            LP_TOKEN_IDS[0],
+            0,
+            &rust_biguint!(expected_lp_tokens),
+            |sc| {
+                let _ = sc.create_farm_pos_from_single_token(
+                    managed_address!(&farm_addr),
+                    1u32.into(),
+                    1u32.into(),
+                    MultiValueEncoded::new(),
+                );
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        FARM_TOKEN_ID[0],
+        1,
+        &rust_biguint!(expected_lp_tokens),
         None,
     );
 }
