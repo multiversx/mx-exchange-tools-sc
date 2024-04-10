@@ -5,7 +5,7 @@ use composable_tasks_setup::{ComposableTasksSetup, TOKEN_IDS};
 use multiversx_sc::types::{
     EgldOrEsdtTokenIdentifier, EgldOrEsdtTokenPayment, ManagedVec, MultiValueEncoded,
 };
-use multiversx_sc_scenario::*;
+use multiversx_sc_scenario::{whitebox_legacy::TxTokenTransfer, *};
 use wegld_swap_setup::WEGLD_TOKEN_ID;
 
 pub mod composable_tasks_setup;
@@ -485,6 +485,76 @@ fn swap_unwrap_test() {
     b_mock
         .borrow_mut()
         .check_egld_balance(&first_user_addr, &rust_biguint!(expected_balance));
+}
+
+#[test]
+fn swap_unwrap_multiple_input_tokens_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let user_first_token_balance = 200_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+
+    let user_first_token_balance = 200_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_first_token_balance),
+    );
+
+    let input_tokens = [
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[0].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_first_token_balance),
+        },
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[1].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_first_token_balance),
+        },
+    ];
+
+    let expected_balance = 166_666_666u64;
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            &input_tokens,
+            |sc| {
+                let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
+                swap_args.push(managed_buffer!(b"1"));
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::Swap, swap_args).into());
+                tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
+
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::egld(),
+                    0,
+                    managed_biguint!(expected_balance),
+                );
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_error(4, "incorrect number of ESDT transfers");
 }
 
 #[test]
