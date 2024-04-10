@@ -190,7 +190,7 @@ pub trait TaskCall:
         require!(
             expected_token.token_identifier == token_out.token_identifier
                 && expected_token.amount <= token_out.amount,
-            "The output token is less than minimum required by user!"
+            "The output token is less or different than the one required by user!"
         );
     }
 }

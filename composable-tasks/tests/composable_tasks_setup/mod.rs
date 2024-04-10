@@ -17,9 +17,19 @@ use multiversx_sc_scenario::{
 use pair::safe_price::SafePriceModule;
 use router::factory::{FactoryModule, PairTokens};
 
-pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
-pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", WEGLD_TOKEN_ID];
-pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPWEGLD-123456"];
+pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321", b"LPTOK-111222"];
+pub static TOKEN_IDS: &[&[u8]] = &[
+    b"FIRST-123456",
+    b"SECOND-123456",
+    WEGLD_TOKEN_ID,
+    b"FOURTH-123456",
+];
+pub static LP_TOKEN_IDS: &[&[u8]] = &[
+    FARMING_TOKEN_ID[0],
+    FARMING_TOKEN_ID[1],
+    b"LPWEGLD-123456",
+    FARMING_TOKEN_ID[2],
+];
 
 pub struct ComposableTasksSetup<
     PairBuilder,
@@ -121,9 +131,19 @@ where
             LP_TOKEN_IDS[2],
         );
 
-        let first_token_total_amount = 2_000_000_000u64;
+        let mut fourth_pair_setup = PairSetup::new(
+            b_mock.clone(),
+            pair_builder,
+            &owner,
+            TOKEN_IDS[2],
+            TOKEN_IDS[3],
+            LP_TOKEN_IDS[3],
+        );
+
+        let first_token_total_amount = 2 * 2_000_000_000u64;
         let second_token_total_amount = 3_000_000_000u64;
         let third_token_total_amount = 9_000_000_000u64;
+        let fourth_token_total_amount = 9_000_000_000u64;
 
         b_mock.borrow_mut().set_esdt_balance(
             &owner,
@@ -140,6 +160,11 @@ where
             TOKEN_IDS[2],
             &rust_biguint!(third_token_total_amount),
         );
+        b_mock.borrow_mut().set_esdt_balance(
+            &owner,
+            TOKEN_IDS[3],
+            &rust_biguint!(fourth_token_total_amount),
+        );
 
         let mut block_round: u64 = 1;
         b_mock.borrow_mut().set_block_round(block_round);
@@ -148,6 +173,7 @@ where
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
         second_pair_setup.add_liquidity(&owner, 1_000_000_000, 1_000_000_000);
         third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
+        fourth_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
 
         // setup price observations
         for _i in 1usize..=20 {
@@ -198,6 +224,21 @@ where
                     },
                 )
                 .assert_ok();
+
+            b_mock
+                .borrow_mut()
+                .execute_tx(
+                    &owner,
+                    &fourth_pair_setup.pair_wrapper,
+                    &rust_biguint!(0),
+                    |sc| {
+                        sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(1_000_000_000),
+                        );
+                    },
+                )
+                .assert_ok();
         }
 
         b_mock
@@ -235,6 +276,21 @@ where
                     PairTokens {
                         first_token_id: managed_token_id!(TOKEN_IDS[0]),
                         second_token_id: managed_token_id!(TOKEN_IDS[2]),
+                    },
+                );
+                sc.pair_map().insert(
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[2]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[3]),
+                    },
+                    managed_address!(fourth_pair_setup.pair_wrapper.address_ref()),
+                );
+
+                sc.address_pair_map().insert(
+                    managed_address!(fourth_pair_setup.pair_wrapper.address_ref()),
+                    PairTokens {
+                        first_token_id: managed_token_id!(TOKEN_IDS[2]),
+                        second_token_id: managed_token_id!(TOKEN_IDS[3]),
                     },
                 );
                 sc.pair_map().insert(
