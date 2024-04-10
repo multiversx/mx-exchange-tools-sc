@@ -1,7 +1,5 @@
 #![allow(deprecated)]
 
-use std::borrow::Borrow;
-
 use composable_tasks::compose_tasks::{TaskCall, TaskType};
 use composable_tasks_setup::{ComposableTasksSetup, TOKEN_IDS};
 use multiversx_sc::types::{
@@ -426,7 +424,10 @@ fn wrap_swap_fail_test() {
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
-        .assert_error(4, "The output token is less than minimum required by user!");
+        .assert_error(
+            4,
+            "The output token is less or different than the one required by user!",
+        );
 }
 
 #[test]
