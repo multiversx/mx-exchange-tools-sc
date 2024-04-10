@@ -10,8 +10,8 @@ use multiversx_sc_scenario::{
     DebugApi,
 };
 
-use pair::config::ConfigModule;
 use pair::*;
+use pair::{config::ConfigModule, fee::FeeModule};
 use pausable::{PausableModule, State};
 
 pub struct PairSetup<PairObjBuilder>
@@ -33,6 +33,7 @@ where
         b_mock: Rc<RefCell<BlockchainStateWrapper>>,
         pair_builder: PairObjBuilder,
         owner: &Address,
+        opt_farm_addr: Option<&Address>,
         first_token_id: &[u8],
         second_token_id: &[u8],
         lp_token_id: &[u8],
@@ -60,6 +61,9 @@ where
                 sc.lp_token_identifier()
                     .set(&managed_token_id!(lp_token_id));
                 sc.state().set(State::Active);
+                if let Some(farm_addr) = opt_farm_addr {
+                    let _ = sc.whitelist().insert(managed_address!(farm_addr));
+                }
             })
             .assert_ok();
 

@@ -6,11 +6,12 @@ use auto_pos_creator::{
         create_pos_endpoints::CreatePosEndpointsModule, exit_pos_endpoints::ExitPosEndpointsModule,
     },
 };
+use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::token_attributes::StakingFarmTokenAttributes;
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use multiversx_sc::{
     codec::Empty,
-    types::{BigUint, ManagedBuffer, MultiValueEncoded},
+    types::{BigUint, ManagedAddress, ManagedBuffer, MultiValueEncoded},
 };
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
@@ -497,7 +498,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
     // User enters metastaking by adding liquidity in pool (A, B) -> farm (A, B) -> metastaking (A, B)
     // Route: All tokens C are swapped to token A in pool (A, C)
     // Half of the swap output is then swapped to token B
-    // Add liquidity using the resulted tokens B and C
+    // Add liquidity using the resulted tokens A and B
     let second_pair_addr = pos_creator_setup.pair_setups[1]
         .pair_wrapper
         .address_ref()
@@ -1563,4 +1564,134 @@ fn try_create_lp_pos_from_different_lp_token_test() {
             },
         )
         .assert_user_error("The output token identifier is not part of the LP");
+}
+
+#[test]
+fn user_exit_metastaking_with_penalty_test() {
+    let pos_creator_setup = PosCreatorSetup::new(
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+        pair::contract_obj,
+        router::contract_obj,
+        farm_staking::contract_obj,
+        farm_staking_proxy::contract_obj,
+        auto_pos_creator::contract_obj,
+    );
+    let b_mock = pos_creator_setup.farm_setup.b_mock;
+
+    let user_addr = pos_creator_setup.farm_setup.first_user;
+    let user_first_token_balance = 200_000_000u64;
+    let user_second_token_balance = 400_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    b_mock.borrow_mut().set_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(user_second_token_balance),
+    );
+
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[0].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_first_token_balance),
+        },
+        TxTokenTransfer {
+            token_identifier: TOKEN_IDS[1].to_vec(),
+            nonce: 0,
+            value: rust_biguint!(user_second_token_balance),
+        },
+    ];
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &pos_creator_setup.farm_setup.owner,
+            &pos_creator_setup.farm_setup.farm_wrappers[0],
+            &rust_biguint!(0),
+            |sc| {
+                sc.penalty_percent().set(1_000);
+                sc.minimum_farming_epochs().set(10);
+            },
+        )
+        .assert_ok();
+
+    // user enter (A, B) metastaking farm with (A, B) tokens
+    let ms_addr = pos_creator_setup.ms_wrapper.address_ref().clone();
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            &payments,
+            |sc| {
+                let _ = sc.create_metastaking_pos_from_two_tokens(
+                    managed_address!(&ms_addr),
+                    1u32.into(),
+                    1u32.into(),
+                );
+            },
+        )
+        .assert_ok();
+
+    let expected_dual_yield_tokens = 166_666_666u64;
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        DUAL_YIELD_TOKEN_ID,
+        1,
+        &rust_biguint!(expected_dual_yield_tokens),
+        None,
+    );
+
+    // set address to 0 so tokens are burned directly
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &pos_creator_setup.farm_setup.owner,
+            &pos_creator_setup.farm_setup.farm_wrappers[0],
+            &rust_biguint!(0),
+            |sc| {
+                sc.pair_contract_address().set(ManagedAddress::zero());
+            },
+        )
+        .assert_ok();
+
+    // user exit metastaking pos
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &user_addr,
+            &pos_creator_setup.pos_creator_wrapper,
+            DUAL_YIELD_TOKEN_ID,
+            1,
+            &rust_biguint!(expected_dual_yield_tokens),
+            |sc| {
+                sc.exit_metastaking_pos_endpoint(
+                    managed_address!(&ms_addr),
+                    1u32.into(),
+                    1u32.into(),
+                );
+            },
+        )
+        .assert_ok();
+
+    // 10% penalty - from 400M and 200M
+    let expected_second_token_amount_from_lp = 360_000_000u64;
+    let expected_staking_farm_token_amount = 180_000_000u64;
+
+    b_mock.borrow().check_esdt_balance(
+        &user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(expected_second_token_amount_from_lp),
+    );
+    b_mock.borrow().check_nft_balance::<Empty>(
+        &user_addr,
+        STAKING_FARM_TOKEN_ID,
+        2,
+        &rust_biguint!(expected_staking_farm_token_amount),
+        None,
+    );
 }
