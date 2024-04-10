@@ -28,7 +28,7 @@ pub mod pair_setup;
 pub mod pos_creator_setup;
 pub mod router_setup;
 
-pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
+pub static SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
 #[test]
 fn full_pos_creator_setup_test() {
