@@ -7,7 +7,7 @@ use auto_pos_creator::{
     },
 };
 use farm::exit_penalty::ExitPenaltyModule;
-use farm_staking::token_attributes::StakingFarmTokenAttributes;
+use farm_staking::token_attributes::{StakingFarmTokenAttributes, UnbondSftAttributes};
 use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use multiversx_sc::{
     codec::Empty,
@@ -1687,12 +1687,12 @@ fn user_exit_metastaking_with_penalty_test() {
         TOKEN_IDS[1],
         &rust_biguint!(expected_second_token_amount_from_lp),
     );
-    b_mock.borrow().check_nft_balance::<Empty>(
+    b_mock.borrow().check_nft_balance(
         &user_addr,
         STAKING_FARM_TOKEN_ID,
         2,
         &rust_biguint!(expected_staking_farm_token_amount),
-        None,
+        Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 }
 
@@ -1791,11 +1791,11 @@ fn user_exit_metastaking_without_penalty_test() {
         TOKEN_IDS[1],
         &rust_biguint!(expected_second_token_amount_from_lp),
     );
-    b_mock.borrow().check_nft_balance::<Empty>(
+    b_mock.borrow().check_nft_balance(
         &user_addr,
         STAKING_FARM_TOKEN_ID,
         2,
         &rust_biguint!(expected_staking_farm_token_amount),
-        None,
+        Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 }
