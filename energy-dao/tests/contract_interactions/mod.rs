@@ -14,7 +14,7 @@ use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::TxTokenTransfer, DebugApi,
 };
-use pair::Pair;
+use pair::pair_actions::{add_liq::AddLiquidityModule, remove_liq::RemoveLiquidityModule};
 
 use crate::contract_setup::{EnergyDAOContractSetup, BASE_ASSET_TOKEN_ID, LOCKED_TOKEN_ID};
 

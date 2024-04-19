@@ -26,10 +26,7 @@ use pausable::{PausableModule, State};
 use proxy_dex::{
     other_sc_whitelist::OtherScWhitelistModule, proxy_common::ProxyCommonModule, ProxyDexImpl,
 };
-use router::{
-    factory::{FactoryModule, PairTokens},
-    Router,
-};
+use router::{config::ConfigModule as RouterConfigModule, factory::PairTokens, Router};
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::{LockedTokenAttributes, LockedTokenModule};
 
@@ -321,13 +318,6 @@ where
                     second_token_id: managed_token_id!(second_token_id),
                 },
                 managed_address!(pair_address),
-            );
-            sc.address_pair_map().insert(
-                managed_address!(pair_address),
-                PairTokens {
-                    first_token_id: managed_token_id!(first_token_id),
-                    second_token_id: managed_token_id!(second_token_id),
-                },
             );
         })
         .assert_ok();

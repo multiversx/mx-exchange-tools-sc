@@ -6,7 +6,8 @@ use crate::common::errors::{ERROR_BAD_PAYMENT_TOKENS, ERROR_LOCKED_TOKENS_NOT_FO
 
 #[multiversx_sc::module]
 pub trait LockedTokenInteractionsModule:
-    crate::external_sc_interactions::farm_actions::FarmActionsModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::external_sc_interactions::farm_actions::FarmActionsModule
     + crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule

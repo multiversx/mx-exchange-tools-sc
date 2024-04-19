@@ -15,7 +15,8 @@ use common::common_storage::MAX_PERCENTAGE;
 
 #[multiversx_sc::contract]
 pub trait AutoFarm:
-    whitelists::farms_whitelist::FarmsWhitelistModule
+    read_external_storage::ReadExternalStorageModule
+    + whitelists::farms_whitelist::FarmsWhitelistModule
     + external_storage_read::farm_storage_read::FarmStorageReadModule
     + common::common_storage::CommonStorageModule
     + registration::RegistrationModule

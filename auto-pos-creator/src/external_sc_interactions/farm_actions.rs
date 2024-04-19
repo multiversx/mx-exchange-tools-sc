@@ -1,10 +1,10 @@
+multiversx_sc::imports!();
+
 use common_structs::PaymentsVec;
 use farm::{
     base_functions::{ExitFarmResultType, ExitFarmResultWrapper},
     EnterFarmResultType,
 };
-
-multiversx_sc::imports!();
 
 pub struct EnterFarmResultWrapper<M: ManagedTypeApi> {
     pub new_farm_token: EsdtTokenPayment<M>,
@@ -50,10 +50,6 @@ pub trait FarmActionsModule {
             rewards,
         }
     }
-
     #[proxy]
     fn farm_proxy(&self, sc_address: ManagedAddress) -> farm_with_locked_rewards::Proxy<Self::Api>;
-
-    #[storage_mapper("pair_contract_address")]
-    fn pair_contract_address(&self) -> SingleValueMapper<ManagedAddress>;
 }

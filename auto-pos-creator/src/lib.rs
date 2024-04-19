@@ -10,6 +10,7 @@ pub mod multi_contract_interactions;
 #[multiversx_sc::contract]
 pub trait AutoPosCreator:
     utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + configs::pairs_config::PairsConfigModule
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule

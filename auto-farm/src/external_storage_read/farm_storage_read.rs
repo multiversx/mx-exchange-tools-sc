@@ -1,14 +1,7 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(
-    TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Copy, Clone, Debug,
-)]
-pub enum State {
-    Inactive,
-    Active,
-    PartialActive,
-}
+use read_external_storage::State;
 
 #[derive(TypeAbi, TopEncode, TopDecode, Debug)]
 pub struct FarmConfig<M: ManagedTypeApi> {
@@ -18,13 +11,15 @@ pub struct FarmConfig<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::module]
-pub trait FarmStorageReadModule: utils::UtilsModule {
+pub trait FarmStorageReadModule:
+    utils::UtilsModule + read_external_storage::ReadExternalStorageModule
+{
     #[label("farm-whitelist-endpoints")]
     #[view(getFarmConfig)]
-    fn get_farm_config(&self, farm_address: &ManagedAddress) -> FarmConfig<Self::Api> {
-        let state = self.farm_state().get_from_address(farm_address);
-        let farm_token_id = self.farm_token_id().get_from_address(farm_address);
-        let farming_token_id = self.farming_token_id().get_from_address(farm_address);
+    fn get_farm_config(&self, farm_address: ManagedAddress) -> FarmConfig<Self::Api> {
+        let state = self.get_farm_state(farm_address.clone());
+        let farm_token_id = self.get_farm_token_id_mapper(farm_address.clone()).get();
+        let farming_token_id = self.get_farming_token_id_mapper(farm_address).get();
 
         self.require_valid_token_id(&farm_token_id);
         self.require_valid_token_id(&farming_token_id);
@@ -37,16 +32,7 @@ pub trait FarmStorageReadModule: utils::UtilsModule {
     }
 
     #[inline]
-    fn get_farm_state(&self, farm_address: &ManagedAddress) -> State {
-        self.farm_state().get_from_address(farm_address)
+    fn get_farm_state(&self, farm_address: ManagedAddress) -> State {
+        self.get_farm_state_mapper(farm_address).get()
     }
-
-    #[storage_mapper("state")]
-    fn farm_state(&self) -> SingleValueMapper<State>;
-
-    #[storage_mapper("farm_token_id")]
-    fn farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("farming_token_id")]
-    fn farming_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 }

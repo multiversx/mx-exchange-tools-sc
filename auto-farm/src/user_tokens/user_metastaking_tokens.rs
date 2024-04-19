@@ -1,15 +1,12 @@
-use common_structs::PaymentsVec;
-
-use crate::{
-    common::address_to_id_mapper::{AddressId, NULL_ID},
-    events::{DepositType, WithdrawType},
-};
-
 multiversx_sc::imports!();
+
+use crate::events::{DepositType, WithdrawType};
+use common_structs::PaymentsVec;
 
 #[multiversx_sc::module]
 pub trait UserMetastakingTokensModule:
-    crate::common::common_storage::CommonStorageModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::common::common_storage::CommonStorageModule
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + super::withdraw_tokens::WithdrawTokensModule

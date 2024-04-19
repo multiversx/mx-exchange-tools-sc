@@ -17,7 +17,9 @@ pub const MAX_PERCENTAGE: u64 = 10_000; // 100.00%
 
 #[multiversx_sc::module]
 pub trait EnergyDAOConfigModule:
-    utils::UtilsModule + permissions_module::PermissionsModule
+    read_external_storage::ReadExternalStorageModule
+    + utils::UtilsModule
+    + permissions_module::PermissionsModule
 {
     #[only_owner]
     #[payable("EGLD")]
@@ -155,7 +157,7 @@ pub trait EnergyDAOConfigModule:
             );
             self.require_sc_address(&metastaking_address);
 
-            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            let lp_farm_address = self.get_lp_farm_address(metastaking_address.clone());
             self.require_sc_address(&lp_farm_address);
             self.lp_farm_metastaking_address(&lp_farm_address)
                 .set(metastaking_address);
@@ -192,7 +194,7 @@ pub trait EnergyDAOConfigModule:
                 ERROR_METASTAKING_HAS_FUNDS
             );
 
-            let lp_farm_address = self.get_lp_farm_address(&metastaking_address);
+            let lp_farm_address = self.get_lp_farm_address_mapper(metastaking_address).get();
             self.require_sc_address(&lp_farm_address);
             self.lp_farm_metastaking_address(&lp_farm_address).clear();
 
@@ -222,106 +224,70 @@ pub trait EnergyDAOConfigModule:
     }
 
     #[view(getFarmingTokenId)]
-    fn get_farming_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
-        let farming_token_id = self.farming_token_id().get_from_address(farm_address);
+    fn get_farming_token(&self, farm_address: ManagedAddress) -> TokenIdentifier {
+        let farming_token_id = self.get_farming_token_id_mapper(farm_address).get();
         self.require_valid_token_id(&farming_token_id);
         farming_token_id
     }
 
     #[view(getFarmTokenId)]
-    fn get_farm_token(&self, farm_address: &ManagedAddress) -> TokenIdentifier {
-        let farm_token_id = self.farm_token_id().get_from_address(farm_address);
+    fn get_farm_token(&self, farm_address: ManagedAddress) -> TokenIdentifier {
+        let farm_token_id = self.get_farm_token_id_mapper(farm_address).get();
         self.require_valid_token_id(&farm_token_id);
         farm_token_id
     }
 
-    /// We use the division_safety_constant mapper as a way to access the value from each particular farm
-    /// Because we do not actually save in the storage a certain value for each farm
-    /// We should not have any performance penalty, as we read from the storage only once
     #[view(getDivisionSafetyConstant)]
-    fn get_division_safety_constant(&self, farm_address: &ManagedAddress) -> BigUint {
-        let division_safety_constant = self
-            .division_safety_constant()
-            .get_from_address(farm_address);
+    fn get_division_safety_constant(&self, farm_address: ManagedAddress) -> BigUint {
+        let division_safety_constant = self.get_division_safety_constant_mapper(farm_address).get();
         require!(division_safety_constant > 0, ERROR_DIVISION_CONSTANT_VALUE);
         division_safety_constant
     }
 
     // We use the minimum_farming_epochs variable from the Farm SC, to have a clear alignment with the farm penalty period
     #[view(getMinimumFarmingEpoch)]
-    fn get_minimum_farming_epochs(&self, farm_address: &ManagedAddress) -> Epoch {
-        self.minimum_farming_epochs().get_from_address(farm_address)
+    fn get_minimum_farming_epochs(&self, farm_address: ManagedAddress) -> Epoch {
+        self.get_minimum_farming_epochs_mapper(farm_address).get()
     }
 
     #[view(getDualYieldTokenId)]
-    fn get_dual_yield_token(&self, metastaking_address: &ManagedAddress) -> TokenIdentifier {
+    fn get_dual_yield_token(&self, metastaking_address: ManagedAddress) -> TokenIdentifier {
         let dual_yield_token_id = self
-            .dual_yield_token_id()
-            .get_from_address(metastaking_address);
+            .get_dual_yield_token_id_mapper(metastaking_address)
+            .get();
         self.require_valid_token_id(&dual_yield_token_id);
         dual_yield_token_id
     }
 
     #[view(getLpFarmTokenId)]
-    fn get_lp_farm_token(&self, metastaking_address: &ManagedAddress) -> TokenIdentifier {
-        let lp_farm_token_id = self
-            .lp_farm_token_id()
-            .get_from_address(metastaking_address);
+    fn get_lp_farm_token(&self, metastaking_address: ManagedAddress) -> TokenIdentifier {
+        let lp_farm_token_id = self.get_lp_farm_token_id_mapper(metastaking_address).get();
         self.require_valid_token_id(&lp_farm_token_id);
         lp_farm_token_id
     }
 
     #[view(getStakingTokenId)]
-    fn get_staking_token(&self, metastaking_address: &ManagedAddress) -> TokenIdentifier {
-        let staking_token_id = self
-            .staking_token_id()
-            .get_from_address(metastaking_address);
+    fn get_staking_token(&self, metastaking_address: ManagedAddress) -> TokenIdentifier {
+        let staking_token_id = self.get_staking_token_id_mapper(metastaking_address).get();
         self.require_valid_token_id(&staking_token_id);
         staking_token_id
     }
 
     #[view(getLpFarmAddress)]
-    fn get_lp_farm_address(&self, metastaking_address: &ManagedAddress) -> ManagedAddress {
-        let lp_farm_address = self.lp_farm_address().get_from_address(metastaking_address);
+    fn get_lp_farm_address(&self, metastaking_address: ManagedAddress) -> ManagedAddress {
+        let lp_farm_address = self.get_lp_farm_address_mapper(metastaking_address).get();
         self.require_sc_address(&lp_farm_address);
         lp_farm_address
     }
 
     #[view(getStakingFarmAddress)]
-    fn get_staking_farm_address(&self, metastaking_address: &ManagedAddress) -> ManagedAddress {
+    fn get_staking_farm_address(&self, metastaking_address: ManagedAddress) -> ManagedAddress {
         let staking_farm_address = self
-            .staking_farm_address()
-            .get_from_address(metastaking_address);
+            .get_staking_farm_address_mapper(metastaking_address)
+            .get();
         self.require_sc_address(&staking_farm_address);
         staking_farm_address
     }
-
-    #[storage_mapper("farm_token_id")]
-    fn farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("farming_token_id")]
-    fn farming_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("division_safety_constant")]
-    fn division_safety_constant(&self) -> SingleValueMapper<BigUint>;
-
-    #[storage_mapper("minimum_farming_epochs")]
-    fn minimum_farming_epochs(&self) -> SingleValueMapper<Epoch>;
-
-    #[storage_mapper("dualYieldTokenId")]
-    fn dual_yield_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("lpFarmTokenId")]
-    fn lp_farm_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("stakingTokenId")]
-    fn staking_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("lpFarmAddress")]
-    fn lp_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
-
-    #[storage_mapper("stakingFarmAddress")]
-    fn staking_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
 
     #[view(getWrappedFarmTokenId)]
     #[storage_mapper("wrappedFarmTokenId")]

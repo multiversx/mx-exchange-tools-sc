@@ -1,11 +1,11 @@
+multiversx_sc::imports!();
+
 use common_structs::PaymentsVec;
 pub use farm_staking_proxy::proxy_actions::stake::ProxyTrait as OtherProxyTrait2;
 pub use farm_staking_proxy::proxy_actions::unstake::ProxyTrait as OtherProxyTrait;
 use farm_staking_proxy::result_types::{StakeProxyResult, UnstakeResult};
 
 use crate::multi_contract_interactions::exit_pos::MetastakingExitArgs;
-
-multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait MetastakingActionsModule {
@@ -38,7 +38,4 @@ pub trait MetastakingActionsModule {
     #[proxy]
     fn metastaking_proxy(&self, sc_address: ManagedAddress)
         -> farm_staking_proxy::Proxy<Self::Api>;
-
-    #[storage_mapper("lpFarmAddress")]
-    fn lp_farm_address(&self) -> SingleValueMapper<ManagedAddress>;
 }
