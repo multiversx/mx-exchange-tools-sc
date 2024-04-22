@@ -1,0 +1,11 @@
+[package]
+name = "read_external_storage"
+version = "0.0.0"
+authors = ["Sorin Petreasca <sorin.petreasca@multiversx.com>"]
+edition = "2021"
+
+[lib]
+path = "src/read_external_storage.rs"
+
+[dependencies.multiversx-sc]
+version = "=0.48.0"

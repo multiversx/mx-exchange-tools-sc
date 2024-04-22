@@ -11,6 +11,7 @@ use common_structs::{Epoch, PaymentsVec};
 pub trait CreateFarmPosModule:
     configs::pairs_config::PairsConfigModule
     + utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + energy_query::EnergyQueryModule
     + crate::external_sc_interactions::energy_factory_actions::EnergyFactoryActionsModule
     + crate::external_sc_interactions::proxy_dex_actions::ProxyDexActionsModule

@@ -12,7 +12,8 @@ use crate::common::structs::{MetastakingState, WrappedMetastakingTokenAttributes
 
 #[multiversx_sc::module]
 pub trait MetastakingActionsModule:
-    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule
     + permissions_module::PermissionsModule
@@ -54,7 +55,7 @@ pub trait MetastakingActionsModule:
         metastaking_address: ManagedAddress,
         unbond_position: EsdtTokenPayment,
     ) -> EsdtTokenPayment<Self::Api> {
-        let staking_farm_address = self.get_staking_farm_address(&metastaking_address);
+        let staking_farm_address = self.get_staking_farm_address(metastaking_address);
         self.farm_staking_proxy(staking_farm_address)
             .unbond_farm()
             .with_esdt_transfer(unbond_position)

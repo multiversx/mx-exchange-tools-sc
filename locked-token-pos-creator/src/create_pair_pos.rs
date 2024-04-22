@@ -17,6 +17,7 @@ pub struct AddLiquidityArguments<M: ManagedTypeApi> {
 pub trait CreatePairPosModule:
     configs::pairs_config::PairsConfigModule
     + utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + energy_query::EnergyQueryModule
     + crate::create_locked_pos::CreateLockedPosModule
     + crate::external_sc_interactions::energy_factory_actions::EnergyFactoryActionsModule

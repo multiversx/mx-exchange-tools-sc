@@ -9,6 +9,7 @@ use super::exit_pos::{FarmExitArgs, MetastakingExitArgs, RemoveLiqArgs};
 #[multiversx_sc::module]
 pub trait ExitPosEndpointsModule:
     utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + crate::configs::pairs_config::PairsConfigModule
     + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule

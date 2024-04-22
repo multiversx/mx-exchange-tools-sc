@@ -1,23 +1,19 @@
+multiversx_sc::imports!();
+
 use common_structs::PaymentsVec;
 use farm::{
     base_functions::{ClaimRewardsResultType, ClaimRewardsResultWrapper},
     EnterFarmResultType,
 };
 use farm_staking::stake_farm::ProxyTrait as _;
+use read_external_storage::State;
 
-use crate::{
-    common::{
-        address_to_id_mapper::{AddressId, NULL_ID},
-        rewards_wrapper::RewardsWrapper,
-    },
-    external_storage_read::farm_storage_read::State,
-};
-
-multiversx_sc::imports!();
+use crate::common::rewards_wrapper::RewardsWrapper;
 
 #[multiversx_sc::module]
 pub trait FarmActionsModule:
-    crate::common::common_storage::CommonStorageModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::common::common_storage::CommonStorageModule
     + crate::whitelists::farms_whitelist::FarmsWhitelistModule
     + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + crate::user_tokens::user_farm_tokens::UserFarmTokensModule
@@ -54,7 +50,7 @@ pub trait FarmActionsModule:
             }
 
             let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
-            let farm_state = self.get_farm_state(&farm_addr);
+            let farm_state = self.get_farm_state(farm_addr.clone());
             if farm_state != State::Active {
                 new_user_farm_tokens.push(farm_token);
                 continue;

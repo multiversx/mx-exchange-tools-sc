@@ -1,15 +1,16 @@
+multiversx_sc::imports!();
+
 use crate::common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments};
 
 use super::metabonding_actions::SingleMetabondingClaimArg;
-
-multiversx_sc::imports!();
 
 pub type ClaimAllArgType<M> =
     MultiValue2<ManagedAddress<M>, ManagedVec<M, SingleMetabondingClaimArg<M>>>;
 
 #[multiversx_sc::module]
 pub trait MultiContractInteractionsModule:
-    crate::whitelists::farms_whitelist::FarmsWhitelistModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::whitelists::farms_whitelist::FarmsWhitelistModule
     + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
     + crate::common::common_storage::CommonStorageModule
     + crate::registration::RegistrationModule

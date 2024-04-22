@@ -24,7 +24,6 @@ use energy_dao::{external_sc_interactions::energy_dao_config::EnergyDAOConfigMod
 use energy_factory::{locked_token_transfer::LockedTokenTransferModule, SimpleLockEnergy};
 use energy_query::EnergyQueryModule;
 use farm_boosted_yields::boosted_yields_factors::BoostedYieldsFactorsModule;
-use farm_boosted_yields::FarmBoostedYieldsModule;
 use locking_module::lock_with_energy_module::LockWithEnergyModule;
 use pausable::{PausableModule, State};
 use sc_whitelist_module::SCWhitelistModule;

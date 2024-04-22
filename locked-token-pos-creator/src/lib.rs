@@ -17,6 +17,7 @@ use common_structs::Epoch;
 pub trait LockedTokenPosCreatorContract:
     configs::pairs_config::PairsConfigModule
     + utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + energy_query::EnergyQueryModule
     + create_locked_pos::CreateLockedPosModule
     + create_pair_pos::CreatePairPosModule

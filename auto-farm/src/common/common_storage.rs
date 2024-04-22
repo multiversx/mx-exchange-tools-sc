@@ -1,5 +1,3 @@
-use super::address_to_id_mapper::AddressToIdMapper;
-
 multiversx_sc::imports!();
 
 pub const MAX_PERCENTAGE: u64 = 10_000;

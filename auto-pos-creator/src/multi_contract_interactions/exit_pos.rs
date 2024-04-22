@@ -28,6 +28,7 @@ pub struct RemoveLiqArgs<M: ManagedTypeApi> {
 #[multiversx_sc::module]
 pub trait ExitPosModule:
     utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + crate::configs::pairs_config::PairsConfigModule
     + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::farm_actions::FarmActionsModule
@@ -51,8 +52,8 @@ pub trait ExitPosModule:
         args: FarmExitArgs<Self::Api>,
     ) {
         let pair_address = self
-            .pair_contract_address()
-            .get_from_address(&args.farm_address);
+            .get_farm_pair_contract_address_mapper(args.farm_address.clone())
+            .get();
         self.require_sc_address(&pair_address);
 
         let exit_farm_result = self.call_exit_farm(args.farm_address, args.user, args.farm_tokens);
