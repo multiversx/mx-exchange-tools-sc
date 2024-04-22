@@ -1637,7 +1637,7 @@ fn user_exit_metastaking_with_penalty_test() {
         )
         .assert_ok();
 
-    let expected_dual_yield_tokens = 166_666_666u64;
+    let expected_dual_yield_tokens = 200_000_000u64;
     b_mock.borrow().check_nft_balance::<Empty>(
         &user_addr,
         DUAL_YIELD_TOKEN_ID,
@@ -1754,7 +1754,7 @@ fn user_exit_metastaking_without_penalty_test() {
         )
         .assert_ok();
 
-    let expected_dual_yield_tokens = 166_666_666u64;
+    let expected_dual_yield_tokens = 200_000_000u64;
     b_mock.borrow().check_nft_balance::<Empty>(
         &user_addr,
         DUAL_YIELD_TOKEN_ID,
