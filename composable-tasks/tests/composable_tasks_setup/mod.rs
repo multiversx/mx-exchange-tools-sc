@@ -241,6 +241,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(1_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -276,13 +277,6 @@ where
                     managed_address!(fourth_pair_setup.pair_wrapper.address_ref()),
                 );
 
-                sc.address_pair_map().insert(
-                    managed_address!(fourth_pair_setup.pair_wrapper.address_ref()),
-                    PairTokens {
-                        first_token_id: managed_token_id!(TOKEN_IDS[2]),
-                        second_token_id: managed_token_id!(TOKEN_IDS[3]),
-                    },
-                );
                 sc.pair_map().insert(
                     PairTokens {
                         first_token_id: managed_token_id!(TOKEN_IDS[1]),
