@@ -1,10 +1,9 @@
-use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
-
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait MetastakingWhitelistModule:
-    crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + utils::UtilsModule
 {
     #[label("metastaking-whitelist-endpoints")]
@@ -16,7 +15,7 @@ pub trait MetastakingWhitelistModule:
             self.require_sc_address(&sc_addr);
 
             let new_id = ids_mapper.insert_new(&sc_addr);
-            let ms_config = self.get_metastaking_config(&sc_addr);
+            let ms_config = self.get_metastaking_config(sc_addr);
             self.metastaking_for_dual_yield_token(&ms_config.dual_yield_token_id)
                 .set(new_id);
             self.metastaking_for_lp_farm_token(&ms_config.lp_farm_token_id)
@@ -35,7 +34,7 @@ pub trait MetastakingWhitelistModule:
                 continue;
             }
 
-            let ms_config = self.get_metastaking_config(&sc_addr);
+            let ms_config = self.get_metastaking_config(sc_addr);
             self.metastaking_for_dual_yield_token(&ms_config.dual_yield_token_id)
                 .clear();
             self.metastaking_for_lp_farm_token(&ms_config.lp_farm_token_id)

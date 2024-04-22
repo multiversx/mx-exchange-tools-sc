@@ -177,7 +177,7 @@ fn energy_dao_metastaking_test() {
         );
 
     // Check staking rewards
-    let user1_staking_rewards = 148_000u64;
+    let user1_staking_rewards = 300_000u64;
     let user2_staking_rewards = user1_staking_rewards / 2;
     energy_dao_setup.b_mock.check_esdt_balance(
         &user1,
@@ -308,7 +308,7 @@ fn energy_dao_metastaking_test() {
         );
 
     let user2_new_staking_rewards = 130_000u64;
-    let user2_base_token_fee = 1_499_940_500u64;
+    let user2_base_token_fee = 1_499_930_000u64;
 
     energy_dao_setup.b_mock.check_esdt_balance(
         &user2,

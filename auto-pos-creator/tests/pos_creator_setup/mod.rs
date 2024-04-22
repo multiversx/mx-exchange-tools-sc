@@ -209,6 +209,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(2_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -224,6 +225,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(6_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -239,6 +241,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(3_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )

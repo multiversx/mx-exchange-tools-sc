@@ -15,7 +15,8 @@ pub const MAX_PERCENT: u64 = 10_000;
 
 #[multiversx_sc::module]
 pub trait FarmActionsModule:
-    crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::external_sc_interactions::energy_dao_config::EnergyDAOConfigModule
     + crate::external_sc_interactions::locked_token_actions::LockedTokenModule
     + utils::UtilsModule
     + permissions_module::PermissionsModule
@@ -61,7 +62,7 @@ pub trait FarmActionsModule:
 
     fn claim_and_update_farm_state(
         &self,
-        farm_address: &ManagedAddress,
+        farm_address: ManagedAddress,
         farm_state_mapper: &mut SingleValueMapper<FarmState<Self::Api>>,
     ) {
         if farm_state_mapper.is_empty() {
@@ -72,15 +73,14 @@ pub trait FarmActionsModule:
             return;
         }
 
-        let division_safety_constant = self.get_division_safety_constant(farm_address);
-        let farm_token_id = self.get_farm_token(farm_address);
+        let division_safety_constant = self.get_division_safety_constant(farm_address.clone());
+        let farm_token_id = self.get_farm_token(farm_address.clone());
         let current_farm_position = EsdtTokenPayment::new(
             farm_token_id,
             farm_state.farm_token_nonce,
             farm_state.farm_staked_value.clone(),
         );
-        let claim_rewards_result =
-            self.call_farm_claim(farm_address.clone(), current_farm_position);
+        let claim_rewards_result = self.call_farm_claim(farm_address, current_farm_position);
         let (new_farm_token, farm_rewards) = claim_rewards_result.into_tuple();
 
         self.update_farm_after_claim(

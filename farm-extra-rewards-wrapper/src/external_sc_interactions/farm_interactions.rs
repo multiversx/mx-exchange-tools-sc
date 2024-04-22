@@ -9,7 +9,8 @@ multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait FarmInteractionsModule:
-    auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
+    read_external_storage::ReadExternalStorageModule
+    + auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
     + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
     + utils::UtilsModule
 {

@@ -6,7 +6,8 @@ multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait RegistrationModule:
-    crate::common::common_storage::CommonStorageModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::common::common_storage::CommonStorageModule
     + crate::user_tokens::user_rewards::UserRewardsModule
     + crate::fees::FeesModule
     + crate::external_sc_interactions::locked_token_merging::LockedTokenMergingModule

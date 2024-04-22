@@ -39,6 +39,7 @@ pub struct CreateMetastakingPosArgs<M: ManagedTypeApi> {
 #[multiversx_sc::module]
 pub trait CreatePosModule:
     utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + crate::configs::pairs_config::PairsConfigModule
     + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::egld_wrapper_actions::EgldWrapperActionsModule
@@ -151,9 +152,7 @@ pub trait CreatePosModule:
     ) -> (EsdtTokenPayment, PaymentsWrapper<Self::Api>) {
         let mut output_payments = PaymentsWrapper::new();
         if args.second_tokens.amount == 0 {
-            let lp_token_id = self
-                .lp_token_identifier()
-                .get_from_address(&args.pair_address);
+            let lp_token_id = self.get_lp_token_id_mapper(args.pair_address).get();
             require!(
                 args.first_tokens.token_identifier == lp_token_id,
                 "Wrong LP token"

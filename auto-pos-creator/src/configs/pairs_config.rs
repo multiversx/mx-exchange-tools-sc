@@ -7,11 +7,13 @@ pub struct PairConfig<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::module]
-pub trait PairsConfigModule: utils::UtilsModule {
+pub trait PairsConfigModule:
+    read_external_storage::ReadExternalStorageModule + utils::UtilsModule
+{
     fn get_pair_config(&self, pair_address: &ManagedAddress) -> PairConfig<Self::Api> {
-        let lp_token_id = self.lp_token_identifier().get_from_address(pair_address);
-        let first_token_id = self.first_token_id().get_from_address(pair_address);
-        let second_token_id = self.second_token_id().get_from_address(pair_address);
+        let lp_token_id = self.get_lp_token_id_mapper(pair_address.clone()).get();
+        let first_token_id = self.get_first_token_id_mapper(pair_address.clone()).get();
+        let second_token_id = self.get_second_token_id_mapper(pair_address.clone()).get();
 
         self.require_valid_token_id(&lp_token_id);
         self.require_valid_token_id(&first_token_id);
@@ -23,15 +25,4 @@ pub trait PairsConfigModule: utils::UtilsModule {
             second_token_id,
         }
     }
-
-    // Pair storage
-
-    #[storage_mapper("lpTokenIdentifier")]
-    fn lp_token_identifier(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("first_token_id")]
-    fn first_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[storage_mapper("second_token_id")]
-    fn second_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 }

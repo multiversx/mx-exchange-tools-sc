@@ -1,14 +1,15 @@
+multiversx_sc::imports!();
+
 use common_structs::PaymentsVec;
 pub use farm_staking_proxy::proxy_actions::claim::ProxyTrait as _;
 use farm_staking_proxy::result_types::ClaimDualYieldResult;
 
-use crate::common::{address_to_id_mapper::AddressId, rewards_wrapper::RewardsWrapper};
-
-multiversx_sc::imports!();
+use crate::common::rewards_wrapper::RewardsWrapper;
 
 #[multiversx_sc::module]
 pub trait MetastakingActionsModule:
-    crate::common::common_storage::CommonStorageModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::common::common_storage::CommonStorageModule
     + crate::whitelists::metastaking_whitelist::MetastakingWhitelistModule
     + crate::external_storage_read::metastaking_storage_read::MetastakingStorageReadModule
     + crate::user_tokens::user_metastaking_tokens::UserMetastakingTokensModule

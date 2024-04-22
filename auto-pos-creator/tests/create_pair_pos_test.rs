@@ -534,7 +534,7 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         .assert_ok();
 
     let expected_remaining_second_token = 3_780_718u64;
-    let expected_dual_yield_token = 41_666_665u64;
+    let expected_dual_yield_token = 43_478_260u64;
 
     b_mock
         .borrow()
@@ -725,7 +725,7 @@ fn enter_metastaking_with_merge_through_pos_creator_test() {
         .address_ref()
         .clone();
     let ms_addr = pos_creator_setup.ms_wrapper.address_ref().clone();
-    let expected_dual_yield_tokens = 22_727_271u64;
+    let expected_dual_yield_tokens = 23_255_813u64;
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
@@ -873,7 +873,7 @@ fn create_metastaking_pos_from_two_tokens_test() {
         )
         .assert_ok();
 
-    let expected_dual_yield_tokens = 166_666_666u64;
+    let expected_dual_yield_tokens = 200_000_000u64;
     b_mock
         .borrow()
         .check_esdt_balance(&user_addr, TOKEN_IDS[0], &rust_biguint!(0));
@@ -1131,7 +1131,7 @@ fn create_pos_with_farm_boosted_rewards_test() {
         &user_addr,
         DUAL_YIELD_TOKEN_ID,
         1,
-        &rust_biguint!(45_454_545u64),
+        &rust_biguint!(50_000_000u64),
         None,
     );
 

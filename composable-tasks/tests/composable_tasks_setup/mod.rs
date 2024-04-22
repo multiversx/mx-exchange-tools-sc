@@ -15,7 +15,10 @@ use multiversx_sc_scenario::{
     DebugApi,
 };
 use pair::safe_price::SafePriceModule;
-use router::factory::{FactoryModule, PairTokens};
+use router::{
+    config::ConfigModule as RouterConfigModule,
+    factory::{FactoryModule, PairTokens},
+};
 
 pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", WEGLD_TOKEN_ID];
@@ -164,6 +167,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(2_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -177,6 +181,7 @@ where
                     &rust_biguint!(0),
                     |sc| {
                         sc.update_safe_price(
+                            &managed_biguint!(1_000_000_000),
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(1_000_000_000),
                         );
@@ -194,6 +199,7 @@ where
                         sc.update_safe_price(
                             &managed_biguint!(1_000_000_000),
                             &managed_biguint!(3_000_000_000),
+                            &managed_biguint!(1_000_000_000),
                         );
                     },
                 )
@@ -205,6 +211,7 @@ where
             .execute_tx(&owner, &router_wrapper, &rust_zero, |sc| {
                 // sc.init(OptionalValue::None);
                 sc.init_factory(Option::None);
+                sc.state().set(true);
 
                 sc.pair_map().insert(
                     PairTokens {
@@ -213,15 +220,6 @@ where
                     },
                     managed_address!(first_pair_setup.pair_wrapper.address_ref()),
                 );
-
-                sc.address_pair_map().insert(
-                    managed_address!(first_pair_setup.pair_wrapper.address_ref()),
-                    PairTokens {
-                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
-                        second_token_id: managed_token_id!(TOKEN_IDS[1]),
-                    },
-                );
-
                 sc.pair_map().insert(
                     PairTokens {
                         first_token_id: managed_token_id!(TOKEN_IDS[0]),
@@ -229,28 +227,12 @@ where
                     },
                     managed_address!(second_pair_setup.pair_wrapper.address_ref()),
                 );
-
-                sc.address_pair_map().insert(
-                    managed_address!(second_pair_setup.pair_wrapper.address_ref()),
-                    PairTokens {
-                        first_token_id: managed_token_id!(TOKEN_IDS[0]),
-                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
-                    },
-                );
                 sc.pair_map().insert(
                     PairTokens {
                         first_token_id: managed_token_id!(TOKEN_IDS[1]),
                         second_token_id: managed_token_id!(TOKEN_IDS[2]),
                     },
                     managed_address!(third_pair_setup.pair_wrapper.address_ref()),
-                );
-
-                sc.address_pair_map().insert(
-                    managed_address!(third_pair_setup.pair_wrapper.address_ref()),
-                    PairTokens {
-                        first_token_id: managed_token_id!(TOKEN_IDS[1]),
-                        second_token_id: managed_token_id!(TOKEN_IDS[2]),
-                    },
                 );
             })
             .assert_ok();
