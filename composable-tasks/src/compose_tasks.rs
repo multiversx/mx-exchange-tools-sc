@@ -123,8 +123,10 @@ pub trait TaskCall:
                 min_amount_out,
             );
             let payment_out = returned_payments_by_pair.get(0);
-            let payment_in_leftover = returned_payments_by_pair.get(1);
-            payments_to_return.push(payment_in_leftover);
+            if returned_payments_by_pair.len() == 2 {
+                let payment_in_leftover = returned_payments_by_pair.get(1);
+                payments_to_return.push(payment_in_leftover);
+            }
             payment_out
         };
 
@@ -190,7 +192,7 @@ pub trait TaskCall:
         require!(
             expected_token.token_identifier == token_out.token_identifier
                 && expected_token.amount <= token_out.amount,
-            "The output token is less than minimum required by user!"
+            "The output token is less or different than the one required by user!"
         );
     }
 }
