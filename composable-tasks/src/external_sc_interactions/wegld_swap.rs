@@ -1,7 +1,5 @@
 multiversx_sc::imports!();
 
-use multiversx_wegld_swap_sc::ProxyTrait as _;
-
 #[multiversx_sc::module]
 pub trait WegldWrapModule {
     fn wrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {

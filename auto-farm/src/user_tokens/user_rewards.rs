@@ -1,16 +1,12 @@
-use common_structs::PaymentsVec;
-use mergeable::Mergeable;
-
-use crate::{
-    common::{
-        address_to_id_mapper::{AddressId, NULL_ID},
-        rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
-    },
-    events::WithdrawType,
-};
-
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
+
+use crate::{
+    common::rewards_wrapper::{MergedRewardsWrapper, RewardsWrapper},
+    events::WithdrawType,
+};
+use common_structs::PaymentsVec;
+use mergeable::Mergeable;
 
 #[multiversx_sc::module]
 pub trait UserRewardsModule:

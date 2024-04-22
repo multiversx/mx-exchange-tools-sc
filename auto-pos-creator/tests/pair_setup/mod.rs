@@ -10,8 +10,8 @@ use multiversx_sc_scenario::{
     DebugApi,
 };
 
-use pair::config::ConfigModule;
-use pair::*;
+use pair::{config::ConfigModule, pair_actions::add_liq::AddLiquidityModule};
+use pair::{pair_actions::swap::SwapModule, *};
 use pausable::{PausableModule, State};
 
 pub struct PairSetup<PairObjBuilder>

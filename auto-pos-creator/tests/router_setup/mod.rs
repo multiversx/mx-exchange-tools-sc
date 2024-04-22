@@ -10,10 +10,7 @@ use multiversx_sc_scenario::{
     DebugApi,
 };
 
-use router::{
-    factory::{FactoryModule, PairTokens},
-    *,
-};
+use router::{config::ConfigModule, factory::PairTokens, *};
 
 pub struct RouterSetup<RouterObjBuilder>
 where
@@ -72,13 +69,6 @@ where
                         second_token_id: managed_token_id!(second_token_id),
                     },
                     managed_address!(pair_address),
-                );
-                sc.address_pair_map().insert(
-                    managed_address!(pair_address),
-                    PairTokens {
-                        first_token_id: managed_token_id!(first_token_id),
-                        second_token_id: managed_token_id!(second_token_id),
-                    },
                 );
             })
             .assert_ok();

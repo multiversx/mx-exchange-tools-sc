@@ -12,6 +12,7 @@ use super::create_pos::{CreateFarmPosArgs, CreateMetastakingPosArgs};
 #[multiversx_sc::module]
 pub trait CreatePosEndpointsModule:
     utils::UtilsModule
+    + read_external_storage::ReadExternalStorageModule
     + crate::configs::pairs_config::PairsConfigModule
     + crate::external_sc_interactions::pair_actions::PairActionsModule
     + crate::external_sc_interactions::router_actions::RouterActionsModule
@@ -90,7 +91,9 @@ pub trait CreatePosEndpointsModule:
         let caller = self.blockchain().get_caller();
         let (first_payment, additional_payments) = self.split_first_payment();
 
-        let pair_address = self.pair_contract_address().get_from_address(&farm_address);
+        let pair_address = self
+            .get_farm_pair_contract_address_mapper(farm_address.clone())
+            .get();
         self.require_sc_address(&pair_address);
 
         let mut first_token_payment = self.process_payment(first_payment, swap_operations);
@@ -123,7 +126,9 @@ pub trait CreatePosEndpointsModule:
     ) -> PaymentsVec<Self::Api> {
         let caller = self.blockchain().get_caller();
 
-        let pair_address = self.pair_contract_address().get_from_address(&farm_address);
+        let pair_address = self
+            .get_farm_pair_contract_address_mapper(farm_address.clone())
+            .get();
         self.require_sc_address(&pair_address);
 
         let (first_token_payment, second_token_payment, additional_payments) =
@@ -158,9 +163,11 @@ pub trait CreatePosEndpointsModule:
         let (first_payment, additional_payments) = self.split_first_payment();
 
         let farm_address = self
-            .lp_farm_address()
-            .get_from_address(&metastaking_address);
-        let pair_address = self.pair_contract_address().get_from_address(&farm_address);
+            .get_lp_farm_address_mapper(metastaking_address.clone())
+            .get();
+        let pair_address = self
+            .get_farm_pair_contract_address_mapper(farm_address.clone())
+            .get();
         self.require_sc_address(&pair_address);
 
         let mut first_token_payment = self.process_payment(first_payment, swap_operations);
@@ -195,9 +202,11 @@ pub trait CreatePosEndpointsModule:
         let caller = self.blockchain().get_caller();
 
         let farm_address = self
-            .lp_farm_address()
-            .get_from_address(&metastaking_address);
-        let pair_address = self.pair_contract_address().get_from_address(&farm_address);
+            .get_lp_farm_address_mapper(metastaking_address.clone())
+            .get();
+        let pair_address = self
+            .get_farm_pair_contract_address_mapper(farm_address.clone())
+            .get();
         self.require_sc_address(&pair_address);
 
         let (first_token_payment, second_token_payment, additional_payments) =
@@ -233,7 +242,7 @@ pub trait CreatePosEndpointsModule:
         let (first_payment, additional_payments) = self.split_first_payment();
 
         let token_payment = self.process_payment(first_payment, swap_operations);
-        let farming_token_id = self.get_farm_staking_farming_token_id(&farm_staking_address);
+        let farming_token_id = self.get_farm_staking_farming_token_id(farm_staking_address.clone());
 
         require!(
             token_payment.token_identifier == farming_token_id,

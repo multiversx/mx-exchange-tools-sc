@@ -5,7 +5,7 @@ use farm::EnterFarmResultType;
 use farm_staking::stake_farm::ProxyTrait as OtherProxyTrait;
 
 #[multiversx_sc::module]
-pub trait FarmStakingActionsModule {
+pub trait FarmStakingActionsModule: read_external_storage::ReadExternalStorageModule {
     fn call_farm_staking_stake(
         &self,
         sc_address: ManagedAddress,
@@ -18,8 +18,8 @@ pub trait FarmStakingActionsModule {
             .execute_on_dest_context()
     }
 
-    fn get_farm_staking_farming_token_id(&self, sc_address: &ManagedAddress) -> TokenIdentifier {
-        self.farming_token_id().get_from_address(sc_address)
+    fn get_farm_staking_farming_token_id(&self, sc_address: ManagedAddress) -> TokenIdentifier {
+        self.get_farming_token_id_mapper(sc_address).get()
     }
 
     #[proxy]
@@ -30,7 +30,4 @@ pub trait FarmStakingActionsModule {
         &self,
         token_id: &TokenIdentifier,
     ) -> SingleValueMapper<ManagedAddress>;
-
-    #[storage_mapper("farming_token_id")]
-    fn farming_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 }

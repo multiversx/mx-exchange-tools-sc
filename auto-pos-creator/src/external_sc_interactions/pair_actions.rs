@@ -1,6 +1,11 @@
 multiversx_sc::imports!();
 
-use pair::{AddLiquidityResultType, RemoveLiquidityResultType};
+use pair::pair_actions::{
+    add_liq::ProxyTrait as _,
+    common_result_types::{AddLiquidityResultType, RemoveLiquidityResultType},
+    remove_liq::ProxyTrait as _,
+    swap::ProxyTrait as _,
+};
 
 pub const SWAP_MIN_AMOUNT: u64 = 1;
 
@@ -27,7 +32,9 @@ pub type PairTokenPayments<M> = PairRemoveLiqResult<M>;
 
 #[multiversx_sc::module]
 pub trait PairActionsModule:
-    crate::configs::pairs_config::PairsConfigModule + utils::UtilsModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::configs::pairs_config::PairsConfigModule
+    + utils::UtilsModule
 {
     fn call_pair_swap(
         &self,

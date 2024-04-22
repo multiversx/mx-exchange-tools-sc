@@ -1,12 +1,12 @@
-use common_structs::PaymentsVec;
-
-use crate::common::address_to_id_mapper::{AddressId, AddressToIdMapper, NULL_ID};
-
 multiversx_sc::imports!();
+
+use common_structs::PaymentsVec;
 
 #[multiversx_sc::module]
 pub trait FarmsWhitelistModule:
-    crate::external_storage_read::farm_storage_read::FarmStorageReadModule + utils::UtilsModule
+    read_external_storage::ReadExternalStorageModule
+    + crate::external_storage_read::farm_storage_read::FarmStorageReadModule
+    + utils::UtilsModule
 {
     /// Can also be used for farm-staking contracts.
     #[label("farm-whitelist-endpoints")]
@@ -18,7 +18,7 @@ pub trait FarmsWhitelistModule:
             self.require_sc_address(&farm_addr);
 
             let new_id = farms_mapper.insert_new(&farm_addr);
-            let farm_config = self.get_farm_config(&farm_addr);
+            let farm_config = self.get_farm_config(farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id)
                 .set(new_id);
 
@@ -42,7 +42,7 @@ pub trait FarmsWhitelistModule:
                 continue;
             }
 
-            let farm_config = self.get_farm_config(&farm_addr);
+            let farm_config = self.get_farm_config(farm_addr);
             self.farm_for_farm_token(&farm_config.farm_token_id).clear();
             self.farm_for_farming_token(&farm_config.farming_token_id)
                 .clear();

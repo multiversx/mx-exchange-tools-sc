@@ -1,6 +1,7 @@
-use super::router_actions;
-
 multiversx_sc::imports!();
+
+use super::router_actions;
+use pair::pair_actions::swap::ProxyTrait as _;
 
 pub enum PairAddressForTokens<M: ManagedTypeApi> {
     CorrectOrder(ManagedAddress<M>),
