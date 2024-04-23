@@ -25,55 +25,55 @@ path = "../common/modules/read_external_storage"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -90,8 +90,8 @@ features = ["enable-tests-common"]
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"

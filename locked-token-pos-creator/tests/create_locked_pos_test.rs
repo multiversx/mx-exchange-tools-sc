@@ -668,3 +668,428 @@ fn create_energy_position_test() {
             None,
         );
 }
+
+#[test]
+fn total_farm_position_and_merging_through_pos_creator_test() {
+    let proxy_dex_setup = ProxySetup::new(
+        proxy_dex::contract_obj,
+        pair::contract_obj,
+        router::contract_obj,
+        farm_with_locked_rewards::contract_obj,
+        energy_factory::contract_obj,
+    );
+
+    #[allow(clippy::redundant_clone)]
+    let b_mock = proxy_dex_setup.b_mock.clone();
+    let pos_creator_wrapper = b_mock.borrow_mut().create_sc_account(
+        &rust_biguint!(0),
+        Some(&proxy_dex_setup.owner),
+        locked_token_pos_creator::contract_obj,
+        "random path ssss",
+    );
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &proxy_dex_setup.proxy_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(pos_creator_wrapper.address_ref()));
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &pos_creator_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.init(
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.simple_lock_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.pair_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.farm_locked_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.proxy_wrapper.address_ref()),
+                    managed_address!(proxy_dex_setup.router_wrapper.address_ref()),
+                );
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow_mut().set_esdt_local_roles(
+        pos_creator_wrapper.address_ref(),
+        MEX_TOKEN_ID,
+        &[EsdtLocalRole::Burn],
+    );
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &proxy_dex_setup.simple_lock_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.add_sc_address_to_whitelist(managed_address!(pos_creator_wrapper.address_ref()));
+            },
+        )
+        .assert_ok();
+
+    let first_user = &proxy_dex_setup.first_user;
+    let second_user = &proxy_dex_setup.second_user;
+    let locked_token_amount = rust_biguint!(1_000_000_000);
+    let other_token_amount = rust_biguint!(500_000_000);
+
+    // set the price to 1 EGLD = 2 MEX
+    let payments = vec![
+        TxTokenTransfer {
+            token_identifier: WEGLD_TOKEN_ID.to_vec(),
+            nonce: 0,
+            value: other_token_amount.clone(),
+        },
+        TxTokenTransfer {
+            token_identifier: LOCKED_TOKEN_ID.to_vec(),
+            nonce: 2,
+            value: locked_token_amount.clone(),
+        },
+    ];
+
+    // add initial liquidity
+    let pair_addr = proxy_dex_setup.pair_wrapper.address_ref().clone();
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            second_user,
+            &proxy_dex_setup.proxy_wrapper,
+            &payments,
+            |sc| {
+                sc.add_liquidity_proxy(
+                    managed_address!(&pair_addr),
+                    managed_biguint!(other_token_amount.to_u64().unwrap()),
+                    managed_biguint!(locked_token_amount.to_u64().unwrap()),
+                );
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.owner,
+            &proxy_dex_setup.farm_locked_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.farming_token_id().set(&managed_token_id!(LP_TOKEN_ID));
+
+                // set produce rewards to false for easier calculation
+                sc.produce_rewards_enabled().set(false);
+            },
+        )
+        .assert_ok();
+
+    b_mock.borrow_mut().set_esdt_local_roles(
+        proxy_dex_setup.farm_locked_wrapper.address_ref(),
+        LP_TOKEN_ID,
+        &[EsdtLocalRole::Burn],
+    );
+
+    // Enter farm from two tokens
+    let enter_farm_payments = vec![
+        TxTokenTransfer {
+            token_identifier: WEGLD_TOKEN_ID.to_vec(),
+            nonce: 0,
+            value: rust_biguint!(500),
+        },
+        TxTokenTransfer {
+            token_identifier: LOCKED_TOKEN_ID.to_vec(),
+            nonce: 1,
+            value: rust_biguint!(1_000),
+        },
+    ];
+    let expected_output_amount1: u64 = 500u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &proxy_dex_setup.first_user,
+            &pos_creator_wrapper,
+            &enter_farm_payments,
+            |sc| {
+                let output_payments = sc.create_farm_pos_from_two_tokens(
+                    managed_biguint!(1u64),
+                    managed_biguint!(1u64),
+                );
+
+                assert_eq!(output_payments.get(0).amount, expected_output_amount1);
+            },
+        )
+        .assert_ok();
+
+    // check user balance
+    b_mock
+        .borrow()
+        .check_nft_balance::<WrappedFarmTokenAttributes<DebugApi>>(
+            first_user,
+            WRAPPED_FARM_TOKEN_ID,
+            1,
+            &rust_biguint!(expected_output_amount1),
+            None,
+        );
+
+    // The proxy dex address should never have a farm position
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+                    .proxy_wrapper
+                    .address_ref()));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(expected_output_amount1)
+            );
+        })
+        .assert_ok();
+
+    // Enter farm from single token
+    let expected_output_amount2 = 497u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &proxy_dex_setup.first_user,
+            &pos_creator_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(1_000),
+            |sc| {
+                let create_farm_pos_result = sc.create_farm_pos_from_single_token(
+                    LOCK_OPTIONS[0],
+                    managed_biguint!(1u64),
+                    managed_biguint!(1u64),
+                    MultiValueEncoded::new(),
+                );
+                assert_eq!(create_farm_pos_result.get(0).amount, 2u64);
+                assert_eq!(
+                    create_farm_pos_result.get(1).amount,
+                    expected_output_amount2
+                );
+            },
+        )
+        .assert_ok();
+
+    b_mock
+        .borrow()
+        .check_nft_balance::<WrappedFarmTokenAttributes<DebugApi>>(
+            first_user,
+            WRAPPED_FARM_TOKEN_ID,
+            2,
+            &rust_biguint!(expected_output_amount2),
+            None,
+        );
+
+    // The proxy dex address should never have a farm position
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+                    .proxy_wrapper
+                    .address_ref()));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(expected_output_amount1 + expected_output_amount2)
+            );
+        })
+        .assert_ok();
+
+    // Simulate storage reset for farm position reset
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &proxy_dex_setup.first_user,
+            &proxy_dex_setup.farm_locked_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                let mut user_total_farm_position =
+                    sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+                user_total_farm_position.total_farm_position = managed_biguint!(0);
+                sc.user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                    .set(user_total_farm_position);
+
+                sc.farm_position_migration_nonce().set(3);
+            },
+        )
+        .assert_ok();
+
+    // The proxy dex address should never have a farm position
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+                    .proxy_wrapper
+                    .address_ref()));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+
+    // Test migration of old position with create pos from two tokens
+    let enter_farm_with_2_tokens_and_old_position_payments = vec![
+        TxTokenTransfer {
+            token_identifier: WEGLD_TOKEN_ID.to_vec(),
+            nonce: 0,
+            value: rust_biguint!(500),
+        },
+        TxTokenTransfer {
+            token_identifier: LOCKED_TOKEN_ID.to_vec(),
+            nonce: 1,
+            value: rust_biguint!(1_000),
+        },
+        TxTokenTransfer {
+            token_identifier: WRAPPED_FARM_TOKEN_ID.to_vec(),
+            nonce: 1,
+            value: rust_biguint!(expected_output_amount1),
+        },
+    ];
+    let expected_output_amount3: u64 = 999u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &proxy_dex_setup.first_user,
+            &pos_creator_wrapper,
+            &enter_farm_with_2_tokens_and_old_position_payments,
+            |sc| {
+                let output_payments = sc.create_farm_pos_from_two_tokens(
+                    managed_biguint!(1u64),
+                    managed_biguint!(1u64),
+                );
+
+                assert_eq!(output_payments.get(0).amount, 1u64);
+                assert_eq!(output_payments.get(1).amount, expected_output_amount3);
+            },
+        )
+        .assert_ok();
+
+    // The proxy dex address should never have a farm position
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+                    .proxy_wrapper
+                    .address_ref()));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(expected_output_amount3)
+            );
+        })
+        .assert_ok();
+
+    // Test migration of old position with create pos from single token
+    let enter_farm_with_single_token_and_old_position_payments = vec![
+        TxTokenTransfer {
+            token_identifier: WEGLD_TOKEN_ID.to_vec(),
+            nonce: 0,
+            value: rust_biguint!(1_000),
+        },
+        TxTokenTransfer {
+            token_identifier: WRAPPED_FARM_TOKEN_ID.to_vec(),
+            nonce: 2,
+            value: rust_biguint!(expected_output_amount2),
+        },
+    ];
+    let expected_output_amount4: u64 = 994u64;
+    b_mock
+        .borrow_mut()
+        .execute_esdt_multi_transfer(
+            &proxy_dex_setup.first_user,
+            &pos_creator_wrapper,
+            &enter_farm_with_single_token_and_old_position_payments,
+            |sc| {
+                let output_payments = sc.create_farm_pos_from_single_token(
+                    LOCK_OPTIONS[0],
+                    managed_biguint!(1u64),
+                    managed_biguint!(1u64),
+                    MultiValueEncoded::new(),
+                );
+
+                assert_eq!(output_payments.get(0).amount, 2u64);
+                assert_eq!(output_payments.get(1).amount, expected_output_amount4);
+            },
+        )
+        .assert_ok();
+
+    // The proxy dex address should never have a farm position
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+                    .proxy_wrapper
+                    .address_ref()));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(0)
+            );
+        })
+        .assert_ok();
+    b_mock
+        .borrow_mut()
+        .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
+            let user_total_farm_position =
+                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            assert_eq!(
+                user_total_farm_position.total_farm_position,
+                managed_biguint!(expected_output_amount3 + expected_output_amount4)
+            );
+        })
+        .assert_ok();
+}
