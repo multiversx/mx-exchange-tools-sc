@@ -15,8 +15,9 @@ jobs:
     name: Contracts
     
     # TEMPORARY: until https://github.com/multiversx/mx-sdk-rs/pull/1587 is merged and released
-    uses: multiversx/mx-sc-actions/.github/workflows/contracts.yml@v3.1.0
+    uses: multiversx/mx-sc-actions/.github/workflows/contracts.yml@29b83e6cd18235a9519d3ac6f8bacd0a352b7216
     with:
       rust-toolchain: nightly-2023-12-11
+      sc-meta-git-rev: b5ffe043d3c161254c2840a2a7dc455ced9606f9
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
