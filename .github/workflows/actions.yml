@@ -38,7 +38,7 @@ jobs:
           rustup component add llvm-tools-preview
           dirname $(find ~/.rustup -name llvm-cov) >> $GITHUB_PATH
           echo $(dirname $(find ~/.rustup -name llvm-cov))
-          cargo install --git https://github.com/multiversx/mx-sdk-rs --branch "fix/coverage-fail-if-file-not-in-root"
+          cargo install --git https://github.com/multiversx/mx-sdk-rs --branch "fix/coverage-fail-if-file-not-in-root" multiversx-sc-meta
       - name: Run tests and generate report
         env:
           RUSTFLAGS: ""
