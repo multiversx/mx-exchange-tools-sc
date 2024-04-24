@@ -13,6 +13,7 @@ permissions:
 jobs:
   contracts:
     name: Contracts
+    
     # TEMPORARY: until https://github.com/multiversx/mx-sdk-rs/pull/1587 is merged and released
     uses: multiversx/mx-sc-actions/.github/workflows/contracts.yml@29b83e6cd18235a9519d3ac6f8bacd0a352b7216
     with:
