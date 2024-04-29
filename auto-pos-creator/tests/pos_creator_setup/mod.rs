@@ -20,6 +20,7 @@ use pair::safe_price::SafePriceModule;
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
 pub static LP_TOKEN_IDS: &[&[u8]] = &[FARMING_TOKEN_ID[0], FARMING_TOKEN_ID[1], b"LPTHIRD-123456"];
 pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
+pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 
 pub struct PosCreatorSetup<
     FarmBuilder,
@@ -269,6 +270,7 @@ where
             FARM_TOKEN_ID[0],
             STAKING_FARM_TOKEN_ID,
             LP_TOKEN_IDS[0],
+            DUAL_YIELD_TOKEN_ID,
         );
 
         // setup auto pos creator sc
