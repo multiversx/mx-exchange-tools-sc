@@ -8,7 +8,6 @@ use auto_pos_creator::{
 };
 use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::token_attributes::{StakingFarmTokenAttributes, UnbondSftAttributes};
-use metastaking_setup::DUAL_YIELD_TOKEN_ID;
 use multiversx_sc::{
     codec::Empty,
     types::{BigUint, ManagedAddress, ManagedBuffer, MultiValueEncoded},
@@ -17,7 +16,7 @@ use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::TxTokenTransfer, DebugApi,
 };
-use pos_creator_setup::{PosCreatorSetup, LP_TOKEN_IDS, TOKEN_IDS};
+use pos_creator_setup::{PosCreatorSetup, DUAL_YIELD_TOKEN_ID, LP_TOKEN_IDS, TOKEN_IDS};
 use tests_common::{
     farm_staking_setup::STAKING_FARM_TOKEN_ID,
     farm_with_locked_rewards_setup::{FARM_TOKEN_ID, LOCKED_REWARD_TOKEN_ID},

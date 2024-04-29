@@ -14,8 +14,6 @@ use multiversx_sc_scenario::{
 
 use farm_staking_proxy::{dual_yield_token::DualYieldTokenModule, *};
 
-pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
-
 pub struct MetastakingSetup<MetastakingObjBuilder>
 where
     MetastakingObjBuilder: 'static + Copy + Fn() -> farm_staking_proxy::ContractObj<DebugApi>,
@@ -38,6 +36,7 @@ pub fn setup_metastaking<MetastakingObjBuilder>(
     lp_farm_token_id: &[u8],
     staking_farm_token_id: &[u8],
     lp_token_id: &[u8],
+    dual_yield_token_id: &[u8],
 ) -> ContractObjWrapper<farm_staking_proxy::ContractObj<DebugApi>, MetastakingObjBuilder>
 where
     MetastakingObjBuilder: 'static + Copy + Fn() -> farm_staking_proxy::ContractObj<DebugApi>,
@@ -60,7 +59,7 @@ where
             );
 
             sc.dual_yield_token()
-                .set_token_id(managed_token_id!(DUAL_YIELD_TOKEN_ID));
+                .set_token_id(managed_token_id!(dual_yield_token_id));
         })
         .assert_ok();
 
@@ -71,7 +70,7 @@ where
     ];
     b_mock.set_esdt_local_roles(
         proxy_wrapper.address_ref(),
-        DUAL_YIELD_TOKEN_ID,
+        dual_yield_token_id,
         &dual_yield_token_roles[..],
     );
 
