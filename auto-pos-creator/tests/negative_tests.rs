@@ -478,7 +478,7 @@ fn try_create_position_wrong_tokens_test() {
         .execute_esdt_transfer(
             &user_addr,
             &pos_creator_setup.pos_creator_wrapper,
-            &TOKEN_IDS[0].to_vec(),
+            &TOKEN_IDS[0],
             0,
             &rust_biguint!(payment_token_balance),
             |sc| {
