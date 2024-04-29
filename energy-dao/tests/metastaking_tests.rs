@@ -154,7 +154,7 @@ fn energy_dao_metastaking_test() {
     );
 
     // Check locked rewards
-    let user1_locked_rewards = 250_000u64;
+    let user1_locked_rewards = 258_000u64;
     let user2_locked_rewards = user1_locked_rewards / 2;
     energy_dao_setup
         .b_mock
@@ -295,7 +295,7 @@ fn energy_dao_metastaking_test() {
         user2_unstake_amount,
     );
 
-    let user2_new_locked_rewards = 499_500u64;
+    let user2_new_locked_rewards = 628_500u64;
 
     energy_dao_setup
         .b_mock

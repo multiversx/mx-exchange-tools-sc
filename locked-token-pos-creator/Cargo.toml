@@ -19,35 +19,35 @@ path = "../auto-pos-creator"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.proxy_dex]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.simple-lock]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -65,40 +65,40 @@ path = "../common/modules/read_external_storage"
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.farm_base_impl]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.farm-boosted-yields]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.locking_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"

@@ -10,67 +10,67 @@ path = "src/lib.rs"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.contexts]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.farm_base_impl]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.token_send]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.permissions_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.fixed-supply-token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.unwrappable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.math]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dependencies.auto-farm]
 path = "../auto-farm"
@@ -100,8 +100,8 @@ version = "=0.48.0"
 
 [dev-dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "27085fb"
+rev = "e993235"
