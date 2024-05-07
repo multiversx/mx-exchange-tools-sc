@@ -176,7 +176,7 @@ where
         first_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
         second_pair_setup.add_liquidity(&owner, 1_000_000_000, 1_000_000_000);
         third_pair_setup.add_liquidity(&owner, 1_000_000_000, 3_000_000_000);
-        fourth_pair_setup.add_liquidity(&owner, 1_000_000_000, 2_000_000_000);
+        fourth_pair_setup.add_liquidity(&owner, 1_000_000_000, 1_000_000_000);
 
         // setup price observations
         for _i in 1usize..=20 {
