@@ -1,5 +1,5 @@
 use common_structs::Epoch;
-use energy_factory::virtual_lock::ProxyTrait as _;
+use energy_factory::{energy_factory_proxy, virtual_lock::ProxyTrait as _};
 
 multiversx_sc::imports!();
 
@@ -13,8 +13,11 @@ pub trait EnergyFactoryActionsModule: energy_query::EnergyQueryModule {
     ) -> EsdtTokenPayment {
         let energy_factory_address = self.energy_factory_address().get();
         let own_address = self.blockchain().get_sc_address();
-        let locked_tokens: EsdtTokenPayment = self
-            .energy_factory_proxy(energy_factory_address)
+
+        let locked_tokens = self
+            .tx()
+            .to(&energy_factory_address)
+            .typed(energy_factory_proxy::SimpleLockEnergyProxy)
             .lock_virtual(
                 payment.token_identifier.clone(),
                 payment.amount.clone(),
@@ -22,7 +25,20 @@ pub trait EnergyFactoryActionsModule: energy_query::EnergyQueryModule {
                 own_address,
                 user,
             )
-            .execute_on_dest_context();
+            .payment(payment.clone())
+            .returns(ReturnsResult)
+            .sync_call();
+
+        // let locked_tokens: EsdtTokenPayment = self
+        //     .energy_factory_proxy(energy_factory_address)
+        //     .lock_virtual(
+        //         payment.token_identifier.clone(),
+        //         payment.amount.clone(),
+        //         lock_epochs,
+        //         own_address,
+        //         user,
+        //     )
+        //     .execute_on_dest_context();
 
         self.send()
             .esdt_local_burn(&payment.token_identifier, 0, &payment.amount);

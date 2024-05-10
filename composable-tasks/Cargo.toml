@@ -16,7 +16,7 @@ version = "=0.50.0"
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "2c5a2d9"
+rev = "95eeb39"
 
 [dependencies.multiversx-sc]
 version = "=0.50.0"
@@ -29,16 +29,16 @@ version = "=0.50.0"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "2c5a2d9"
+rev = "95eeb39"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "2c5a2d9"
+rev = "95eeb39"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "2c5a2d9"
+rev = "95eeb39"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "2c5a2d9"
+rev = "95eeb39"
