@@ -16,7 +16,7 @@ pub trait MetastakingActionsModule {
         payments: PaymentsVec<Self::Api>,
     ) -> StakeProxyResult<Self::Api> {
         self.metastaking_proxy(sc_address)
-            .stake_farm_tokens(user)
+            .stake_farm_tokens(OptionalValue::Some(user))
             .with_multi_token_transfer(payments)
             .execute_on_dest_context()
     }
@@ -29,7 +29,7 @@ pub trait MetastakingActionsModule {
             .unstake_farm_tokens(
                 args.first_token_min_amount_out,
                 args.second_token_min_amont_out,
-                args.user,
+                OptionalValue::Some(args.user),
             )
             .with_esdt_transfer(args.ms_tokens)
             .execute_on_dest_context()

@@ -131,7 +131,7 @@ pub trait FarmActionsModule:
     ) -> ClaimRewardsResultWrapper<Self::Api> {
         let raw_results: ClaimRewardsResultType<Self::Api> = self
             .farm_proxy(farm_addr)
-            .claim_rewards_endpoint(user)
+            .claim_rewards_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context();
         let (new_farm_token, rewards) = raw_results.into_tuple();
