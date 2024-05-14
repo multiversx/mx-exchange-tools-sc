@@ -703,6 +703,10 @@ fn wrap_swap_input_swap_output_unwrap_send_test() {
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
     let second_user_addr = composable_tasks_setup.second_user;
+    let second_pair_addr = composable_tasks_setup.pair_setups[1]
+    .pair_wrapper
+    .address_ref();
+
 
     let user_first_token_balance = 200_000_010u64;
 
@@ -721,20 +725,19 @@ fn wrap_swap_input_swap_output_unwrap_send_test() {
                 let mut tasks = MultiValueEncoded::new();
                 tasks.push((TaskType::WrapEGLD, ManagedVec::new()).into());
 
-                let mut swap_args = ManagedVec::new();
-                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-                swap_args.push(managed_buffer!(TOKEN_IDS[0]));
-                swap_args.push(managed_buffer!(
+                let mut router_swap_args = ManagedVec::new();
+                router_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                router_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                router_swap_args.push(managed_buffer!(TOKEN_IDS[0]));
+                router_swap_args.push(managed_buffer!(
                     &rust_biguint!(expected_balance).to_bytes_be()
                 ));
-                tasks.push((TaskType::Swap, swap_args).into());
+                router_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                router_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                router_swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
+                router_swap_args.push(managed_buffer!(b"1"));
 
-                let mut swap_args2 = ManagedVec::new();
-                swap_args2.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-                swap_args2.push(managed_buffer!(WEGLD_TOKEN_ID));
-                swap_args2.push(managed_buffer!(b"1"));
-                tasks.push((TaskType::Swap, swap_args2).into());
-
+                tasks.push((TaskType::RouterSwap, router_swap_args).into());
                 tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
 
                 let mut send_args = ManagedVec::new();
@@ -1047,14 +1050,17 @@ fn multiple_swap_tokens_fixed_output_test() {
 
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
-    let user_first_token_balance = 200_000_001u64;
+    let user_first_token_balance = 1_000_000_004u64;
 
     b_mock.borrow_mut().set_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[0],
         &rust_biguint!(user_first_token_balance),
     );
-    let expected_balance = 166_666_666u64;
+    let expected_balance_token1 = 1_000_000_001u64;
+    let expected_balance_token2 = 1_000_000_000u64;
+    let expected_balance_token3 = 1u64;
+
 
     b_mock
         .borrow_mut()
@@ -1071,7 +1077,7 @@ fn multiple_swap_tokens_fixed_output_test() {
                 swap_args1.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
                 swap_args1.push(managed_buffer!(TOKEN_IDS[1]));
                 swap_args1.push(managed_buffer!(
-                    &rust_biguint!(expected_balance).to_bytes_be()
+                    &rust_biguint!(expected_balance_token1).to_bytes_be()
                 ));
                 tasks.push((TaskType::Swap, swap_args1).into());
 
@@ -1079,7 +1085,7 @@ fn multiple_swap_tokens_fixed_output_test() {
                 swap_args2.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
                 swap_args2.push(managed_buffer!(WEGLD_TOKEN_ID));
                 swap_args2.push(managed_buffer!(
-                    &rust_biguint!(expected_balance).to_bytes_be()
+                    &rust_biguint!(expected_balance_token2).to_bytes_be()
                 ));
                 tasks.push((TaskType::Swap, swap_args2).into());
 
@@ -1087,14 +1093,14 @@ fn multiple_swap_tokens_fixed_output_test() {
                 swap_args3.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
                 swap_args3.push(managed_buffer!(TOKEN_IDS[3]));
                 swap_args3.push(managed_buffer!(
-                    &rust_biguint!(expected_balance).to_bytes_be()
+                    &rust_biguint!(expected_balance_token3).to_bytes_be()
                 ));
                 tasks.push((TaskType::Swap, swap_args3).into());
 
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
                     EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[3])),
                     0,
-                    managed_biguint!(expected_balance),
+                    managed_biguint!(expected_balance_token3),
                 );
 
                 sc.compose_tasks(expected_token_out, tasks);
@@ -1106,28 +1112,28 @@ fn multiple_swap_tokens_fixed_output_test() {
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[0],
-        &rust_biguint!(109_090_910u64),
+        &rust_biguint!(1u64),
     );
 
     // rest of the input token[1]
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[1],
-        &rust_biguint!(107_843_136u64),
+        &rust_biguint!(500_000_000u64),
     );
 
     // rest of the input token[2]
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         WEGLD_TOKEN_ID,
-        &rust_biguint!(75_757_575u64),
+        &rust_biguint!(999_999_998u64),
     );
 
     // rest of the input token[3]
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[3],
-        &rust_biguint!(expected_balance),
+        &rust_biguint!(1u64),
     );
 }
 
