@@ -113,7 +113,7 @@ pub trait FarmActionsModule:
     ) -> EsdtTokenPayment {
         let raw_results: EnterFarmResultType<Self::Api> = self
             .farm_staking_proxy(farm_addr)
-            .stake_farm_endpoint(user)
+            .stake_farm_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(new_tokens)
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context();
@@ -131,7 +131,7 @@ pub trait FarmActionsModule:
     ) -> ClaimRewardsResultWrapper<Self::Api> {
         let raw_results: ClaimRewardsResultType<Self::Api> = self
             .farm_proxy(farm_addr)
-            .claim_rewards_endpoint(user)
+            .claim_rewards_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context();
         let (new_farm_token, rewards) = raw_results.into_tuple();

@@ -21,7 +21,7 @@ pub trait FarmActionsModule {
     ) -> EnterFarmResultWrapper<Self::Api> {
         let raw_results: EnterFarmResultType<Self::Api> = self
             .farm_proxy(farm_address)
-            .enter_farm_endpoint(user)
+            .enter_farm_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(tokens)
             .execute_on_dest_context();
 
@@ -40,7 +40,7 @@ pub trait FarmActionsModule {
     ) -> ExitFarmResultWrapper<Self::Api> {
         let raw_results: ExitFarmResultType<Self::Api> = self
             .farm_proxy(farm_address)
-            .exit_farm_endpoint(user)
+            .exit_farm_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_tokens)
             .execute_on_dest_context();
         let (farming_tokens, rewards) = raw_results.into_tuple();

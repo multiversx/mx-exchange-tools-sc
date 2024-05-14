@@ -1,5 +1,5 @@
 use common_structs::PaymentsVec;
-use energy_factory::token_merging::ProxyTrait as _;
+use energy_factory::energy_factory_proxy;
 
 use mergeable::Mergeable;
 
@@ -44,11 +44,21 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
         }
 
         let energy_factory_address = self.energy_factory_address().get();
+
         let new_token = self
-            .energy_factory_proxy(energy_factory_address)
-            .merge_tokens_endpoint(user)
-            .with_multi_token_transfer(locked_tokens)
-            .execute_on_dest_context();
+            .tx()
+            .to(&energy_factory_address)
+            .typed(energy_factory_proxy::SimpleLockEnergyProxy)
+            .merge_tokens_endpoint(OptionalValue::Some(user))
+            .payment(locked_tokens)
+            .returns(ReturnsResult)
+            .sync_call();
+
+        // let new_token: EsdtTokenPayment<<Self as ContractBase>::Api> = self
+        //     .energy_factory_proxy(energy_factory_address)
+        //     .merge_tokens_endpoint(user)
+        //     .with_multi_token_transfer(locked_tokens)
+        //     .execute_on_dest_context();
 
         Some(new_token)
     }
