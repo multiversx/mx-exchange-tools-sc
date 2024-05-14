@@ -1,5 +1,5 @@
 use common_structs::Epoch;
-use energy_factory::{energy_factory_proxy, virtual_lock::ProxyTrait as _};
+use energy_factory::energy_factory_proxy;
 
 multiversx_sc::imports!();
 
@@ -25,7 +25,6 @@ pub trait EnergyFactoryActionsModule: energy_query::EnergyQueryModule {
                 own_address,
                 user,
             )
-            .payment(payment.clone())
             .returns(ReturnsResult)
             .sync_call();
 
