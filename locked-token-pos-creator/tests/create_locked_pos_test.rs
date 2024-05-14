@@ -3,6 +3,7 @@
 mod proxy_dex_test_setup;
 
 use auto_pos_creator::external_sc_interactions::router_actions::SwapOperationType;
+use common_structs::FarmTokenAttributes;
 use config::ConfigModule;
 use locked_token_pos_creator::{
     create_farm_pos::CreateFarmPosModule, create_pair_pos::CreatePairPosModule,
@@ -249,6 +250,21 @@ fn create_pair_and_farm_pos_test() {
             },
         }),
     );
+
+    // Check the underlying farm token - should be in the proxy dex balance
+    b_mock.borrow().check_nft_balance(
+        proxy_dex_setup.proxy_wrapper.address_ref(),
+        FARM_LOCKED_TOKEN_ID,
+        1,
+        &expected_lp_token_amount,
+        Some(&FarmTokenAttributes::<DebugApi> {
+            reward_per_share: managed_biguint!(0u64),
+            entering_epoch: 1u64,
+            compounded_reward: managed_biguint!(0u64),
+            current_farm_amount: managed_biguint!(expected_lp_token_amount.to_u64().unwrap()),
+            original_owner: managed_address!(first_user),
+        }),
+    );
 }
 
 #[test]
@@ -471,6 +487,21 @@ fn create_lp_or_farm_pos_from_two_tokens_test() {
             &rust_biguint!(expected_lp_token_amount),
             None,
         );
+
+    // Check the underlying farm token - should be in the proxy dex balance
+    b_mock.borrow().check_nft_balance(
+        proxy_dex_setup.proxy_wrapper.address_ref(),
+        FARM_LOCKED_TOKEN_ID,
+        1,
+        &rust_biguint!(1_000u64),
+        Some(&FarmTokenAttributes::<DebugApi> {
+            reward_per_share: managed_biguint!(0u64),
+            entering_epoch: 1u64,
+            compounded_reward: managed_biguint!(0u64),
+            current_farm_amount: managed_biguint!(1_000u64),
+            original_owner: managed_address!(first_user),
+        }),
+    );
 }
 
 #[test]

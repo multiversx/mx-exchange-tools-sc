@@ -10,6 +10,7 @@ use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::token_attributes::{StakingFarmTokenAttributes, UnbondSftAttributes};
 use multiversx_sc::{
     codec::Empty,
+    imports::ContractBase,
     types::{BigUint, ManagedAddress, ManagedBuffer, MultiValueEncoded},
 };
 use multiversx_sc_scenario::{
@@ -402,7 +403,7 @@ fn enter_lp_and_farm_through_pos_creator() {
         None,
     );
 
-    // exit LP pos
+    // exit farm pos
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
@@ -645,12 +646,12 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &rust_biguint!(0),
         None,
     );
-    b_mock.borrow().check_nft_balance::<Empty>(
+    b_mock.borrow().check_nft_balance::<UnbondSftAttributes>(
         &user_addr,
         STAKING_FARM_TOKEN_ID,
         2,
         &rust_biguint!(expected_staking_farm_token_amount),
-        None,
+        Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 
     // Check auto pos creator balance (should be 0 for all tokens)
@@ -688,12 +689,12 @@ fn enter_lp_farm_and_metastaking_through_pos_creator_test() {
         &rust_biguint!(0),
         None,
     );
-    b_mock.borrow().check_nft_balance::<Empty>(
+    b_mock.borrow().check_nft_balance::<UnbondSftAttributes>(
         pos_creator_setup.pos_creator_wrapper.address_ref(),
         STAKING_FARM_TOKEN_ID,
         2,
         &rust_biguint!(0),
-        None,
+        Some(&UnbondSftAttributes { unlock_epoch: 5 }),
     );
 }
 
@@ -960,6 +961,13 @@ fn enter_farm_staking_through_pos_creator_test() {
                 );
                 assert_eq!(output_payments.get(0).token_nonce, 1);
                 assert_eq!(output_payments.get(0).amount, expected_output_amount);
+
+                let attributes: StakingFarmTokenAttributes<DebugApi> =
+                    sc.blockchain().get_token_attributes(
+                        &output_payments.get(0).token_identifier,
+                        output_payments.get(0).token_nonce,
+                    );
+                assert_eq!(attributes.original_owner, managed_address!(&user_addr));
             },
         )
         .assert_ok();
