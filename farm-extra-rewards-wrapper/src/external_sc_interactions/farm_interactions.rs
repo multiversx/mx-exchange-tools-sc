@@ -24,7 +24,7 @@ pub trait FarmInteractionsModule:
 
         let raw_results: ClaimRewardsResultType<Self::Api> = self
             .farm_proxy(farm_addr)
-            .claim_rewards_endpoint(user)
+            .claim_rewards_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(farm_tokens)
             .execute_on_dest_context();
         let (new_farm_token, rewards) = raw_results.into_tuple();
@@ -43,7 +43,7 @@ pub trait FarmInteractionsModule:
         let farm_addr = self.get_farm_address(&farm_token.token_identifier);
         let raw_results: ExitFarmWithPartialPosResultType<Self::Api> = self
             .farm_proxy(farm_addr)
-            .exit_farm_endpoint(user)
+            .exit_farm_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_token)
             .execute_on_dest_context();
         let (farming_tokens, rewards) = raw_results.into_tuple();
