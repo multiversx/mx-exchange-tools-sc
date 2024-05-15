@@ -10,6 +10,7 @@ members = [
   "farm-extra-rewards-wrapper/meta",
   "composable-tasks",
   "composable-tasks/meta",
+  "composable-tasks/interact",
   "energy-dao",
   "energy-dao/meta",
   "tests-common"
