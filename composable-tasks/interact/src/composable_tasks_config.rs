@@ -13,6 +13,7 @@ pub struct Config {
     pub router_address: Bech32Address,
     pub random_address: Bech32Address,
     pub egld_mex_pair_address: Bech32Address,
+    pub egld_usdc_pair_address: Bech32Address,
 }
 
 impl Config {

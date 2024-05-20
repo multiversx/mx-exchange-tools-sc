@@ -52,7 +52,7 @@ async fn main() {
         "swapSendUnwrap" => interact.swap_send_unwrap_test().await,
         "multipleSwapsFixedOutput" => interact.multiple_swap_fixed_output_test().await,
         "mixingAllActions" => interact.mixing_all_actions_test().await,
-
+        "routerMultiPairSwaps" => interact.router_multi_pair_swaps().await,
         _ => panic!("unknown command: {}", &cmd),
     }
 }
@@ -622,6 +622,79 @@ impl ContractInteract {
                 EgldOrEsdtTokenIdentifier::egld(),
                 token_nonce,
                 BigUint::from(ONE_UNIT),
+            ))
+            .returns(ReturnsResult)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+    async fn router_multi_pair_swaps(&mut self) {
+        let second_address = &self.config.random_address;
+        let egld_mex_pair_address = &self.config.egld_mex_pair_address;
+        let egld_usdc_pair_address = &self.config.egld_usdc_pair_address;
+
+
+        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
+            EgldOrEsdtTokenIdentifier::esdt(USDC_TOKEN_ID),
+            0u64,
+            BigUint::from(1u64),
+        );
+
+        let mut tasks = MultiValueEncoded::new();
+
+        // Wrap EGLD
+        // let no_args = ManagedVec::new();
+        // tasks.push((TaskType::WrapEGLD, no_args).into());
+
+        // // Swap fixed output
+        // let mut swap_args_fixed_output = ManagedVec::new();
+        // swap_args_fixed_output.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+        // swap_args_fixed_output.push(managed_buffer!(USDC_TOKEN_ID));
+        // let amount_38 = BigUint::from(30000000u64); // 38 units with 6 decimals
+        // swap_args_fixed_output.push(amount_38.to_bytes_be_buffer()); 
+        // tasks.push((TaskType::Swap, swap_args_fixed_output).into());
+
+
+        // // Swap fixed input
+        // let mut swap_args = ManagedVec::new();
+        // swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+        // swap_args.push(managed_buffer!(MEX_TOKEN_ID));
+        // swap_args.push(managed_buffer!(b"1"));
+        // tasks.push((TaskType::Swap, swap_args).into());
+
+        // Router swap
+        let mut router_swap_args = ManagedVec::new();
+        router_swap_args.push(managed_buffer!(egld_mex_pair_address.as_address().as_bytes()));
+        router_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+        router_swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
+        router_swap_args.push(managed_buffer!(b"1"));
+
+        router_swap_args.push(managed_buffer!(egld_usdc_pair_address.as_address().as_bytes()));
+        router_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+        router_swap_args.push(managed_buffer!(USDC_TOKEN_ID));
+        router_swap_args.push(managed_buffer!(b"1"));
+
+        tasks.push((TaskType::RouterSwap, router_swap_args).into());
+
+        // Send
+        let mut send_args = ManagedVec::new();
+        send_args.push(managed_buffer!(second_address.as_address().as_bytes()));
+        tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
+            .compose_tasks(min_expected_token_out, tasks)
+            .gas(100_000_000)
+            .payment(EgldOrEsdtTokenPayment::new(
+                EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
+                0u64,
+                BigUint::from(ONE_UNIT * 3u64) * MILLION,
             ))
             .returns(ReturnsResult)
             .prepare_async()
