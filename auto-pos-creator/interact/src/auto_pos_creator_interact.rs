@@ -3,27 +3,29 @@
 mod auto_pos_creator_config;
 
 use auto_pos_creator::auto_pos_creator_proxy;
-use multiversx_sc_snippets::{imports::*, sdk};
+use auto_pos_creator::external_sc_interactions::router_actions::SwapOperationType;
+use auto_pos_creator_config::Config;
+use multiversx_sc_snippets::imports::*;
+use multiversx_sc_snippets::sdk;
 use serde::{Deserialize, Serialize};
 use std::{
     io::{Read, Write},
     path::Path,
 };
-use auto_pos_creator_config::Config;
 
 const GATEWAY: &str = sdk::blockchain::DEVNET_GATEWAY;
 const STATE_FILE: &str = "state.toml";
-
-const HALF_UNIT: u64 = 500000000000000000; // 0.5 
-const ONE_UNIT: u64 = 1000000000000000000; // 0.5 
-const MILLION: u64 = 1_000_000; 
-
+pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
+pub const SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME: &[u8] = b"swapTokensFixedOutput";
 pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-a28c59";
 pub static MEX_TOKEN_ID: &[u8] = b"MEX-a659d0";
+pub static EGLDMEX_LP_TOKEN_ID: &[u8] = b"EGLDMEX-95c6d5";
 pub static ONE_TOKEN_ID: &[u8] = b"ONE-83a7c0";
 pub static USDC_TOKEN_ID: &[u8] = b"USDC-350c4e";
 pub static UTK_TOKEN_ID: &[u8] = b"UTK-14d57d";
-
+const HALF_UNIT: u64 = 500000000000000000; // 0.5 
+const ONE_UNIT: u64 = 1000000000000000000; // 0.5 
+const MILLION: u64 = 1_000_000; 
 
 #[tokio::main]
 async fn main() {
@@ -35,19 +37,22 @@ async fn main() {
     let mut interact = ContractInteract::new().await;
     match cmd.as_str() {
         "deploy" => interact.deploy().await,
-        "setWrapEgldAddr" => interact.set_wrap_egld_address().await,
-        "setRouterAddr" => interact.set_router_address().await,
-        "wrap" => interact.wrap_test().await,
-        "unwrap" => interact.unwrap_test().await,
-        "wrapSwap" => interact.wrap_swap_test().await,
-        "wrapSwapOutput" => interact.wrap_swap_fixed_output_test().await,
-        "swapUnwrap" => interact.swap_unwrap_test().await,
-        "swapFailMultipleInputTokens" => interact.swap_fail_sending_multiple_tokens_test().await,
-        "wrapSwapFailLowOutputAmount" => interact.wrap_swap_fail_low_output_amount_test().await,
-        "swapSendUnwrap" => interact.swap_send_unwrap_test().await,
-        "multipleSwapsFixedOutput" => interact.multiple_swap_fixed_output_test().await,
-        "mixingAllActions" => interact.mixing_all_actions_test().await,
-
+        "createLpPosFromSingleToken" => interact.create_lp_pos_from_single_token().await,
+        "createLpPosFromTwoTokens" => interact.create_lp_pos_from_two_tokens().await,
+        "createFarmPosFromSingleToken" => interact.create_farm_pos_from_single_token().await,
+        "createFarmPosFromTwoTokens" => interact.create_farm_pos_from_two_tokens().await,
+        "createMetastakingPosFromSingleToken" => {
+            interact.create_metastaking_pos_from_single_token().await
+        }
+        "createMetastakingPosFromTwoTokens" => {
+            interact.create_metastaking_pos_from_two_tokens().await
+        }
+        "createFarmStakingPosFromSingleToken" => {
+            interact.create_farm_staking_pos_from_single_token().await
+        }
+        "exitMetastakingPos" => interact.exit_metastaking_pos_endpoint().await,
+        "exitFarmPos" => interact.exit_farm_pos().await,
+        "exitLpPos" => interact.exit_lp_pos().await,
         _ => panic!("unknown command: {}", &cmd),
     }
 }
@@ -106,10 +111,9 @@ impl ContractInteract {
         let wallet_address = interactor.register_wallet(test_wallets::alice());
 
         let contract_code = BytesValue::interpret_from(
-            "mxsc:../output/composable-tasks.mxsc.json",
+            "mxsc:../output/auto-pos-creator.mxsc.json",
             &InterpreterContext::default(),
         );
-
 
         ContractInteract {
             interactor,
@@ -121,7 +125,7 @@ impl ContractInteract {
     }
 
     async fn deploy(&mut self) {
-        let wegld_address = &self.config.wegld_address;
+        let egld_wrapper_address = &self.config.wegld_address;
         let router_address = &self.config.router_address;
 
         let new_address = self
@@ -129,9 +133,9 @@ impl ContractInteract {
             .tx()
             .from(&self.wallet_address)
             .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
-            .init(wegld_address, router_address)
+            .init(egld_wrapper_address, router_address)
             .code(&self.contract_code)
-            .gas(100_000_000)
+            .gas(60_000_000)
             .returns(ReturnsNewAddress)
             .prepare_async()
             .run()
@@ -144,17 +148,20 @@ impl ContractInteract {
         println!("new address: {new_address_bech32}");
     }
 
-
-
     async fn create_lp_pos_from_single_token(&mut self) {
-        let pair_address;
-        let add_liq_first_token_min_amount_out;
-        let add_liq_second_token_min_amount_out;
-        let swap_operations;
+        let egld_mex_pair_address = &self.config.egld_mex_pair_address;
 
-        let no_args = ManagedVec::new();
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::WrapEGLD, no_args).into());
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(1u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(1u128);
+        let mut swap_operations = MultiValueEncoded::new();
+        let swap_operation: SwapOperationType<StaticApi> = (
+            managed_address!(egld_mex_pair_address.as_address()),
+            ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+            managed_token_id!(MEX_TOKEN_ID), // Want token
+            BigUint::from(1u64),
+        )
+            .into();
+        swap_operations.push(swap_operation);
 
         let response = self
             .interactor
@@ -162,360 +169,19 @@ impl ContractInteract {
             .from(&self.wallet_address)
             .to(self.state.current_address())
             .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
-            .create_lp_pos_from_single_token(pair_address, add_liq_first_token_min_amount_out, add_liq_second_token_min_amount_out, swap_operations)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::egld(),
-                token_nonce,
-                BigUint::from(ONE_UNIT),
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-
-    async fn unwrap_test(&mut self) {
-        let token_nonce = 0u64;
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::egld(),
-            0u64,
-            BigUint::from(ONE_UNIT),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::UnwrapEGLD, no_args).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(10_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::esdt(WEGLD_TOKEN_ID),
-                token_nonce,
-                BigUint::from(ONE_UNIT),
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-    async fn wrap_swap_test(&mut self) {
-        let token_nonce = 0u64;
-        let token_amount = BigUint::<StaticApi>::from(HALF_UNIT);
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
-            0u64,
-            BigUint::from(HALF_UNIT),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(MEX_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::WrapEGLD, no_args).into());
-        tasks.push((TaskType::Swap, swap_args).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::egld(),
-                token_nonce,
-                token_amount,
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-    async fn wrap_swap_fixed_output_test(&mut self) {
-        let token_nonce = 0u64;
-        let token_amount = BigUint::<StaticApi>::from(HALF_UNIT);
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
-            0u64,
-            BigUint::from(HALF_UNIT),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(MEX_TOKEN_ID));
-        let one_mil = BigUint::from(ONE_UNIT) * MILLION;
-        swap_args.push(one_mil.to_bytes_be_buffer());
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::WrapEGLD, no_args).into());
-        tasks.push((TaskType::Swap, swap_args).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::egld(),
-                token_nonce,
-                token_amount,
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-
-    async fn swap_unwrap_test(&mut self) {
-        let token_nonce = 0u64;
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::egld(),
-            0u64,
-            BigUint::from(HALF_UNIT / 2),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::Swap, swap_args).into());
-        tasks.push((TaskType::UnwrapEGLD, no_args).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
-                token_nonce,
-                BigUint::from(3 * ONE_UNIT) * BigUint::from(MILLION),
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-    async fn swap_fail_sending_multiple_tokens_test(&mut self) {
-        let token_nonce = 0u64;
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::egld(),
-            0u64,
-            BigUint::from(HALF_UNIT / 2),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::Swap, swap_args).into());
-        tasks.push((TaskType::UnwrapEGLD, no_args).into());
-
-        let mut multi_payments = MultiEsdtPayment::new();
-        multi_payments.push(EsdtTokenPayment::new(
-            TokenIdentifier::from(MEX_TOKEN_ID),
-            token_nonce,
-            BigUint::from(3 * ONE_UNIT) * BigUint::from(MILLION)));
-            multi_payments.push(EsdtTokenPayment::new(
-                    TokenIdentifier::from(ONE_TOKEN_ID),
-                    token_nonce,
-                    BigUint::from(3 * ONE_UNIT)));
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(multi_payments)
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-    async fn wrap_swap_fail_low_output_amount_test(&mut self) {
-        let token_nonce = 0u64;
-        let token_amount = BigUint::<StaticApi>::from(HALF_UNIT);
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
-            0u64,
-            BigUint::from(ONE_UNIT)* MILLION * 4u64,
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(MEX_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::WrapEGLD, no_args).into());
-        tasks.push((TaskType::Swap, swap_args).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::egld(),
-                token_nonce,
-                token_amount,
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-
-    async fn swap_send_unwrap_test(&mut self) {
-        let token_nonce = 0u64;
-        let second_address = &self.config.random_address;
-
-
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(WEGLD_TOKEN_ID),
-            0u64,
-            BigUint::from(HALF_UNIT),
-        );
-
-        let no_args = ManagedVec::new();
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-
-        let mut tasks = MultiValueEncoded::new();
-        tasks.push((TaskType::Swap, swap_args).into());
-
-        let mut send_args = ManagedVec::new();
-        send_args.push(managed_buffer!(second_address.as_address().as_bytes()));
-
-        tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
-        tasks.push((TaskType::UnwrapEGLD, no_args).into()); // this should not be executed
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(50_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::esdt(MEX_TOKEN_ID),
-                token_nonce,
-                BigUint::from(5 * ONE_UNIT) * BigUint::from(MILLION),
-            ))
-            .returns(ReturnsResult)
-            .prepare_async()
-            .run()
-            .await;
-
-        println!("Result: {response:?}");
-    }
-
-
-
-    async fn multiple_swap_fixed_output_test(&mut self) {
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(WEGLD_TOKEN_ID),
-            0u64,
-            BigUint::from(HALF_UNIT),
-        );
-
-        let mut tasks = MultiValueEncoded::new();
-        let mut swap_args1 = ManagedVec::new();
-        swap_args1.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-        swap_args1.push(managed_buffer!(USDC_TOKEN_ID));
-        let amount_38 = BigUint::from(30000000u64); // 38 units with 6 decimals
-        swap_args1.push(amount_38.to_bytes_be_buffer()); 
-        tasks.push((TaskType::Swap, swap_args1).into());
-
-        let mut swap_args2 = ManagedVec::new();
-        swap_args2.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-        swap_args2.push(managed_buffer!(MEX_TOKEN_ID));
-        let amount = BigUint::from(ONE_UNIT) * MILLION * 5u64;
-        swap_args2.push(amount.to_bytes_be_buffer());
-        tasks.push((TaskType::Swap, swap_args2).into());
-
-        let mut swap_args3 = ManagedVec::new();
-        swap_args3.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-        swap_args3.push(managed_buffer!(WEGLD_TOKEN_ID));
-        let one = BigUint::from(HALF_UNIT);
-        swap_args3.push(one.to_bytes_be_buffer());
-        tasks.push((TaskType::Swap, swap_args3).into());
-
-        let response = self
-            .interactor
-            .tx()
-            .from(&self.wallet_address)
-            .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(100_000_000)
+            .create_lp_pos_from_single_token(
+                egld_mex_pair_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+                swap_operations,
+            )
             .payment(EgldOrEsdtTokenPayment::new(
                 EgldOrEsdtTokenIdentifier::esdt(WEGLD_TOKEN_ID),
                 0u64,
-                BigUint::from(ONE_UNIT),
+                BigUint::from(HALF_UNIT),
             ))
-            .returns(ReturnsResult)
+            .gas(50_000_000)
+            .returns(ReturnsResultUnmanaged)
             .prepare_async()
             .run()
             .await;
@@ -523,68 +189,304 @@ impl ContractInteract {
         println!("Result: {response:?}");
     }
 
-    async fn mixing_all_actions_test(&mut self) {
+    async fn create_lp_pos_from_two_tokens(&mut self) {
+        let token_id = String::new();
         let token_nonce = 0u64;
-        let second_address = &self.config.random_address;
-        let egld_mex_pair_address = &self.config.egld_mex_pair_address;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
 
-        let min_expected_token_out = EgldOrEsdtTokenPayment::new(
-            EgldOrEsdtTokenIdentifier::esdt(WEGLD_TOKEN_ID),
-            0u64,
-            BigUint::from(HALF_UNIT),
-        );
-
-        let mut tasks = MultiValueEncoded::new();
-
-        // Wrap EGLD
-        let no_args = ManagedVec::new();
-        tasks.push((TaskType::WrapEGLD, no_args).into());
-
-        // Swap fixed output
-        let mut swap_args_fixed_output = ManagedVec::new();
-        swap_args_fixed_output.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
-        swap_args_fixed_output.push(managed_buffer!(USDC_TOKEN_ID));
-        let amount_38 = BigUint::from(30000000u64); // 38 units with 6 decimals
-        swap_args_fixed_output.push(amount_38.to_bytes_be_buffer()); 
-        tasks.push((TaskType::Swap, swap_args_fixed_output).into());
-
-
-        // Swap fixed input
-        let mut swap_args = ManagedVec::new();
-        swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        swap_args.push(managed_buffer!(MEX_TOKEN_ID));
-        swap_args.push(managed_buffer!(b"1"));
-        tasks.push((TaskType::Swap, swap_args).into());
-
-        // Router swap
-        let mut router_swap_args = ManagedVec::new();
-        router_swap_args.push(managed_buffer!(egld_mex_pair_address.as_address().as_bytes()));
-        router_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-        router_swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
-        let half = BigUint::from(HALF_UNIT);
-        router_swap_args.push(half.to_bytes_be_buffer());
-
-        tasks.push((TaskType::RouterSwap, router_swap_args).into());
-
-        // Send
-        let mut send_args = ManagedVec::new();
-        send_args.push(managed_buffer!(second_address.as_address().as_bytes()));
-        tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+        let pair_address = bech32::decode("");
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
 
         let response = self
             .interactor
             .tx()
             .from(&self.wallet_address)
             .to(self.state.current_address())
-            .typed(composable_tasks_proxy::ComposableTasksContractProxy)
-            .compose_tasks(min_expected_token_out, tasks)
-            .gas(100_000_000)
-            .payment(EgldOrEsdtTokenPayment::new(
-                EgldOrEsdtTokenIdentifier::egld(),
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_lp_pos_from_two_tokens(
+                pair_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
                 token_nonce,
-                BigUint::from(ONE_UNIT),
+                token_amount,
             ))
-            .returns(ReturnsResult)
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn create_farm_pos_from_single_token(&mut self) {
+        let egld_mex_farm_address = &self.config.egld_mex_farm_address;
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(1u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(1u128);
+        let mut swap_operations = MultiValueEncoded::new();
+        let swap_operation: SwapOperationType<StaticApi> = (
+            managed_address!(egld_mex_farm_address.as_address()),
+            ManagedBuffer::from(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME),
+            managed_token_id!(MEX_TOKEN_ID), // Want token
+            BigUint::from(1u64),
+        )
+            .into();
+        swap_operations.push(swap_operation);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_farm_pos_from_single_token(
+                egld_mex_farm_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+                swap_operations,
+            )
+            .payment((
+                TokenIdentifier::from(WEGLD_TOKEN_ID),
+                0u64,
+                BigUint::from(HALF_UNIT),
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn create_farm_pos_from_two_tokens(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let farm_address = bech32::decode("");
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_farm_pos_from_two_tokens(
+                farm_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn create_metastaking_pos_from_single_token(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let metastaking_address = bech32::decode("");
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        // let swap_operations = MultiValueVec::from(vec![MultiValue4::from((bech32::decode(""), ManagedBuffer::new_from_bytes(&b""[..]), TokenIdentifier::from_esdt_bytes(&b""[..]), BigUint::<StaticApi>::from(0u128)))]);
+        let swap_operations = MultiValueVec::new();
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_metastaking_pos_from_single_token(
+                metastaking_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+                swap_operations,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn create_metastaking_pos_from_two_tokens(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let metastaking_address = bech32::decode("");
+        let add_liq_first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let add_liq_second_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_metastaking_pos_from_two_tokens(
+                metastaking_address,
+                add_liq_first_token_min_amount_out,
+                add_liq_second_token_min_amount_out,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn create_farm_staking_pos_from_single_token(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let farm_staking_address = bech32::decode("");
+        let min_amount_out = BigUint::<StaticApi>::from(0u128);
+        // let swap_operations = MultiValueVec::from(vec![MultiValue4::from((bech32::decode(""), ManagedBuffer::new_from_bytes(&b""[..]), TokenIdentifier::from_esdt_bytes(&b""[..]), BigUint::<StaticApi>::from(0u128)))]);
+        let swap_operations = MultiValueVec::new();
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .create_farm_staking_pos_from_single_token(
+                farm_staking_address,
+                min_amount_out,
+                swap_operations,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn exit_metastaking_pos_endpoint(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let metastaking_address = bech32::decode("");
+        let first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let second_token_min_amont_out = BigUint::<StaticApi>::from(0u128);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .exit_metastaking_pos_endpoint(
+                metastaking_address,
+                first_token_min_amount_out,
+                second_token_min_amont_out,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn exit_farm_pos(&mut self) {
+        let token_id = String::new();
+        let token_nonce = 0u64;
+        let token_amount = BigUint::<StaticApi>::from(0u128);
+
+        let farm_address = bech32::decode("");
+        let first_token_min_amount_out = BigUint::<StaticApi>::from(0u128);
+        let second_token_min_amont_out = BigUint::<StaticApi>::from(0u128);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .exit_farm_pos(
+                farm_address,
+                first_token_min_amount_out,
+                second_token_min_amont_out,
+            )
+            .payment((
+                TokenIdentifier::from(token_id.as_str()),
+                token_nonce,
+                token_amount,
+            ))
+            .returns(ReturnsResultUnmanaged)
+            .prepare_async()
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    async fn exit_lp_pos(&mut self) {
+
+        let egld_mex_pair_address = &self.config.egld_mex_pair_address;
+        let first_token_min_amount_out = BigUint::<StaticApi>::from(1u128);
+        let second_token_min_amont_out = BigUint::<StaticApi>::from(1u128);
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .typed(auto_pos_creator_proxy::AutoPosCreatorProxy)
+            .exit_lp_pos(
+                egld_mex_pair_address,
+                first_token_min_amount_out,
+                second_token_min_amont_out,
+            )
+            .payment((
+                TokenIdentifier::from(EGLDMEX_LP_TOKEN_ID),
+                0u64,
+                BigUint::from(276493421633915622u128),
+            ))
+            .gas(50_000_000)
+            .returns(ReturnsResultUnmanaged)
             .prepare_async()
             .run()
             .await;
