@@ -1,0 +1,2 @@
+[[proxy]]
+path ="src/composable_tasks_proxy.rs"
