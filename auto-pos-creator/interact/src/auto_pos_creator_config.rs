@@ -18,6 +18,8 @@ pub struct Config {
     pub egld_one_pair_address: Bech32Address,
     pub egld_utk_pair_address: Bech32Address,
     pub egld_utk_farm_address: Bech32Address,
+    pub metastaking_utk_address: Bech32Address,
+    pub farm_staking_utk_address: Bech32Address,
 }
 
 impl Config {
