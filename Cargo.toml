@@ -4,6 +4,7 @@ members = [
   "auto-farm/meta",
   "auto-pos-creator",
   "auto-pos-creator/meta",
+  "auto-pos-creator/interact",
   "locked-token-pos-creator",
   "locked-token-pos-creator/meta",
   "farm-extra-rewards-wrapper",
