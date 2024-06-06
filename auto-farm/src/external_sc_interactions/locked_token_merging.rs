@@ -54,12 +54,6 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
             .returns(ReturnsResult)
             .sync_call();
 
-        // let new_token: EsdtTokenPayment<<Self as ContractBase>::Api> = self
-        //     .energy_factory_proxy(energy_factory_address)
-        //     .merge_tokens_endpoint(user)
-        //     .with_multi_token_transfer(locked_tokens)
-        //     .execute_on_dest_context();
-
         Some(new_token)
     }
 }
