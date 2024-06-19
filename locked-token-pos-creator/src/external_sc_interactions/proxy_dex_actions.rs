@@ -57,7 +57,7 @@ pub trait ProxyDexActionsModule {
         let proxy_dex_address = self.proxy_dex_address().get();
         let result: EnterFarmProxyResultType<Self::Api> = self
             .proxy_dex_proxy(proxy_dex_address)
-            .enter_farm_proxy_endpoint(farm_address, user)
+            .enter_farm_proxy_endpoint(farm_address, OptionalValue::Some(user))
             .with_multi_token_transfer(payments)
             .execute_on_dest_context();
 

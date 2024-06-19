@@ -1,5 +1,10 @@
+#![allow(deprecated)]
+
 use composable_tasks::ProxyTrait;
-use multiversx_sc::types::{Address, MultiValueEncoded};
+use multiversx_sc::{
+    imports::OptionalValue,
+    types::{Address, MultiValueEncoded},
+};
 use multiversx_sc_scenario::{
     api::StaticApi,
     scenario_model::{Account, AddressValue, ScDeployStep, SetStateStep},
@@ -37,7 +42,6 @@ type RouterContract = ContractInfo<router::Proxy<StaticApi>>;
 
 fn world() -> ScenarioWorld {
     let mut blockchain = ScenarioWorld::new();
-    blockchain.set_current_dir_from_workspace("composable-tasks");
 
     blockchain.register_contract(
         COMPOSABLE_TASKS_PATH_EXPR,
@@ -197,7 +201,10 @@ impl ComposableTasksTestState {
                 ScDeployStep::new()
                     .from(OWNER_ADDRESS_EXPR)
                     .code(router_code)
-                    .call(self.router_contract.init(Address::zero())),
+                    .call(
+                        self.router_contract
+                            .init(OptionalValue::Some(Address::zero())),
+                    ),
             );
 
         self

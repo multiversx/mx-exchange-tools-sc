@@ -65,7 +65,7 @@ pub trait MetastakingActionsModule:
         dual_yield_token: EsdtTokenPayment,
     ) -> ClaimDualYieldResult<Self::Api> {
         self.metastaking_proxy(ms_address)
-            .claim_dual_yield_endpoint(user)
+            .claim_dual_yield_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(dual_yield_token)
             .execute_on_dest_context()
     }

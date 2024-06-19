@@ -13,7 +13,7 @@ pub trait FarmStakingActionsModule: read_external_storage::ReadExternalStorageMo
         tokens: PaymentsVec<Self::Api>,
     ) -> EnterFarmResultType<Self::Api> {
         self.farm_staking_proxy(sc_address)
-            .stake_farm_endpoint(user)
+            .stake_farm_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(tokens)
             .execute_on_dest_context()
     }
