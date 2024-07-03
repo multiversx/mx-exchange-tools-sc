@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(trait_alias)]
 
 use permissions_module::Permissions;
 
