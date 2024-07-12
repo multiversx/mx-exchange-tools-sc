@@ -51,7 +51,7 @@ rev = "c061a85"
 
 [dependencies.metabonding]
 git = "https://github.com/multiversx/mx-metabonding-sc"
-rev = "50097ca"
+rev = "59518bd"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
@@ -76,6 +76,9 @@ rev = "c061a85"
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "c061a85"
+
+[dependencies.proxies]
+path = "../proxies"
 
 [dev-dependencies]
 num-bigint = "0.4.2"

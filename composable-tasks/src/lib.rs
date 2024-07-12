@@ -2,6 +2,7 @@
 
 multiversx_sc::imports!();
 
+pub mod composable_tasks_proxy;
 pub mod compose_tasks;
 pub mod config;
 pub mod external_sc_interactions;

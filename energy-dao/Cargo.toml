@@ -110,6 +110,9 @@ rev = "c061a85"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "c061a85"
 
+[dependencies.proxies]
+path = "../proxies"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 

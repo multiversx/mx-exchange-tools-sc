@@ -12,5 +12,6 @@ members = [
   "composable-tasks/meta",
   "energy-dao",
   "energy-dao/meta",
-  "tests-common"
+  "tests-common",
+  "proxies"
 ]

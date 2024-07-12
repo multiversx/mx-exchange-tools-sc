@@ -50,6 +50,9 @@ rev = "c061a85"
 [dependencies.read_external_storage]
 path = "../common/modules/read_external_storage"
 
+[dependencies.proxies]
+path = "../proxies"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 num-traits = "0.2"

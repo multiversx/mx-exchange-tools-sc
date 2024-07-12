@@ -1,7 +1,7 @@
 use common_structs::PaymentsVec;
-use energy_factory::token_merging::ProxyTrait as _;
 
 use mergeable::Mergeable;
+use proxies::energy_factory_proxy;
 
 use crate::common::rewards_wrapper::MergedRewardsWrapper;
 
@@ -45,10 +45,13 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
 
         let energy_factory_address = self.energy_factory_address().get();
         let new_token = self
-            .energy_factory_proxy(energy_factory_address)
+            .tx()
+            .to(&energy_factory_address)
+            .typed(energy_factory_proxy::SimpleLockEnergyProxy)
             .merge_tokens_endpoint(OptionalValue::Some(user))
-            .with_multi_token_transfer(locked_tokens)
-            .execute_on_dest_context();
+            .payment(locked_tokens)
+            .returns(ReturnsResult)
+            .sync_call();
 
         Some(new_token)
     }
