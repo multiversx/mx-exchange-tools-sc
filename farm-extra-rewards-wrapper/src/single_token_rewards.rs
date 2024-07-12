@@ -7,7 +7,8 @@ use crate::wrapped_farm_attributes::{throw_not_implemented_error, WrappedFarmAtt
 
 multiversx_sc::imports!();
 
-pub trait ScTraits = auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
+pub trait ScTraits:
+    auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
     + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
     + rewards::RewardsModule
     + config::ConfigModule
@@ -19,7 +20,26 @@ pub trait ScTraits = auto_farm::whitelists::farms_whitelist::FarmsWhitelistModul
     + farm_base_impl::base_farm_validation::BaseFarmValidationModule
     + farm_base_impl::enter_farm::BaseEnterFarmModule
     + utils::UtilsModule
-    + crate::reward_tokens::RewardTokensModule;
+    + crate::reward_tokens::RewardTokensModule
+{
+}
+
+impl<T> ScTraits for T where
+    T: auto_farm::whitelists::farms_whitelist::FarmsWhitelistModule
+        + auto_farm::external_storage_read::farm_storage_read::FarmStorageReadModule
+        + rewards::RewardsModule
+        + config::ConfigModule
+        + token_send::TokenSendModule
+        + farm_token::FarmTokenModule
+        + pausable::PausableModule
+        + permissions_module::PermissionsModule
+        + multiversx_sc_modules::default_issue_callbacks::DefaultIssueCallbacksModule
+        + farm_base_impl::base_farm_validation::BaseFarmValidationModule
+        + farm_base_impl::enter_farm::BaseEnterFarmModule
+        + utils::UtilsModule
+        + crate::reward_tokens::RewardTokensModule
+{
+}
 
 pub struct BaseFarmLogicWrapper<T: ScTraits> {
     _phantom: PhantomData<T>,

@@ -11,7 +11,6 @@
 
 // use composable_tasks_proxy::ComposableTasksContractProxy;
 
-
 // const COMPOSABLE_TASKS_ADDRESS_EXPR: &str = "sc:composable_tasks";
 // // const WEGLD_ADDRESS_EXPR: &str = "sc:wegld";
 // // const ROUTER_ADDRESS_EXPR: &str = "sc:router";
@@ -41,7 +40,6 @@
 // const ROUTER_ADDRESS: TestSCAddress = TestSCAddress::new("router");
 // const PAIR1_ADDRESS: TestSCAddress = TestSCAddress::new("pari1");
 // const PAIR2_ADDRESS: TestSCAddress = TestSCAddress::new("pair2");
-
 
 // type ComposableTasksContract = ContractInfo<composable_tasks::Proxy<StaticApi>>;
 // type WegldContract = ContractInfo<multiversx_wegld_swap_sc::Proxy<StaticApi>>;
@@ -121,7 +119,6 @@
 //         .code(ADDER_CODE_PATH)
 //         .new_address(ADDER_ADDRESS)
 //         .run();
-
 
 //         self.world
 //             .set_state_step(SetStateStep::new().new_address(
