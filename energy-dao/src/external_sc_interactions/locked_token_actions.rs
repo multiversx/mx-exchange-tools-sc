@@ -1,7 +1,7 @@
 multiversx_sc::imports!();
 
 use common_structs::{Epoch, PaymentsVec};
-use energy_factory::energy_factory_proxy;
+use proxies::energy_factory_proxy;
 
 #[multiversx_sc::module]
 pub trait LockedTokenModule: energy_query::EnergyQueryModule {
