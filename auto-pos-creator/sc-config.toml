@@ -1,0 +1,3 @@
+[[proxy]]
+path = "src/auto_pos_creator_proxy.rs"
+ 

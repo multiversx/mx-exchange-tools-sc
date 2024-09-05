@@ -6,6 +6,7 @@ pub mod common;
 pub mod configs;
 pub mod external_sc_interactions;
 pub mod multi_contract_interactions;
+pub mod auto_pos_creator_proxy;
 
 #[multiversx_sc::contract]
 pub trait AutoPosCreator:
