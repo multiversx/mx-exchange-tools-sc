@@ -5,7 +5,7 @@ use router::multi_pair_swap::{
 };
 
 use crate::{
-    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
+    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SMART_SWAP_ARGS_LEN, SWAP_ARGS_LEN},
     external_sc_interactions,
 };
 
@@ -20,6 +20,7 @@ pub enum TaskType {
     UnwrapEGLD,
     Swap,
     RouterSwap,
+    SmartSwap,
     SendEgldOrEsdt,
 }
 
@@ -54,6 +55,17 @@ pub trait TaskCall:
                 }
                 TaskType::RouterSwap => {
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
+                }
+                TaskType::SmartSwap => {
+                    require!(
+                        args.len() == SEND_TOKENS_ARGS_LEN,
+                        "Invalid number of arguments!"
+                    );
+                    let new_destination = ManagedAddress::try_from(args.get(0).clone_value())
+                        .unwrap_or_else(|err| sc_panic!(err));
+
+                    dest_addr = new_destination;
+                    break;
                 }
                 TaskType::SendEgldOrEsdt => {
                     require!(
@@ -159,6 +171,86 @@ pub trait TaskCall:
         let payment_out = returned_payments_by_router.take(last_payment_index);
         payments_to_return.append_vec(returned_payments_by_router);
         EgldOrEsdtTokenPayment::from(payment_out)
+    }
+
+    fn smart_swap(
+        &self,
+        payment_for_current_task: EgldOrEsdtTokenPayment,
+        payments_to_return: &mut PaymentsVec<Self::Api>,
+        args: ManagedVec<ManagedBuffer>,
+    ) -> EgldOrEsdtTokenPayment {
+        require!(
+            !payment_for_current_task.token_identifier.is_egld(),
+            "EGLD can't be swapped!"
+        );
+        require!(
+            args.len() % SMART_SWAP_ARGS_LEN == 1,
+            "Invalid number of smart swap arguments"
+        );
+        // let payment_in = payment_for_current_task.unwrap_esdt();
+
+        let args_cloned = args.clone();
+        let mut aggregated_payment_out =
+            self.get_empty_payment_out_from_smart_swap_args(args_cloned);
+
+        let mut args_iter = args.into_iter();
+        let swap_count = match args_iter.next() {
+            Some(count) => count.parse_as_u64().unwrap(),
+            None => sc_panic!("TODO"),
+        };
+
+        for _ in 1..swap_count {
+            // take the input amount for the swap
+            let amount_in = match args_iter.next() {
+                Some(amount) => BigUint::from(amount),
+                None => break,
+            };
+            let payment_in = EsdtTokenPayment::new(
+                payment_for_current_task
+                    .token_identifier
+                    .clone()
+                    .unwrap_esdt(),
+                payment_for_current_task.token_nonce,
+                amount_in,
+            );
+
+            // take args for a router_swap
+            let router_args: ManagedVec<ManagedBuffer> =
+                args_iter.by_ref().take(ROUTER_SWAP_ARGS_LEN).collect();
+
+            let mut returned_payments_by_router = self.multi_pair_swap(payment_in, router_args);
+            require!(
+                !returned_payments_by_router.is_empty(),
+                "Router swap returned 0 payments"
+            );
+
+            // aggregate all output_payments
+            let partial_payment_out_index = returned_payments_by_router.len() - 1;
+            let partial_payment_out = returned_payments_by_router.take(partial_payment_out_index);
+            require!(
+                partial_payment_out.token_identifier == aggregated_payment_out.token_identifier,
+                "Router returned wrong payment output for smart swaps"
+            );
+            aggregated_payment_out.amount += partial_payment_out.amount;
+
+            // concatenate all the other payments
+            payments_to_return.append_vec(returned_payments_by_router);
+        }
+
+        EgldOrEsdtTokenPayment::from(aggregated_payment_out)
+    }
+
+    fn get_empty_payment_out_from_smart_swap_args(
+        &self,
+        args: ManagedVec<ManagedBuffer>,
+    ) -> EsdtTokenPayment<Self::Api> {
+        let mut args_iter = args.into_iter();
+        let token_out = match args_iter.next() {
+            Some(token_id) => TokenIdentifier::from(token_id),
+            None => sc_panic!("Could not retrieve output payment from smart swaps args"),
+        };
+
+        EsdtTokenPayment::new(token_out, 0, BigUint::zero())
     }
 
     fn send_resulted_payments(
