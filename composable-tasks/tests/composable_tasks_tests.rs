@@ -1456,7 +1456,6 @@ fn smart_swap_single_task_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut swap_args = ManagedVec::new();
-                swap_args.push(managed_buffer!(b"1")); // only 1 route
                 swap_args.push(managed_buffer!(
                     &rust_biguint!(user_first_token_balance).to_bytes_be()
                 )); // how much of the token is going this route
@@ -1523,35 +1522,22 @@ fn smart_swap_single_task_two_routes_test() {
             0,
             &rust_biguint!(user_first_token_balance),
             |sc| {
-                let mut swap_args = ManagedVec::new();
-                swap_args.push(managed_buffer!(b"1")); // only 1 route
-
-                // First route
-                swap_args.push(managed_buffer!(&rust_biguint!(
+                let mut smart_swap_args = ManagedVec::new();
+                // First route11
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(
                     user_first_token_balance / 2
                 )
                 .to_bytes_be())); // how much of the token is going this route
-                swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
-                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-                swap_args.push(managed_buffer!(TOKEN_IDS[0]));
-                swap_args.push(managed_buffer!(
-                    &rust_biguint!(expected_balance / 2u64).to_bytes_be()
+                smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(TOKEN_IDS[0]));
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(expected_balance / 3u64).to_bytes_be()
                 ));
-
-                // Second route
-                swap_args.push(managed_buffer!(&rust_biguint!(
-                    user_first_token_balance / 2
-                )
-                .to_bytes_be())); // how much of the token is going this route
-                swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
-                swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
-                swap_args.push(managed_buffer!(TOKEN_IDS[0]));
-                swap_args.push(managed_buffer!(
-                    &rust_biguint!(expected_balance / 2u64).to_bytes_be()
-                ));
-
                 let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::RouterSwap, swap_args).into());
+                tasks.push((TaskType::SmartSwap, smart_swap_args.clone()).into()); // first route
+                tasks.push((TaskType::SmartSwap, smart_swap_args).into()); //second route
+
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
                     EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[0])),
                     0,
