@@ -1528,6 +1528,11 @@ fn smart_swap_single_task_two_routes_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
+                smart_swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(user_first_token_balance).to_bytes_be()
+                )); // how much of the token is going this route
+
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
                 smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
                 smart_swap_args.push(managed_buffer!(TOKEN_IDS[0]));
@@ -1543,7 +1548,7 @@ fn smart_swap_single_task_two_routes_test() {
                 ));
 
                 let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::RouterSwap, smart_swap_args).into());
+                tasks.push((TaskType::SmartSwap, smart_swap_args).into());
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
                     EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[1])),
                     0,
@@ -1574,4 +1579,78 @@ fn smart_swap_single_task_two_routes_test() {
         TOKEN_IDS[2],
         &rust_biguint!(expected_balance_tokens_2),
     );
+}
+
+#[test]
+fn smart_swap_tokens_fixed_output_unwrap_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+    let second_user_addr = composable_tasks_setup.second_user;
+
+    let second_pair_addr = composable_tasks_setup.pair_setups[1]
+        .pair_wrapper
+        .address_ref();
+
+    let user_first_token_balance = 200_000_001u64;
+
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[0],
+        &rust_biguint!(user_first_token_balance),
+    );
+    let expected_balance = 166_666_666u64;
+
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            TOKEN_IDS[0],
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut smart_swap_args = ManagedVec::new();
+                smart_swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(user_first_token_balance).to_bytes_be()
+                )); // how much of the token is going this route
+
+                smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(WEGLD_TOKEN_ID));
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(expected_balance).to_bytes_be()
+                ));
+
+                let mut tasks = MultiValueEncoded::new();
+
+                tasks.push((TaskType::SmartSwap, smart_swap_args).into());
+                tasks.push((TaskType::UnwrapEGLD, ManagedVec::new()).into());
+
+                let mut send_args = ManagedVec::new();
+                send_args.push(managed_buffer!(second_user_addr.as_bytes()));
+                tasks.push((TaskType::SendEgldOrEsdt, send_args).into());
+
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::egld(),
+                    0,
+                    managed_biguint!(expected_balance),
+                );
+
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_ok();
+
+    // rest of the input token
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&second_user_addr, TOKEN_IDS[0], &rust_biguint!(1u64));
 }
