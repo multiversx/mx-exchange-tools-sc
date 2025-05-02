@@ -1456,6 +1456,7 @@ fn smart_swap_single_task_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut swap_args = ManagedVec::new();
+                swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
                 swap_args.push(managed_buffer!(
                     &rust_biguint!(user_first_token_balance).to_bytes_be()
                 )); // how much of the token is going this route
@@ -1499,19 +1500,23 @@ fn smart_swap_single_task_two_routes_test() {
     let b_mock = composable_tasks_setup.b_mock;
     let first_user_addr = composable_tasks_setup.first_user;
 
+    let first_pair_addr = composable_tasks_setup.pair_setups[0]
+        .pair_wrapper
+        .address_ref();
+
     let second_pair_addr = composable_tasks_setup.pair_setups[1]
         .pair_wrapper
         .address_ref();
 
-    let user_first_token_balance = 200_000_000u64;
+    let user_first_token_balance = 200_000_001u64;
 
     b_mock.borrow_mut().set_esdt_balance(
         &first_user_addr,
         WEGLD_TOKEN_ID,
         &rust_biguint!(user_first_token_balance),
     );
-
-    let expected_balance = 166_666_666u64;
+    let amount_tokens_out_tokens_0 = 166_666_666u64;
+    let amount_tokens_out_tokens_1 = 10_000u64;
 
     b_mock
         .borrow_mut()
@@ -1523,25 +1528,26 @@ fn smart_swap_single_task_two_routes_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
-                // First route11
-                smart_swap_args.push(managed_buffer!(&rust_biguint!(
-                    user_first_token_balance / 2
-                )
-                .to_bytes_be())); // how much of the token is going this route
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
-                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
                 smart_swap_args.push(managed_buffer!(TOKEN_IDS[0]));
                 smart_swap_args.push(managed_buffer!(
-                    &rust_biguint!(expected_balance / 3u64).to_bytes_be()
+                    &rust_biguint!(amount_tokens_out_tokens_0).to_bytes_be()
                 ));
-                let mut tasks = MultiValueEncoded::new();
-                tasks.push((TaskType::SmartSwap, smart_swap_args.clone()).into()); // first route
-                tasks.push((TaskType::SmartSwap, smart_swap_args).into()); //second route
 
+                smart_swap_args.push(managed_buffer!(first_pair_addr.as_bytes()));
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(TOKEN_IDS[1]));
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(amount_tokens_out_tokens_1).to_bytes_be()
+                ));
+
+                let mut tasks = MultiValueEncoded::new();
+                tasks.push((TaskType::RouterSwap, smart_swap_args).into());
                 let expected_token_out = EgldOrEsdtTokenPayment::new(
-                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[0])),
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[1])),
                     0,
-                    managed_biguint!(expected_balance),
+                    managed_biguint!(amount_tokens_out_tokens_1),
                 );
 
                 sc.compose_tasks(expected_token_out, tasks);
@@ -1549,10 +1555,23 @@ fn smart_swap_single_task_two_routes_test() {
         )
         .assert_ok();
 
+    let expected_balance_tokens_0 = 166_661_665u64;
+    let expected_balance_tokens_2 = 1u64;
+
     // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
         &first_user_addr,
         TOKEN_IDS[0],
-        &rust_biguint!(expected_balance),
+        &rust_biguint!(expected_balance_tokens_0),
+    );
+    b_mock.borrow_mut().check_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[1],
+        &rust_biguint!(amount_tokens_out_tokens_1),
+    );
+    b_mock.borrow_mut().check_esdt_balance(
+        &first_user_addr,
+        TOKEN_IDS[2],
+        &rust_biguint!(expected_balance_tokens_2),
     );
 }
