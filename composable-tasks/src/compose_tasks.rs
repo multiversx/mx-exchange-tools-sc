@@ -5,7 +5,7 @@ use router::multi_pair_swap::{
 };
 
 use crate::{
-    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SMART_SWAP_ARGS_LEN, SWAP_ARGS_LEN},
+    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
     external_sc_interactions,
 };
 
@@ -42,9 +42,6 @@ pub trait TaskCall:
 
         let mut dest_addr = self.blockchain().get_caller();
 
-        let mut smart_swap_input_payment: EsdtTokenPayment;
-        let mut smart_swap_output_payment: EsdtTokenPayment;
-
         for task in tasks.into_iter() {
             let (task_type, mut args) = task.into_tuple();
 
@@ -60,37 +57,7 @@ pub trait TaskCall:
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
                 TaskType::SmartSwap => {
-                    let smart_swap_input_payment_mapper = self.smart_swap_input_payment();
-
-                    let input_payment_for_smart_swap =
-                        if smart_swap_input_payment.amount == BigUint::zero() {
-                            // First smart swap
-                            payment_for_current_task
-                        } else {
-                            // Continuation of smart swap
-                            smart_swap_input_payment_mapper.get()
-                        };
-
-                    let mut output_payment_from_smart_swap = self.smart_swap(
-                        input_payment_for_smart_swap,
-                        &mut payments_to_return,
-                        &mut args,
-                    );
-
-                    // Update Smart Swap output payment
-                    let smart_swap_output_payment_mapper = self.smart_swap_output_payment();
-                    if smart_swap_output_payment_mapper.is_empty() {
-                        smart_swap_output_payment_mapper
-                            .set(output_payment_from_smart_swap.clone());
-                    } else {
-                        let smart_swap_output_payment = smart_swap_output_payment_mapper.get();
-                        output_payment_from_smart_swap.amount += smart_swap_output_payment.amount;
-
-                        smart_swap_output_payment_mapper
-                            .set(output_payment_from_smart_swap.clone());
-                    }
-
-                    output_payment_from_smart_swap
+                    self.smart_swap(payment_for_current_task, &mut payments_to_return, &mut args)
                 }
                 TaskType::SendEgldOrEsdt => {
                     require!(
@@ -208,28 +175,7 @@ pub trait TaskCall:
             !payment_for_current_task.token_identifier.is_egld(),
             "EGLD can't be swapped!"
         );
-        require!(
-            args.len() % SMART_SWAP_ARGS_LEN == 0,
-            "Invalid number of smart swap arguments"
-        );
         let mut payment_in = payment_for_current_task.unwrap_esdt();
-
-        //////// Varianta 2: Get payment input amount from first argument
-        // require!(args.len() > 0, "Invalid arguments for smart swap");
-        // let amount_in = BigUint::from(args.take(0));
-        // payment_in.amount = amount_in;
-
-        // let mut returned_payments_by_router = self.multi_pair_swap(payment_in, args.clone());
-
-        // require!(
-        //     !returned_payments_by_router.is_empty(),
-        //     "Smart Swap: router swap returned 0 payments"
-        // );
-
-        // let last_payment_index = returned_payments_by_router.len() - 1;
-        // let payment_out = returned_payments_by_router.take(last_payment_index);
-        // payments_to_return.append_vec(returned_payments_by_router);
-        // EgldOrEsdtTokenPayment::from(payment_out)
 
         let args_cloned = args.clone();
         let mut aggregated_payment_out =
@@ -238,9 +184,9 @@ pub trait TaskCall:
         let mut args_iter = args.into_iter();
 
         loop {
-            let router_counter = match args_iter.next() {
+            let routes_no = match args_iter.next() {
                 Some(count) => count.parse_as_u64().unwrap(),
-                None => sc_panic!("TODO"),
+                None => break,
             };
 
             // take the input amount for the swap
@@ -249,15 +195,16 @@ pub trait TaskCall:
                 None => break,
             };
 
-            let payment_in = payment_for_current_task;
             payment_in.amount = amount_in;
 
             // take args for a router_swap
-            args_iter.
-            let router_args: ManagedVec<ManagedBuffer> =
-                args_iter.by_ref().take(ROUTER_SWAP_ARGS_LEN).collect();
+            let router_args: ManagedVec<ManagedBuffer> = args_iter
+                .by_ref()
+                .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
+                .collect();
 
-            let mut returned_payments_by_router = self.multi_pair_swap(payment_in, router_args);
+            let mut returned_payments_by_router =
+                self.multi_pair_swap(payment_in.clone(), router_args);
             require!(
                 !returned_payments_by_router.is_empty(),
                 "Router swap returned 0 payments"
@@ -284,12 +231,22 @@ pub trait TaskCall:
         args: ManagedVec<ManagedBuffer>,
     ) -> EsdtTokenPayment<Self::Api> {
         let mut args_iter = args.into_iter();
-        let token_out = match args_iter.next() {
-            Some(token_id) => TokenIdentifier::from(token_id),
-            None => sc_panic!("Could not retrieve output payment from smart swaps args"),
+        let routes_no = match args_iter.next() {
+            Some(count) => count.parse_as_u64().unwrap(),
+            None => sc_panic!("Smart Swap: Cannot retrieve number of routes"),
         };
+        args_iter.next(); // this is the amount_in, we skip this arg
 
-        EsdtTokenPayment::new(token_out, 0, BigUint::zero())
+        // take args for a router_swap
+        let router_args: ManagedVec<ManagedBuffer> = args_iter
+            .by_ref()
+            .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
+            .collect();
+
+        let token_out_index = router_args.len() - 2; // token_out is the arg before last one
+        let token_out = router_args.get(token_out_index);
+
+        EsdtTokenPayment::new(token_out.clone_value().into(), 0, BigUint::zero())
     }
 
     fn send_resulted_payments(
