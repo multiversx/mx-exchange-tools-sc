@@ -5,7 +5,7 @@ use router::multi_pair_swap::{
 };
 
 use crate::{
-    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
+    config::{self, MAX_PERCENTAGE, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
     external_sc_interactions,
 };
 
@@ -29,6 +29,7 @@ pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldWrapModule
+    + config::ConfigModule
 {
     #[payable("*")]
     #[endpoint(composeTasks)]
@@ -223,6 +224,14 @@ pub trait TaskCall:
             payments_to_return.append_vec(returned_payments_by_router);
         }
 
+        let smart_swap_fee_percentage_mapper = self.smart_swap_fee_percentage();
+        if !smart_swap_fee_percentage_mapper.is_empty() {
+            let fee_percentage = smart_swap_fee_percentage_mapper.get();
+            let fee_amount =
+                self.calculate_fee_amount(&aggregated_payment_out.amount, fee_percentage);
+            aggregated_payment_out.amount -= &fee_amount;
+        }
+
         EgldOrEsdtTokenPayment::from(aggregated_payment_out)
     }
 
@@ -247,6 +256,10 @@ pub trait TaskCall:
         let token_out = router_args.get(token_out_index);
 
         EsdtTokenPayment::new(token_out.clone_value().into(), 0, BigUint::zero())
+    }
+
+    fn calculate_fee_amount(&self, payment_amount: &BigUint, fee_percentage: u64) -> BigUint {
+        payment_amount * fee_percentage / MAX_PERCENTAGE
     }
 
     fn send_resulted_payments(
