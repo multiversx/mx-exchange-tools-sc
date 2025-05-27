@@ -244,7 +244,7 @@ pub trait TaskCall:
             Some(count) => count.parse_as_u64().unwrap(),
             None => sc_panic!("Smart Swap: Cannot retrieve number of routes"),
         };
-        args_iter.next(); // this is the amount_in, we skip this arg
+        let _ = args_iter.next(); // this is the amount_in, we skip this arg
 
         // take args for a router_swap
         let router_args: ManagedVec<ManagedBuffer> = args_iter
