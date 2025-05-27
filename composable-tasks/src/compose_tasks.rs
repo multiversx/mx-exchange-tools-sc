@@ -20,8 +20,8 @@ pub enum TaskType {
     UnwrapEGLD,
     Swap,
     RouterSwap,
-    SmartSwap,
     SendEgldOrEsdt,
+    SmartSwap,
 }
 
 #[multiversx_sc::module]
@@ -176,7 +176,7 @@ pub trait TaskCall:
             !payment_for_current_task.token_identifier.is_egld(),
             "EGLD can't be swapped!"
         );
-        
+
         let mut payment_in = payment_for_current_task.unwrap_esdt();
 
         let args_cloned = args.clone();
@@ -187,7 +187,10 @@ pub trait TaskCall:
 
         loop {
             let routes_no = match args_iter.next() {
-                Some(count) => count.parse_as_u64().unwrap(),
+                Some(count) => match count.parse_as_u64() {
+                    Some(count) => count,
+                    None => sc_panic!("Number of routes arguments is invalid"),
+                },
                 None => break,
             };
 
