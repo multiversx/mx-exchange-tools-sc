@@ -225,9 +225,8 @@ pub trait TaskCall:
             payments_to_return.append_vec(returned_payments_by_router);
         }
 
-        let smart_swap_fee_percentage_mapper = self.smart_swap_fee_percentage();
-        if !smart_swap_fee_percentage_mapper.is_empty() {
-            let fee_percentage = smart_swap_fee_percentage_mapper.get();
+        let fee_percentage = self.smart_swap_fee_percentage().get();
+        if fee_percentage != 0 {
             let fee_amount =
                 self.calculate_fee_amount(&aggregated_payment_out.amount, fee_percentage);
             aggregated_payment_out.amount -= &fee_amount;
