@@ -201,7 +201,7 @@ pub trait TaskCall:
 
             // take args for a router_swap
             let router_args: ManagedVec<ManagedBuffer> = args_iter
-                .by_ref()
+                .clone()
                 .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
                 .collect();
 
@@ -248,7 +248,7 @@ pub trait TaskCall:
 
         // take args for a router_swap
         let router_args: ManagedVec<ManagedBuffer> = args_iter
-            .by_ref()
+            .clone()
             .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
             .collect();
 
@@ -296,10 +296,4 @@ pub trait TaskCall:
             "The output token is less or different than the one required by user!"
         );
     }
-
-    #[storage_mapper("smartSwapInputPayment")]
-    fn smart_swap_input_payment(&self) -> SingleValueMapper<EgldOrEsdtTokenPayment<Self::Api>>;
-
-    #[storage_mapper("smartSwapOutputPayment")]
-    fn smart_swap_output_payment(&self) -> SingleValueMapper<EgldOrEsdtTokenPayment<Self::Api>>;
 }
