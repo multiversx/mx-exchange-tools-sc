@@ -189,7 +189,7 @@ pub trait TaskCall:
             let routes_no = match args_iter.next() {
                 Some(count) => match count.parse_as_u64() {
                     Some(count) => count,
-                    None => sc_panic!("Number of routes arguments is invalid"),
+                    None => break,
                 },
                 None => break,
             };
