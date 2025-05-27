@@ -1528,7 +1528,7 @@ fn smart_swap_single_task_two_routes_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
-                smart_swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
+                smart_swap_args.push(managed_buffer!(b"2")); // 2 hops on the router
                 smart_swap_args.push(managed_buffer!(
                     &rust_biguint!(user_first_token_balance).to_bytes_be()
                 )); // how much of the token is going this route
