@@ -5,7 +5,10 @@ use router::multi_pair_swap::{
 };
 
 use crate::{
-    config::{self, MAX_PERCENTAGE, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
+    config::{
+        self, MAX_PERCENTAGE, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SMART_SWAP_MIN_ARGS_LEN,
+        SWAP_ARGS_LEN,
+    },
     external_sc_interactions,
 };
 
@@ -44,7 +47,7 @@ pub trait TaskCall:
         let mut dest_addr = self.blockchain().get_caller();
 
         for task in tasks.into_iter() {
-            let (task_type, mut args) = task.into_tuple();
+            let (task_type, args) = task.into_tuple();
 
             let payment_for_current_task = payment_for_next_task.clone();
 
@@ -58,7 +61,7 @@ pub trait TaskCall:
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
                 TaskType::SmartSwap => {
-                    self.smart_swap(payment_for_current_task, &mut payments_to_return, &mut args)
+                    self.smart_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
                 TaskType::SendEgldOrEsdt => {
                     require!(
@@ -166,99 +169,145 @@ pub trait TaskCall:
         EgldOrEsdtTokenPayment::from(payment_out)
     }
 
+    // Example of how the SmartSwaps arguments would be structured:
+    // args = [
+    //     "2",           // num_operations
+    //     "20",          // percentage for first operation (20%)
+    //     "2",           // num_swap_ops for first operation
+    //     "pair_addr_1", "swapTokensFixedInput", "UTK", "200",  // first swap
+    //     "pair_addr_2", "swapTokensFixedInput", "EGLD", "0",   // second swap
+    //     "80",          // percentage for second operation (80%)
+    //     "1",           // num_swap_ops for second operation
+    //     "pair_addr_3", "swapTokensFixedInput", "EGLD", "800", // single swap
+    // ]
+
     fn smart_swap(
         &self,
         payment_for_current_task: EgldOrEsdtTokenPayment,
         payments_to_return: &mut PaymentsVec<Self::Api>,
-        args: &mut ManagedVec<ManagedBuffer>,
+        args: ManagedVec<ManagedBuffer>,
     ) -> EgldOrEsdtTokenPayment {
         require!(
             !payment_for_current_task.token_identifier.is_egld(),
             "EGLD can't be swapped!"
         );
+        require!(
+            args.len() >= SMART_SWAP_MIN_ARGS_LEN,
+            "Smart swap requires at least 2 arguments"
+        );
 
-        let mut payment_in = payment_for_current_task.unwrap_esdt();
-
-        let args_cloned = args.clone();
-        let mut aggregated_payment_out =
-            self.get_empty_payment_out_from_smart_swap_args(args_cloned);
+        let payment_in = payment_for_current_task.unwrap_esdt();
+        let total_amount = payment_in.amount.clone();
+        let mut amount_out = BigUint::zero();
+        let token_out = self.get_token_out_from_smart_swap_args(args.clone());
 
         let mut args_iter = args.into_iter();
 
-        loop {
-            let routes_no = match args_iter.next() {
-                Some(count) => match count.parse_as_u64() {
-                    Some(count) => count,
-                    None => break,
-                },
-                None => break,
-            };
+        // First argument: number of swap operations
+        let num_operations_buf = args_iter
+            .next()
+            .unwrap_or_else(|| sc_panic!("Missing number of operations"));
+        let num_operations = num_operations_buf
+            .parse_as_u64()
+            .unwrap_or_else(|| sc_panic!("Invalid number of operations"));
 
-            // take the input amount for the swap
-            let amount_in = match args_iter.next() {
-                Some(amount) => BigUint::from(amount),
-                None => break,
-            };
+        let mut final_payments = ManagedVec::new();
+        let mut total_percentage = BigUint::zero();
 
-            payment_in.amount = amount_in;
-
-            // take args for a router_swap
-            let router_args: ManagedVec<ManagedBuffer> = args_iter
-                .clone()
-                .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
-                .collect();
-
-            let mut returned_payments_by_router =
-                self.multi_pair_swap(payment_in.clone(), router_args);
-            require!(
-                !returned_payments_by_router.is_empty(),
-                "Router swap returned 0 payments"
+        // Parse each operation
+        for _ in 0..num_operations {
+            // Parse: percentage, num_swap_ops, then swap operations
+            let percentage = BigUint::from(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!("Missing percentage")),
             );
 
-            // aggregate all output_payments
-            let partial_payment_out_index = returned_payments_by_router.len() - 1;
-            let partial_payment_out = returned_payments_by_router.take(partial_payment_out_index);
-            require!(
-                partial_payment_out.token_identifier == aggregated_payment_out.token_identifier,
-                "Router returned wrong payment output for smart swaps"
-            );
-            aggregated_payment_out.amount += partial_payment_out.amount;
+            total_percentage += &percentage;
 
-            // concatenate all the other payments
-            payments_to_return.append_vec(returned_payments_by_router);
+            let num_swap_ops_buf = args_iter
+                .next()
+                .unwrap_or_else(|| sc_panic!("Missing number of swap operations"));
+            let num_swap_ops = num_swap_ops_buf
+                .parse_as_u64()
+                .unwrap_or_else(|| sc_panic!("Invalid number of swap ops"));
+
+            // Build swap arguments for this operation
+            let mut operation_swap_args = ManagedVec::new();
+            for _ in 0..num_swap_ops {
+                // Each swap operation: pair_address, function_name, token_id, amount
+                operation_swap_args.push(
+                    args_iter
+                        .next()
+                        .unwrap_or_else(|| sc_panic!("Missing pair address")),
+                );
+                operation_swap_args.push(
+                    args_iter
+                        .next()
+                        .unwrap_or_else(|| sc_panic!("Missing function name")),
+                );
+                operation_swap_args.push(
+                    args_iter
+                        .next()
+                        .unwrap_or_else(|| sc_panic!("Missing token ID")),
+                );
+                operation_swap_args.push(
+                    args_iter
+                        .next()
+                        .unwrap_or_else(|| sc_panic!("Missing amount")),
+                );
+            }
+
+            // Calculate amount for this operation
+            let operation_amount = &total_amount * &percentage / BigUint::from(100u64);
+
+            if operation_amount > BigUint::zero() {
+                let operation_payment = EsdtTokenPayment::new(
+                    payment_in.token_identifier.clone(),
+                    payment_in.token_nonce,
+                    operation_amount,
+                );
+
+                let mut operation_result =
+                    self.multi_pair_swap(operation_payment, operation_swap_args);
+                // Remove last payment; only residuals added
+                let partial_payment_out = operation_result.take(operation_result.len() - 1);
+                amount_out += partial_payment_out.amount;
+                final_payments.append_vec(operation_result);
+            }
         }
 
-        let fee_percentage = self.smart_swap_fee_percentage().get();
-        if fee_percentage != 0 {
-            let fee_amount =
-                self.calculate_fee_amount(&aggregated_payment_out.amount, fee_percentage);
-            aggregated_payment_out.amount -= &fee_amount;
+        require!(
+            total_percentage <= BigUint::from(100u64),
+            "Total percentage cannot exceed 100%"
+        );
+
+        // Handle remaining amount if total percentage < 100%
+        if total_percentage < BigUint::from(100u64) {
+            let remaining_percentage = BigUint::from(100u64) - total_percentage;
+            let remaining_amount = &total_amount * &remaining_percentage / BigUint::from(100u64);
+
+            if remaining_amount > BigUint::zero() {
+                final_payments.push(EsdtTokenPayment::new(
+                    payment_in.token_identifier.clone(),
+                    payment_in.token_nonce,
+                    remaining_amount,
+                ));
+            }
         }
 
-        EgldOrEsdtTokenPayment::from(aggregated_payment_out)
+        // Return the others to payments_to_return
+        payments_to_return.append_vec(final_payments);
+
+        EgldOrEsdtTokenPayment::new(token_out, 0, amount_out)
     }
 
-    fn get_empty_payment_out_from_smart_swap_args(
+    fn get_token_out_from_smart_swap_args(
         &self,
         args: ManagedVec<ManagedBuffer>,
-    ) -> EsdtTokenPayment<Self::Api> {
-        let mut args_iter = args.into_iter();
-        let routes_no = match args_iter.next() {
-            Some(count) => count.parse_as_u64().unwrap(),
-            None => sc_panic!("Smart Swap: Cannot retrieve number of routes"),
-        };
-        let _ = args_iter.next(); // this is the amount_in, we skip this arg
-
-        // take args for a router_swap
-        let router_args: ManagedVec<ManagedBuffer> = args_iter
-            .clone()
-            .take(ROUTER_SWAP_ARGS_LEN * routes_no as usize)
-            .collect();
-
-        let token_out_index = router_args.len() - 2; // token_out is the arg before last one
-        let token_out = router_args.get(token_out_index);
-
-        EsdtTokenPayment::new(token_out.clone_value().into(), 0, BigUint::zero())
+    ) -> EgldOrEsdtTokenIdentifier<Self::Api> {
+        let token_out_buffer = args.get(args.len() - 2).clone_value();
+        EgldOrEsdtTokenIdentifier::esdt(token_out_buffer)
     }
 
     fn calculate_fee_amount(&self, payment_amount: &BigUint, fee_percentage: u64) -> BigUint {

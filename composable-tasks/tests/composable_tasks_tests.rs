@@ -3,7 +3,7 @@
 use composable_tasks::compose_tasks::{TaskCall, TaskType};
 use composable_tasks_setup::{ComposableTasksSetup, TOKEN_IDS};
 use multiversx_sc::types::{
-    EgldOrEsdtTokenIdentifier, EgldOrEsdtTokenPayment, ManagedVec, MultiValueEncoded,
+    EgldOrEsdtTokenIdentifier, EgldOrEsdtTokenPayment, ManagedBuffer, ManagedVec, MultiValueEncoded,
 };
 use multiversx_sc_scenario::{whitebox_legacy::TxTokenTransfer, *};
 use wegld_swap_setup::{EGLD_TOKEN_ID, WEGLD_TOKEN_ID};
@@ -1456,10 +1456,9 @@ fn smart_swap_single_task_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut swap_args = ManagedVec::new();
-                swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
-                swap_args.push(managed_buffer!(
-                    &rust_biguint!(user_first_token_balance).to_bytes_be()
-                )); // how much of the token is going this route
+                swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
+                swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops for first operation
                 swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
                 swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
                 swap_args.push(managed_buffer!(TOKEN_IDS[0]));
@@ -1528,10 +1527,9 @@ fn smart_swap_single_task_two_routes_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
-                smart_swap_args.push(managed_buffer!(b"2")); // 2 hops on the router
-                smart_swap_args.push(managed_buffer!(
-                    &rust_biguint!(user_first_token_balance).to_bytes_be()
-                )); // how much of the token is going this route
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
+                smart_swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                smart_swap_args.push(ManagedBuffer::from(&2u64.to_be_bytes())); // num_swap_ops for first operation
 
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
                 smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
@@ -1617,10 +1615,9 @@ fn smart_swap_tokens_fixed_output_unwrap_test() {
             &rust_biguint!(user_first_token_balance),
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
-                smart_swap_args.push(managed_buffer!(b"1")); // only 1 hop on the router
-                smart_swap_args.push(managed_buffer!(
-                    &rust_biguint!(user_first_token_balance).to_bytes_be()
-                )); // how much of the token is going this route
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
+                smart_swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops for first operation
 
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
                 smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME));
