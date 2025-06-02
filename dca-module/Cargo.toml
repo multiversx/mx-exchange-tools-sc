@@ -11,6 +11,9 @@ path = "src/lib.rs"
 [dependencies.multiversx-sc]
 version = "=0.53.0"
 
+[dependencies.auto-farm]
+path = "../auto-farm"
+
 [dev-dependencies]
 num-bigint = "0.4"
 

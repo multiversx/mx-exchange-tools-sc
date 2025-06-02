@@ -25,8 +25,96 @@
         "inputs": [],
         "outputs": []
     },
-    "endpoints": [],
+    "endpoints": [
+        {
+            "name": "deposit",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "withdraw",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "egld_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "esdt",
+                    "type": "variadic<multi<TokenIdentifier,u64,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "withdrawAll",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "getUserFunds",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<UserFunds>",
+                    "multi_result": true
+                }
+            ]
+        }
+    ],
     "esdtAttributes": [],
     "hasCallback": false,
-    "types": {}
+    "types": {
+        "EsdtTokenPayment": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "token_identifier",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "token_nonce",
+                    "type": "u64"
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "UniquePayments": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "payments",
+                    "type": "List<EsdtTokenPayment>"
+                }
+            ]
+        },
+        "UserFunds": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "egld",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "esdt",
+                    "type": "UniquePayments"
+                }
+            ]
+        }
+    }
 }
