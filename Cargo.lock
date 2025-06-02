@@ -405,6 +405,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "dca-module"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "dca-module-meta"
+version = "0.0.0"
+dependencies = [
+ "dca-module",
+ "multiversx-sc-meta-lib",
+]
+
+[[package]]
 name = "der"
 version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
