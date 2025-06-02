@@ -259,7 +259,7 @@ pub trait TaskCall:
             }
 
             // Calculate amount for this operation
-            let operation_amount = &total_amount * &percentage / BigUint::from(100u64);
+            let operation_amount = &total_amount * &percentage / MAX_PERCENTAGE;
 
             if operation_amount > BigUint::zero() {
                 let operation_payment = EsdtTokenPayment::new(
@@ -278,12 +278,12 @@ pub trait TaskCall:
         }
 
         require!(
-            total_percentage <= BigUint::from(100u64),
+            total_percentage <= MAX_PERCENTAGE,
             "Total percentage cannot exceed 100%"
         );
 
         // Handle remaining amount if total percentage < 100%
-        if total_percentage < BigUint::from(100u64) {
+        if total_percentage < MAX_PERCENTAGE {
             let remaining_percentage = BigUint::from(100u64) - total_percentage;
             let remaining_amount = &total_amount * &remaining_percentage / BigUint::from(100u64);
 

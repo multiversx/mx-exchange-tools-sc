@@ -8,9 +8,8 @@ pub const SMART_SWAP_ARGS_LEN: usize = 5;
 pub const SEND_TOKENS_ARGS_LEN: usize = 1;
 pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 pub const SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME: &[u8] = b"swapTokensFixedOutput";
-pub const MAX_PERCENTAGE: u64 = 10_000;
+pub const MAX_PERCENTAGE: u64 = 100;
 pub const SMART_SWAP_MIN_ARGS_LEN: usize = 2;
-
 #[multiversx_sc::module]
 pub trait ConfigModule:
     external_sc_interactions::pair_actions::PairActionsModule
