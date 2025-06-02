@@ -799,7 +799,7 @@ fn try_create_position_wrong_address_test() {
                 );
             },
         )
-        .assert_user_error("storage decode error: bad array length");
+        .assert_user_error("storage decode error (key: pair_contract_address): bad array length");
 
     // Try create metastaking position
     b_mock
@@ -829,7 +829,7 @@ fn try_create_position_wrong_address_test() {
                 );
             },
         )
-        .assert_user_error("storage decode error: bad array length");
+        .assert_user_error("storage decode error (key: pair_contract_address): bad array length");
 }
 
 #[test]

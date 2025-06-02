@@ -872,23 +872,22 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(proxy_dex_setup
                     .proxy_wrapper
-                    .address_ref()));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+                    .address_ref()))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                .get();
             assert_eq!(
-                user_total_farm_position.total_farm_position,
+                user_total_farm_position,
                 managed_biguint!(expected_output_amount1)
             );
         })
@@ -934,23 +933,22 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(proxy_dex_setup
                     .proxy_wrapper
-                    .address_ref()));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+                    .address_ref()))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                .get();
             assert_eq!(
-                user_total_farm_position.total_farm_position,
+                user_total_farm_position,
                 managed_biguint!(expected_output_amount1 + expected_output_amount2)
             );
         })
@@ -964,9 +962,7 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
             &proxy_dex_setup.farm_locked_wrapper,
             &rust_biguint!(0),
             |sc| {
-                let mut user_total_farm_position =
-                    sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
-                user_total_farm_position.total_farm_position = managed_biguint!(0);
+                let user_total_farm_position = managed_biguint!(0);
                 sc.user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
                     .set(user_total_farm_position);
 
@@ -979,25 +975,21 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(proxy_dex_setup
                     .proxy_wrapper
-                    .address_ref()));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+                    .address_ref()))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
 
@@ -1042,23 +1034,22 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(proxy_dex_setup
                     .proxy_wrapper
-                    .address_ref()));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+                    .address_ref()))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                .get();
             assert_eq!(
-                user_total_farm_position.total_farm_position,
+                user_total_farm_position,
                 managed_biguint!(expected_output_amount3)
             );
         })
@@ -1102,23 +1093,22 @@ fn total_farm_position_and_merging_through_pos_creator_test() {
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(proxy_dex_setup
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(proxy_dex_setup
                     .proxy_wrapper
-                    .address_ref()));
-            assert_eq!(
-                user_total_farm_position.total_farm_position,
-                managed_biguint!(0)
-            );
+                    .address_ref()))
+                .get();
+            assert_eq!(user_total_farm_position, managed_biguint!(0));
         })
         .assert_ok();
     b_mock
         .borrow_mut()
         .execute_query(&proxy_dex_setup.farm_locked_wrapper, |sc| {
-            let user_total_farm_position =
-                sc.get_user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user));
+            let user_total_farm_position = sc
+                .user_total_farm_position(&managed_address!(&proxy_dex_setup.first_user))
+                .get();
             assert_eq!(
-                user_total_farm_position.total_farm_position,
+                user_total_farm_position,
                 managed_biguint!(expected_output_amount3 + expected_output_amount4)
             );
         })
