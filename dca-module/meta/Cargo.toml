@@ -1,13 +1,10 @@
 [package]
-name = "energy-dao-meta"
+name = "dca-module-meta"
 version = "0.0.0"
 edition = "2021"
 publish = false
-authors = ["you"]
 
-[dev-dependencies]
-
-[dependencies.energy-dao]
+[dependencies.dca-module]
 path = ".."
 
 [dependencies.multiversx-sc-meta-lib]
