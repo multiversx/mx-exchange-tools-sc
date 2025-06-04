@@ -227,38 +227,8 @@ pub trait TaskCall:
 
             acc_ammount_in += &partial_amount_in;
 
-            let num_swap_ops_buf = args_iter
-                .next()
-                .unwrap_or_else(|| sc_panic!(ERROR_MISSING_NUMBER_SWAP_OPS));
-            let num_swap_ops = num_swap_ops_buf
-                .parse_as_u64()
-                .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_SWAP_OPS));
-
             // Build swap arguments for this operation
-            let mut operation_swap_args = ManagedVec::new();
-            for _ in 0..num_swap_ops {
-                // Each swap operation: pair_address, function_name, token_id, amount
-                operation_swap_args.push(
-                    args_iter
-                        .next()
-                        .unwrap_or_else(|| sc_panic!(ERROR_MISSING_PAIR_ADDR)),
-                );
-                operation_swap_args.push(
-                    args_iter
-                        .next()
-                        .unwrap_or_else(|| sc_panic!(ERROR_MISSING_FUNCTION_NAME)),
-                );
-                operation_swap_args.push(
-                    args_iter
-                        .next()
-                        .unwrap_or_else(|| sc_panic!(ERROR_MISSING_TOKEN_ID)),
-                );
-                operation_swap_args.push(
-                    args_iter
-                        .next()
-                        .unwrap_or_else(|| sc_panic!(ERROR_MISSING_AMOUNT)),
-                );
-            }
+            let operation_swap_args = self.compose_smart_swap_operation_swap_args(&mut args_iter);
 
             let operation_payment = EsdtTokenPayment::new(
                 payment_in.token_identifier.clone(),
@@ -295,6 +265,43 @@ pub trait TaskCall:
         EgldOrEsdtTokenPayment::new(token_out, 0, amount_out)
     }
 
+    fn compose_smart_swap_operation_swap_args(
+        &self,
+        args_iter: &mut ManagedVecOwnedIterator<ManagedBuffer<Self::Api>>,
+    ) -> ManagedVec<ManagedBuffer<Self::Api>> {
+        let num_swap_ops_buf = args_iter
+            .next()
+            .unwrap_or_else(|| sc_panic!(ERROR_MISSING_NUMBER_SWAP_OPS));
+        let num_swap_ops = num_swap_ops_buf
+            .parse_as_u64()
+            .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_SWAP_OPS));
+
+        let mut operation_swap_args = ManagedVec::new();
+        for _ in 0..num_swap_ops {
+            // Each swap operation: pair_address, function_name, token_id, amount
+            operation_swap_args.push(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_PAIR_ADDR)),
+            );
+            operation_swap_args.push(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_FUNCTION_NAME)),
+            );
+            operation_swap_args.push(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_TOKEN_ID)),
+            );
+            operation_swap_args.push(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_AMOUNT)),
+            );
+        }
+        operation_swap_args
+    }
     fn get_token_out_from_smart_swap_args(
         &self,
         args: ManagedVec<ManagedBuffer>,
