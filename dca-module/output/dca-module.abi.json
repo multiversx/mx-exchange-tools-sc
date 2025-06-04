@@ -40,10 +40,6 @@
             "mutability": "mutable",
             "inputs": [
                 {
-                    "name": "egld_amount",
-                    "type": "BigUint"
-                },
-                {
                     "name": "esdt",
                     "type": "variadic<multi<TokenIdentifier,u64,BigUint>>",
                     "multi_arg": true
@@ -68,7 +64,7 @@
             ],
             "outputs": [
                 {
-                    "type": "optional<UserFunds>",
+                    "type": "optional<UniquePayments>",
                     "multi_result": true
                 }
             ]
@@ -134,19 +130,6 @@
                 {
                     "name": "payments",
                     "type": "List<EsdtTokenPayment>"
-                }
-            ]
-        },
-        "UserFunds": {
-            "type": "struct",
-            "fields": [
-                {
-                    "name": "egld",
-                    "type": "BigUint"
-                },
-                {
-                    "name": "esdt",
-                    "type": "UniquePayments"
                 }
             ]
         }

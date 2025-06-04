@@ -2,7 +2,6 @@
   "bigIntAdd",
   "bigIntCmp",
   "bigIntGetCallValue",
-  "bigIntGetUnsignedArgument",
   "bigIntSetInt64",
   "bigIntSign",
   "bigIntSub",
@@ -28,7 +27,6 @@
   "managedMultiTransferESDTNFTExecute",
   "managedOwnerAddress",
   "managedSignalError",
-  "managedTransferValueExecute",
   "managedWriteLog",
   "signalError",
   "smallIntFinishSigned"

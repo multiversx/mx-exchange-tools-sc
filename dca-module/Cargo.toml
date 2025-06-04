@@ -17,6 +17,10 @@ version = "=0.53.0"
 [dependencies.auto-farm]
 path = "../auto-farm"
 
+[dependencies.pair]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "571dc9d"
+
 [dev-dependencies]
 num-bigint = "0.4"
 
