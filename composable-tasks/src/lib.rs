@@ -4,6 +4,7 @@ multiversx_sc::imports!();
 
 pub mod compose_tasks;
 pub mod config;
+pub mod errors;
 pub mod external_sc_interactions;
 
 #[multiversx_sc::contract]
