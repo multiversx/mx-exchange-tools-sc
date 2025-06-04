@@ -1457,7 +1457,9 @@ fn smart_swap_single_task_test() {
             |sc| {
                 let mut swap_args = ManagedVec::new();
                 swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
-                swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                swap_args.push(managed_buffer!(
+                    &rust_biguint!(user_first_token_balance).to_bytes_be()
+                )); // amount_in for current operation
                 swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops for first operation
                 swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
                 swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
@@ -1528,7 +1530,9 @@ fn smart_swap_single_task_two_routes_test() {
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
                 smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
-                smart_swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(user_first_token_balance).to_bytes_be()
+                )); // amount_in for current operation
                 smart_swap_args.push(ManagedBuffer::from(&2u64.to_be_bytes())); // num_swap_ops for first operation
 
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));
@@ -1616,7 +1620,9 @@ fn smart_swap_tokens_fixed_output_unwrap_test() {
             |sc| {
                 let mut smart_swap_args = ManagedVec::new();
                 smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_operations
-                smart_swap_args.push(ManagedBuffer::from(&100u64.to_be_bytes())); // percentage for first operation (100%)
+                smart_swap_args.push(managed_buffer!(
+                    &rust_biguint!(user_first_token_balance).to_bytes_be()
+                )); // amount_in for current operation
                 smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops for first operation
 
                 smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes()));

@@ -197,7 +197,6 @@ pub trait TaskCall:
         );
 
         let payment_in = payment_for_current_task.unwrap_esdt();
-        let total_amount = payment_in.amount.clone();
         let mut amount_out = BigUint::zero();
         let token_out = self.get_token_out_from_smart_swap_args(args.clone());
 
@@ -212,18 +211,20 @@ pub trait TaskCall:
             .unwrap_or_else(|| sc_panic!("Invalid number of operations"));
 
         let mut final_payments = ManagedVec::new();
-        let mut total_percentage = BigUint::zero();
+        let mut acc_ammount_in = BigUint::zero();
 
         // Parse each operation
         for _ in 0..num_operations {
-            // Parse: percentage, num_swap_ops, then swap operations
-            let percentage = BigUint::from(
+            // Parse: partial_amount_in, num_swap_ops, then swap operations
+            let partial_amount_in = BigUint::from(
                 args_iter
                     .next()
-                    .unwrap_or_else(|| sc_panic!("Missing percentage")),
+                    .unwrap_or_else(|| sc_panic!("Missing partial amount_in")),
             );
 
-            total_percentage += &percentage;
+            require!(partial_amount_in > 0, "Empty partial amount_in");
+
+            acc_ammount_in += &partial_amount_in;
 
             let num_swap_ops_buf = args_iter
                 .next()
@@ -259,33 +260,31 @@ pub trait TaskCall:
             }
 
             // Calculate amount for this operation
-            let operation_amount = &total_amount * &percentage / MAX_PERCENTAGE;
+            // let operation_amount = &total_amount * &percentage / MAX_PERCENTAGE;
+            // require!(operation_amount > 0, "");
+            // if operation_amount > BigUint::zero() {
+            let operation_payment = EsdtTokenPayment::new(
+                payment_in.token_identifier.clone(),
+                payment_in.token_nonce,
+                partial_amount_in,
+            );
 
-            if operation_amount > BigUint::zero() {
-                let operation_payment = EsdtTokenPayment::new(
-                    payment_in.token_identifier.clone(),
-                    payment_in.token_nonce,
-                    operation_amount,
-                );
-
-                let mut operation_result =
-                    self.multi_pair_swap(operation_payment, operation_swap_args);
-                // Remove last payment; only residuals added
-                let partial_payment_out = operation_result.take(operation_result.len() - 1);
-                amount_out += partial_payment_out.amount;
-                final_payments.append_vec(operation_result);
-            }
+            let mut operation_result = self.multi_pair_swap(operation_payment, operation_swap_args);
+            // Remove last payment; only residuals added
+            let partial_payment_out = operation_result.take(operation_result.len() - 1);
+            amount_out += partial_payment_out.amount;
+            final_payments.append_vec(operation_result);
+            // }
         }
 
         require!(
-            total_percentage <= MAX_PERCENTAGE,
-            "Total percentage cannot exceed 100%"
+            acc_ammount_in <= payment_in.amount,
+            "Accumulated amount_in exceeds task payment_in"
         );
 
         // Handle remaining amount if total percentage < 100%
-        if total_percentage < MAX_PERCENTAGE {
-            let remaining_percentage = BigUint::from(100u64) - total_percentage;
-            let remaining_amount = &total_amount * &remaining_percentage / BigUint::from(100u64);
+        if acc_ammount_in < payment_in.amount {
+            let remaining_amount = payment_in.amount - acc_ammount_in;
 
             if remaining_amount > BigUint::zero() {
                 final_payments.push(EsdtTokenPayment::new(
