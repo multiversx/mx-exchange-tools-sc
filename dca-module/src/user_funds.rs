@@ -8,7 +8,7 @@ pub static NO_FUNDS_ERR_MSG: &[u8] = b"No funds deposited";
 pub type Nonce = u64;
 
 #[multiversx_sc::module]
-pub trait UserFundsModule: multiversx_sc_modules::pause::PauseModule {
+pub trait UserFundsModule: utils::UtilsModule + multiversx_sc_modules::pause::PauseModule {
     #[payable("*")]
     #[endpoint]
     fn deposit(&self) {
@@ -20,9 +20,7 @@ pub trait UserFundsModule: multiversx_sc_modules::pause::PauseModule {
         let egld_value = self.call_value().egld_value().clone_value();
         require!(egld_value == 0, "EGLD not accepted");
 
-        let esdt_transfers = self.call_value().all_esdt_transfers().clone_value();
-        require!(!esdt_transfers.is_empty(), "No payments received");
-
+        let esdt_transfers = self.get_non_empty_payments();
         let user_funds_mapper = self.user_funds(user_id);
         if !user_funds_mapper.is_empty() {
             user_funds_mapper.update(|user_funds| {
@@ -45,7 +43,7 @@ pub trait UserFundsModule: multiversx_sc_modules::pause::PauseModule {
         require!(!user_funds_mapper.is_empty(), NO_FUNDS_ERR_MSG);
 
         let mut esdt_withdrawn = UniquePayments::new();
-        user_funds_mapper.update(|user_funds| {
+        let any_funds_left = user_funds_mapper.update(|user_funds| {
             for multi_value_esdt in esdt {
                 let (token_id, nonce, amount) = multi_value_esdt.into_tuple();
                 let esdt_transfer = EsdtTokenPayment::new(token_id, nonce, amount);
@@ -55,7 +53,12 @@ pub trait UserFundsModule: multiversx_sc_modules::pause::PauseModule {
 
                 esdt_withdrawn.add_payment(esdt_transfer);
             }
+
+            user_funds.is_empty()
         });
+        if !any_funds_left {
+            user_funds_mapper.clear();
+        }
 
         let esdt_as_vec = esdt_withdrawn.into_payments();
         if !esdt_as_vec.is_empty() {

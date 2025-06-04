@@ -94,6 +94,11 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
     pub fn into_payments(self) -> PaymentsVec<M> {
         self.payments
     }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.payments.is_empty()
+    }
 }
 
 impl<M: ManagedTypeApi> Mergeable<M> for UniquePayments<M> {

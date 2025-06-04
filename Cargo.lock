@@ -414,6 +414,8 @@ dependencies = [
  "multiversx-sc-scenario",
  "num-bigint",
  "pair",
+ "router",
+ "utils",
 ]
 
 [[package]]
