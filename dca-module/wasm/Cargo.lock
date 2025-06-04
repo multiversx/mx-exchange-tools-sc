@@ -109,6 +109,7 @@ version = "0.0.0"
 dependencies = [
  "auto-farm",
  "multiversx-sc",
+ "multiversx-sc-modules",
 ]
 
 [[package]]

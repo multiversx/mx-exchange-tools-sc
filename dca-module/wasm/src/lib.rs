@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                            4
+// Endpoints:                            7
 // Async Callback (empty):               1
-// Total number of exported functions:   7
+// Total number of exported functions:  10
 
 #![no_std]
 
@@ -24,6 +24,9 @@ multiversx_sc_wasm_adapter::endpoints! {
         withdraw => withdraw
         withdrawAll => withdraw_all
         getUserFunds => get_user_funds
+        pause => pause_endpoint
+        unpause => unpause_endpoint
+        isPaused => paused_status
     )
 }
 

@@ -14,10 +14,12 @@ pub struct UserFunds<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::module]
-pub trait UserFundsModule {
+pub trait UserFundsModule: multiversx_sc_modules::pause::PauseModule {
     #[payable("*")]
     #[endpoint]
     fn deposit(&self) {
+        self.require_not_paused();
+
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_or_insert(&caller);
 
@@ -47,6 +49,8 @@ pub trait UserFundsModule {
         egld_amount: BigUint,
         esdt: MultiValueEncoded<MultiValue3<TokenIdentifier, Nonce, BigUint>>,
     ) {
+        self.require_not_paused();
+
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
         let user_funds_mapper = self.user_funds(user_id);
@@ -79,6 +83,8 @@ pub trait UserFundsModule {
 
     #[endpoint(withdrawAll)]
     fn withdraw_all(&self) {
+        self.require_not_paused();
+
         let caller = self.blockchain().get_caller();
         let user_id = self.user_ids().get_id_non_zero(&caller);
         let user_funds_mapper = self.user_funds(user_id);

@@ -26,7 +26,10 @@
   "managedCaller",
   "managedGetMultiESDTCallValue",
   "managedMultiTransferESDTNFTExecute",
+  "managedOwnerAddress",
   "managedSignalError",
   "managedTransferValueExecute",
-  "signalError"
+  "managedWriteLog",
+  "signalError",
+  "smallIntFinishSigned"
 ]
