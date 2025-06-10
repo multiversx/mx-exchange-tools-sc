@@ -8,7 +8,9 @@ pub static NO_FUNDS_ERR_MSG: &[u8] = b"No funds deposited";
 pub type Nonce = u64;
 
 #[multiversx_sc::module]
-pub trait UserFundsModule: utils::UtilsModule + multiversx_sc_modules::pause::PauseModule {
+pub trait FundsModule:
+    super::ids::IdsModule + utils::UtilsModule + multiversx_sc_modules::pause::PauseModule
+{
     #[payable("*")]
     #[endpoint]
     fn deposit(&self) {
@@ -92,9 +94,6 @@ pub trait UserFundsModule: utils::UtilsModule + multiversx_sc_modules::pause::Pa
             OptionalValue::None
         }
     }
-
-    #[storage_mapper("userId")]
-    fn user_ids(&self) -> AddressToIdMapper<Self::Api>;
 
     #[storage_mapper("userFunds")]
     fn user_funds(&self, user_id: AddressId) -> SingleValueMapper<UniquePayments<Self::Api>>;

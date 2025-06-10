@@ -13,6 +13,7 @@ pub const GAS_FOR_FINISH_EXECUTION: GasLimit = 10_000;
 #[multiversx_sc::module]
 pub trait RouterActionsModule {
     // TODO: Force fixed input swap
+    // TODO: +1 tries per action. Lock until callback is called to prevent replaying the same action too many times
     fn call_router_swap(
         &self,
         user_address: ManagedAddress,
