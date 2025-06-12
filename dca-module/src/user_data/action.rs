@@ -1,53 +1,89 @@
-use crate::router_actions::SwapOperationType;
+use crate::user_data::action_types::{
+    ActionId, ActionInfo, NrRetries, TotalActions, TradeFrequency,
+};
 
 multiversx_sc::imports!();
-multiversx_sc::derive_imports!();
-
-pub type ActionId = u64;
-pub type NrRetries = usize;
-
-#[derive(TypeAbi, TopEncode, TopDecode)]
-pub struct Action<M: ManagedTypeApi> {
-    pub pair_address: ManagedAddress<M>,
-    pub endpoint_name: ManagedBuffer<M>,
-    pub requested_token: TokenIdentifier<M>,
-    pub min_amount_out: BigUint<M>,
-}
-
-impl<M: ManagedTypeApi> From<SwapOperationType<M>> for Action<M> {
-    fn from(value: SwapOperationType<M>) -> Self {
-        let (pair_address, endpoint_name, requested_token, min_amount_out) = value.into_tuple();
-
-        Self {
-            pair_address,
-            endpoint_name,
-            requested_token,
-            min_amount_out,
-        }
-    }
-}
-
-impl<M: ManagedTypeApi> From<Action<M>> for SwapOperationType<M> {
-    #[inline]
-    fn from(value: Action<M>) -> Self {
-        (
-            value.pair_address,
-            value.endpoint_name,
-            value.requested_token,
-            value.min_amount_out,
-        )
-            .into()
-    }
-}
 
 #[multiversx_sc::module]
 pub trait ActionModule: super::ids::IdsModule {
     #[only_owner]
     #[endpoint(setNrRetries)]
     fn set_nr_retries(&self, nr_retries: NrRetries) {
-        require!(nr_retries > 0, "Invalid nr retries");
-
         self.nr_retries().set(nr_retries);
+    }
+
+    #[endpoint(addTotalActions)]
+    fn add_total_actions(&self, action_id: ActionId, to_add: TotalActions) {
+        let caller_id = self.get_caller_id();
+        self.action_info(action_id).update(|action_info| {
+            self.require_correct_caller_id(&action_info, caller_id);
+
+            action_info.total_actions_left += to_add;
+        });
+
+        // TODO: event
+    }
+
+    #[endpoint(removeTotalActions)]
+    fn remove_total_actions(&self, action_id: ActionId, to_remove: TotalActions) {
+        let caller_id = self.get_caller_id();
+        let action_mapper = self.action_info(action_id);
+        let actions_left = action_mapper.update(|action_info| {
+            self.require_correct_caller_id(&action_info, caller_id);
+
+            if action_info.total_actions_left > to_remove {
+                action_info.total_actions_left -= to_remove;
+            } else {
+                action_info.total_actions_left = 0;
+            }
+
+            action_info.total_actions_left
+        });
+
+        if actions_left == 0 {
+            action_mapper.clear();
+        }
+
+        // TODO: event
+    }
+
+    #[endpoint(changeTradeFrequency)]
+    fn change_trade_frequency(&self, action_id: ActionId, new_trade_freq: TradeFrequency) {
+        let caller_id = self.get_caller_id();
+        self.action_info(action_id).update(|action_info| {
+            self.require_correct_caller_id(&action_info, caller_id);
+            require!(
+                action_info.trade_frequency != new_trade_freq,
+                "Same trade frequency as before"
+            );
+
+            action_info.trade_frequency = new_trade_freq;
+        });
+
+        // TODO: event
+    }
+
+    /// action ID "0" unused
+    #[view(getActionInfo)]
+    fn get_action_info(&self, action_id: ActionId) -> OptionalValue<ActionInfo<Self::Api>> {
+        let mapper = self.action_info(action_id);
+        if !mapper.is_empty() {
+            OptionalValue::Some(mapper.get())
+        } else {
+            OptionalValue::None
+        }
+    }
+
+    fn get_caller_id(&self) -> AddressId {
+        let caller = self.blockchain().get_caller();
+        self.user_ids().get_id_non_zero(&caller)
+    }
+
+    fn require_correct_caller_id(&self, action_info: &ActionInfo<Self::Api>, caller_id: AddressId) {
+        require!(
+            action_info.owner_id == caller_id,
+            "Invalid action ID or don't own the action"
+        );
     }
 
     fn increment_and_get_action_id(&self) -> ActionId {
@@ -59,9 +95,15 @@ pub trait ActionModule: super::ids::IdsModule {
     }
 
     // action ID "0" unused
+    #[view(getLastActionId)]
     #[storage_mapper("actionId")]
     fn action_id(&self) -> SingleValueMapper<ActionId>;
 
+    // TODO: Clear when total_actions_left is 0
+    #[storage_mapper("actionInfo")]
+    fn action_info(&self, action_id: ActionId) -> SingleValueMapper<ActionInfo<Self::Api>>;
+
+    #[view(getNrRetries)]
     #[storage_mapper("nrRetries")]
     fn nr_retries(&self) -> SingleValueMapper<NrRetries>;
 

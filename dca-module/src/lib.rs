@@ -1,6 +1,6 @@
 #![no_std]
 
-use crate::user_data::action::NrRetries;
+use crate::user_data::action_types::NrRetries;
 
 multiversx_sc::imports!();
 
