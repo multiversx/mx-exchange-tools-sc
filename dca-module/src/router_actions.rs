@@ -1,13 +1,9 @@
 use router::multi_pair_swap::ProxyTrait as _;
 
+use crate::user_data::action_types::{GasLimit, RouterSwapOperationType};
+
 multiversx_sc::imports!();
 
-/// Pairs of (pair address, endpoint name, requested token, min amount out)
-pub type SwapOperationType<M> =
-    MultiValue4<ManagedAddress<M>, ManagedBuffer<M>, TokenIdentifier<M>, BigUint<M>>;
-pub type GasLimit = u64;
-
-pub static SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 pub const GAS_FOR_FINISH_EXECUTION: GasLimit = 10_000;
 
 #[multiversx_sc::module]
@@ -18,7 +14,7 @@ pub trait RouterActionsModule {
         &self,
         user_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
-        swap_operations: MultiValueEncoded<SwapOperationType<Self::Api>>,
+        swap_operations: MultiValueEncoded<RouterSwapOperationType<Self::Api>>,
     ) {
         let router_address = self.router_address().get();
         let gas_left = self.blockchain().get_gas_left();

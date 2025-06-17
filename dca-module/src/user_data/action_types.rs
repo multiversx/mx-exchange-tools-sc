@@ -1,5 +1,3 @@
-use crate::router_actions::SwapOperationType;
-
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
@@ -7,8 +5,15 @@ pub type ActionId = u64;
 pub type TotalActions = usize;
 pub type NrRetries = usize;
 pub type Timestamp = u64;
+pub type GasLimit = u64;
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+/// Pairs of (pair address, endpoint name, requested token, min amount out)
+pub type RouterSwapOperationType<M> =
+    MultiValue4<ManagedAddress<M>, ManagedBuffer<M>, TokenIdentifier<M>, BigUint<M>>;
+
+pub static SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
+
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
 pub struct Action<M: ManagedTypeApi> {
     pub pair_address: ManagedAddress<M>,
     pub endpoint_name: ManagedBuffer<M>,
@@ -16,8 +21,8 @@ pub struct Action<M: ManagedTypeApi> {
     pub min_amount_out: BigUint<M>,
 }
 
-impl<M: ManagedTypeApi> From<SwapOperationType<M>> for Action<M> {
-    fn from(value: SwapOperationType<M>) -> Self {
+impl<M: ManagedTypeApi> From<RouterSwapOperationType<M>> for Action<M> {
+    fn from(value: RouterSwapOperationType<M>) -> Self {
         let (pair_address, endpoint_name, requested_token, min_amount_out) = value.into_tuple();
 
         Self {
@@ -29,7 +34,7 @@ impl<M: ManagedTypeApi> From<SwapOperationType<M>> for Action<M> {
     }
 }
 
-impl<M: ManagedTypeApi> From<Action<M>> for SwapOperationType<M> {
+impl<M: ManagedTypeApi> From<Action<M>> for RouterSwapOperationType<M> {
     #[inline]
     fn from(value: Action<M>) -> Self {
         (
@@ -40,6 +45,23 @@ impl<M: ManagedTypeApi> From<Action<M>> for SwapOperationType<M> {
         )
             .into()
     }
+}
+
+pub type SwapOperationTypeUserArg<M> =
+    MultiValue3<ManagedAddress<M>, TokenIdentifier<M>, BigUint<M>>;
+
+pub fn router_arg_from_user_arg<M: ManagedTypeApi>(
+    value: SwapOperationTypeUserArg<M>,
+) -> RouterSwapOperationType<M> {
+    let (pair_address, requested_token, min_amount_out) = value.into_tuple();
+
+    (
+        pair_address,
+        SWAP_TOKENS_FIXED_INPUT_FUNC_NAME.into(),
+        requested_token,
+        min_amount_out,
+    )
+        .into()
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
@@ -71,5 +93,5 @@ pub struct ActionInfo<M: ManagedTypeApi> {
     pub last_action_timestamp: Timestamp,
     pub total_actions_left: TotalActions,
     pub action_in_progress: bool,
-    pub action: Action<M>,
+    pub actions: ManagedVec<M, Action<M>>,
 }
