@@ -50,6 +50,9 @@ impl<M: ManagedTypeApi> From<Action<M>> for RouterSwapOperationType<M> {
 pub type SwapOperationTypeUserArg<M> =
     MultiValue3<ManagedAddress<M>, TokenIdentifier<M>, BigUint<M>>;
 
+// "From" trait can't be implemented for types not defined in this crate, so we need this workaround.
+//
+// Simple method doesn't work either, same problem.
 pub fn router_arg_from_user_arg<M: ManagedTypeApi>(
     value: SwapOperationTypeUserArg<M>,
 ) -> RouterSwapOperationType<M> {
