@@ -9,7 +9,6 @@ pub trait ActionStorageModule {
     #[storage_mapper("actionId")]
     fn action_id(&self) -> SingleValueMapper<ActionId>;
 
-    // TODO: Clear when total_actions_left is 0
     #[storage_mapper("actionInfo")]
     fn action_info(&self, action_id: ActionId) -> SingleValueMapper<ActionInfo<Self::Api>>;
 
@@ -17,7 +16,6 @@ pub trait ActionStorageModule {
     #[storage_mapper("nrRetries")]
     fn nr_retries(&self) -> SingleValueMapper<NrRetries>;
 
-    // TODO: Clear this value after successful execution
     #[storage_mapper("nrRetriesPerAction")]
     fn nr_retries_per_action(&self, action_id: ActionId) -> SingleValueMapper<NrRetries>;
 }
