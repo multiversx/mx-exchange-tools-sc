@@ -70,7 +70,7 @@ pub trait ActionModule:
     fn remove_total_actions(&self, action_id: ActionId, to_remove: TotalActions) {
         let caller_id = self.get_caller_id_strict();
         let action_mapper = self.action_info(action_id);
-        let actions_left = action_mapper.update(|action_info| {
+        let (actions_left, action_in_progress) = action_mapper.update(|action_info| {
             self.require_correct_caller_id(action_info, caller_id);
 
             if action_info.total_actions_left > to_remove {
@@ -79,10 +79,13 @@ pub trait ActionModule:
                 action_info.total_actions_left = 0;
             }
 
-            action_info.total_actions_left
+            (
+                action_info.total_actions_left,
+                action_info.action_in_progress,
+            )
         });
 
-        if actions_left == 0 {
+        if actions_left == 0 && !action_in_progress {
             action_mapper.clear();
         }
 

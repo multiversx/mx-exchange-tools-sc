@@ -47,6 +47,7 @@ impl<M: ManagedTypeApi> From<Action<M>> for RouterSwapOperationType<M> {
     }
 }
 
+/// Pairs of (pair address, requested token, min amount out)
 pub type SwapOperationTypeUserArg<M> =
     MultiValue3<ManagedAddress<M>, TokenIdentifier<M>, BigUint<M>>;
 
