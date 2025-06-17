@@ -1,17 +1,16 @@
 use router::multi_pair_swap::ProxyTrait as _;
 
-use crate::user_data::action_types::{GasLimit, RouterSwapOperationType};
+use crate::user_data::action::action_types::{ActionId, GasLimit, RouterSwapOperationType};
 
 multiversx_sc::imports!();
 
 pub const GAS_FOR_FINISH_EXECUTION: GasLimit = 10_000;
 
 #[multiversx_sc::module]
-pub trait RouterActionsModule {
-    // TODO: Force fixed input swap
-    // TODO: +1 tries per action. Lock until callback is called to prevent replaying the same action too many times
+pub trait RouterActionsModule: crate::user_data::action::storage::ActionStorageModule {
     fn call_router_swap(
         &self,
+        action_id: ActionId,
         user_address: ManagedAddress,
         input_tokens: EsdtTokenPayment,
         swap_operations: MultiValueEncoded<RouterSwapOperationType<Self::Api>>,
@@ -26,27 +25,56 @@ pub trait RouterActionsModule {
             .with_gas_limit(promise_gas)
             .with_callback(
                 self.callbacks()
-                    .promise_callback(user_address, input_tokens),
+                    .promise_callback(action_id, user_address, input_tokens),
             )
             .register_promise();
     }
 
-    // TODO: Handle case of success (i.e. -1 action for user) and error (i.e. 3 retries, then mark as failed)
+    // TODO: Maybe some events in the callback
     #[promises_callback]
     fn promise_callback(
         &self,
+        action_id: ActionId,
         user: ManagedAddress,
         original_tokens: EsdtTokenPayment,
         #[call_result] result: ManagedAsyncCallResult<IgnoreValue>,
     ) {
+        let current_timestamp = self.blockchain().get_block_timestamp();
+        let action_mapper = self.action_info(action_id);
+
         match result {
             ManagedAsyncCallResult::Ok(_) => {
+                let actions_left = action_mapper.update(|action_info| {
+                    action_info.total_actions_left -= 1;
+                    action_info.last_action_timestamp = current_timestamp;
+                    action_info.action_in_progress = false;
+
+                    action_info.total_actions_left
+                });
+
+                if actions_left == 0 {
+                    action_mapper.clear();
+                }
+
+                self.nr_retries_per_action(action_id).clear();
+
                 let transfers = self.call_value().all_esdt_transfers().clone_value();
                 if !transfers.is_empty() {
                     self.send().direct_multi(&user, &transfers);
                 }
             }
             ManagedAsyncCallResult::Err(_) => {
+                let nr_retries = self.nr_retries_per_action(action_id).get();
+                let allowed_retries = self.nr_retries().get();
+                if nr_retries <= allowed_retries {
+                    action_mapper.update(|action_info| {
+                        action_info.last_action_timestamp = current_timestamp;
+                        action_info.action_in_progress = false;
+                    });
+                } else {
+                    action_mapper.clear();
+                }
+
                 self.send().direct_esdt(
                     &user,
                     &original_tokens.token_identifier,

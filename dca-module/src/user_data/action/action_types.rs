@@ -94,8 +94,16 @@ impl TradeFrequency {
 pub struct ActionInfo<M: ManagedTypeApi> {
     pub owner_id: AddressId,
     pub trade_frequency: TradeFrequency,
+    pub input_tokens_id: TokenIdentifier<M>,
+    pub input_tokens_amount: BigUint<M>,
     pub last_action_timestamp: Timestamp,
     pub total_actions_left: TotalActions,
     pub action_in_progress: bool,
     pub actions: ManagedVec<M, Action<M>>,
+}
+
+impl<M: ManagedTypeApi> ActionInfo<M> {
+    pub fn get_next_action_timestamp(&self) -> Timestamp {
+        self.last_action_timestamp + self.trade_frequency.to_timestamp()
+    }
 }

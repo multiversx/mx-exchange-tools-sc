@@ -6,10 +6,10 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           15
+// Endpoints:                           16
 // Async Callback (empty):               1
 // Promise callbacks:                    1
-// Total number of exported functions:  19
+// Total number of exported functions:  20
 
 #![no_std]
 
@@ -25,12 +25,13 @@ multiversx_sc_wasm_adapter::endpoints! {
         withdraw => withdraw
         withdrawAll => withdraw_all
         getUserFunds => get_user_funds
-        setNrRetries => set_nr_retries
         registerAction => register_action
+        executeAction => execute_action
+        getActionInfo => get_action_info
+        setNrRetries => set_nr_retries
         addTotalActions => add_total_actions
         removeTotalActions => remove_total_actions
         changeTradeFrequency => change_trade_frequency
-        getActionInfo => get_action_info
         getLastActionId => action_id
         getNrRetries => nr_retries
         pause => pause_endpoint

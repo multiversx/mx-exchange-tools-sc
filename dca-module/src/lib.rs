@@ -1,6 +1,6 @@
 #![no_std]
 
-use crate::user_data::action_types::NrRetries;
+use crate::user_data::action::action_types::NrRetries;
 
 multiversx_sc::imports!();
 
@@ -11,7 +11,9 @@ pub mod user_data;
 pub trait DcaModule:
     user_data::ids::IdsModule
     + user_data::funds::FundsModule
-    + user_data::action::ActionModule
+    + user_data::action::user_action::ActionModule
+    + user_data::action::edit_action::EditActionModule
+    + user_data::action::storage::ActionStorageModule
     + router_actions::RouterActionsModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule
