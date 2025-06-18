@@ -7,8 +7,8 @@ use router::multi_pair_swap::{
 
 use crate::{
     config::{
-        self, MAX_PERCENTAGE, ROUTER_SWAP_ARGS_LEN, ROUTER_TOKEN_OUT_FROM_END_OFFSET,
-        SEND_TOKENS_ARGS_LEN, SMART_SWAP_MIN_ARGS_LEN, SWAP_ARGS_LEN,
+        self, ROUTER_SWAP_ARGS_LEN, ROUTER_TOKEN_OUT_FROM_END_OFFSET, SEND_TOKENS_ARGS_LEN,
+        SMART_SWAP_MAX_OPERATIONS, SMART_SWAP_MIN_ARGS_LEN, SWAP_ARGS_LEN,
     },
     errors::{
         ERROR_ACC_AMOUNT_EXCEEDS_PAYMENT_IN, ERROR_CANNOT_SWAP_EGLD, ERROR_INCORRECT_ARGS,
@@ -175,11 +175,11 @@ pub trait TaskCall:
     // Example of how the SmartSwaps arguments would be structured:
     // args = [
     //     "2",           // num_operations
-    //     "20",          // percentage for first operation (20%)
+    //     "2_000",          // amount_in for first operation
     //     "2",           // num_swap_ops for first operation
     //     "pair_addr_1", "swapTokensFixedInput", "UTK", "200",  // first swap
     //     "pair_addr_2", "swapTokensFixedInput", "EGLD", "10",   // second swap
-    //     "80",          // percentage for second operation (80%)
+    //     "8_000",          // amount_in for second operation
     //     "1",           // num_swap_ops for second operation
     //     "pair_addr_3", "swapTokensFixedInput", "EGLD", "800", // single swap
     // ]
@@ -216,6 +216,11 @@ pub trait TaskCall:
         let mut final_payments = ManagedVec::new();
         let mut acc_ammount_in = BigUint::zero();
 
+        // Avout out of gas issues
+        require!(
+            num_operations < SMART_SWAP_MAX_OPERATIONS,
+            "Provided too many operations for smart swap"
+        );
         // Parse each operation
         for _ in 0..num_operations {
             // Parse: partial_amount_in, num_swap_ops, then swap operations
@@ -262,7 +267,13 @@ pub trait TaskCall:
         // Return the others to payments_to_return
         payments_to_return.append_vec(final_payments);
 
-        EgldOrEsdtTokenPayment::new(token_out, 0, amount_out)
+        let fee_percentage = self.smart_swap_fee_percentage().get();
+        let fee_taken = amount_out.clone() * fee_percentage;
+        let remaining_amount_after_fee = amount_out - fee_taken.clone();
+        self.smart_swap_fees(token_out.clone().unwrap_esdt())
+            .update(|total_fees| *total_fees += fee_taken);
+
+        EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee)
     }
 
     fn compose_smart_swap_operation_swap_args(
@@ -310,10 +321,6 @@ pub trait TaskCall:
             .get(args.len() - ROUTER_TOKEN_OUT_FROM_END_OFFSET)
             .clone_value();
         EgldOrEsdtTokenIdentifier::esdt(token_out_buffer)
-    }
-
-    fn calculate_fee_amount(&self, payment_amount: &BigUint, fee_percentage: u64) -> BigUint {
-        payment_amount * fee_percentage / MAX_PERCENTAGE
     }
 
     fn send_resulted_payments(

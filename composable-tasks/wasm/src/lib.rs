@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                            5
+// Endpoints:                            7
 // Async Callback (empty):               1
-// Total number of exported functions:   8
+// Total number of exported functions:  10
 
 #![no_std]
 
@@ -24,6 +24,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         setWrapEgldAddr => set_wrap_egld_address
         setRouterAddr => set_router_address
         setSmartSwapFeePercentage => set_smart_swap_fee_percentage
+        getSmartSwapFeePercentage => smart_swap_fee_percentage
+        getSmartSwapFees => smart_swap_fees
         getPair => get_pair
     )
 }
