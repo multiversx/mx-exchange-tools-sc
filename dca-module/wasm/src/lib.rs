@@ -32,7 +32,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         addTotalActions => add_total_actions
         removeTotalActions => remove_total_actions
         changeTradeFrequency => change_trade_frequency
-        getLastActionId => action_id
+        getLastActionId => last_action_id
         getNrRetries => nr_retries
         pause => pause_endpoint
         unpause => unpause_endpoint

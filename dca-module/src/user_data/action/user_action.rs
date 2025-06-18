@@ -134,7 +134,7 @@ pub trait ActionModule:
     }
 
     fn increment_and_get_action_id(&self) -> ActionId {
-        self.action_id().update(|action_id| {
+        self.last_action_id().update(|action_id| {
             *action_id += 1;
 
             *action_id

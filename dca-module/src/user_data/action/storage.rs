@@ -6,8 +6,8 @@ multiversx_sc::imports!();
 pub trait ActionStorageModule {
     // action ID "0" unused
     #[view(getLastActionId)]
-    #[storage_mapper("actionId")]
-    fn action_id(&self) -> SingleValueMapper<ActionId>;
+    #[storage_mapper("lastActionId")]
+    fn last_action_id(&self) -> SingleValueMapper<ActionId>;
 
     #[storage_mapper("actionInfo")]
     fn action_info(&self, action_id: ActionId) -> SingleValueMapper<ActionInfo<Self::Api>>;

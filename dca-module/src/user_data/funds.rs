@@ -1,4 +1,5 @@
 use auto_farm::common::unique_payments::UniquePayments;
+use multiversx_sc_modules::transfer_role_proxy::PaymentsVec;
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -45,7 +46,7 @@ pub trait FundsModule:
         require!(!user_funds_mapper.is_empty(), NO_FUNDS_ERR_MSG);
 
         let mut esdt_withdrawn = UniquePayments::new();
-        let any_funds_left = user_funds_mapper.update(|user_funds| {
+        let no_funds_left = user_funds_mapper.update(|user_funds| {
             for multi_value_esdt in esdt {
                 let (token_id, nonce, amount) = multi_value_esdt.into_tuple();
                 let esdt_transfer = EsdtTokenPayment::new(token_id, nonce, amount);
@@ -58,7 +59,7 @@ pub trait FundsModule:
 
             user_funds.is_empty()
         });
-        if !any_funds_left {
+        if no_funds_left {
             user_funds_mapper.clear();
         }
 
@@ -85,13 +86,13 @@ pub trait FundsModule:
     }
 
     #[view(getUserFunds)]
-    fn get_user_funds(&self, user: ManagedAddress) -> OptionalValue<UniquePayments<Self::Api>> {
+    fn get_user_funds(&self, user: ManagedAddress) -> PaymentsVec<Self::Api> {
         let user_id = self.user_ids().get_id_non_zero(&user);
         let user_funds_mapper = self.user_funds(user_id);
         if !user_funds_mapper.is_empty() {
-            OptionalValue::Some(user_funds_mapper.get())
+            user_funds_mapper.get().into_payments()
         } else {
-            OptionalValue::None
+            PaymentsVec::new()
         }
     }
 
