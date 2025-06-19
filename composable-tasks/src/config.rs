@@ -45,5 +45,5 @@ pub trait ConfigModule:
 
     #[view(getSmartSwapFees)]
     #[storage_mapper("smartSwapFees")]
-    fn smart_swap_fees(&self, token_id: TokenIdentifier) -> SingleValueMapper<BigUint>;
+    fn smart_swap_fees(&self, token_id: &TokenIdentifier) -> SingleValueMapper<BigUint>;
 }

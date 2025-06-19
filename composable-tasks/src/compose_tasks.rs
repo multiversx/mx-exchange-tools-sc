@@ -218,7 +218,7 @@ pub trait TaskCall:
 
         // Avout out of gas issues
         require!(
-            num_operations < SMART_SWAP_MAX_OPERATIONS,
+            num_operations <= SMART_SWAP_MAX_OPERATIONS,
             "Provided too many operations for smart swap"
         );
         // Parse each operation
@@ -269,10 +269,10 @@ pub trait TaskCall:
 
         let fee_percentage = self.smart_swap_fee_percentage().get();
         let fee_taken = amount_out.clone() * fee_percentage;
-        let remaining_amount_after_fee = amount_out - fee_taken.clone();
-        self.smart_swap_fees(token_out.clone().unwrap_esdt())
-            .update(|total_fees| *total_fees += fee_taken);
+        self.smart_swap_fees(&token_out.clone().unwrap_esdt())
+            .update(|total_fees| *total_fees += &fee_taken);
 
+        let remaining_amount_after_fee = amount_out - fee_taken;
         EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee)
     }
 
