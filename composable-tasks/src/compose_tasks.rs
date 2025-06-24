@@ -216,7 +216,7 @@ pub trait TaskCall:
         let mut final_payments = ManagedVec::new();
         let mut acc_ammount_in = BigUint::zero();
 
-        // Avout out of gas issues
+        // Avoid out of gas issues
         require!(
             num_operations <= SMART_SWAP_MAX_OPERATIONS,
             "Provided too many operations for smart swap"
