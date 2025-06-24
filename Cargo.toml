@@ -12,5 +12,7 @@ members = [
   "composable-tasks/meta",
   "energy-dao",
   "energy-dao/meta",
+  "token-voting-energy",
+  "token-voting-energy/meta",
   "tests-common"
 ]
