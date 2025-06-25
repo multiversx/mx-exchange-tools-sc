@@ -35,7 +35,10 @@ pub trait ConfigModule:
     #[only_owner]
     #[endpoint(setSmartSwapFeePercentage)]
     fn set_smart_swap_fee_percentage(&self, fee: u64) {
-        require!(fee > 0 && fee < MAX_PERCENTAGE, "Fee provided not correct");
+        require!(
+            fee > 0 && fee < MAX_PERCENTAGE,
+            "Fee provided not correct (0 -> 100_000)"
+        );
         self.smart_swap_fee_percentage().set(fee);
     }
 
