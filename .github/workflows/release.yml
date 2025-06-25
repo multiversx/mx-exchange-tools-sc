@@ -1,8 +1,8 @@
 name: On release build and attach artifacts
 
 on:
-  release:
-    types: [published]
+  pull_request:
+    # types: [published]
 
 permissions:
   contents: write
@@ -12,4 +12,4 @@ jobs:
     uses: multiversx/mx-sc-actions/.github/workflows/reproducible-build.yml@v3.3.1
     with:
       image_tag: v7.0.0
-      attach_to_existing_release: true
+      # attach_to_existing_release: true
