@@ -7,7 +7,9 @@ multiversx_sc::imports!();
 pub const GAS_FOR_FINISH_EXECUTION: GasLimit = 10_000;
 
 #[multiversx_sc::module]
-pub trait RouterActionsModule: crate::user_data::action::storage::ActionStorageModule {
+pub trait RouterActionsModule:
+    crate::user_data::action::storage::ActionStorageModule + crate::events::EventsModule
+{
     fn call_router_swap(
         &self,
         action_id: ActionId,
@@ -30,7 +32,6 @@ pub trait RouterActionsModule: crate::user_data::action::storage::ActionStorageM
             .register_promise();
     }
 
-    // TODO: Maybe some events in the callback
     #[promises_callback]
     fn promise_callback(
         &self,
@@ -62,6 +63,8 @@ pub trait RouterActionsModule: crate::user_data::action::storage::ActionStorageM
                 if !transfers.is_empty() {
                     self.send().direct_multi(&user, &transfers);
                 }
+
+                self.emit_swap_success_event(&user, action_id, current_timestamp, actions_left);
             }
             ManagedAsyncCallResult::Err(_) => {
                 let nr_retries = self.nr_retries_per_action(action_id).get();
@@ -81,6 +84,8 @@ pub trait RouterActionsModule: crate::user_data::action::storage::ActionStorageM
                     original_tokens.token_nonce,
                     &original_tokens.amount,
                 );
+
+                self.emit_swap_failed_event(&user, action_id, nr_retries, allowed_retries);
             }
         }
     }

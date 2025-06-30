@@ -4,6 +4,7 @@ use crate::user_data::action::action_types::NrRetries;
 
 multiversx_sc::imports!();
 
+pub mod events;
 pub mod router_actions;
 pub mod user_data;
 
@@ -15,6 +16,7 @@ pub trait DcaModule:
     + user_data::action::edit_action::EditActionModule
     + user_data::action::storage::ActionStorageModule
     + router_actions::RouterActionsModule
+    + events::EventsModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule
 {

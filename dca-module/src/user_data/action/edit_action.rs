@@ -9,6 +9,7 @@ pub trait EditActionModule:
     crate::user_data::ids::IdsModule
     + crate::user_data::funds::FundsModule
     + super::storage::ActionStorageModule
+    + crate::events::EventsModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule
 {
@@ -27,7 +28,7 @@ pub trait EditActionModule:
             action_info.total_actions_left += to_add;
         });
 
-        // TODO: event
+        self.emit_add_total_actions_event(action_id, to_add);
     }
 
     #[endpoint(removeTotalActions)]
@@ -57,23 +58,26 @@ pub trait EditActionModule:
             action_mapper.clear();
         }
 
-        // TODO: event
+        self.emit_remove_total_actions_event(action_id, to_remove);
     }
 
     #[endpoint(changeTradeFrequency)]
     fn change_trade_frequency(&self, action_id: ActionId, new_trade_freq: TradeFrequency) {
         let caller_id = self.get_caller_id_strict();
-        self.action_info(action_id).update(|action_info| {
+        let old_trade_freq = self.action_info(action_id).update(|action_info| {
             self.require_correct_caller_id(action_info, caller_id);
             require!(
                 action_info.trade_frequency != new_trade_freq,
                 "Same trade frequency as before"
             );
 
+            let old_trade_freq = action_info.trade_frequency;
             action_info.trade_frequency = new_trade_freq;
+
+            old_trade_freq
         });
 
-        // TODO: event
+        self.emit_change_trade_freq_event(action_id, old_trade_freq, new_trade_freq);
     }
 
     fn get_caller_id_strict(&self) -> AddressId {

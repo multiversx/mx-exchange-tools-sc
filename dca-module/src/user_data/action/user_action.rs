@@ -14,6 +14,7 @@ pub trait ActionModule:
     + crate::user_data::funds::FundsModule
     + super::storage::ActionStorageModule
     + crate::router_actions::RouterActionsModule
+    + crate::events::EventsModule
     + utils::UtilsModule
     + multiversx_sc_modules::pause::PauseModule
 {
@@ -52,9 +53,9 @@ pub trait ActionModule:
             action_in_progress: false,
         };
 
-        self.action_info(action_id).set(action_info);
+        self.action_info(action_id).set(&action_info);
 
-        // TODO: event
+        self.emit_register_action_event(action_id, &action_info);
     }
 
     #[endpoint(executeAction)]
@@ -67,7 +68,6 @@ pub trait ActionModule:
         require!(swap_args.len() <= MAX_SWAP_ACTIONS, "Too many swap actions");
 
         let mut action_info = self.try_get_action_info(action_id);
-        self.require_correct_first_token_id(swap_args.clone(), &action_info.input_token_id);
         self.require_correct_last_token_id(swap_args.clone(), &action_info.output_token_id);
 
         let current_timestamp = self.blockchain().get_block_timestamp();
@@ -123,19 +123,6 @@ pub trait ActionModule:
         );
 
         action_info
-    }
-
-    fn require_correct_first_token_id(
-        &self,
-        swap_args: MultiValueEncoded<SwapOperationTypeUserArg<Self::Api>>,
-        required_first_token_id: &TokenIdentifier,
-    ) {
-        let (_, first_token_id, _) =
-            unsafe { swap_args.into_iter().next().unwrap_unchecked().into_tuple() };
-        require!(
-            &first_token_id == required_first_token_id,
-            "Invalid first token"
-        );
     }
 
     fn require_correct_last_token_id(
