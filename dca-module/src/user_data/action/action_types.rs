@@ -13,40 +13,6 @@ pub type RouterSwapOperationType<M> =
 
 pub static SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
-pub struct Action<M: ManagedTypeApi> {
-    pub pair_address: ManagedAddress<M>,
-    pub endpoint_name: ManagedBuffer<M>,
-    pub requested_token: TokenIdentifier<M>,
-    pub min_amount_out: BigUint<M>,
-}
-
-impl<M: ManagedTypeApi> From<RouterSwapOperationType<M>> for Action<M> {
-    fn from(value: RouterSwapOperationType<M>) -> Self {
-        let (pair_address, endpoint_name, requested_token, min_amount_out) = value.into_tuple();
-
-        Self {
-            pair_address,
-            endpoint_name,
-            requested_token,
-            min_amount_out,
-        }
-    }
-}
-
-impl<M: ManagedTypeApi> From<Action<M>> for RouterSwapOperationType<M> {
-    #[inline]
-    fn from(value: Action<M>) -> Self {
-        (
-            value.pair_address,
-            value.endpoint_name,
-            value.requested_token,
-            value.min_amount_out,
-        )
-            .into()
-    }
-}
-
 /// Pairs of (pair address, requested token, min amount out)
 pub type SwapOperationTypeUserArg<M> =
     MultiValue3<ManagedAddress<M>, TokenIdentifier<M>, BigUint<M>>;
@@ -70,12 +36,14 @@ pub fn router_arg_from_user_arg<M: ManagedTypeApi>(
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
 pub enum TradeFrequency {
+    Minutely,
     Hourly,
     Daily,
     Weekly,
 }
 
-pub const HOURLY_TIMESTAMP: Timestamp = 60 * 60;
+pub const MINUTELY_TIMESTAMP: Timestamp = 60;
+pub const HOURLY_TIMESTAMP: Timestamp = 60 * MINUTELY_TIMESTAMP;
 pub const DAILY_TIMESTAMP: Timestamp = 24 * HOURLY_TIMESTAMP;
 pub const WEEKLY_TIMESTAMP: Timestamp = 7 * DAILY_TIMESTAMP;
 
@@ -83,6 +51,7 @@ impl TradeFrequency {
     // I don't think it's worth implementing From/Into, as that would make the code more unclear
     pub fn to_timestamp(&self) -> Timestamp {
         match *self {
+            TradeFrequency::Minutely => MINUTELY_TIMESTAMP,
             TradeFrequency::Hourly => HOURLY_TIMESTAMP,
             TradeFrequency::Daily => DAILY_TIMESTAMP,
             TradeFrequency::Weekly => WEEKLY_TIMESTAMP,
@@ -94,12 +63,12 @@ impl TradeFrequency {
 pub struct ActionInfo<M: ManagedTypeApi> {
     pub owner_id: AddressId,
     pub trade_frequency: TradeFrequency,
-    pub input_tokens_id: TokenIdentifier<M>,
+    pub input_token_id: TokenIdentifier<M>,
     pub input_tokens_amount: BigUint<M>,
+    pub output_token_id: TokenIdentifier<M>,
     pub last_action_timestamp: Timestamp,
     pub total_actions_left: TotalActions,
     pub action_in_progress: bool,
-    pub actions: ManagedVec<M, Action<M>>,
 }
 
 impl<M: ManagedTypeApi> ActionInfo<M> {
