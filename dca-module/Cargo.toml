@@ -34,3 +34,7 @@ version = "=0.53.0"
 [dev-dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "571dc9d"
+
+[dev-dependencies.pausable]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "571dc9d"
