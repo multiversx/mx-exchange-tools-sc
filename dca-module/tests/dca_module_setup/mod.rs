@@ -5,12 +5,14 @@ use std::{cell::RefCell, rc::Rc};
 use crate::pair_setup::PairSetup;
 use crate::router_setup::RouterSetup;
 
-use dca_module::DcaModule;
-use multiversx_sc::types::Address;
+use dca_module::{user_data::funds::FundsModule, DcaModule};
+use multiversx_sc::types::{Address, BigUint, MultiValueEncoded};
 use multiversx_sc_modules::pause::PauseModule;
 use multiversx_sc_scenario::{
-    imports::BlockchainStateWrapper, managed_address, managed_biguint, rust_biguint,
-    testing_framework::ContractObjWrapper, DebugApi,
+    imports::{BlockchainStateWrapper, TxResult, TxTokenTransfer},
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::ContractObjWrapper,
+    DebugApi,
 };
 
 use pair::safe_price::SafePriceModule;
@@ -28,6 +30,7 @@ where
 {
     pub b_mock: Rc<RefCell<BlockchainStateWrapper>>,
     pub owner: Address,
+    pub user: Address,
     pub pair_setups: Vec<PairSetup<PairBuilder>>,
     pub router_setup: RouterSetup<RouterBuilder>,
     pub dca_module_wrapper: ContractObjWrapper<dca_module::ContractObj<DebugApi>, DcaModuleBuilder>,
@@ -64,6 +67,10 @@ where
         let b_mock = Rc::new(b_mock_ref);
 
         let owner = b_mock.borrow_mut().create_user_account(&rust_biguint!(0));
+        let user = b_mock.borrow_mut().create_user_account(&rust_biguint!(0));
+        b_mock
+            .borrow_mut()
+            .set_esdt_balance(&user, TOKEN_IDS[0], &rust_biguint!(5_000));
 
         let mut first_pair_setup = PairSetup::new(
             b_mock.clone(),
@@ -222,9 +229,55 @@ where
         DcaModuleSetup {
             b_mock,
             owner,
+            user,
             pair_setups,
             router_setup,
             dca_module_wrapper,
         }
+    }
+
+    pub fn user_deposit(&self, tokens: &[TxTokenTransfer]) -> TxResult {
+        self.b_mock.borrow_mut().execute_esdt_multi_transfer(
+            &self.user,
+            &self.dca_module_wrapper,
+            tokens,
+            |sc| {
+                sc.deposit();
+            },
+        )
+    }
+
+    pub fn user_withdraw_part(&self, tokens: &[TxTokenTransfer]) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.user,
+            &self.dca_module_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                let mut esdt = MultiValueEncoded::new();
+                for token in tokens {
+                    esdt.push(
+                        (
+                            managed_token_id!(token.token_identifier.clone()),
+                            token.nonce,
+                            BigUint::from_bytes_be(&token.value.to_bytes_be()),
+                        )
+                            .into(),
+                    );
+                }
+
+                sc.withdraw(esdt);
+            },
+        )
+    }
+
+    pub fn user_withdraw_all(&self) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.user,
+            &self.dca_module_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.withdraw_all();
+            },
+        )
     }
 }
