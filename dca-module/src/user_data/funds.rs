@@ -4,13 +4,19 @@ use multiversx_sc_modules::transfer_role_proxy::PaymentsVec;
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
+pub const MAX_FUNDS: usize = 10;
+
+pub static MAX_FUNDS_EXCEEDED_ERR_MSG: &[u8] = b"Max funds exceeded";
 pub static NO_FUNDS_ERR_MSG: &[u8] = b"No funds deposited";
 
 pub type Nonce = u64;
 
 #[multiversx_sc::module]
 pub trait FundsModule:
-    super::ids::IdsModule + utils::UtilsModule + multiversx_sc_modules::pause::PauseModule
+    super::ids::IdsModule
+    + crate::events::EventsModule
+    + utils::UtilsModule
+    + multiversx_sc_modules::pause::PauseModule
 {
     #[payable("*")]
     #[endpoint]
@@ -30,10 +36,19 @@ pub trait FundsModule:
                 for payment in &esdt_transfers {
                     user_funds.add_payment(payment);
                 }
+
+                require!(user_funds.len() <= MAX_FUNDS, MAX_FUNDS_EXCEEDED_ERR_MSG);
             });
         } else {
-            user_funds_mapper.set(UniquePayments::new_from_payments(esdt_transfers));
+            require!(
+                esdt_transfers.len() <= MAX_FUNDS,
+                MAX_FUNDS_EXCEEDED_ERR_MSG
+            );
+
+            user_funds_mapper.set(UniquePayments::new_from_payments(esdt_transfers.clone()));
         }
+
+        self.emit_deposit_funds_event(&caller, &esdt_transfers);
     }
 
     #[endpoint]
@@ -66,6 +81,8 @@ pub trait FundsModule:
         let esdt_as_vec = esdt_withdrawn.into_payments();
         if !esdt_as_vec.is_empty() {
             self.send().direct_multi(&caller, &esdt_as_vec);
+
+            self.emit_withdraw_funds_event(&caller, &esdt_as_vec);
         }
     }
 
@@ -82,6 +99,8 @@ pub trait FundsModule:
         let esdt_as_vec = user_funds.into_payments();
         if !esdt_as_vec.is_empty() {
             self.send().direct_multi(&caller, &esdt_as_vec);
+
+            self.emit_withdraw_funds_event(&caller, &esdt_as_vec);
         }
     }
 

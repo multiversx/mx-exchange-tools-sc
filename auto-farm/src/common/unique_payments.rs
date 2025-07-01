@@ -99,6 +99,11 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
     pub fn is_empty(&self) -> bool {
         self.payments.is_empty()
     }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.payments.len()
+    }
 }
 
 impl<M: ManagedTypeApi> Mergeable<M> for UniquePayments<M> {

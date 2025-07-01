@@ -1,4 +1,5 @@
 use auto_farm::common::chain_info::CurrentChainInfo;
+use multiversx_sc_modules::transfer_role_proxy::PaymentsVec;
 
 use crate::user_data::action::action_types::{
     ActionId, ActionInfo, NrRetries, Timestamp, TotalActions, TradeFrequency,
@@ -10,6 +11,18 @@ multiversx_sc::derive_imports!();
 #[derive(TypeAbi, TopEncode)]
 pub struct RegisterActionEvent<'a, M: ManagedTypeApi> {
     pub action_info: &'a ActionInfo<M>,
+    pub chain_info: CurrentChainInfo,
+}
+
+#[derive(TypeAbi, TopEncode)]
+pub struct DepositFundsEvent<'a, M: ManagedTypeApi> {
+    pub funds: &'a PaymentsVec<M>,
+    pub chain_info: CurrentChainInfo,
+}
+
+#[derive(TypeAbi, TopEncode)]
+pub struct WithdrawFundsEvent<'a, M: ManagedTypeApi> {
+    pub funds: &'a PaymentsVec<M>,
     pub chain_info: CurrentChainInfo,
 }
 
@@ -55,6 +68,26 @@ pub trait EventsModule {
             action_id,
             RegisterActionEvent {
                 action_info,
+                chain_info: CurrentChainInfo::new::<Self::Api>(),
+            },
+        );
+    }
+
+    fn emit_deposit_funds_event(&self, caller: &ManagedAddress, funds: &PaymentsVec<Self::Api>) {
+        self.deposit_funds_event(
+            caller,
+            DepositFundsEvent {
+                funds,
+                chain_info: CurrentChainInfo::new::<Self::Api>(),
+            },
+        );
+    }
+
+    fn emit_withdraw_funds_event(&self, caller: &ManagedAddress, funds: &PaymentsVec<Self::Api>) {
+        self.withdraw_funds_event(
+            caller,
+            WithdrawFundsEvent {
+                funds,
                 chain_info: CurrentChainInfo::new::<Self::Api>(),
             },
         );
@@ -144,6 +177,20 @@ pub trait EventsModule {
         #[indexed] user: &ManagedAddress,
         #[indexed] action_id: ActionId,
         event_data: RegisterActionEvent<Self::Api>,
+    );
+
+    #[event("depositFunds")]
+    fn deposit_funds_event(
+        &self,
+        #[indexed] user: &ManagedAddress,
+        event_data: DepositFundsEvent<Self::Api>,
+    );
+
+    #[event("withdrawFunds")]
+    fn withdraw_funds_event(
+        &self,
+        #[indexed] user: &ManagedAddress,
+        event_data: WithdrawFundsEvent<Self::Api>,
     );
 
     #[event("addTotalActions")]
