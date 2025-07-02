@@ -34,7 +34,9 @@ pub fn router_arg_from_user_arg<M: ManagedTypeApi>(
         .into()
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Clone, Copy)]
+#[derive(
+    TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Clone, Copy, Debug,
+)]
 pub enum TradeFrequency {
     Minutely,
     Hourly,
@@ -59,7 +61,7 @@ impl TradeFrequency {
     }
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, PartialEq, Debug)]
 pub struct ActionInfo<M: ManagedTypeApi> {
     pub owner_id: AddressId,
     pub trade_frequency: TradeFrequency,

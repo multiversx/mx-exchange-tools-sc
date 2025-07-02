@@ -67,14 +67,15 @@ pub trait RouterActionsModule:
                 self.emit_swap_success_event(&user, action_id, current_timestamp, actions_left);
             }
             ManagedAsyncCallResult::Err(_) => {
-                let nr_retries = self.nr_retries_per_action(action_id).get();
+                let nr_retries_per_action_mapper = self.nr_retries_per_action(action_id);
+                let nr_retries = nr_retries_per_action_mapper.get();
                 let allowed_retries = self.nr_retries().get();
                 if nr_retries <= allowed_retries {
                     action_mapper.update(|action_info| {
-                        action_info.last_action_timestamp = current_timestamp;
                         action_info.action_in_progress = false;
                     });
                 } else {
+                    nr_retries_per_action_mapper.clear();
                     action_mapper.clear();
                 }
 

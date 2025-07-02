@@ -5,7 +5,16 @@ use std::{cell::RefCell, rc::Rc};
 use crate::pair_setup::PairSetup;
 use crate::router_setup::RouterSetup;
 
-use dca_module::{user_data::funds::FundsModule, DcaModule};
+use dca_module::{
+    user_data::{
+        action::{
+            action_types::{ActionId, Timestamp, TotalActions, TradeFrequency},
+            user_action::ActionModule,
+        },
+        funds::FundsModule,
+    },
+    DcaModule,
+};
 use multiversx_sc::types::{Address, BigUint, MultiValueEncoded};
 use multiversx_sc_modules::pause::PauseModule;
 use multiversx_sc_scenario::{
@@ -22,6 +31,15 @@ pub static LP_TOKEN_IDS: &[&[u8]] = &[b"LPFIRST-123456", b"LPSECOND-123456", b"L
 pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 
+pub const START_TIME: Timestamp = 700_000_000; // random timestamp
+
+#[derive(Clone)]
+pub struct DummySwapArgs {
+    pub pair_addr: Address,
+    pub requested_token: Vec<u8>,
+    pub min_amount_out: u64,
+}
+
 pub struct DcaModuleSetup<PairBuilder, RouterBuilder, DcaModuleBuilder>
 where
     PairBuilder: 'static + Copy + Fn() -> pair::ContractObj<DebugApi>,
@@ -31,6 +49,7 @@ where
     pub b_mock: Rc<RefCell<BlockchainStateWrapper>>,
     pub owner: Address,
     pub user: Address,
+    pub current_time: Timestamp,
     pub pair_setups: Vec<PairSetup<PairBuilder>>,
     pub router_setup: RouterSetup<RouterBuilder>,
     pub dca_module_wrapper: ContractObjWrapper<dca_module::ContractObj<DebugApi>, DcaModuleBuilder>,
@@ -225,15 +244,24 @@ where
             .assert_ok();
 
         let pair_setups = vec![first_pair_setup, second_pair_setup, third_pair_setup];
+        b_mock.borrow_mut().set_block_timestamp(START_TIME);
 
         DcaModuleSetup {
             b_mock,
             owner,
             user,
+            current_time: START_TIME,
             pair_setups,
             router_setup,
             dca_module_wrapper,
         }
+    }
+
+    pub fn advance_time(&mut self, advance_by: Timestamp) {
+        self.current_time += advance_by;
+        self.b_mock
+            .borrow_mut()
+            .set_block_timestamp(self.current_time);
     }
 
     pub fn user_deposit(&self, tokens: &[TxTokenTransfer]) -> TxResult {
@@ -277,6 +305,52 @@ where
             &rust_biguint!(0),
             |sc| {
                 sc.withdraw_all();
+            },
+        )
+    }
+
+    pub fn register_action(
+        &self,
+        trade_frequency: TradeFrequency,
+        total_actions: TotalActions,
+        input_token_id: &[u8],
+        input_tokens_amount: u64,
+        output_token_id: &[u8],
+    ) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.user,
+            &self.dca_module_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.register_action(
+                    trade_frequency,
+                    total_actions,
+                    managed_token_id!(input_token_id),
+                    managed_biguint!(input_tokens_amount),
+                    managed_token_id!(output_token_id),
+                );
+            },
+        )
+    }
+
+    pub fn execute_action(&self, action_id: ActionId, swap_args: Vec<DummySwapArgs>) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.owner,
+            &self.dca_module_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                let mut managed_swap_args = MultiValueEncoded::new();
+                for swap_arg in swap_args {
+                    let managed_arg = (
+                        managed_address!(&swap_arg.pair_addr),
+                        managed_token_id!(swap_arg.requested_token),
+                        managed_biguint!(swap_arg.min_amount_out),
+                    )
+                        .into();
+                    managed_swap_args.push(managed_arg);
+                }
+
+                sc.execute_action(action_id, managed_swap_args);
             },
         )
     }

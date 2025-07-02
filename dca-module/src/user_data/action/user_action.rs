@@ -41,14 +41,13 @@ pub trait ActionModule:
         let caller_id = self.get_or_insert_caller_id();
         let action_id = self.increment_and_get_action_id();
 
-        let current_time = self.blockchain().get_block_timestamp();
         let action_info = ActionInfo {
             owner_id: caller_id,
             trade_frequency,
             input_token_id,
             input_tokens_amount,
             output_token_id,
-            last_action_timestamp: current_time,
+            last_action_timestamp: 0,
             total_actions_left: total_actions,
             action_in_progress: false,
         };
