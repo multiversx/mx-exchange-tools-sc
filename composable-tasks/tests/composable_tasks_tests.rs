@@ -704,9 +704,8 @@ fn wrap_swap_input_swap_output_unwrap_send_test() {
     let first_user_addr = composable_tasks_setup.first_user;
     let second_user_addr = composable_tasks_setup.second_user;
     let second_pair_addr = composable_tasks_setup.pair_setups[1]
-    .pair_wrapper
-    .address_ref();
-
+        .pair_wrapper
+        .address_ref();
 
     let user_first_token_balance = 200_000_010u64;
 
@@ -1061,7 +1060,6 @@ fn multiple_swap_tokens_fixed_output_test() {
     let expected_balance_token2 = 1_000_000_000u64;
     let expected_balance_token3 = 1u64;
 
-
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
@@ -1109,11 +1107,9 @@ fn multiple_swap_tokens_fixed_output_test() {
         .assert_ok();
 
     // rest of the input token[0]
-    b_mock.borrow_mut().check_esdt_balance(
-        &first_user_addr,
-        TOKEN_IDS[0],
-        &rust_biguint!(1u64),
-    );
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&first_user_addr, TOKEN_IDS[0], &rust_biguint!(1u64));
 
     // rest of the input token[1]
     b_mock.borrow_mut().check_esdt_balance(
@@ -1130,11 +1126,9 @@ fn multiple_swap_tokens_fixed_output_test() {
     );
 
     // rest of the input token[3]
-    b_mock.borrow_mut().check_esdt_balance(
-        &first_user_addr,
-        TOKEN_IDS[3],
-        &rust_biguint!(1u64),
-    );
+    b_mock
+        .borrow_mut()
+        .check_esdt_balance(&first_user_addr, TOKEN_IDS[3], &rust_biguint!(1u64));
 }
 
 ///////// ROUTER ////////////
