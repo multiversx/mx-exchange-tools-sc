@@ -5,6 +5,7 @@ multiversx_sc::imports!();
 pub mod compose_tasks;
 pub mod config;
 pub mod errors;
+pub mod events;
 pub mod external_sc_interactions;
 
 #[multiversx_sc::contract]
@@ -14,6 +15,7 @@ pub trait ComposableTasksContract:
     + external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldWrapModule
+    + events::EventsModule
 {
     #[init]
     fn init(&self) {}
