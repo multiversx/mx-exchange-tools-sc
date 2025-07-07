@@ -21,6 +21,8 @@ pub trait EditActionModule:
 
     #[endpoint(addTotalActions)]
     fn add_total_actions(&self, action_id: ActionId, to_add: TotalActions) {
+        self.require_not_paused();
+
         let caller_id = self.get_caller_id_strict();
         self.action_info(action_id).update(|action_info| {
             self.require_correct_caller_id(action_info, caller_id);
@@ -33,6 +35,8 @@ pub trait EditActionModule:
 
     #[endpoint(removeTotalActions)]
     fn remove_total_actions(&self, action_id: ActionId, to_remove: TotalActions) {
+        self.require_not_paused();
+
         let caller_id = self.get_caller_id_strict();
         let action_mapper = self.action_info(action_id);
         let (actions_left, action_in_progress) = action_mapper.update(|action_info| {
@@ -63,6 +67,8 @@ pub trait EditActionModule:
 
     #[endpoint(changeTradeFrequency)]
     fn change_trade_frequency(&self, action_id: ActionId, new_trade_freq: TradeFrequency) {
+        self.require_not_paused();
+
         let caller_id = self.get_caller_id_strict();
         let old_trade_freq = self.action_info(action_id).update(|action_info| {
             self.require_correct_caller_id(action_info, caller_id);

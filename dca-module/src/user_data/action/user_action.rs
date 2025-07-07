@@ -27,6 +27,8 @@ pub trait ActionModule:
         input_tokens_amount: BigUint,
         output_token_id: TokenIdentifier,
     ) {
+        self.require_not_paused();
+
         require!(total_actions > 0, "May not specifiy action with 0 tries");
         require!(
             input_token_id.is_valid_esdt_identifier(),
@@ -63,6 +65,8 @@ pub trait ActionModule:
         action_id: ActionId,
         swap_args: MultiValueEncoded<SwapOperationTypeUserArg<Self::Api>>,
     ) {
+        self.require_not_paused();
+
         require!(!swap_args.is_empty(), "No swap args provided");
         require!(swap_args.len() <= MAX_SWAP_ACTIONS, "Too many swap actions");
 
