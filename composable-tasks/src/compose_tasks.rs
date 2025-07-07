@@ -279,15 +279,16 @@ pub trait TaskCall:
 
         let remaining_amount_after_fee = amount_out - fee_taken.clone();
 
+        let acc_payment_in = EsdtTokenPayment::new(
+            payment_in.token_identifier,
+            payment_in.token_nonce,
+            acc_ammount_in,
+        );
         let payment_out = EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee);
 
         self.emit_smart_swap_event(
             caller,
-            EsdtTokenPayment::new(
-                payment_in.token_identifier,
-                payment_in.token_nonce,
-                acc_ammount_in,
-            ),
+            acc_payment_in,
             payment_out.clone().unwrap_esdt(),
             fee_taken,
         );

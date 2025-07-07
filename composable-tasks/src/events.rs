@@ -32,7 +32,7 @@ pub trait EventsModule {
             token_in.token_identifier.clone(),
             token_in.amount.clone(),
             token_out.token_identifier.clone(),
-            token_in.amount.clone(),
+            token_out.amount.clone(),
             epoch,
             SmartSwapEvent {
                 caller,
