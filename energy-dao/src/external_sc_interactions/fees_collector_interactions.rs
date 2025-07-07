@@ -3,7 +3,10 @@ multiversx_sc::imports!();
 use common_structs::PaymentsVec;
 use locked_token_wrapper::wrapped_token;
 
-use crate::common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments};
+use crate::{
+    common::{rewards_wrapper::RewardsWrapper, unique_payments::UniquePayments},
+    external_sc_interactions::farm_with_locked_rewards_proxy,
+};
 
 #[multiversx_sc::module]
 pub trait FeesCollectorInteractionsModule:
@@ -56,9 +59,20 @@ pub trait FeesCollectorInteractionsModule:
 
     fn call_fees_collector_claim(&self) -> PaymentsVec<Self::Api> {
         let sc_address = self.fees_collector_sc_address().get();
-        self.fees_collector_proxy(sc_address)
+
+        let payments = self
+            .tx()
+            .to(sc_address)
+            .typed(farm_with_locked_rewards_proxy::FarmProxy)
             .claim_rewards_endpoint(OptionalValue::<ManagedAddress>::None)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call();
+
+        let mut payment_vec = PaymentsVec::new();
+        payment_vec.push(payments.0 .0);
+        payment_vec.push(payments.0 .1);
+
+        payment_vec
     }
 
     #[proxy]
