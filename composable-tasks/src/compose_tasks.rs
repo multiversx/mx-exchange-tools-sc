@@ -21,7 +21,7 @@ use crate::{
         ERROR_MISSING_NUMBER_SWAP_OPS, ERROR_MISSING_PAIR_ADDR, ERROR_MISSING_TOKEN_ID,
         ERROR_ROUTER_SWAP_0_PAYMENTS, ERROR_SMART_SWAP_TWO_ARGUMENTS,
     },
-    external_sc_interactions,
+    events, external_sc_interactions,
 };
 
 multiversx_sc::imports!();
@@ -45,6 +45,7 @@ pub trait TaskCall:
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldWrapModule
     + config::ConfigModule
+    + events::EventsModule
 {
     #[payable("*")]
     #[endpoint(composeTasks)]
@@ -202,6 +203,7 @@ pub trait TaskCall:
             ERROR_SMART_SWAP_TWO_ARGUMENTS
         );
 
+        let caller = self.blockchain().get_caller();
         let payment_in = payment_for_current_task.unwrap_esdt();
         let mut amount_out = BigUint::zero();
         let token_out = self.get_token_out_from_smart_swap_args(args.clone());
@@ -258,7 +260,7 @@ pub trait TaskCall:
 
         // Handle remaining amount if total percentage < 100%
         if acc_ammount_in < payment_in.amount {
-            let remaining_amount = payment_in.amount - acc_ammount_in;
+            let remaining_amount = payment_in.amount - acc_ammount_in.clone();
 
             final_payments.push(EsdtTokenPayment::new(
                 payment_in.token_identifier.clone(),
@@ -275,8 +277,23 @@ pub trait TaskCall:
         self.smart_swap_fees(&token_out.clone().unwrap_esdt())
             .update(|total_fees| *total_fees += &fee_taken);
 
-        let remaining_amount_after_fee = amount_out - fee_taken;
-        EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee)
+        let remaining_amount_after_fee = amount_out - fee_taken.clone();
+
+        let acc_payment_in = EsdtTokenPayment::new(
+            payment_in.token_identifier,
+            payment_in.token_nonce,
+            acc_ammount_in,
+        );
+        let payment_out = EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee);
+
+        self.emit_smart_swap_event(
+            caller,
+            acc_payment_in,
+            payment_out.clone().unwrap_esdt(),
+            fee_taken,
+        );
+
+        payment_out
     }
 
     fn compose_smart_swap_operation_swap_args(
