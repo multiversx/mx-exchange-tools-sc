@@ -76,7 +76,7 @@ tag = "v3.4.1-rc3"
 path = "../auto-farm"
 
 [dependencies.multiversx-sc]
-version = "=0.53.2"
+version = "0.53.2"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
@@ -96,7 +96,7 @@ path = "../tests-common"
 features = ["enable-tests-common"]
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.53.2"
+version = "0.53.2"
 
 [dev-dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"

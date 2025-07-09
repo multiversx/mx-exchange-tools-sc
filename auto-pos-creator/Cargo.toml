@@ -9,7 +9,7 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "=0.53.2"
+version = "0.53.2"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
@@ -80,7 +80,7 @@ hex = "0.4"
 hex-literal = "0.4.1"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.53.2"
+version = "0.53.2"
 
 [dev-dependencies.tests-common]
 path = "../tests-common"
