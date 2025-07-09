@@ -9,73 +9,69 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "=0.53.0"
+version = "=0.53.2"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
-version = "=0.53.0"
+version = "=0.53.2"
 
 [dependencies.multiversx-wegld-swap-sc]
-version = "=0.53.0"
+version = "=0.53.2"
 
 [dependencies.read_external_storage]
 path = "../common/modules/read_external_storage"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.fees-collector]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
-
-[dependencies.metabonding]
-git = "https://github.com/multiversx/mx-metabonding-sc"
-rev = "770e38b"
+tag = "v3.4.1-rc3"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -84,35 +80,35 @@ hex = "0.4"
 hex-literal = "0.3.4"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.53.0"
+version = "=0.53.2"
 
 [dev-dependencies.simple-lock]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.farm-boosted-yields]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.locking_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+tag = "v3.4.1-rc3"
 
 [dev-dependencies.tests-common]
 path = "../tests-common"
