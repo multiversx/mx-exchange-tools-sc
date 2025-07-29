@@ -28,7 +28,7 @@ pub static WRAPPED_FARM_TOKEN_ID: &[u8] = b"WRAPPED-123456";
 pub static FIRST_REW_TOKEN: &[u8] = b"FIRSTREW-123456";
 pub static SECOND_REW_TOKEN: &[u8] = b"SECONDREW-123456";
 pub const REW_TOKEN_BALANCE: u64 = 1_000_000_000_000_000_000;
-pub const PER_BLOCK_REWARD_AMOUNT: u64 = 1_000_000_000;
+pub const PER_SECOND_REWARD_AMOUNT: u64 = 166_666_667; // ~1B per block / 6 seconds
 
 fn setup_all<FarmObjBuilder, EnergyFactoryBuilder, ExtraRewardsBuilder>(
     farm_builder: FarmObjBuilder,
@@ -137,7 +137,7 @@ fn enter_farm_test() {
         None,
     );
 
-    b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     b_mock
         .borrow_mut()
@@ -153,7 +153,7 @@ fn enter_farm_test() {
         )
         .assert_ok();
 
-    b_mock.borrow_mut().set_block_nonce(20);
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     b_mock
         .borrow_mut()
@@ -177,7 +177,7 @@ fn enter_farm_test() {
         Some(&WrappedFarmAttributes::<DebugApi> {
             farm_token_id: managed_token_id!(FARM_TOKEN_ID[0]),
             farm_token_nonce: 1,
-            creation_block: 10,
+            creation_timestamp: 10,
             current_token_amount: managed_biguint!(FARMING_TOKEN_BALANCE),
             reward_per_share: managed_biguint!(0),
         }),
@@ -191,7 +191,7 @@ fn enter_farm_test() {
         Some(&WrappedFarmAttributes::<DebugApi> {
             farm_token_id: managed_token_id!(FARM_TOKEN_ID[1]),
             farm_token_nonce: 1,
-            creation_block: 20,
+            creation_timestamp: 20,
             current_token_amount: managed_biguint!(FARMING_TOKEN_BALANCE),
             reward_per_share: managed_biguint!(0),
         }),
@@ -208,7 +208,7 @@ fn deposit_rewards_test() {
     );
 
     let b_mock = farm_setup.b_mock;
-    b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     b_mock
         .borrow_mut()
@@ -251,7 +251,7 @@ fn claim_rewards_test() {
     farm_setup.enter_farm(1, &farm_setup.first_user.clone(), FARMING_TOKEN_BALANCE);
 
     let b_mock = farm_setup.b_mock;
-    b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     // deposit first token rewards
     b_mock
@@ -291,8 +291,8 @@ fn claim_rewards_test() {
             &extra_rew_setup.sc_wrapper,
             &rust_biguint!(0),
             |sc| {
-                sc.per_block_reward_amount()
-                    .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
+                sc.per_second_reward_amount()
+                    .set(&managed_biguint!(PER_SECOND_REWARD_AMOUNT));
 
                 sc.state().set(State::Active);
                 sc.produce_rewards_enabled().set(true);
@@ -330,7 +330,7 @@ fn claim_rewards_test() {
         )
         .assert_ok();
 
-    b_mock.borrow_mut().set_block_nonce(20);
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     // claim rewards
     b_mock
@@ -384,9 +384,9 @@ fn claim_rewards_test() {
         Some(&WrappedFarmAttributes::<DebugApi> {
             farm_token_id: managed_token_id!(FARM_TOKEN_ID[0]),
             farm_token_nonce: 2,
-            creation_block: 20,
+            creation_timestamp: 20,
             current_token_amount: managed_biguint!(FARMING_TOKEN_BALANCE),
-            reward_per_share: managed_biguint!(0x09184e72a000),
+            reward_per_share: managed_biguint!(0x01840d1327b0),
         }),
     );
     b_mock.borrow().check_nft_balance(
@@ -397,9 +397,9 @@ fn claim_rewards_test() {
         Some(&WrappedFarmAttributes::<DebugApi> {
             farm_token_id: managed_token_id!(FARM_TOKEN_ID[1]),
             farm_token_nonce: 2,
-            creation_block: 20,
+            creation_timestamp: 20,
             current_token_amount: managed_biguint!(FARMING_TOKEN_BALANCE),
-            reward_per_share: managed_biguint!(0x09184e72a000),
+            reward_per_share: managed_biguint!(0x01840d1327b0),
         }),
     );
 
@@ -407,12 +407,12 @@ fn claim_rewards_test() {
     b_mock.borrow().check_esdt_balance(
         &farm_setup.first_user,
         FIRST_REW_TOKEN,
-        &rust_biguint!(20_000_000_000), // 20 blocks * 1_000_000_000
+        &rust_biguint!(3_333_333_340),
     );
     b_mock.borrow().check_esdt_balance(
         &farm_setup.first_user,
         SECOND_REW_TOKEN,
-        &rust_biguint!(20_000_000_000), // 20 blocks * 1_000_000_000
+        &rust_biguint!(3_333_333_340),
     );
 }
 
@@ -428,7 +428,7 @@ fn claim_rewards_half_test() {
     farm_setup.enter_farm(1, &farm_setup.first_user.clone(), FARMING_TOKEN_BALANCE);
 
     let b_mock = farm_setup.b_mock;
-    b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     // deposit first token rewards
     b_mock
@@ -468,8 +468,8 @@ fn claim_rewards_half_test() {
             &extra_rew_setup.sc_wrapper,
             &rust_biguint!(0),
             |sc| {
-                sc.per_block_reward_amount()
-                    .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
+                sc.per_second_reward_amount()
+                    .set(&managed_biguint!(PER_SECOND_REWARD_AMOUNT));
 
                 sc.state().set(State::Active);
                 sc.produce_rewards_enabled().set(true);
@@ -507,7 +507,7 @@ fn claim_rewards_half_test() {
         )
         .assert_ok();
 
-    b_mock.borrow_mut().set_block_nonce(20);
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     // claim rewards
     b_mock
@@ -540,9 +540,9 @@ fn claim_rewards_half_test() {
         Some(&WrappedFarmAttributes::<DebugApi> {
             farm_token_id: managed_token_id!(FARM_TOKEN_ID[1]),
             farm_token_nonce: 2,
-            creation_block: 20,
+            creation_timestamp: 20,
             current_token_amount: managed_biguint!(FARMING_TOKEN_BALANCE / 2),
-            reward_per_share: managed_biguint!(0x09184e72a000),
+            reward_per_share: managed_biguint!(0x01840d1327b0),
         }),
     );
 
@@ -550,11 +550,11 @@ fn claim_rewards_half_test() {
     b_mock.borrow().check_esdt_balance(
         &farm_setup.first_user,
         FIRST_REW_TOKEN,
-        &rust_biguint!(5_000_000_000), // 20 blocks * 1_000_000_000 / 4
+        &rust_biguint!(833_333_335), // 1 farm * 10 seconds * 166_666_667 per second / 2 (half balance)
     );
     b_mock.borrow().check_esdt_balance(
         &farm_setup.first_user,
         SECOND_REW_TOKEN,
-        &rust_biguint!(5_000_000_000), // 20 blocks * 1_000_000_000 / 4
+        &rust_biguint!(833_333_335), // 1 farm * 10 seconds * 166_666_667 per second / 2 (half balance)
     );
 }

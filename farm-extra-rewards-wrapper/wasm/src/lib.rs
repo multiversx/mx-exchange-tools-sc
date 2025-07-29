@@ -24,8 +24,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         getRewardReserve => reward_reserve
         getFarmingTokenId => farming_token_id
         getRewardTokenId => reward_token_id
-        getPerBlockRewardAmount => per_block_reward_amount
-        getLastRewardBlockNonce => last_reward_block_nonce
+        getPerSecondRewardAmount => per_second_reward_amount
+        getLastRewardTimestamp => last_reward_timestamp
         getDivisionSafetyConstant => division_safety_constant
         getUserTotalFarmPosition => user_total_farm_position
         getAllowExternalClaim => allow_external_claim
@@ -45,7 +45,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         depositRewardTokens => deposit_reward_tokens
         withdrawRewardTokens => withdraw_reward_tokens
         getRewardTokens => reward_tokens
-        getTokenAdditionBlock => token_addition_block
+        getTokenAdditionTimestamp => token_addition_timestamp
         wrapFarmToken => wrap_farm_token_endpoint
         claimRewards => claim_rewards
         unwrapFarmToken => unwrap_farm_token

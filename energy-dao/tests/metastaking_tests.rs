@@ -25,6 +25,7 @@ fn energy_dao_metastaking_test() {
     // necessary to initialize the liquidity pool
     energy_dao_setup.b_mock.set_block_nonce(1);
     energy_dao_setup.b_mock.set_block_round(1);
+    energy_dao_setup.b_mock.set_block_timestamp(6); // 1 block * 6 seconds
 
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
     let farm_staking_proxy_address = energy_dao_setup
@@ -83,6 +84,7 @@ fn energy_dao_metastaking_test() {
     // Users enter liquidity on multiple blocks for LP safe price computation
     energy_dao_setup.b_mock.set_block_nonce(5);
     energy_dao_setup.b_mock.set_block_round(5);
+    energy_dao_setup.b_mock.set_block_timestamp(30); // 5 blocks * 6 seconds
 
     let user1_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user1,
@@ -94,6 +96,7 @@ fn energy_dao_metastaking_test() {
 
     energy_dao_setup.b_mock.set_block_nonce(10);
     energy_dao_setup.b_mock.set_block_round(10);
+    energy_dao_setup.b_mock.set_block_timestamp(60); // 10 blocks * 6 seconds
 
     let user2_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user2,
@@ -139,6 +142,7 @@ fn energy_dao_metastaking_test() {
     energy_dao_setup.b_mock.set_block_epoch(10u64);
     energy_dao_setup.b_mock.set_block_nonce(110u64);
     energy_dao_setup.b_mock.set_block_round(110u64);
+    energy_dao_setup.b_mock.set_block_timestamp(660); // 110 blocks * 6 seconds
 
     energy_dao_setup.claim_user_metastaking_rewards(
         &user1,
@@ -154,7 +158,7 @@ fn energy_dao_metastaking_test() {
     );
 
     // Check locked rewards
-    let user1_locked_rewards = 258_000u64;
+    let user1_locked_rewards = 1_550_000u64; // Adjusted for timestamp-based rewards
     let user2_locked_rewards = user1_locked_rewards / 2;
     energy_dao_setup
         .b_mock
@@ -177,7 +181,7 @@ fn energy_dao_metastaking_test() {
         );
 
     // Check staking rewards
-    let user1_staking_rewards = 300_000u64;
+    let user1_staking_rewards = 400_000u64; // Adjusted for timestamp-based rewards
     let user2_staking_rewards = user1_staking_rewards / 2;
     energy_dao_setup.b_mock.check_esdt_balance(
         &user1,
@@ -267,6 +271,7 @@ fn energy_dao_metastaking_test() {
     // user 2 exits the contract after some more blocks
     energy_dao_setup.b_mock.set_block_nonce(210u64);
     energy_dao_setup.b_mock.set_block_round(210u64);
+    energy_dao_setup.b_mock.set_block_timestamp(1260); // 210 blocks * 6 seconds
 
     energy_dao_setup.unstake_metastaking(
         &user2,
@@ -295,7 +300,7 @@ fn energy_dao_metastaking_test() {
         user2_unstake_amount,
     );
 
-    let user2_new_locked_rewards = 628_500u64;
+    let user2_new_locked_rewards = 3_774_500u64; // Adjusted for timestamp-based rewards
 
     energy_dao_setup
         .b_mock

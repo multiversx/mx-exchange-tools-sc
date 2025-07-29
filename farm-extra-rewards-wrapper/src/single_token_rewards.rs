@@ -60,15 +60,15 @@ where
     ) {
     }
 
-    fn mint_per_block_rewards(
+    fn mint_per_second_rewards(
         sc: &Self::FarmSc,
         token_id: &TokenIdentifier<<Self::FarmSc as ContractBase>::Api>,
     ) -> BigUint<<Self::FarmSc as ContractBase>::Api> {
-        let current_block_nonce = sc.blockchain().get_block_nonce();
-        let last_reward_nonce = sc.last_reward_block_nonce().get();
-        if current_block_nonce > last_reward_nonce {
+        let current_timestamp = sc.blockchain().get_block_timestamp();
+        let last_reward_timestamp = sc.last_reward_timestamp().get();
+        if current_timestamp > last_reward_timestamp {
             let to_mint =
-                Self::calculate_per_block_rewards(sc, current_block_nonce, last_reward_nonce);
+                Self::calculate_per_second_rewards(sc, current_timestamp, last_reward_timestamp);
             if to_mint != 0 {
                 Self::mint_rewards(sc, token_id, &to_mint);
             }
@@ -88,7 +88,7 @@ where
         let reward_capacity = sc.reward_capacity(&storage_cache.reward_token_id).get();
         let remaining_rewards = &reward_capacity - &accumulated_rewards;
 
-        let mut total_reward = Self::mint_per_block_rewards(sc, &storage_cache.reward_token_id);
+        let mut total_reward = Self::mint_per_second_rewards(sc, &storage_cache.reward_token_id);
         total_reward = core::cmp::min(total_reward, remaining_rewards);
         if total_reward == 0 {
             return;
@@ -118,7 +118,7 @@ where
             farm_token_id: call_value.token_identifier,
             farm_token_nonce: call_value.token_nonce,
             reward_per_share: current_reward_per_share,
-            creation_block: sc.blockchain().get_block_nonce(),
+            creation_timestamp: sc.blockchain().get_block_timestamp(),
             current_token_amount: farming_token_amount,
         }
     }
@@ -133,7 +133,7 @@ where
             farm_token_id: first_token_attributes.farm_token_id,
             farm_token_nonce: first_token_attributes.farm_token_nonce,
             reward_per_share: current_reward_per_share,
-            creation_block: sc.blockchain().get_block_nonce(),
+            creation_timestamp: sc.blockchain().get_block_timestamp(),
             current_token_amount: first_token_attributes.current_token_amount,
         }
     }
