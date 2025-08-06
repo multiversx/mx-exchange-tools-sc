@@ -1,9 +1,6 @@
 use core::convert::TryFrom;
 
-use pair::{
-    config::{MAX_FEE_PERCENTAGE, MAX_PERCENTAGE},
-    errors::ERROR_INVALID_ARGS,
-};
+use pair::{config::MAX_PERCENTAGE, errors::ERROR_INVALID_ARGS};
 use router::multi_pair_swap::{
     SWAP_TOKENS_FIXED_INPUT_FUNC_NAME, SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME,
 };
@@ -273,7 +270,7 @@ pub trait TaskCall:
         payments_to_return.append_vec(final_payments);
 
         let fee_percentage = self.smart_swap_fee_percentage().get();
-        let fee_taken = amount_out.clone() * fee_percentage / MAX_PERCENTAGE;
+        let fee_taken = &amount_out * fee_percentage / MAX_PERCENTAGE;
         self.smart_swap_fees(&token_out.clone().unwrap_esdt())
             .update(|total_fees| *total_fees += &fee_taken);
 

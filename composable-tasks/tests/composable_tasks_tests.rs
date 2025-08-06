@@ -1742,7 +1742,7 @@ fn smart_swap_single_task_with_fee_test() {
     );
     // Funds are sent back to the caller
     b_mock.borrow_mut().check_esdt_balance(
-        &composable_tasks_setup.ct_wrapper.address_ref(),
+        composable_tasks_setup.ct_wrapper.address_ref(),
         TOKEN_IDS[0],
         &rust_biguint!(expected_balance),
     );
