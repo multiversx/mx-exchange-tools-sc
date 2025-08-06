@@ -208,7 +208,6 @@ pub trait TaskCall:
             .parse_as_u64()
             .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_OPS));
 
-        let mut final_payments = ManagedVec::new();
         let mut acc_ammount_in = BigUint::zero();
 
         // Avoid out of gas issues
@@ -240,7 +239,7 @@ pub trait TaskCall:
             // Remove last payment; only residuals added
             let partial_payment_out = operation_result.take(operation_result.len() - 1);
             amount_out += partial_payment_out.amount;
-            final_payments.append_vec(operation_result);
+            payments_to_return.append_vec(operation_result);
         }
 
         require!(
@@ -252,15 +251,12 @@ pub trait TaskCall:
         if acc_ammount_in < payment_in.amount {
             let remaining_amount = payment_in.amount - acc_ammount_in.clone();
 
-            final_payments.push(EsdtTokenPayment::new(
+            payments_to_return.push(EsdtTokenPayment::new(
                 payment_in.token_identifier.clone(),
                 payment_in.token_nonce,
                 remaining_amount,
             ));
         }
-
-        // Return the others to payments_to_return
-        payments_to_return.append_vec(final_payments);
 
         let fee_percentage = self.smart_swap_fee_percentage().get();
         let fee_taken = &amount_out * fee_percentage / MAX_PERCENTAGE;
@@ -323,14 +319,24 @@ pub trait TaskCall:
         }
         operation_swap_args
     }
+
     fn get_token_out_from_smart_swap_args(
         &self,
         args: ManagedVec<ManagedBuffer>,
     ) -> EgldOrEsdtTokenIdentifier<Self::Api> {
+        let args_len = args.len();
+        require!(
+            args_len > ROUTER_TOKEN_OUT_FROM_END_OFFSET,
+            ERROR_INCORRECT_ARGS
+        );
         let token_out_buffer = args
-            .get(args.len() - ROUTER_TOKEN_OUT_FROM_END_OFFSET)
+            .get(args_len - ROUTER_TOKEN_OUT_FROM_END_OFFSET)
             .clone_value();
-        EgldOrEsdtTokenIdentifier::esdt(token_out_buffer)
+
+        let token_out = EgldOrEsdtTokenIdentifier::esdt(token_out_buffer);
+        require!(token_out.is_valid(), ERROR_INVALID_TOKEN_ID);
+
+        token_out
     }
 
     fn send_resulted_payments(

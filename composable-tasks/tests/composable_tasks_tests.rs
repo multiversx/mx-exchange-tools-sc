@@ -427,10 +427,7 @@ fn wrap_swap_fail_test() {
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
-        .assert_error(
-            4,
-            "The output token is less or different than the one required by user!",
-        );
+        .assert_error(4, "Wrong returned token identifier!");
 }
 
 #[test]

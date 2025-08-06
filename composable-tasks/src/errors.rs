@@ -12,6 +12,7 @@ pub static ERROR_MISSING_PAIR_ADDR: &[u8] = b"Missing pair address";
 pub static ERROR_MISSING_FUNCTION_NAME: &[u8] = b"Missing function";
 pub static ERROR_INVALID_FUNCTION_NAME: &[u8] = b"Invalid function name";
 pub static ERROR_MISSING_TOKEN_ID: &[u8] = b"Missing token ID";
+pub static ERROR_INVALID_TOKEN_ID: &[u8] = b"Invalid token ID";
 pub static ERROR_MISSING_AMOUNT: &[u8] = b"Missing amount";
 pub static ERROR_ACC_AMOUNT_EXCEEDS_PAYMENT_IN: &[u8] =
     b"Accumulated amount_in exceeds task input payment";

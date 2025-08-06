@@ -10,7 +10,7 @@ pub const SMART_SWAP_ARGS_LEN: usize = 5;
 pub const SEND_TOKENS_ARGS_LEN: usize = 1;
 pub const SWAP_TOKENS_FIXED_INPUT_FUNC_NAME: &[u8] = b"swapTokensFixedInput";
 pub const SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME: &[u8] = b"swapTokensFixedOutput";
-pub const SMART_SWAP_MIN_ARGS_LEN: usize = 1;
+pub const SMART_SWAP_MIN_ARGS_LEN: usize = 7;
 pub const ROUTER_TOKEN_OUT_FROM_END_OFFSET: usize = 2;
 pub const SMART_SWAP_MAX_OPERATIONS: u64 = 10;
 
@@ -35,10 +35,7 @@ pub trait ConfigModule:
     #[only_owner]
     #[endpoint(setSmartSwapFeePercentage)]
     fn set_smart_swap_fee_percentage(&self, fee: u64) {
-        require!(
-            fee > 0 && fee < MAX_PERCENTAGE,
-            ERROR_WRONG_PERCENTAGE_AMOUNT
-        );
+        require!(fee < MAX_PERCENTAGE, ERROR_WRONG_PERCENTAGE_AMOUNT);
         self.smart_swap_fee_percentage().set(fee);
     }
 
