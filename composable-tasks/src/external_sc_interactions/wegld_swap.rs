@@ -1,3 +1,5 @@
+use crate::errors::{ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO, ERROR_WRONG_PAYMENT_TOKEN_NOT_EGLD};
+
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
@@ -5,7 +7,7 @@ pub trait WegldWrapModule {
     fn wrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {
         require!(
             payment.token_identifier.is_egld(),
-            "Payment token is not EGLD!"
+            ERROR_WRONG_PAYMENT_TOKEN_NOT_EGLD
         );
 
         let wrap_egld_addr = self.wrap_egld_addr().get();
@@ -19,7 +21,7 @@ pub trait WegldWrapModule {
         let returned_wrapped_egld = back_transfers.esdt_payments;
         require!(
             returned_wrapped_egld.len() == 1,
-            "wrap_egld should output only 1 payment"
+            ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
         EgldOrEsdtTokenPayment::from(returned_wrapped_egld.get(0))

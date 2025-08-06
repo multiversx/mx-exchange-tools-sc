@@ -2,7 +2,7 @@ multiversx_sc::imports!();
 
 use pair::config::MAX_PERCENTAGE;
 
-use crate::external_sc_interactions;
+use crate::{errors::ERROR_WRONG_PERCENTAGE_AMOUNT, external_sc_interactions};
 
 pub const SWAP_ARGS_LEN: usize = 3;
 pub const ROUTER_SWAP_ARGS_LEN: usize = 4;
@@ -37,7 +37,7 @@ pub trait ConfigModule:
     fn set_smart_swap_fee_percentage(&self, fee: u64) {
         require!(
             fee > 0 && fee < MAX_PERCENTAGE,
-            "Fee provided not correct (0 -> 100_000)"
+            ERROR_WRONG_PERCENTAGE_AMOUNT
         );
         self.smart_swap_fee_percentage().set(fee);
     }

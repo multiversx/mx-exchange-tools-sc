@@ -10,14 +10,7 @@ use crate::{
         self, ROUTER_SWAP_ARGS_LEN, ROUTER_TOKEN_OUT_FROM_END_OFFSET, SEND_TOKENS_ARGS_LEN,
         SMART_SWAP_MAX_OPERATIONS, SMART_SWAP_MIN_ARGS_LEN, SWAP_ARGS_LEN,
     },
-    errors::{
-        ERROR_ACC_AMOUNT_EXCEEDS_PAYMENT_IN, ERROR_CANNOT_SWAP_EGLD, ERROR_INCORRECT_ARGS,
-        ERROR_INVALID_FUNCTION_NAME, ERROR_INVALID_NUMBER_OPS,
-        ERROR_INVALID_NUMBER_ROUTER_SWAP_ARGS, ERROR_INVALID_NUMBER_SWAP_OPS, ERROR_MISSING_AMOUNT,
-        ERROR_MISSING_AMOUNT_IN, ERROR_MISSING_FUNCTION_NAME, ERROR_MISSING_NUMBER_OPS,
-        ERROR_MISSING_NUMBER_SWAP_OPS, ERROR_MISSING_PAIR_ADDR, ERROR_MISSING_TOKEN_ID,
-        ERROR_ROUTER_SWAP_0_PAYMENTS, ERROR_SMART_SWAP_TWO_ARGUMENTS,
-    },
+    errors::*,
     events, external_sc_interactions,
 };
 
@@ -221,7 +214,7 @@ pub trait TaskCall:
         // Avoid out of gas issues
         require!(
             num_operations <= SMART_SWAP_MAX_OPERATIONS,
-            "Provided too many operations for smart swap"
+            ERROR_SMART_SWAP_TOO_MANY_OPERATIONS
         );
         // Parse each operation
         for _ in 0..num_operations {
@@ -371,7 +364,7 @@ pub trait TaskCall:
         require!(
             expected_token.token_identifier == token_out.token_identifier
                 && expected_token.amount <= token_out.amount,
-            "The output token is less or different than the one required by user!"
+            ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
         );
     }
 }
