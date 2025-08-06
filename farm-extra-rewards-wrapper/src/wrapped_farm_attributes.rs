@@ -79,6 +79,10 @@ impl<M: ManagedTypeApi> FarmToken<M> for WrappedFarmAttributes<M> {
     fn get_initial_farming_tokens(&self) -> BigUint<M> {
         throw_not_implemented_error::<M>();
     }
+
+    fn get_original_owner(&self) -> ManagedAddress<M> {
+        throw_not_implemented_error::<M>();
+    }
 }
 
 impl<M: ManagedTypeApi> From<FarmTokenAttributes<M>> for WrappedFarmAttributes<M> {

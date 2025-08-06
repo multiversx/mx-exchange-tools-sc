@@ -1,4 +1,6 @@
 [workspace]
+resolver = "2"
+
 members = [
   "auto-farm",
   "auto-farm/meta",

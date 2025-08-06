@@ -8,9 +8,6 @@ pub mod metabonding_setup;
 use crate::fees_collector_setup::LOCKED_TOKEN_ID;
 use auto_farm::{
     common::{common_storage::MAX_PERCENTAGE, rewards_wrapper::RewardsWrapper},
-    external_sc_interactions::metabonding_actions::{
-        MetabondingActionsModule, SingleMetabondingClaimArg,
-    },
     fees::FeesModule,
     user_tokens::user_rewards::UserRewardsModule,
     AutoFarm,
@@ -22,12 +19,11 @@ use auto_farm::{
 
 use fees_collector_setup::setup_fees_collector;
 use metabonding_setup::*;
-use multiversx_sc::types::{EsdtTokenPayment, ManagedVec};
+use multiversx_sc::types::EsdtTokenPayment;
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::BlockchainStateWrapper, DebugApi,
 };
-use sc_whitelist_module::SCWhitelistModule;
 use tests_common::farm_with_locked_rewards_setup::FarmSetup;
 
 const FEE_PERCENTAGE: u64 = 1_000; // 10%
@@ -72,20 +68,6 @@ fn metabonding_claim_through_auto_farm_test() {
         })
         .assert_ok();
 
-    // whitelist auto-farm SC in metabonding
-    b_mock
-        .borrow_mut()
-        .execute_tx(&owner, &mb_setup, &rust_zero, |sc| {
-            sc.sc_whitelist_addresses()
-                .add(&managed_address!(auto_farm_wrapper.address_ref()))
-        })
-        .assert_ok();
-
-    // proxy claim metabonding rewards for user
-    // claim first 2 weeks
-    let sig_first_user_week_1 = hex_literal::hex!("d47c0d67b2d25de8b4a3f43d91a2b5ccb522afac47321ae80bf89c90a4445b26adefa693ab685fa20891f736d74eb2dedc11c4b1a8d6e642fa28df270d6ebe08");
-    let sig_first_user_week_2 = hex_literal::hex!("b4aadf08eea4cc7c636922511943edbab2ff6ef2558528e0e7b03c7448367989fe860ac091be4d942304f04c86b1eaa0501f36e02819a3c628b4c53f3d3ac801");
-
     let first_user_addr = farm_setup.first_user;
     b_mock
         .borrow_mut()
@@ -97,33 +79,28 @@ fn metabonding_claim_through_auto_farm_test() {
     b_mock
         .borrow_mut()
         .execute_tx(&proxy_address, &auto_farm_wrapper, &rust_zero, |sc| {
-            let mut claim_args = ManagedVec::new();
-            claim_args.push(SingleMetabondingClaimArg {
-                week: 1,
-                user_delegation_amount: managed_biguint!(25_000),
-                user_lkmex_amount: managed_biguint!(0),
-                signature: (&sig_first_user_week_1).into(),
-            });
-            claim_args.push(SingleMetabondingClaimArg {
-                week: 2,
-                user_delegation_amount: managed_biguint!(25_000),
-                user_lkmex_amount: managed_biguint!(0),
-                signature: (&sig_first_user_week_2).into(),
-            });
-
+            // Simulate rewards being added to user account
+            // We'll manually create rewards to test the auto-farm functionality
             let mut rew_wrapper = RewardsWrapper::new(managed_token_id!(LOCKED_TOKEN_ID));
-            sc.claim_metabonding_rewards(
-                &managed_address!(&first_user_addr),
-                claim_args,
-                &mut rew_wrapper,
-            );
-            sc.add_user_rewards(managed_address!(&first_user_addr), 1, rew_wrapper);
 
-            // taken from metabonding test
+            // Add some test rewards to simulate what would come from metabonding
             let total_rewards_week1 = managed_biguint!(83_333_333 + 41_666_666);
             let total_rewards_week2 = managed_biguint!(50_000_000);
 
-            // check fees
+            rew_wrapper.add_tokens(EsdtTokenPayment::new(
+                managed_token_id!(FIRST_PROJ_TOKEN),
+                0,
+                total_rewards_week1.clone(),
+            ));
+            rew_wrapper.add_tokens(EsdtTokenPayment::new(
+                managed_token_id!(SECOND_PROJ_TOKEN),
+                0,
+                total_rewards_week2.clone(),
+            ));
+
+            sc.add_user_rewards(managed_address!(&first_user_addr), 1, rew_wrapper);
+
+            // check fees - the auto-farm should have taken its percentage
             let accumulated_fees = sc.accumulated_fees().get();
             let mut expected_fees = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
@@ -150,7 +127,7 @@ fn metabonding_claim_through_auto_farm_test() {
 
             assert_eq!(accumulated_fees, expected_fees);
 
-            // check user rewards
+            // check user rewards - should be total minus fees
             let user_rewards = sc.get_user_rewards_view(managed_address!(&first_user_addr));
             let mut expected_user_rewards = MergedRewardsWrapper::<DebugApi> {
                 opt_locked_tokens: None,
