@@ -208,16 +208,14 @@ pub trait TaskCall:
         let (fee_taken, remaining_amount_after_fee) =
             self.calculate_and_apply_smart_swap_fee(&amount_out, &token_out);
 
-        let payment_out = self.finalize_smart_swap_result(
+        self.finalize_smart_swap_result(
             caller,
             payment_in,
             acc_amount_in,
             token_out,
             remaining_amount_after_fee,
             fee_taken,
-        );
-
-        payment_out
+        )
     }
 
     fn compose_smart_swap_operation_swap_args(

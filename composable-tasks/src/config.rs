@@ -40,6 +40,18 @@ pub trait ConfigModule:
         self.smart_swap_fee_percentage().set(fee);
     }
 
+    #[only_owner]
+    #[endpoint(withdrawSmartSwapFees)]
+    fn withdraw_smart_swap_fees(&self, token_ids: MultiValueEncoded<TokenIdentifier>) {
+        let owner = self.blockchain().get_owner_address();
+        for token_id in token_ids.into_iter() {
+            let fees_amount = self.smart_swap_fees(&token_id).take();
+            require!(fees_amount > 0, "No fees to withdraw");
+
+            self.send().direct_esdt(&owner, &token_id, 0, &fees_amount);
+        }
+    }
+
     #[view(getSmartSwapFeePercentage)]
     #[storage_mapper("smartSwapFeePercentage")]
     fn smart_swap_fee_percentage(&self) -> SingleValueMapper<u64>;
