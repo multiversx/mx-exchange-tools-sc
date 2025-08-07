@@ -1,6 +1,6 @@
 pub static ERROR_CANNOT_SWAP_EGLD: &[u8] = b"EGLD can't be swapped!";
 pub static ERROR_WRONG_PAYMENT_TOKEN_NOT_EGLD: &[u8] = b"Payment token is not EGLD!";
-pub static ERROR_SMART_SWAP_TWO_ARGUMENTS: &[u8] = b"Smart swap requires at least 2 arguments";
+pub static ERROR_SMART_SWAP_ARGUMENTS: &[u8] = b"Smart swap invalid arguments";
 pub static ERROR_SMART_SWAP_TOO_MANY_OPERATIONS: &[u8] = b"Smart swap too many operations";
 pub static ERROR_MISSING_NUMBER_OPS: &[u8] = b"Missing number of operations";
 pub static ERROR_INVALID_NUMBER_OPS: &[u8] = b"Invalid number of operations";
@@ -23,3 +23,5 @@ pub static ERROR_INCORRECT_ARGS: &[u8] = b"Incorrect arguments";
 pub static ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO: &[u8] =
     b"Wrong back transfers expected no of payments";
 pub static ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER: &[u8] = b"Wrong returned token identifier!";
+pub static ERROR_INVALID_PERCENTAGE: &[u8] = b"Invalid percentage value";
+pub static ERROR_ZERO_AMOUNT: &[u8] = b"Amount must be greater than zero";

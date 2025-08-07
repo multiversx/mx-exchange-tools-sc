@@ -7,8 +7,8 @@ use router::multi_pair_swap::{
 
 use crate::{
     config::{
-        self, ROUTER_SWAP_ARGS_LEN, ROUTER_TOKEN_OUT_FROM_END_OFFSET, SEND_TOKENS_ARGS_LEN,
-        SMART_SWAP_MAX_OPERATIONS, SMART_SWAP_MIN_ARGS_LEN, SWAP_ARGS_LEN,
+        self, MAX_SWAPS_PER_OPERATION, ROUTER_SWAP_ARGS_LEN, ROUTER_TOKEN_OUT_FROM_END_OFFSET,
+        SEND_TOKENS_ARGS_LEN, SMART_SWAP_MAX_OPERATIONS, SMART_SWAP_MIN_ARGS_LEN, SWAP_ARGS_LEN,
     },
     errors::*,
     events, external_sc_interactions,
@@ -184,98 +184,36 @@ pub trait TaskCall:
         payments_to_return: &mut PaymentsVec<Self::Api>,
         args: ManagedVec<ManagedBuffer>,
     ) -> EgldOrEsdtTokenPayment {
-        require!(
-            !payment_for_current_task.token_identifier.is_egld(),
-            ERROR_CANNOT_SWAP_EGLD
-        );
-        require!(
-            args.len() >= SMART_SWAP_MIN_ARGS_LEN,
-            ERROR_SMART_SWAP_TWO_ARGUMENTS
-        );
+        let (payment_in, token_out, num_operations) =
+            self.validate_and_parse_smart_swap_input(payment_for_current_task, &args);
 
         let caller = self.blockchain().get_caller();
-        let payment_in = payment_for_current_task.unwrap_esdt();
-        let mut amount_out = BigUint::zero();
-        let token_out = self.get_token_out_from_smart_swap_args(args.clone());
-
         let mut args_iter = args.into_iter();
+        args_iter.next(); // Skip the num_operations argument
 
-        // First argument: number of swap operations
-        let num_operations_buf = args_iter
-            .next()
-            .unwrap_or_else(|| sc_panic!(ERROR_MISSING_NUMBER_OPS));
-        let num_operations = num_operations_buf
-            .parse_as_u64()
-            .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_OPS));
-
-        let mut acc_ammount_in = BigUint::zero();
-
-        // Avoid out of gas issues
-        require!(
-            num_operations <= SMART_SWAP_MAX_OPERATIONS,
-            ERROR_SMART_SWAP_TOO_MANY_OPERATIONS
+        let (acc_amount_in, amount_out) = self.process_smart_swap_operations(
+            &payment_in,
+            num_operations,
+            &mut args_iter,
+            payments_to_return,
         );
-        // Parse each operation
-        for _ in 0..num_operations {
-            // Parse: partial_amount_in, num_swap_ops, then swap operations
-            let partial_amount_in = BigUint::from(
-                args_iter
-                    .next()
-                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_AMOUNT_IN)),
-            );
-
-            acc_ammount_in += &partial_amount_in;
-
-            // Build swap arguments for this operation
-            let operation_swap_args = self.compose_smart_swap_operation_swap_args(&mut args_iter);
-
-            let operation_payment = EsdtTokenPayment::new(
-                payment_in.token_identifier.clone(),
-                payment_in.token_nonce,
-                partial_amount_in,
-            );
-
-            let mut operation_result = self.multi_pair_swap(operation_payment, operation_swap_args);
-            // Remove last payment; only residuals added
-            let partial_payment_out = operation_result.take(operation_result.len() - 1);
-            amount_out += partial_payment_out.amount;
-            payments_to_return.append_vec(operation_result);
-        }
 
         require!(
-            acc_ammount_in <= payment_in.amount,
+            acc_amount_in <= payment_in.amount,
             ERROR_ACC_AMOUNT_EXCEEDS_PAYMENT_IN
         );
 
-        // Handle remaining amount if total percentage < 100%
-        if acc_ammount_in < payment_in.amount {
-            let remaining_amount = payment_in.amount - acc_ammount_in.clone();
+        self.handle_remaining_amount(&payment_in, &acc_amount_in, payments_to_return);
 
-            payments_to_return.push(EsdtTokenPayment::new(
-                payment_in.token_identifier.clone(),
-                payment_in.token_nonce,
-                remaining_amount,
-            ));
-        }
+        let (fee_taken, remaining_amount_after_fee) =
+            self.calculate_and_apply_smart_swap_fee(&amount_out, &token_out);
 
-        let fee_percentage = self.smart_swap_fee_percentage().get();
-        let fee_taken = &amount_out * fee_percentage / MAX_PERCENTAGE;
-        self.smart_swap_fees(&token_out.clone().unwrap_esdt())
-            .update(|total_fees| *total_fees += &fee_taken);
-
-        let remaining_amount_after_fee = amount_out - fee_taken.clone();
-
-        let acc_payment_in = EsdtTokenPayment::new(
-            payment_in.token_identifier,
-            payment_in.token_nonce,
-            acc_ammount_in,
-        );
-        let payment_out = EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee);
-
-        self.emit_smart_swap_event(
+        let payment_out = self.finalize_smart_swap_result(
             caller,
-            acc_payment_in,
-            payment_out.clone().unwrap_esdt(),
+            payment_in,
+            acc_amount_in,
+            token_out,
+            remaining_amount_after_fee,
             fee_taken,
         );
 
@@ -292,6 +230,11 @@ pub trait TaskCall:
         let num_swap_ops = num_swap_ops_buf
             .parse_as_u64()
             .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_SWAP_OPS));
+
+        require!(
+            num_swap_ops > 0 && num_swap_ops <= MAX_SWAPS_PER_OPERATION,
+            ERROR_INVALID_NUMBER_SWAP_OPS
+        );
 
         let mut operation_swap_args = ManagedVec::new();
         for _ in 0..num_swap_ops {
@@ -320,6 +263,146 @@ pub trait TaskCall:
         operation_swap_args
     }
 
+    fn validate_and_parse_smart_swap_input(
+        &self,
+        payment_for_current_task: EgldOrEsdtTokenPayment,
+        args: &ManagedVec<ManagedBuffer>,
+    ) -> (
+        EsdtTokenPayment<Self::Api>,
+        EgldOrEsdtTokenIdentifier<Self::Api>,
+        u64,
+    ) {
+        require!(
+            !payment_for_current_task.token_identifier.is_egld(),
+            ERROR_CANNOT_SWAP_EGLD
+        );
+        require!(
+            args.len() >= SMART_SWAP_MIN_ARGS_LEN,
+            ERROR_SMART_SWAP_ARGUMENTS
+        );
+
+        let payment_in = payment_for_current_task.unwrap_esdt();
+        let token_out = self.get_token_out_from_smart_swap_args(args.clone());
+
+        let num_operations_buf = args.get(0).clone_value();
+        let num_operations = num_operations_buf
+            .parse_as_u64()
+            .unwrap_or_else(|| sc_panic!(ERROR_INVALID_NUMBER_OPS));
+
+        require!(
+            num_operations > 0 && num_operations <= SMART_SWAP_MAX_OPERATIONS,
+            ERROR_SMART_SWAP_TOO_MANY_OPERATIONS
+        );
+
+        // Validate total argument length based on structure
+        self.validate_smart_swap_args_length(args, num_operations);
+
+        (payment_in, token_out, num_operations)
+    }
+
+    fn process_smart_swap_operations(
+        &self,
+        payment_in: &EsdtTokenPayment<Self::Api>,
+        num_operations: u64,
+        args_iter: &mut ManagedVecOwnedIterator<ManagedBuffer<Self::Api>>,
+        payments_to_return: &mut PaymentsVec<Self::Api>,
+    ) -> (BigUint<Self::Api>, BigUint<Self::Api>) {
+        let mut acc_amount_in = BigUint::zero();
+        let mut amount_out = BigUint::zero();
+
+        for _ in 0..num_operations {
+            let partial_amount_in = BigUint::from(
+                args_iter
+                    .next()
+                    .unwrap_or_else(|| sc_panic!(ERROR_MISSING_AMOUNT_IN)),
+            );
+
+            require!(partial_amount_in > 0, ERROR_ZERO_AMOUNT);
+
+            acc_amount_in += &partial_amount_in;
+
+            let operation_swap_args = self.compose_smart_swap_operation_swap_args(args_iter);
+
+            let operation_payment = EsdtTokenPayment::new(
+                payment_in.token_identifier.clone(),
+                payment_in.token_nonce,
+                partial_amount_in,
+            );
+
+            let mut operation_result = self.multi_pair_swap(operation_payment, operation_swap_args);
+            let partial_payment_out = operation_result.take(operation_result.len() - 1);
+            amount_out += partial_payment_out.amount;
+            payments_to_return.append_vec(operation_result);
+        }
+
+        (acc_amount_in, amount_out)
+    }
+
+    fn handle_remaining_amount(
+        &self,
+        payment_in: &EsdtTokenPayment<Self::Api>,
+        acc_amount_in: &BigUint<Self::Api>,
+        payments_to_return: &mut PaymentsVec<Self::Api>,
+    ) {
+        if acc_amount_in < &payment_in.amount {
+            let remaining_amount = &payment_in.amount - acc_amount_in;
+
+            payments_to_return.push(EsdtTokenPayment::new(
+                payment_in.token_identifier.clone(),
+                payment_in.token_nonce,
+                remaining_amount,
+            ));
+        }
+    }
+
+    fn calculate_and_apply_smart_swap_fee(
+        &self,
+        amount_out: &BigUint<Self::Api>,
+        token_out: &EgldOrEsdtTokenIdentifier<Self::Api>,
+    ) -> (BigUint<Self::Api>, BigUint<Self::Api>) {
+        require!(MAX_PERCENTAGE > 0, ERROR_INVALID_PERCENTAGE);
+
+        let fee_percentage = self.smart_swap_fee_percentage().get();
+        let fee_taken = amount_out * fee_percentage / MAX_PERCENTAGE;
+
+        // Safely extract ESDT token identifier with proper validation
+        require!(!token_out.is_egld(), ERROR_INVALID_TOKEN_ID);
+        let token_esdt = token_out.clone().unwrap_esdt();
+
+        self.smart_swap_fees(&token_esdt)
+            .update(|total_fees| *total_fees += &fee_taken);
+
+        let remaining_amount_after_fee = amount_out - &fee_taken;
+
+        (fee_taken, remaining_amount_after_fee)
+    }
+
+    fn finalize_smart_swap_result(
+        &self,
+        caller: ManagedAddress<Self::Api>,
+        payment_in: EsdtTokenPayment<Self::Api>,
+        acc_amount_in: BigUint<Self::Api>,
+        token_out: EgldOrEsdtTokenIdentifier<Self::Api>,
+        remaining_amount_after_fee: BigUint<Self::Api>,
+        fee_taken: BigUint<Self::Api>,
+    ) -> EgldOrEsdtTokenPayment<Self::Api> {
+        let acc_payment_in = EsdtTokenPayment::new(
+            payment_in.token_identifier,
+            payment_in.token_nonce,
+            acc_amount_in,
+        );
+        let payment_out = EgldOrEsdtTokenPayment::new(token_out, 0, remaining_amount_after_fee);
+
+        self.emit_smart_swap_event(
+            caller,
+            acc_payment_in,
+            payment_out.clone().unwrap_esdt(),
+            fee_taken,
+        );
+
+        payment_out
+    }
+
     fn get_token_out_from_smart_swap_args(
         &self,
         args: ManagedVec<ManagedBuffer>,
@@ -337,6 +420,18 @@ pub trait TaskCall:
         require!(token_out.is_valid(), ERROR_INVALID_TOKEN_ID);
 
         token_out
+    }
+
+    // This is a simplified validation - the full validation happens during execution
+    fn validate_smart_swap_args_length(
+        &self,
+        args: &ManagedVec<ManagedBuffer>,
+        num_operations: u64,
+    ) {
+        // 1 for num_operations, then per operation: amount_in + num_swap_ops + at least 4 swap args
+        let min_expected = 1 + num_operations as usize * (2 + 4);
+
+        require!(args.len() >= min_expected, ERROR_SMART_SWAP_ARGUMENTS);
     }
 
     fn send_resulted_payments(

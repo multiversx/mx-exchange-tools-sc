@@ -13,6 +13,7 @@ pub const SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME: &[u8] = b"swapTokensFixedOutput";
 pub const SMART_SWAP_MIN_ARGS_LEN: usize = 7;
 pub const ROUTER_TOKEN_OUT_FROM_END_OFFSET: usize = 2;
 pub const SMART_SWAP_MAX_OPERATIONS: u64 = 10;
+pub const MAX_SWAPS_PER_OPERATION: u64 = 10;
 
 #[multiversx_sc::module]
 pub trait ConfigModule:
