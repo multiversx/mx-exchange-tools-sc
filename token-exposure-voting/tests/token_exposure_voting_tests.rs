@@ -1,13 +1,7 @@
 #![allow(deprecated)]
 
-use energy_query::EnergyQueryModule;
 use multiversx_sc_scenario::{managed_biguint, managed_token_id, rust_biguint, DebugApi};
-use token_exposure_voting::{
-    config::{BoostedToken, ConfigModule, TokenRanking},
-    views::ViewsModule,
-    vote::VoteModule,
-    TokenExposureVotingModule,
-};
+use token_exposure_voting::{config::ConfigModule, views::ViewsModule, vote::VoteModule};
 use week_timekeeping::WeekTimekeepingModule;
 
 mod setup;
