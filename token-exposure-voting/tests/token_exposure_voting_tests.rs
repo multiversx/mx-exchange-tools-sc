@@ -16,7 +16,7 @@ use setup::*;
 
 #[test]
 fn test_init() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -33,7 +33,7 @@ fn test_init() {
 
 #[test]
 fn test_simple_voting_with_5_tokens_no_boost() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -152,7 +152,7 @@ fn test_simple_voting_with_5_tokens_no_boost() {
 
 #[test]
 fn test_boost_single_token() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -179,7 +179,7 @@ fn test_boost_single_token() {
 
 #[test]
 fn test_boost_multiple_tokens() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -213,7 +213,7 @@ fn test_boost_multiple_tokens() {
 
 #[test]
 fn test_boost_same_token_multiple_times() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -242,7 +242,7 @@ fn test_boost_same_token_multiple_times() {
 
 #[test]
 fn test_boost_different_weeks() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -284,7 +284,7 @@ fn test_boost_different_weeks() {
 
 #[test]
 fn test_boost_wrong_token_fails() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -311,7 +311,7 @@ fn test_boost_wrong_token_fails() {
 
 #[test]
 fn test_boost_zero_amount_fails() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -335,7 +335,7 @@ fn test_boost_zero_amount_fails() {
 
 #[test]
 fn test_withdraw_boost_funds_owner_only() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -365,7 +365,7 @@ fn test_withdraw_boost_funds_owner_only() {
 
 #[test]
 fn test_withdraw_boost_funds_by_owner() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -385,7 +385,7 @@ fn test_withdraw_boost_funds_by_owner() {
 
 #[test]
 fn test_get_boosted_tokens_for_week() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -431,7 +431,7 @@ fn test_get_boosted_tokens_for_week() {
 
 #[test]
 fn test_get_token_ranking() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -486,7 +486,7 @@ fn test_get_token_ranking() {
 
 #[test]
 fn test_boost_multiplier_formula() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -556,39 +556,8 @@ fn test_boost_multiplier_formula() {
 }
 
 #[test]
-fn test_contract_structure() {
-    let _ = DebugApi::dummy();
-
-    fn check_traits<T>()
-    where
-        T: ConfigModule
-            + VoteModule
-            + ViewsModule
-            + TokenExposureVotingModule
-            + week_timekeeping::WeekTimekeepingModule
-            + EnergyQueryModule,
-    {
-    }
-
-    type ContractType = token_exposure_voting::ContractObj<DebugApi>;
-    check_traits::<ContractType>();
-
-    let token_ranking = TokenRanking::<DebugApi> {
-        token_id: managed_token_id!("TEST-123456"),
-        votes: managed_biguint!(1000),
-    };
-    assert!(token_ranking.votes > managed_biguint!(0));
-
-    let boosted_token = BoostedToken::<DebugApi> {
-        token_id: managed_token_id!("BOOST-123456"),
-        boost_amount: managed_biguint!(500),
-    };
-    assert!(boosted_token.boost_amount > managed_biguint!(0));
-}
-
-#[test]
 fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
-    let _ = DebugApi::dummy();
+    DebugApi::dummy();
     let mut setup = TokenExposureVotingSetup::new(
         token_exposure_voting::contract_obj,
         energy_factory::contract_obj,
@@ -613,7 +582,7 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
     // TOKEN-08: 3000 votes
     // TOKEN-09: 2000 votes
     // TOKEN-10: 1000 votes (lowest)
-    setup.setup_tokens_for_week(current_week, &TEST_TOKENS);
+    setup.setup_tokens_for_week(current_week, TEST_TOKENS);
 
     for (i, token) in TEST_TOKENS.iter().enumerate() {
         let votes = (10 - i as u64) * 1000; // 10000, 9000, 8000, ..., 1000

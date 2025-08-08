@@ -2915,7 +2915,7 @@ dependencies = [
 name = "token-exposure-voting-meta"
 version = "0.0.0"
 dependencies = [
- "multiversx-sc-meta",
+ "multiversx-sc-meta-lib",
  "token-exposure-voting",
 ]
 
