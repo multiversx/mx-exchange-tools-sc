@@ -2895,20 +2895,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
-name = "token-voting-energy"
+name = "token-exposure-voting"
 version = "0.0.0"
 dependencies = [
+ "energy-factory",
+ "energy-query",
+ "hex",
+ "hex-literal 0.3.4",
  "multiversx-sc",
+ "multiversx-sc-modules",
  "multiversx-sc-scenario",
  "num-bigint",
+ "num-traits",
+ "simple-lock",
+ "week-timekeeping",
 ]
 
 [[package]]
-name = "token-voting-energy-meta"
+name = "token-exposure-voting-meta"
 version = "0.0.0"
 dependencies = [
- "multiversx-sc-meta-lib",
- "token-voting-energy",
+ "multiversx-sc-meta",
+ "token-exposure-voting",
 ]
 
 [[package]]

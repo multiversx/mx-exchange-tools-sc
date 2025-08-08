@@ -3,5 +3,8 @@
 /target/
 */target/
 
-# The mxpy output
-/output*/
+# The erdpy output
+output*
+
+# scenarios test trace
+trace*.scen.json

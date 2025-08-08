@@ -1,0 +1,13 @@
+[package]
+name = "token-exposure-voting-meta"
+version = "0.0.0"
+edition = "2018"
+publish = false
+authors = ["you"]
+
+[dependencies.token-exposure-voting]
+path = ".."
+
+[dependencies.multiversx-sc-meta]
+version = "=0.53.0"
+default-features = false

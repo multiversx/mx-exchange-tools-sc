@@ -5,9 +5,9 @@
 # ##########################################
 
 [package]
-name = "token-voting-energy-wasm"
+name = "token-exposure-voting-wasm"
 version = "0.0.0"
-edition = "2021"
+edition = "2018"
 publish = false
 
 [lib]
@@ -24,11 +24,11 @@ overflow-checks = false
 [profile.dev]
 panic = "abort"
 
-[dependencies.token-voting-energy]
+[dependencies.token-exposure-voting]
 path = ".."
 
 [dependencies.multiversx-sc-wasm-adapter]
-version = "0.53.0"
+version = "=0.53.0"
 
 [workspace]
 members = ["."]
