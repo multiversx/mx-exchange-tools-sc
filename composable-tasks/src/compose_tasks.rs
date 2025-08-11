@@ -189,7 +189,7 @@ pub trait TaskCall:
 
         let caller = self.blockchain().get_caller();
         let mut args_iter = args.into_iter();
-        args_iter.next(); // Skip the num_operations argument
+        let _ = args_iter.next(); // Skip the num_operations argument
 
         let (acc_amount_in, amount_out) = self.process_smart_swap_operations(
             &payment_in,
