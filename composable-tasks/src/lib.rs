@@ -7,6 +7,7 @@ pub mod config;
 pub mod errors;
 pub mod events;
 pub mod external_sc_interactions;
+pub mod task_types;
 
 #[multiversx_sc::contract]
 pub trait ComposableTasksContract:
@@ -16,6 +17,7 @@ pub trait ComposableTasksContract:
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldWrapModule
     + events::EventsModule
+    + task_types::smart_swap::SmartSwapModule
 {
     #[init]
     fn init(&self) {}

@@ -39,7 +39,7 @@ pub trait RouterActionsModule {
             };
             swap_operations.push(SwapOperationType::from((
                 pair_address_arg,
-                function_wanted,    
+                function_wanted,
                 token_wanted.clone(),
                 amount_wanted.clone(),
             )));
