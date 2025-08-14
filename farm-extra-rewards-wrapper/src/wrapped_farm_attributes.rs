@@ -1,4 +1,4 @@
-use common_structs::{FarmToken, FarmTokenAttributes};
+use common_structs::{FarmToken, FarmTokenAttributes, Timestamp};
 use fixed_supply_token::FixedSupplyToken;
 use math::weighted_average_round_up;
 use mergeable::Mergeable;
@@ -13,7 +13,7 @@ pub struct WrappedFarmAttributes<M: ManagedTypeApi> {
     pub farm_token_id: TokenIdentifier<M>,
     pub farm_token_nonce: u64,
     pub reward_per_share: BigUint<M>,
-    pub creation_timestamp: u64,
+    pub creation_timestamp: Timestamp,
     pub current_token_amount: BigUint<M>,
 }
 

@@ -1,4 +1,4 @@
-use common_structs::PaymentsVec;
+use common_structs::{PaymentsVec, Timestamp};
 
 use crate::common::payments_wrapper::PaymentsWrapper;
 
@@ -63,7 +63,7 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
 
     #[view(getTokenAdditionTimestamp)]
     #[storage_mapper("tokenAddTs")]
-    fn token_addition_timestamp(&self, token_id: &TokenIdentifier) -> SingleValueMapper<u64>;
+    fn token_addition_timestamp(&self, token_id: &TokenIdentifier) -> SingleValueMapper<Timestamp>;
 
     #[storage_mapper("accRew")]
     fn accumulated_rewards(&self, token_id: &TokenIdentifier) -> SingleValueMapper<BigUint>;
