@@ -1,5 +1,6 @@
 [
   "checkNoPayment",
+  "getArgumentLength",
   "getNumArguments",
   "isSmartContract",
   "mBufferAppend",

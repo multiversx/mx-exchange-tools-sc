@@ -122,6 +122,31 @@
             ]
         },
         {
+            "name": "getOrders",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "start_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "return_data_limit",
+                    "type": "u32"
+                },
+                {
+                    "name": "opt_required_status",
+                    "type": "optional<OrderStatus>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<multi<u64,Order>>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
             "name": "getOrderInfo",
             "mutability": "readonly",
             "inputs": [
@@ -285,7 +310,7 @@
                     "type": "BigUint"
                 },
                 {
-                    "name": "order_status",
+                    "name": "status",
                     "type": "OrderStatus"
                 },
                 {

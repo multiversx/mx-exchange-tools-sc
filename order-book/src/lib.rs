@@ -32,10 +32,11 @@ pub trait OrderBook:
         self.set_pruning_fee(pruning_fee);
         self.set_p2p_protocol_fee(p2p_protocol_fee);
 
-        let mut admin_mapper = self.admins();
         for admin in admins {
-            let _ = admin_mapper.insert(admin);
+            self.add_admin(admin);
         }
+
+        self.set_paused(true);
     }
 
     #[upgrade]

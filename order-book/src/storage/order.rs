@@ -4,7 +4,7 @@ multiversx_sc::derive_imports!();
 pub type OrderId = u64;
 pub type Timestamp = u64;
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
 pub enum OrderStatus {
     Pending,
     PartiallyFilled,
@@ -23,7 +23,7 @@ pub struct Order<M: ManagedTypeApi> {
     pub current_input_amount: BigUint<M>,
     pub min_exchange_rate: BigUint<M>,
     pub executor_fee: BigUint<M>, // TODO: Maybe remove. Send to executor directly
-    pub order_status: OrderStatus,
+    pub status: OrderStatus,
     pub creation_timestamp: Timestamp,
     pub expiration_timestamp: Timestamp, // TODO: Make this easier to give from user perspective by creating an enum with Minute, Hour, Day, Month
 }
@@ -38,6 +38,51 @@ pub trait OrderModule {
         } else {
             OptionalValue::None
         }
+    }
+
+    #[view(getOrders)]
+    fn get_orders(
+        &self,
+        start_id: OrderId,
+        return_data_limit: usize,
+        opt_required_status: OptionalValue<OrderStatus>,
+    ) -> MultiValueEncoded<MultiValue2<OrderId, Order<Self::Api>>> {
+        let mut result = MultiValueEncoded::new();
+
+        let next_order_id = self.next_order_id().get();
+        if start_id >= next_order_id {
+            return result;
+        }
+
+        let mut result_len = 0;
+        for current_id in start_id..next_order_id {
+            let order_mapper = self.orders(current_id);
+            if order_mapper.is_empty() {
+                continue;
+            }
+
+            let order = order_mapper.get();
+            match &opt_required_status {
+                OptionalValue::Some(required_status) => {
+                    if &order.status != required_status {
+                        continue;
+                    }
+
+                    result.push((current_id, order).into());
+                }
+                OptionalValue::None => {
+                    result.push((current_id, order).into());
+                }
+            }
+
+            result_len += 1;
+
+            if result_len == return_data_limit {
+                break;
+            }
+        }
+
+        result
     }
 
     fn get_and_increment_next_order_id(&self) -> OrderId {

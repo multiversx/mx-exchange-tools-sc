@@ -13,6 +13,7 @@ pub trait AdminModule:
     #[endpoint(pause)]
     fn pause_endpoint(&self) {
         self.set_paused(true);
+
         self.pause_event();
     }
 
@@ -20,6 +21,7 @@ pub trait AdminModule:
     #[endpoint(unpause)]
     fn unpause_endpoint(&self) {
         self.set_paused(false);
+
         self.unpause_event();
     }
 
