@@ -24,7 +24,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getOrderInfo => orders
         getRouterAddress => router_address
         getTreasuryAddress => treasury_address
-        getP2pProtocolFeePercent => p2p_protocol_fee_percent
+        getP2pProtocolFee => p2p_protocol_fee
         getPruningFee => pruning_fee
         pause => pause_endpoint
         unpause => unpause_endpoint
