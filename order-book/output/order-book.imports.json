@@ -1,6 +1,7 @@
 [
   "checkNoPayment",
   "getNumArguments",
+  "isSmartContract",
   "mBufferAppend",
   "mBufferAppendBytes",
   "mBufferCopyByteSlice",
@@ -9,6 +10,7 @@
   "mBufferFromBigIntUnsigned",
   "mBufferGetArgument",
   "mBufferGetByteSlice",
+  "mBufferGetBytes",
   "mBufferGetLength",
   "mBufferNew",
   "mBufferSetBytes",

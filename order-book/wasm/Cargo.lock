@@ -263,6 +263,7 @@ dependencies = [
  "multiversx-sc",
  "multiversx-sc-modules",
  "router",
+ "utils",
 ]
 
 [[package]]

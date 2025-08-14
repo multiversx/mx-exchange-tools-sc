@@ -3,21 +3,7 @@
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
-pub trait PauseModule: multiversx_sc_modules::only_admin::OnlyAdminModule {
-    #[only_admin]
-    #[endpoint(pause)]
-    fn pause_endpoint(&self) {
-        self.set_paused(true);
-        self.pause_event();
-    }
-
-    #[only_admin]
-    #[endpoint(unpause)]
-    fn unpause_endpoint(&self) {
-        self.set_paused(false);
-        self.unpause_event();
-    }
-
+pub trait PauseModule {
     #[inline]
     fn is_paused(&self) -> bool {
         self.paused_status().get()

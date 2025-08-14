@@ -18,7 +18,29 @@
     },
     "name": "OrderBook",
     "constructor": {
-        "inputs": [],
+        "inputs": [
+            {
+                "name": "router_address",
+                "type": "Address"
+            },
+            {
+                "name": "treasury_address",
+                "type": "Address"
+            },
+            {
+                "name": "pruning_fee",
+                "type": "u32"
+            },
+            {
+                "name": "p2p_protocol_fee",
+                "type": "u32"
+            },
+            {
+                "name": "admins",
+                "type": "variadic<Address>",
+                "multi_arg": true
+            }
+        ],
         "outputs": []
     },
     "upgradeConstructor": {
@@ -26,6 +48,68 @@
         "outputs": []
     },
     "endpoints": [
+        {
+            "name": "pause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setRouterAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setTreasuryAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "treasury_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPruningFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "pruning_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setP2pProtocolFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "protocol_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
         {
             "name": "getLastOrderId",
             "mutability": "readonly",
@@ -91,20 +175,6 @@
                     "type": "u32"
                 }
             ]
-        },
-        {
-            "name": "pause",
-            "onlyAdmin": true,
-            "mutability": "mutable",
-            "inputs": [],
-            "outputs": []
-        },
-        {
-            "name": "unpause",
-            "onlyAdmin": true,
-            "mutability": "mutable",
-            "inputs": [],
-            "outputs": []
         },
         {
             "name": "isPaused",

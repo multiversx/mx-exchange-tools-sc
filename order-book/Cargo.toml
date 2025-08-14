@@ -18,6 +18,10 @@ version = "=0.53.0"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "571dc9d"
 
+[dependencies.utils]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "571dc9d"
+
 [dev-dependencies]
 num-bigint = "0.4"
 
