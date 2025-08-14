@@ -62,19 +62,13 @@ pub trait OrderModule {
             }
 
             let order = order_mapper.get();
-            match &opt_required_status {
-                OptionalValue::Some(required_status) => {
-                    if &order.status != required_status {
-                        continue;
-                    }
-
-                    result.push((current_id, order).into());
-                }
-                OptionalValue::None => {
-                    result.push((current_id, order).into());
+            if let OptionalValue::Some(required_status) = &opt_required_status {
+                if &order.status != required_status {
+                    continue;
                 }
             }
 
+            result.push((current_id, order).into());
             result_len += 1;
 
             if result_len == return_data_limit {
