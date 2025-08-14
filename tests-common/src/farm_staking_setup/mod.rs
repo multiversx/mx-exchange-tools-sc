@@ -19,7 +19,7 @@ pub static STAKING_FARM_TOKEN_ID: &[u8] = b"STAKEFARM-abcdef";
 pub const DIVISION_SAFETY_CONSTANT: u64 = 1_000_000_000_000;
 pub const MIN_UNBOND_EPOCHS: u64 = 5;
 pub const MAX_APR: u64 = 2_500; // 25%
-pub const PER_BLOCK_REWARD_AMOUNT: u64 = 5_000;
+pub const PER_SECOND_REWARD_AMOUNT: u64 = 5_000;
 pub const TOTAL_REWARDS_AMOUNT: u64 = 1_000_000_000_000;
 
 pub const USER_TOTAL_RIDE_TOKENS: u64 = 5_000_000_000;
@@ -53,8 +53,8 @@ where
             sc.farm_token()
                 .set_token_id(managed_token_id!(STAKING_FARM_TOKEN_ID));
 
-            sc.per_block_reward_amount()
-                .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
+            sc.per_second_reward_amount()
+                .set(&managed_biguint!(PER_SECOND_REWARD_AMOUNT));
 
             sc.state().set(State::Active);
             sc.produce_rewards_enabled().set(true);

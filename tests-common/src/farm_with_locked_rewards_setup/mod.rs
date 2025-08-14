@@ -35,7 +35,7 @@ pub static LEGACY_LOCKED_TOKEN_ID: &[u8] = b"LEGACY-123456";
 pub static FARMING_TOKEN_ID: &[&[u8]] = &[b"LPTOK-123456", b"LPTOK-654321"];
 pub static FARM_TOKEN_ID: &[&[u8]] = &[b"FIRFARM-123456", b"SECFARM-123456"];
 const DIV_SAFETY: u64 = 1_000_000_000_000;
-const PER_BLOCK_REWARD_AMOUNT: u64 = 1_000;
+const PER_SECOND_REWARD_AMOUNT: u64 = 1_000;
 pub const FARMING_TOKEN_BALANCE: u64 = 1_000_000_000;
 
 pub const BOOSTED_YIELDS_PERCENTAGE: u64 = 2_500; // 25%
@@ -166,8 +166,8 @@ where
                     sc.add_sc_address_to_whitelist(managed_address!(&second_user));
                     sc.add_sc_address_to_whitelist(managed_address!(&third_user));
 
-                    sc.per_block_reward_amount()
-                        .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
+                    sc.per_second_reward_amount()
+                        .set(&managed_biguint!(PER_SECOND_REWARD_AMOUNT));
 
                     sc.state().set(State::Active);
                     sc.produce_rewards_enabled().set(true);

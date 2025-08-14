@@ -1,4 +1,4 @@
-use common_structs::{Nonce, PaymentsVec};
+use common_structs::{PaymentsVec, Timestamp};
 
 use crate::common::payments_wrapper::PaymentsWrapper;
 
@@ -13,7 +13,7 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
         self.require_caller_has_owner_or_admin_permissions();
 
         let payments = self.call_value().all_esdt_transfers().clone_value();
-        let current_block = self.blockchain().get_block_nonce();
+        let current_timestamp = self.blockchain().get_block_timestamp();
         let mut tokens_mapper = self.reward_tokens();
         for payment in &payments {
             require!(payment.token_nonce == 0, "Only fungible tokens accepted");
@@ -23,8 +23,8 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
 
             let is_new = tokens_mapper.insert(payment.token_identifier.clone());
             if is_new {
-                self.token_addition_block(&payment.token_identifier)
-                    .set(current_block);
+                self.token_addition_timestamp(&payment.token_identifier)
+                    .set(current_timestamp);
             }
         }
     }
@@ -41,7 +41,7 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
         let mut tokens_mapper = self.reward_tokens();
         for token in tokens {
             let _ = tokens_mapper.swap_remove(&token);
-            self.token_addition_block(&token).clear();
+            self.token_addition_timestamp(&token).clear();
 
             let accumulated_rewards = self.accumulated_rewards(&token).take();
             let capacity = self.reward_capacity(&token).take();
@@ -61,9 +61,9 @@ pub trait RewardTokensModule: permissions_module::PermissionsModule {
     #[storage_mapper("rewTokens")]
     fn reward_tokens(&self) -> UnorderedSetMapper<TokenIdentifier>;
 
-    #[view(getTokenAdditionBlock)]
-    #[storage_mapper("tokenAddBlk")]
-    fn token_addition_block(&self, token_id: &TokenIdentifier) -> SingleValueMapper<Nonce>;
+    #[view(getTokenAdditionTimestamp)]
+    #[storage_mapper("tokenAddTs")]
+    fn token_addition_timestamp(&self, token_id: &TokenIdentifier) -> SingleValueMapper<Timestamp>;
 
     #[storage_mapper("accRew")]
     fn accumulated_rewards(&self, token_id: &TokenIdentifier) -> SingleValueMapper<BigUint>;

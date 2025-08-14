@@ -1,4 +1,4 @@
-use common_structs::{FarmToken, FarmTokenAttributes, Nonce};
+use common_structs::{FarmToken, FarmTokenAttributes, Timestamp};
 use fixed_supply_token::FixedSupplyToken;
 use math::weighted_average_round_up;
 use mergeable::Mergeable;
@@ -13,7 +13,7 @@ pub struct WrappedFarmAttributes<M: ManagedTypeApi> {
     pub farm_token_id: TokenIdentifier<M>,
     pub farm_token_nonce: u64,
     pub reward_per_share: BigUint<M>,
-    pub creation_block: Nonce,
+    pub creation_timestamp: Timestamp,
     pub current_token_amount: BigUint<M>,
 }
 
@@ -36,7 +36,7 @@ impl<M: ManagedTypeApi> Mergeable<M> for WrappedFarmAttributes<M> {
             second_supply,
         );
 
-        self.creation_block = core::cmp::max(self.creation_block, other.creation_block);
+        self.creation_timestamp = core::cmp::max(self.creation_timestamp, other.creation_timestamp);
         self.current_token_amount += other.current_token_amount;
     }
 }
@@ -58,7 +58,7 @@ impl<M: ManagedTypeApi> FixedSupplyToken<M> for WrappedFarmAttributes<M> {
             farm_token_id: self.farm_token_id,
             farm_token_nonce: self.farm_token_nonce,
             reward_per_share: self.reward_per_share,
-            creation_block: self.creation_block,
+            creation_timestamp: self.creation_timestamp,
             current_token_amount: new_current_token_amount,
         }
     }
@@ -77,6 +77,10 @@ impl<M: ManagedTypeApi> FarmToken<M> for WrappedFarmAttributes<M> {
     }
 
     fn get_initial_farming_tokens(&self) -> BigUint<M> {
+        throw_not_implemented_error::<M>();
+    }
+
+    fn get_original_owner(&self) -> ManagedAddress<M> {
         throw_not_implemented_error::<M>();
     }
 }

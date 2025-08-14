@@ -123,8 +123,8 @@ pub trait GenerateRewardsModule:
 
         storage_cache.reward_per_share = max_new_rps;
 
-        let block_nonce = self.blockchain().get_block_nonce();
-        self.last_reward_block_nonce().set(block_nonce);
+        let current_timestamp = self.blockchain().get_block_timestamp();
+        self.last_reward_timestamp().set(current_timestamp);
 
         InternalClaimResult {
             rewards,
@@ -142,8 +142,8 @@ pub trait GenerateRewardsModule:
         wrapped_token_attributes: &WrappedFarmAttributes<Self::Api>,
         storage_cache: &mut StorageCache<Self>,
     ) -> EsdtTokenPayment {
-        let token_addition_block = self.token_addition_block(&reward_token_id).get();
-        if wrapped_token_attributes.creation_block < token_addition_block {
+        let token_addition_timestamp = self.token_addition_timestamp(&reward_token_id).get();
+        if wrapped_token_attributes.creation_timestamp < token_addition_timestamp {
             return EsdtTokenPayment::new(reward_token_id, 0, BigUint::zero());
         }
 

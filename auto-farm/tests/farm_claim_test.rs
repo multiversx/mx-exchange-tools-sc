@@ -54,7 +54,7 @@ fn user_enter_and_claim_two_farms_test() {
 
     // advance blocks - 10 blocks - 10 * 1_000 = 10_000 total rewards
     // 7_500 base farm, 2_500 boosted yields
-    farm_setup.b_mock.borrow_mut().set_block_nonce(10);
+    farm_setup.b_mock.borrow_mut().set_block_timestamp(10);
 
     // random tx on end of week 1, to cummulate rewards
     farm_setup.b_mock.borrow_mut().set_block_epoch(6);
@@ -222,7 +222,7 @@ fn claim_rewards_through_auto_farm() {
 
     // advance blocks - 10 blocks - 10 * 1_000 = 10_000 total rewards
     // 7_500 base farm, 2_500 boosted yields
-    farm_setup.b_mock.borrow_mut().set_block_nonce(10);
+    farm_setup.b_mock.borrow_mut().set_block_timestamp(10);
 
     // random tx on end of week 1, to cummulate rewards
     farm_setup.b_mock.borrow_mut().set_block_epoch(6);

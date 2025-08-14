@@ -1086,6 +1086,7 @@ fn create_pos_with_farm_boosted_rewards_test() {
 
     // second user enter farm
     b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(60); // 10 blocks * 6 seconds
 
     // random tx on end of week 1, to cummulate rewards
     b_mock.borrow_mut().set_block_epoch(6);
@@ -1101,6 +1102,7 @@ fn create_pos_with_farm_boosted_rewards_test() {
 
     // advance 1 week
     b_mock.borrow_mut().set_block_epoch(10);
+    b_mock.borrow_mut().set_block_timestamp(604800); // 1 week in seconds
     pos_creator_setup
         .farm_setup
         .set_user_energy(&user_addr, 1_000, 10, 1);
@@ -1147,7 +1149,7 @@ fn create_pos_with_farm_boosted_rewards_test() {
         &user_addr,
         LOCKED_REWARD_TOKEN_ID,
         1,
-        &rust_biguint!(2_500u64),
+        &rust_biguint!(15_000u64), // Adjusted for timestamp-based rewards
         None,
     );
 }

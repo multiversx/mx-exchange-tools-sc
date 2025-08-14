@@ -194,9 +194,11 @@ fn energy_dao_multiple_users_with_claim_test() {
         );
 
     energy_dao_setup.b_mock.set_block_nonce(10u64);
+    energy_dao_setup.b_mock.set_block_timestamp(60); // 10 blocks * 6 seconds
     energy_dao_setup.claim_user_rewards(&user1, WRAPPED_FARM_TOKEN_ID, 1, user1_farm_amount);
 
     energy_dao_setup.b_mock.set_block_nonce(20u64);
+    energy_dao_setup.b_mock.set_block_timestamp(120); // 20 blocks * 6 seconds
     energy_dao_setup.claim_user_rewards(&user2, WRAPPED_FARM_TOKEN_ID, 2, user2_farm_amount);
 
     energy_dao_setup
@@ -205,7 +207,7 @@ fn energy_dao_multiple_users_with_claim_test() {
             &user1,
             WRAPPED_LOCKED_TOKEN_ID,
             1,
-            &num_bigint::BigUint::from(25_000u64),
+            &num_bigint::BigUint::from(150_000u64), // Adjusted for timestamp-based rewards
             None,
         );
 
@@ -215,7 +217,7 @@ fn energy_dao_multiple_users_with_claim_test() {
             &user2,
             WRAPPED_LOCKED_TOKEN_ID,
             1,
-            &num_bigint::BigUint::from(25_000u64),
+            &num_bigint::BigUint::from(150_000u64), // Adjusted for timestamp-based rewards
             None,
         );
 
