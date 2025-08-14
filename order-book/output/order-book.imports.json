@@ -3,8 +3,10 @@
   "getNumArguments",
   "mBufferAppend",
   "mBufferAppendBytes",
+  "mBufferCopyByteSlice",
   "mBufferEq",
   "mBufferFinish",
+  "mBufferFromBigIntUnsigned",
   "mBufferGetArgument",
   "mBufferGetByteSlice",
   "mBufferGetLength",
@@ -12,9 +14,13 @@
   "mBufferSetBytes",
   "mBufferStorageLoad",
   "mBufferStorageStore",
+  "mBufferToBigIntUnsigned",
   "managedCaller",
   "managedOwnerAddress",
   "managedSignalError",
+  "managedWriteLog",
   "signalError",
-  "smallIntFinishSigned"
+  "smallIntFinishSigned",
+  "smallIntFinishUnsigned",
+  "smallIntGetUnsignedArgument"
 ]

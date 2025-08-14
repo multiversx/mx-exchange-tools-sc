@@ -27,6 +27,96 @@
     },
     "endpoints": [
         {
+            "name": "getLastOrderId",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "optional<u64>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOrderInfo",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Order"
+                }
+            ]
+        },
+        {
+            "name": "getRouterAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getTreasuryAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getP2pProtocolFeePercent",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getPruningFee",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "pause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
             "name": "isAdmin",
             "mutability": "readonly",
             "inputs": [
@@ -77,7 +167,91 @@
             ]
         }
     ],
+    "events": [
+        {
+            "identifier": "pauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "unpauseContract",
+            "inputs": []
+        }
+    ],
     "esdtAttributes": [],
     "hasCallback": false,
-    "types": {}
+    "types": {
+        "Order": {
+            "type": "struct",
+            "docs": [
+                "`min_exchange_rate`: For example, if you want a 1:2 exchange rate, this should be 10^18 * 2 (considering token B has 18 decimals)"
+            ],
+            "fields": [
+                {
+                    "name": "makers_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "input_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "initial_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "current_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_exchange_rate",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "executor_fee",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "order_status",
+                    "type": "OrderStatus"
+                },
+                {
+                    "name": "creation_timestamp",
+                    "type": "u64"
+                },
+                {
+                    "name": "expiration_timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        "OrderStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Pending",
+                    "discriminant": 0
+                },
+                {
+                    "name": "PartiallyFilled",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Executed",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Cancelled",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Expired",
+                    "discriminant": 4
+                }
+            ]
+        }
+    }
 }

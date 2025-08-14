@@ -8,7 +8,12 @@ pub mod pause;
 pub mod storage;
 
 #[multiversx_sc::contract]
-pub trait OrderBook: multiversx_sc_modules::only_admin::OnlyAdminModule {
+pub trait OrderBook:
+    storage::order::OrderModule
+    + storage::common_storage::CommonStorageModule
+    + pause::PauseModule
+    + multiversx_sc_modules::only_admin::OnlyAdminModule
+{
     #[init]
     fn init(&self) {}
 
