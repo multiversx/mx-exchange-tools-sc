@@ -17,7 +17,7 @@ pub trait VoteModule:
         );
         let user_energy = self.get_energy_amount_non_zero(&caller);
 
-        self.tokens_for_week(current_week).insert(token_id.clone());
+        let _ = self.tokens_for_week(current_week).insert(token_id.clone());
         self.token_votes(&token_id, current_week).update(|votes| {
             *votes += &user_energy;
         });
@@ -37,7 +37,6 @@ pub trait VoteModule:
             payment.token_identifier == expected_token,
             "Wrong token for boosting"
         );
-        require!(payment.amount > 0, "Boost amount must be greater than 0");
 
         let current_week = self.get_current_week();
 

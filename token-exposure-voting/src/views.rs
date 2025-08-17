@@ -1,4 +1,5 @@
 multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 use week_timekeeping::Week;
 
@@ -6,8 +7,14 @@ use crate::config::{BoostedToken, TokenRanking};
 
 // Constants for boost multiplier calculations
 const PRECISION: u64 = 1_000_000u64;
-const BOOST_FACTOR_NUMERATOR: u64 = 500_000u64; // (50% factor)
-const BASE_MULTIPLIER: u64 = 1_500_000u64; // (150% base multiplier)
+const BOOST_FACTOR_NUMERATOR: u64 = PRECISION / 2; // (50% factor)
+const BASE_MULTIPLIER: u64 = PRECISION + PRECISION / 2; // (150% base multiplier)
+
+#[derive(TypeAbi, TopEncode)]
+pub struct TokenRankPosition {
+    pub token_position: usize,
+    pub total_tokens: usize,
+}
 
 #[multiversx_sc::module]
 pub trait ViewsModule: crate::config::ConfigModule {
@@ -29,22 +36,24 @@ pub trait ViewsModule: crate::config::ConfigModule {
     }
 
     #[view(getTokenRanking)]
-    fn get_token_ranking(
-        &self,
-        token_id: TokenIdentifier,
-        week: Week,
-    ) -> MultiValue2<usize, usize> {
+    fn get_token_ranking(&self, token_id: TokenIdentifier, week: Week) -> TokenRankPosition {
         let ranking = self.get_week_ranking(week);
         let total_tokens = ranking.len();
 
         for (index, token_ranking) in ranking.iter().enumerate() {
             if token_ranking.token_id == token_id {
-                return (index + 1, total_tokens).into();
+                return TokenRankPosition {
+                    token_position: index + 1,
+                    total_tokens,
+                };
             }
         }
 
         // Token not found in ranking
-        (0, total_tokens).into()
+        TokenRankPosition {
+            token_position: 0,
+            total_tokens,
+        }
     }
 
     #[view(getWeekRanking)]
@@ -92,12 +101,14 @@ pub trait ViewsModule: crate::config::ConfigModule {
 
         for token_ranking in ranking.iter() {
             let boost_amount = self.boosted_amount(&token_ranking.token_id, week).get();
-            if boost_amount > 0 {
-                boosted_tokens.push(BoostedToken {
-                    token_id: token_ranking.token_id,
-                    boost_amount,
-                });
+            if boost_amount == 0 {
+                continue;
             }
+
+            boosted_tokens.push(BoostedToken {
+                token_id: token_ranking.token_id,
+                boost_amount,
+            });
         }
 
         if boosted_tokens.is_empty() {
