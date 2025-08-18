@@ -30,10 +30,6 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         };
         require!(executor_fee <= MAX_PERCENT, "Invalid executor fee");
 
-        let caller = self.blockchain().get_caller();
-        let maker_id = self.maker_id().get_id_or_insert(&caller);
-        let (token_id, amount) = self.call_value().single_fungible_esdt();
-
         let current_timestamp = self.blockchain().get_block_timestamp();
         let expiration_timestamp = match order_duration {
             OrderDuration::Minutes(minutes) => minutes as u64 * MINUTE_IN_SECONDS,
@@ -44,6 +40,10 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
             current_timestamp < expiration_timestamp,
             "Invalid expiration timestamp"
         );
+
+        let caller = self.blockchain().get_caller();
+        let maker_id = self.maker_id().get_id_or_insert(&caller);
+        let (token_id, amount) = self.call_value().single_fungible_esdt();
 
         let order_id = self.get_and_increment_next_order_id();
         let order = Order {
