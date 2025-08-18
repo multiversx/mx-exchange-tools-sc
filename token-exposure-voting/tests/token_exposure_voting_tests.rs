@@ -90,31 +90,36 @@ fn test_simple_voting_with_5_tokens_no_boost() {
             // Test individual token rankings
             let token03_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[2]), current_week);
-            let (pos, total) = token03_ranking.into_tuple();
+            let pos = token03_ranking.token_position;
+            let total = token03_ranking.total_tokens;
             assert_eq!(pos, 1, "TOKEN-03 should be rank 1");
             assert_eq!(total, 5, "Total tokens should be 5");
 
             let token01_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[0]), current_week);
-            let (pos, total) = token01_ranking.into_tuple();
+            let pos = token01_ranking.token_position;
+            let total = token01_ranking.total_tokens;
             assert_eq!(pos, 2, "TOKEN-01 should be rank 2");
             assert_eq!(total, 5, "Total tokens should be 5");
 
             let token05_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[4]), current_week);
-            let (pos, total) = token05_ranking.into_tuple();
+            let pos = token05_ranking.token_position;
+            let total = token05_ranking.total_tokens;
             assert_eq!(pos, 3, "TOKEN-05 should be rank 3");
             assert_eq!(total, 5, "Total tokens should be 5");
 
             let token02_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[1]), current_week);
-            let (pos, total) = token02_ranking.into_tuple();
+            let pos = token02_ranking.token_position;
+            let total = token02_ranking.total_tokens;
             assert_eq!(pos, 4, "TOKEN-02 should be rank 4");
             assert_eq!(total, 5, "Total tokens should be 5");
 
             let token04_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[3]), current_week);
-            let (pos, total) = token04_ranking.into_tuple();
+            let pos = token04_ranking.token_position;
+            let total = token04_ranking.total_tokens;
             assert_eq!(pos, 5, "TOKEN-04 should be rank 5");
             assert_eq!(total, 5, "Total tokens should be 5");
 
@@ -137,7 +142,8 @@ fn test_simple_voting_with_5_tokens_no_boost() {
             // Test ranking for non-existent token
             let non_existent =
                 sc.get_token_ranking(managed_token_id!(b"NON-EXISTENT"), current_week);
-            let (pos, total_ne) = non_existent.into_tuple();
+            let pos = non_existent.token_position;
+            let total_ne = non_existent.total_tokens;
             assert_eq!(pos, 0, "Non-existent token should have position 0");
             assert_eq!(total_ne, 5, "Total should still be 5 tokens");
         })
@@ -452,26 +458,30 @@ fn test_get_token_ranking() {
         .execute_query(&setup.sc_wrapper, |sc| {
             // TOKEN-01 should be rank 3 (1500 boosted votes < 2000 < 3000)
             let ranking = sc.get_token_ranking(managed_token_id!(TEST_TOKENS[0]), current_week);
-            let (position, total) = ranking.into_tuple();
+            let position = ranking.token_position;
+            let total = ranking.total_tokens;
             assert_eq!(position, 3, "TOKEN-01 should be rank 3");
             assert_eq!(total, 3, "Total should be 3 tokens");
 
             // TOKEN-02 should be rank 1 (3000 votes, highest)
             let ranking_b = sc.get_token_ranking(managed_token_id!(TEST_TOKENS[1]), current_week);
-            let (pos_b, total_b) = ranking_b.into_tuple();
+            let pos_b = ranking_b.token_position;
+            let total_b = ranking_b.total_tokens;
             assert_eq!(pos_b, 1, "TOKEN-02 should be rank 1");
             assert_eq!(total_b, 3, "Total should be 3 tokens");
 
             // TOKEN-03 should be rank 2 (2000 votes)
             let ranking_c = sc.get_token_ranking(managed_token_id!(TEST_TOKENS[2]), current_week);
-            let (pos_c, total_c) = ranking_c.into_tuple();
+            let pos_c = ranking_c.token_position;
+            let total_c = ranking_c.total_tokens;
             assert_eq!(pos_c, 2, "TOKEN-03 should be rank 2");
             assert_eq!(total_c, 3, "Total should be 3 tokens");
 
             // Non-existent token should return position 0
             let non_existent =
                 sc.get_token_ranking(managed_token_id!(b"NON-EXISTENT"), current_week);
-            let (pos, total_ne) = non_existent.into_tuple();
+            let pos = non_existent.token_position;
+            let total_ne = non_existent.total_tokens;
             assert_eq!(pos, 0, "Non-existent token should have position 0");
             assert_eq!(total_ne, 3, "Total should still be 3 tokens");
         })
@@ -798,42 +808,48 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
             // TOKEN-02 should be rank 1 (boosted)
             let token02_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[1]), current_week);
-            let (pos, total) = token02_ranking.into_tuple();
+            let pos = token02_ranking.token_position;
+            let total = token02_ranking.total_tokens;
             assert_eq!(pos, 1, "TOKEN-02 should be rank 1 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-01 should be rank 2 (no boost)
             let token01_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[0]), current_week);
-            let (pos, total) = token01_ranking.into_tuple();
+            let pos = token01_ranking.token_position;
+            let total = token01_ranking.total_tokens;
             assert_eq!(pos, 2, "TOKEN-01 should be rank 2");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-04 should be rank 3 (boosted)
             let token04_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[3]), current_week);
-            let (pos, total) = token04_ranking.into_tuple();
+            let pos = token04_ranking.token_position;
+            let total = token04_ranking.total_tokens;
             assert_eq!(pos, 3, "TOKEN-04 should be rank 3 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-06 should be rank 5 (boosted)
             let token06_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[5]), current_week);
-            let (pos, total) = token06_ranking.into_tuple();
+            let pos = token06_ranking.token_position;
+            let total = token06_ranking.total_tokens;
             assert_eq!(pos, 5, "TOKEN-06 should be rank 5 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-08 should be rank 8 (boosted)
             let token08_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[7]), current_week);
-            let (pos, total) = token08_ranking.into_tuple();
+            let pos = token08_ranking.token_position;
+            let total = token08_ranking.total_tokens;
             assert_eq!(pos, 8, "TOKEN-08 should be rank 8 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-10 should be rank 10 (boosted but still last)
             let token10_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[9]), current_week);
-            let (pos, total) = token10_ranking.into_tuple();
+            let pos = token10_ranking.token_position;
+            let total = token10_ranking.total_tokens;
             assert_eq!(
                 pos, 10,
                 "TOKEN-10 should be rank 10 (boosted but still last)"
