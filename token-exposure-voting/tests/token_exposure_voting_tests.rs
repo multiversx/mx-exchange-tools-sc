@@ -322,15 +322,10 @@ fn test_boost_zero_amount_fails() {
 
     setup
         .blockchain
-        .execute_esdt_transfer(
-            &user,
-            &setup.sc_wrapper,
-            VOTING_TOKEN_ID,
-            0,
-            &rust_biguint!(0),
-            |sc| sc.boost(managed_token_id!(TEST_TOKENS[0])),
-        )
-        .assert_user_error("Boost amount must be greater than 0");
+        .execute_tx(&user, &setup.sc_wrapper, &rust_biguint!(0), |sc| {
+            sc.boost(managed_token_id!(TEST_TOKENS[0]))
+        })
+        .assert_user_error("incorrect number of ESDT transfers");
 }
 
 #[test]
