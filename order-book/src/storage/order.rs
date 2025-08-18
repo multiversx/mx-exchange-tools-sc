@@ -1,31 +1,40 @@
+use crate::storage::common_storage::Percent;
+
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub type OrderId = u64;
 pub type Timestamp = u64;
 
+pub const MINUTE_IN_SECONDS: Timestamp = 60;
+pub const HOUR_IN_SECONDS: Timestamp = 60 * MINUTE_IN_SECONDS;
+pub const DAY_IN_SECONDS: Timestamp = 24 * HOUR_IN_SECONDS;
+
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
 pub enum OrderStatus {
     Pending,
     PartiallyFilled,
-    Executed,
-    Cancelled,
-    Expired,
 }
 
-/// `min_exchange_rate`: For example, if you want a 1:2 exchange rate, this should be 10^18 * 2 (considering token B has 18 decimals)
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub enum OrderDuration {
+    Minutes(u8),
+    Hours(u8),
+    Days(u8),
+}
+
 #[derive(TypeAbi, TopEncode, TopDecode)]
 pub struct Order<M: ManagedTypeApi> {
-    pub makers_id: AddressId,
+    pub maker_id: AddressId,
     pub input_token: TokenIdentifier<M>,
     pub output_token: TokenIdentifier<M>,
     pub initial_input_amount: BigUint<M>,
     pub current_input_amount: BigUint<M>,
-    pub min_exchange_rate: BigUint<M>,
-    pub executor_fee: BigUint<M>, // TODO: Maybe remove. Send to executor directly
+    pub min_total_output: BigUint<M>,
+    pub executor_fee: Percent,
     pub status: OrderStatus,
     pub creation_timestamp: Timestamp,
-    pub expiration_timestamp: Timestamp, // TODO: Make this easier to give from user perspective by creating an enum with Minute, Hour, Day, Month
+    pub expiration_timestamp: Timestamp,
 }
 
 #[multiversx_sc::module]

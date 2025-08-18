@@ -111,6 +111,37 @@
             "outputs": []
         },
         {
+            "name": "createOrder",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "min_total_output",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "order_duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "opt_executor_fee",
+                    "type": "optional<u32>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
             "name": "getLastOrderId",
             "mutability": "readonly",
             "inputs": [],
@@ -277,12 +308,9 @@
     "types": {
         "Order": {
             "type": "struct",
-            "docs": [
-                "`min_exchange_rate`: For example, if you want a 1:2 exchange rate, this should be 10^18 * 2 (considering token B has 18 decimals)"
-            ],
             "fields": [
                 {
-                    "name": "makers_id",
+                    "name": "maker_id",
                     "type": "u64"
                 },
                 {
@@ -302,12 +330,12 @@
                     "type": "BigUint"
                 },
                 {
-                    "name": "min_exchange_rate",
+                    "name": "min_total_output",
                     "type": "BigUint"
                 },
                 {
                     "name": "executor_fee",
-                    "type": "BigUint"
+                    "type": "u32"
                 },
                 {
                     "name": "status",
@@ -323,6 +351,41 @@
                 }
             ]
         },
+        "OrderDuration": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Minutes",
+                    "discriminant": 0,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Hours",
+                    "discriminant": 1,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Days",
+                    "discriminant": 2,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                }
+            ]
+        },
         "OrderStatus": {
             "type": "enum",
             "variants": [
@@ -333,18 +396,6 @@
                 {
                     "name": "PartiallyFilled",
                     "discriminant": 1
-                },
-                {
-                    "name": "Executed",
-                    "discriminant": 2
-                },
-                {
-                    "name": "Cancelled",
-                    "discriminant": 3
-                },
-                {
-                    "name": "Expired",
-                    "discriminant": 4
                 }
             ]
         }

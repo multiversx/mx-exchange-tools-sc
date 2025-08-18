@@ -1,6 +1,10 @@
 [
+  "bigIntAdd",
+  "bigIntGetUnsignedArgument",
+  "bigIntSetInt64",
   "checkNoPayment",
   "getArgumentLength",
+  "getBlockTimestamp",
   "getNumArguments",
   "isSmartContract",
   "mBufferAppend",
@@ -19,11 +23,13 @@
   "mBufferStorageStore",
   "mBufferToBigIntUnsigned",
   "managedCaller",
+  "managedGetMultiESDTCallValue",
   "managedOwnerAddress",
   "managedSignalError",
   "managedWriteLog",
   "signalError",
   "smallIntFinishSigned",
   "smallIntFinishUnsigned",
-  "smallIntGetUnsignedArgument"
+  "smallIntGetUnsignedArgument",
+  "validateTokenIdentifier"
 ]

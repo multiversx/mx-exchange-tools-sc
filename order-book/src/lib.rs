@@ -12,8 +12,10 @@ pub mod storage;
 #[multiversx_sc::contract]
 pub trait OrderBook:
     actors::admin::AdminModule
+    + actors::maker::MakerModule
     + storage::order::OrderModule
     + storage::common_storage::CommonStorageModule
+    + events::EventsModule
     + pause::PauseModule
     + utils::UtilsModule
     + multiversx_sc_modules::only_admin::OnlyAdminModule

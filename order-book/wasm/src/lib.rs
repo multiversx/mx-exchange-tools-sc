@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           18
+// Endpoints:                           19
 // Async Callback (empty):               1
-// Total number of exported functions:  21
+// Total number of exported functions:  22
 
 #![no_std]
 
@@ -26,6 +26,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         setTreasuryAddress => set_treasury_address
         setPruningFee => set_pruning_fee
         setP2pProtocolFee => set_p2p_protocol_fee
+        createOrder => create_order
         getLastOrderId => get_last_order_id
         getOrders => get_orders
         getOrderInfo => orders
