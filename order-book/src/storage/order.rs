@@ -25,7 +25,7 @@ pub enum OrderDuration {
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
 pub struct Order<M: ManagedTypeApi> {
-    pub maker_id: AddressId,
+    pub maker: ManagedAddress<M>,
     pub input_token: TokenIdentifier<M>,
     pub output_token: TokenIdentifier<M>,
     pub initial_input_amount: BigUint<M>,

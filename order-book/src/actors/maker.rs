@@ -42,12 +42,11 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         );
 
         let caller = self.blockchain().get_caller();
-        let maker_id = self.maker_id().get_id_or_insert(&caller);
         let (token_id, amount) = self.call_value().single_fungible_esdt();
 
         let order_id = self.get_and_increment_next_order_id();
         let order = Order {
-            maker_id,
+            maker: caller,
             input_token: token_id,
             output_token,
             initial_input_amount: amount.clone(),
@@ -60,7 +59,7 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         };
         self.orders(order_id).set(&order);
 
-        self.emit_create_order_event(&caller, order_id, &order);
+        self.emit_create_order_event(order_id, &order);
 
         order_id
     }
@@ -74,11 +73,10 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         );
 
         let caller = self.blockchain().get_caller();
-        let caller_id = self.maker_id().get_id_non_zero(&caller);
 
         let order = order_mapper.take();
         require!(
-            order.maker_id == caller_id,
+            order.maker == caller,
             "Invalid order ID - not the original order creator"
         );
 
@@ -87,7 +85,4 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
 
         self.emit_cancel_order_event(order_id);
     }
-
-    #[storage_mapper("makerId")]
-    fn maker_id(&self) -> AddressToIdMapper;
 }

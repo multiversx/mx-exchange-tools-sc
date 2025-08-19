@@ -16,18 +16,8 @@ pub struct CreateOrderEvent<'a, M: ManagedTypeApi> {
 #[multiversx_sc::module]
 pub trait EventsModule {
     #[inline]
-    fn emit_create_order_event(
-        &self,
-        caller: &ManagedAddress,
-        order_id: OrderId,
-        order: &Order<Self::Api>,
-    ) {
-        self.create_order_event(
-            caller,
-            order_id,
-            order,
-            CurrentChainInfo::new::<Self::Api>(),
-        );
+    fn emit_create_order_event(&self, order_id: OrderId, order: &Order<Self::Api>) {
+        self.create_order_event(order_id, order, CurrentChainInfo::new::<Self::Api>());
     }
 
     #[inline]
@@ -38,7 +28,6 @@ pub trait EventsModule {
     #[event("createOrderEvent")]
     fn create_order_event(
         &self,
-        #[indexed] user: &ManagedAddress,
         #[indexed] order_id: OrderId,
         #[indexed] order: &Order<Self::Api>,
         current_chain_info: CurrentChainInfo,
