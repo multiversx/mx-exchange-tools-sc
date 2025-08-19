@@ -14,6 +14,9 @@ version = "=0.53.0"
 [dependencies.multiversx-sc-modules]
 version = "=0.53.0"
 
+[dependencies.auto-farm]
+path = "../auto-farm"
+
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "571dc9d"

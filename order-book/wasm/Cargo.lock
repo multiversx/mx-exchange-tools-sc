@@ -9,6 +9,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
+name = "auto-farm"
+version = "0.0.0"
+dependencies = [
+ "common_structs",
+ "energy-factory",
+ "energy-query",
+ "farm",
+ "farm-staking",
+ "farm-staking-proxy",
+ "farm-with-locked-rewards",
+ "fees-collector",
+ "legacy_token_decode_module",
+ "lkmex-transfer",
+ "mergeable",
+ "metabonding",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "multiversx-wegld-swap-sc",
+ "pair",
+ "read_external_storage",
+ "utils",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -46,6 +70,37 @@ dependencies = [
  "mergeable",
  "multiversx-sc",
  "unwrappable",
+]
+
+[[package]]
+name = "config"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "multiversx-sc",
+ "pausable",
+ "permissions_module",
+ "token_send",
+]
+
+[[package]]
+name = "contexts"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "farm_token",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "token_merge_helper",
+ "token_send",
 ]
 
 [[package]]
@@ -87,6 +142,186 @@ dependencies = [
 ]
 
 [[package]]
+name = "events"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_structs",
+ "contexts",
+ "multiversx-sc",
+]
+
+[[package]]
+name = "farm"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "contexts",
+ "energy-query",
+ "events",
+ "farm-boosted-yields",
+ "farm_base_impl",
+ "farm_token",
+ "fixed-supply-token",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "utils",
+ "week-timekeeping",
+ "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm-boosted-yields"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common-types",
+ "config",
+ "energy-query",
+ "multiversx-sc",
+ "pausable",
+ "permissions_module",
+ "week-timekeeping",
+ "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm-staking"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "contexts",
+ "energy-factory",
+ "energy-query",
+ "events",
+ "farm",
+ "farm-boosted-yields",
+ "farm_base_impl",
+ "farm_token",
+ "fixed-supply-token",
+ "math",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "utils",
+ "week-timekeeping",
+ "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm-staking-proxy"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_structs",
+ "config",
+ "energy-query",
+ "farm",
+ "farm-staking",
+ "farm-with-locked-rewards",
+ "fixed-supply-token",
+ "hex-literal 0.3.4",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pair",
+ "pausable",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "unwrappable",
+ "utils",
+]
+
+[[package]]
+name = "farm-with-locked-rewards"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "contexts",
+ "energy-factory",
+ "energy-query",
+ "events",
+ "farm",
+ "farm-boosted-yields",
+ "farm_base_impl",
+ "farm_token",
+ "fixed-supply-token",
+ "locking_module",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "sc_whitelist_module",
+ "token_send",
+ "utils",
+ "week-timekeeping",
+ "weekly-rewards-splitting",
+]
+
+[[package]]
+name = "farm_base_impl"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "contexts",
+ "events",
+ "farm_token",
+ "fixed-supply-token",
+ "mergeable",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pausable",
+ "permissions_module",
+ "rewards",
+ "token_merge_helper",
+ "token_send",
+ "utils",
+]
+
+[[package]]
+name = "farm_token"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pausable",
+ "permissions_module",
+ "token_send",
+]
+
+[[package]]
 name = "fees-collector"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
@@ -121,6 +356,12 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hex-literal"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
+
+[[package]]
+name = "hex-literal"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
@@ -141,6 +382,21 @@ source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48
 dependencies = [
  "common_structs",
  "multiversx-sc",
+ "utils",
+]
+
+[[package]]
+name = "lkmex-transfer"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_structs",
+ "energy-factory",
+ "energy-query",
+ "legacy_token_decode_module",
+ "multiversx-sc",
+ "permissions_module",
+ "simple-lock",
  "utils",
 ]
 
@@ -171,13 +427,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "metabonding"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-metabonding-sc?rev=770e38b#770e38b380eefcdf89bdf793d1f176067440c739"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "sc_whitelist_module",
+]
+
+[[package]]
 name = "multiversx-sc"
 version = "0.53.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a86a27b04bb7cca97ad8971ee57e6b978619623dde4ba9acae1d4ecb436f062"
 dependencies = [
  "bitflags",
- "hex-literal",
+ "hex-literal 0.4.1",
  "multiversx-sc-codec",
  "multiversx-sc-derive",
  "num-traits",
@@ -239,6 +505,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "multiversx-wegld-swap-sc"
+version = "0.53.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03d780a18667f14b9ffe05bfd692bc78ff629cb5411fb03d2fd6d022babcfc39"
+dependencies = [
+ "multiversx-sc",
+ "multiversx-sc-modules",
+]
+
+[[package]]
 name = "nibble_vec"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -260,6 +536,7 @@ dependencies = [
 name = "order-book"
 version = "0.0.0"
 dependencies = [
+ "auto-farm",
  "multiversx-sc",
  "multiversx-sc-modules",
  "router",
@@ -339,6 +616,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "read_external_storage"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc",
+]
+
+[[package]]
+name = "rewards"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "common_structs",
+ "config",
+ "farm_token",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "pausable",
+ "permissions_module",
+ "token_send",
+]
+
+[[package]]
 name = "router"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
@@ -385,6 +685,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "token_merge_helper"
+version = "0.0.0"
+source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
+dependencies = [
+ "common_errors",
+ "multiversx-sc",
 ]
 
 [[package]]

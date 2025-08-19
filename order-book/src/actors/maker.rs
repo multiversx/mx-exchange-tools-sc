@@ -58,11 +58,34 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
             creation_timestamp: current_timestamp,
             expiration_timestamp,
         };
-        self.orders(order_id).set(order);
+        self.orders(order_id).set(&order);
 
-        // TODO: Event
+        self.emit_create_order_event(&caller, order_id, &order);
 
         order_id
+    }
+
+    #[endpoint(cancelOrder)]
+    fn cancel_order(&self, order_id: OrderId) {
+        let order_mapper = self.orders(order_id);
+        require!(
+            !order_mapper.is_empty(),
+            "Order doesn't exist or executed/expired/cancelled already"
+        );
+
+        let caller = self.blockchain().get_caller();
+        let caller_id = self.maker_id().get_id_non_zero(&caller);
+
+        let order = order_mapper.take();
+        require!(
+            order.maker_id == caller_id,
+            "Invalid order ID - not the original order creator"
+        );
+
+        self.send()
+            .direct_esdt(&caller, &order.input_token, 0, &order.current_input_amount);
+
+        self.emit_cancel_order_event(order_id);
     }
 
     #[storage_mapper("makerId")]

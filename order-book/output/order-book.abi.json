@@ -142,6 +142,17 @@
             ]
         },
         {
+            "name": "cancelOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "getLastOrderId",
             "mutability": "readonly",
             "inputs": [],
@@ -295,6 +306,44 @@
     ],
     "events": [
         {
+            "identifier": "createOrderEvent",
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "order",
+                    "type": "Order",
+                    "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        {
+            "identifier": "cancelOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        {
             "identifier": "pauseContract",
             "inputs": []
         },
@@ -306,6 +355,23 @@
     "esdtAttributes": [],
     "hasCallback": false,
     "types": {
+        "CurrentChainInfo": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "block",
+                    "type": "u64"
+                },
+                {
+                    "name": "epoch",
+                    "type": "u64"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
         "Order": {
             "type": "struct",
             "fields": [
