@@ -1,12 +1,14 @@
 use core::convert::TryFrom;
 
+use pair::errors::ERROR_INVALID_ARGS;
 use router::multi_pair_swap::{
     SWAP_TOKENS_FIXED_INPUT_FUNC_NAME, SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME,
 };
 
 use crate::{
-    config::{ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
-    external_sc_interactions,
+    config::{self, ROUTER_SWAP_ARGS_LEN, SEND_TOKENS_ARGS_LEN, SWAP_ARGS_LEN},
+    errors::*,
+    events, external_sc_interactions, task_types,
 };
 
 multiversx_sc::imports!();
@@ -21,6 +23,7 @@ pub enum TaskType {
     Swap,
     RouterSwap,
     SendEgldOrEsdt,
+    SmartSwap,
 }
 
 #[multiversx_sc::module]
@@ -28,6 +31,9 @@ pub trait TaskCall:
     external_sc_interactions::pair_actions::PairActionsModule
     + external_sc_interactions::router_actions::RouterActionsModule
     + external_sc_interactions::wegld_swap::WegldWrapModule
+    + config::ConfigModule
+    + events::EventsModule
+    + task_types::smart_swap::SmartSwapModule
 {
     #[payable("*")]
     #[endpoint(composeTasks)]
@@ -55,11 +61,11 @@ pub trait TaskCall:
                 TaskType::RouterSwap => {
                     self.router_swap(payment_for_current_task, &mut payments_to_return, args)
                 }
+                TaskType::SmartSwap => {
+                    self.smart_swap(payment_for_current_task, &mut payments_to_return, args)
+                }
                 TaskType::SendEgldOrEsdt => {
-                    require!(
-                        args.len() == SEND_TOKENS_ARGS_LEN,
-                        "Invalid number of arguments!"
-                    );
+                    require!(args.len() == SEND_TOKENS_ARGS_LEN, ERROR_INVALID_ARGS);
                     let new_destination = ManagedAddress::try_from(args.get(0).clone_value())
                         .unwrap_or_else(|err| sc_panic!(err));
 
@@ -84,14 +90,11 @@ pub trait TaskCall:
     ) -> EgldOrEsdtTokenPayment {
         require!(
             !payment_for_current_task.token_identifier.is_egld(),
-            "EGLD can't be swapped!"
+            ERROR_CANNOT_SWAP_EGLD
         );
         let payment_in = payment_for_current_task.unwrap_esdt();
 
-        require!(
-            args.len() == SWAP_ARGS_LEN,
-            "Incorrect arguments for swap task!"
-        );
+        require!(args.len() == SWAP_ARGS_LEN, ERROR_INCORRECT_ARGS);
 
         let function_in_out = args.get(0).clone_value();
         let token_out = TokenIdentifier::from(args.get(1).clone_value());
@@ -105,7 +108,7 @@ pub trait TaskCall:
         require!(
             function_in_out == swap_tokens_fixed_input_function
                 || function_in_out == swap_tokens_fixed_output_function,
-            "Invalid function name for swap"
+            ERROR_INVALID_FUNCTION_NAME
         );
 
         let payment_out = if function_in_out == swap_tokens_fixed_input_function {
@@ -141,18 +144,18 @@ pub trait TaskCall:
     ) -> EgldOrEsdtTokenPayment {
         require!(
             !payment_for_current_task.token_identifier.is_egld(),
-            "EGLD can't be swapped!"
+            ERROR_CANNOT_SWAP_EGLD
         );
         require!(
             args.len() % ROUTER_SWAP_ARGS_LEN == 0,
-            "Invalid number of router swap arguments"
+            ERROR_INVALID_NUMBER_ROUTER_SWAP_ARGS
         );
         let payment_in = payment_for_current_task.unwrap_esdt();
         let mut returned_payments_by_router = self.multi_pair_swap(payment_in, args);
 
         require!(
             !returned_payments_by_router.is_empty(),
-            "Router swap returned 0 payments"
+            ERROR_ROUTER_SWAP_0_PAYMENTS
         );
 
         let last_payment_index = returned_payments_by_router.len() - 1;
@@ -192,7 +195,7 @@ pub trait TaskCall:
         require!(
             expected_token.token_identifier == token_out.token_identifier
                 && expected_token.amount <= token_out.amount,
-            "The output token is less or different than the one required by user!"
+            ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
         );
     }
 }

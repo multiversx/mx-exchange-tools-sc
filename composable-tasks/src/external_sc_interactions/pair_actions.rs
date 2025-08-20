@@ -1,5 +1,9 @@
 multiversx_sc::imports!();
 
+use crate::errors::{
+    ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO, ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER,
+};
+
 use super::router_actions;
 use pair::pair_actions::swap::ProxyTrait as _;
 
@@ -45,13 +49,13 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
 
         require!(
             back_transfers.esdt_payments.len() == 1,
-            "Swap tokens fixed output: Back transfers expected 1 payment"
+            ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
         let payment_out = back_transfers.esdt_payments.get(0);
         require!(
             payment_out.token_identifier == to_token_id,
-            "Wrong returned token identifier!"
+            ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
         );
 
         payment_out
@@ -83,13 +87,13 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
 
         require!(
             back_transfers.esdt_payments.len() <= 2,
-            "Swap tokens fixed output: Back transfers expected maximum 2 payments"
+            ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
         let payment_out = back_transfers.esdt_payments.get(0);
         require!(
             payment_out.token_identifier == to_token_id,
-            "Wrong returned token identifier!"
+            ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
         );
 
         back_transfers.esdt_payments
