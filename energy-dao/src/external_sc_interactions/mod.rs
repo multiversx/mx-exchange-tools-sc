@@ -6,3 +6,4 @@ pub mod locked_token_actions;
 pub mod locked_token_interactions;
 pub mod metastaking_actions;
 pub mod metastaking_interactions;
+pub mod farm_with_locked_rewards_proxy;
