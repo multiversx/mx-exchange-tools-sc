@@ -1,6 +1,8 @@
 multiversx_sc::imports!();
 
-use crate::external_sc_interactions;
+use pair::config::MAX_PERCENTAGE;
+
+use crate::{errors::ERROR_WRONG_PERCENTAGE_AMOUNT, external_sc_interactions};
 
 pub const SWAP_ARGS_LEN: usize = 3;
 pub const ROUTER_SWAP_ARGS_LEN: usize = 4;
@@ -25,4 +27,31 @@ pub trait ConfigModule:
     fn set_router_address(&self, new_addr: ManagedAddress) {
         self.router_addr().set(new_addr);
     }
+
+    #[only_owner]
+    #[endpoint(setSmartSwapFeePercentage)]
+    fn set_smart_swap_fee_percentage(&self, fee: u64) {
+        require!(fee < MAX_PERCENTAGE, ERROR_WRONG_PERCENTAGE_AMOUNT);
+        self.smart_swap_fee_percentage().set(fee);
+    }
+
+    #[only_owner]
+    #[endpoint(withdrawSmartSwapFees)]
+    fn withdraw_smart_swap_fees(&self, token_ids: MultiValueEncoded<TokenIdentifier>) {
+        let owner = self.blockchain().get_owner_address();
+        for token_id in token_ids.into_iter() {
+            let fees_amount = self.smart_swap_fees(&token_id).take();
+            let payment = EsdtTokenPayment::new(token_id, 0, fees_amount);
+
+            self.send().direct_non_zero_esdt_payment(&owner, &payment);
+        }
+    }
+
+    #[view(getSmartSwapFeePercentage)]
+    #[storage_mapper("smartSwapFeePercentage")]
+    fn smart_swap_fee_percentage(&self) -> SingleValueMapper<u64>;
+
+    #[view(getSmartSwapFees)]
+    #[storage_mapper("smartSwapFees")]
+    fn smart_swap_fees(&self, token_id: &TokenIdentifier) -> SingleValueMapper<BigUint>;
 }
