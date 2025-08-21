@@ -27,7 +27,7 @@ As the external service needs tokens in order to pay for the gas and electricity
    c. The contract will add the resulting farm/metastaking position to the storage held for the user, under the user address.
 3. When a user deposits he agrees that a part of his rewards will go be a FEE to the service provider. 
 4. There is nothing else to be done by the user, he just goes on with his life and claims all rewards or exits some/all positions after a few months.
-5. Users who do not have farm tokens only XMEX should be able to participate in, they have to sign a single transaction and enter the contract. In that case the contract needs to be claimed from fees collector and metabonding only.
+5. Users who do not have farm tokens only XMEX should be able to participate in, they have to sign a single transaction and enter the contract. In that case the contract needs to be claimed from fees collector only.
 
 
 ## Let’s go to more details about the contract:
@@ -39,7 +39,7 @@ User call this with farm/proxy-dex-farm/metastaking/staking positions. The contr
 From a single token: one ESDT transfer and the argument is the pair he wants to enter. Contract does 50% buy tokenA, 50% buy tokenB (if tokenA == ESDT transfer - no need to buy tokenA), Enter liquidity with results, Enter Farm with LP, Enter Metastaking if we have.
 
 #### claimRewardsForUsers - can be called by whitelisted addresses only (the service will call this):
-Will iterate over all the users and will iterate over all the positions of each user and claim rewards for it. Plus it needs to claim rewards from metabonding contract and claim rewards from fees collector.
+Will iterate over all the users and will iterate over all the positions of each user and claim rewards for it. Plus it needs to claim rewards from fees collector.
 The contract calls each farm/staking/proxy-dex/metastaking with user_position and user_address as additional argument, always - as we claim in the name of the user all rewards - to get the boosted rewards as well. Because of this the autofarm contract, has to be whitelisted in each of the aforementioned contracts.
 
 We need a MAP of TokenID - Contract Address To claim Rewards

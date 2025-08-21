@@ -76,8 +76,6 @@ where
         let mut b_mock = BlockchainStateWrapper::new();
         let owner = b_mock.create_user_account(&rust_zero);
 
-        // needed for metabonding signatures
-
         // address:user1 from scenarios
         let first_user = Address::from(hex_literal::hex!(
             "75736572315F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"

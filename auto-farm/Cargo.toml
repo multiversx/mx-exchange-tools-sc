@@ -49,10 +49,6 @@ rev = "571dc9d"
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "571dc9d"
 
-[dependencies.metabonding]
-git = "https://github.com/multiversx/mx-metabonding-sc"
-rev = "770e38b"
-
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
 rev = "571dc9d"
