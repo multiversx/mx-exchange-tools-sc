@@ -63,7 +63,7 @@ pub trait MakerModule:
         };
         self.orders(order_id).set(&order);
 
-        self.emit_create_order_event(order_id, order_duration, &order);
+        self.emit_create_order_event(order_id, order_duration, order);
 
         order_id
     }

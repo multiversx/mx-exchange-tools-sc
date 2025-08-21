@@ -16,14 +16,14 @@ pub enum OrderStatus {
     PartiallyFilled,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub enum OrderDuration {
     Minutes(u8),
     Hours(u8),
     Days(u8),
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub struct Order<M: ManagedTypeApi> {
     pub maker: ManagedAddress<M>,
     pub input_token: TokenIdentifier<M>,

@@ -5,9 +5,9 @@ use crate::storage::order::{Order, OrderDuration, OrderId};
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode)]
-pub struct CreateOrderEvent<'a, M: ManagedTypeApi> {
-    pub order: &'a Order<M>,
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub struct CreateOrderEvent<M: ManagedTypeApi> {
+    pub order: Order<M>,
     pub duration: OrderDuration,
     pub chain_info: CurrentChainInfo,
 }
@@ -19,7 +19,7 @@ pub trait EventsModule {
         &self,
         order_id: OrderId,
         duration: OrderDuration,
-        order: &Order<Self::Api>,
+        order: Order<Self::Api>,
     ) {
         self.create_order_event(
             order_id,
