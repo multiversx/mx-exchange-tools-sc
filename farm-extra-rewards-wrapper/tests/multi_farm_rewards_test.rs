@@ -19,7 +19,6 @@ use tests_common::farm_with_locked_rewards_setup::{
 
 use config::ConfigModule;
 use farm_token::FarmTokenModule;
-use multiversx_sc::storage::mappers::StorageTokenWrapper;
 use sc_whitelist_module::SCWhitelistModule;
 
 pub mod farm_extra_rewards_setup;

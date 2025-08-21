@@ -61,7 +61,7 @@ pub trait MultiContractInteractionsModule:
         let mut i = 0;
         let mut len = user_rewards.len();
         while i < len {
-            let current_payment = user_rewards.get(i);
+            let current_payment = user_rewards.get(i).clone();
             let compound_result = self.compound_staking_rewards_with_existing_farm_position(
                 user,
                 &mut user_farm_tokens,

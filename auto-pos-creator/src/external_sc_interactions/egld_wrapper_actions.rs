@@ -16,7 +16,8 @@ pub trait EgldWrapperActionsModule {
             "wrap_egld should output only 1 payment"
         );
 
-        returned_wrapped_egld.get(0)
+        let output_payment = returned_wrapped_egld.get(0).clone();
+        output_payment
     }
 
     #[storage_mapper("egldWrapperAddress")]

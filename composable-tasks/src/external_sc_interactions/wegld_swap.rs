@@ -24,7 +24,8 @@ pub trait WegldWrapModule {
             ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
-        EgldOrEsdtTokenPayment::from(returned_wrapped_egld.get(0))
+        let wrapped_payment = returned_wrapped_egld.get(0).clone();
+        EgldOrEsdtTokenPayment::from(wrapped_payment)
     }
 
     fn unwrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {

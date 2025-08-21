@@ -37,18 +37,18 @@ pub trait MetastakingActionsModule:
         }
 
         let mut new_user_dual_yield_tokens = PaymentsVec::new();
-        for dual_yield_token in &user_dual_yield_tokens {
+        for dual_yield_token in user_dual_yield_tokens.iter() {
             let ms_id = self
                 .metastaking_for_dual_yield_token(&dual_yield_token.token_identifier)
                 .get();
             let opt_ms_addr = ms_mapper.get_address(ms_id);
             if opt_ms_addr.is_none() {
-                new_user_dual_yield_tokens.push(dual_yield_token);
+                new_user_dual_yield_tokens.push(dual_yield_token.clone());
                 continue;
             }
 
             let ms_addr = unsafe { opt_ms_addr.unwrap_unchecked() };
-            let claim_result = self.call_metastaking_claim(ms_addr, user.clone(), dual_yield_token);
+            let claim_result = self.call_metastaking_claim(ms_addr, user.clone(), dual_yield_token.clone());
             new_user_dual_yield_tokens.push(claim_result.new_dual_yield_tokens);
 
             rew_wrapper.add_tokens(claim_result.lp_farm_rewards);

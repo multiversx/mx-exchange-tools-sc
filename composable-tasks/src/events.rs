@@ -1,7 +1,8 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct SmartSwapEvent<M: ManagedTypeApi> {
     caller: ManagedAddress<M>,
     token_in: TokenIdentifier<M>,
