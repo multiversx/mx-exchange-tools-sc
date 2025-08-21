@@ -844,6 +844,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "exchange-deployer"
+version = "0.0.0"
+dependencies = [
+ "farm",
+ "farm-staking",
+ "farm-staking-proxy",
+ "multiversx-sc",
+ "multiversx-sc-modules",
+ "multiversx-sc-scenario",
+ "num-bigint",
+ "pair",
+ "proxy_dex",
+ "simple-lock",
+ "utils",
+]
+
+[[package]]
+name = "exchange-deployer-meta"
+version = "0.0.0"
+dependencies = [
+ "exchange-deployer",
+ "multiversx-sc-meta",
+]
+
+[[package]]
 name = "farm"
 version = "0.0.0"
 source = "git+https://github.com/multiversx/mx-exchange-sc?rev=571dc9d#571dc9d48cadeb76392ff24202a6f6ead2d68153"
