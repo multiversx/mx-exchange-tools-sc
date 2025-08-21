@@ -13,6 +13,8 @@ pub mod storage;
 pub trait OrderBook:
     actors::admin::AdminModule
     + actors::maker::MakerModule
+    + actors::executor::ExecutorModule
+    + actors::pruner::PrunerModule
     + storage::order::OrderModule
     + storage::common_storage::CommonStorageModule
     + events::EventsModule

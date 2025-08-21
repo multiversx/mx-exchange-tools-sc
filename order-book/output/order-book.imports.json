@@ -1,7 +1,11 @@
 [
   "bigIntAdd",
   "bigIntGetUnsignedArgument",
+  "bigIntMul",
   "bigIntSetInt64",
+  "bigIntSign",
+  "bigIntSub",
+  "bigIntTDiv",
   "checkNoPayment",
   "getArgumentLength",
   "getBlockEpoch",

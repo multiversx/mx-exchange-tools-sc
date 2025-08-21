@@ -5,7 +5,6 @@ pub const MAX_PERCENT: Percent = 10_000; // 100%
 
 #[multiversx_sc::module]
 pub trait CommonStorageModule {
-    // TODO: Maybe move those too, and get rid of this module entirely?
     #[view(getRouterAddress)]
     #[storage_mapper("routerAddress")]
     fn router_address(&self) -> SingleValueMapper<ManagedAddress>;
@@ -18,7 +17,6 @@ pub trait CommonStorageModule {
     #[storage_mapper("p2pProtocolFee")]
     fn p2p_protocol_fee(&self) -> SingleValueMapper<Percent>;
 
-    // TODO: Maybe move to pruner.rs?
     #[view(getPruningFee)]
     #[storage_mapper("pruningFee")]
     fn pruning_fee(&self) -> SingleValueMapper<Percent>;

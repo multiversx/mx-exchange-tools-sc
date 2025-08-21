@@ -9,7 +9,9 @@ use crate::storage::{
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
-pub trait MakerModule: crate::storage::order::OrderModule + crate::events::EventsModule {
+pub trait MakerModule:
+    crate::storage::order::OrderModule + crate::events::EventsModule + crate::pause::PauseModule
+{
     #[payable("*")]
     #[endpoint(createOrder)]
     fn create_order(
@@ -19,6 +21,8 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         order_duration: OrderDuration,
         opt_executor_fee: OptionalValue<Percent>,
     ) -> OrderId {
+        self.require_not_paused();
+
         require!(
             output_token.is_valid_esdt_identifier(),
             "Invalid ESDT specified for output token"
@@ -31,10 +35,10 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         require!(executor_fee <= MAX_PERCENT, "Invalid executor fee");
 
         let current_timestamp = self.blockchain().get_block_timestamp();
-        let expiration_timestamp = match order_duration {
-            OrderDuration::Minutes(minutes) => minutes as u64 * MINUTE_IN_SECONDS,
-            OrderDuration::Hours(hours) => hours as u64 * HOUR_IN_SECONDS,
-            OrderDuration::Days(days) => days as u64 * DAY_IN_SECONDS,
+        let expiration_timestamp = match &order_duration {
+            OrderDuration::Minutes(minutes) => *minutes as u64 * MINUTE_IN_SECONDS,
+            OrderDuration::Hours(hours) => *hours as u64 * HOUR_IN_SECONDS,
+            OrderDuration::Days(days) => *days as u64 * DAY_IN_SECONDS,
         };
         require!(
             current_timestamp < expiration_timestamp,
@@ -59,22 +63,18 @@ pub trait MakerModule: crate::storage::order::OrderModule + crate::events::Event
         };
         self.orders(order_id).set(&order);
 
-        self.emit_create_order_event(order_id, &order);
+        self.emit_create_order_event(order_id, order_duration, &order);
 
         order_id
     }
 
     #[endpoint(cancelOrder)]
     fn cancel_order(&self, order_id: OrderId) {
-        let order_mapper = self.orders(order_id);
-        require!(
-            !order_mapper.is_empty(),
-            "Order doesn't exist or executed/expired/cancelled already"
-        );
+        self.require_not_paused();
+        self.require_valid_order_id(order_id);
 
         let caller = self.blockchain().get_caller();
-
-        let order = order_mapper.take();
+        let order = self.orders(order_id).take();
         require!(
             order.maker == caller,
             "Invalid order ID - not the original order creator"

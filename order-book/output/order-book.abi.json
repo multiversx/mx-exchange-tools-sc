@@ -153,6 +153,17 @@
             "outputs": []
         },
         {
+            "name": "pruneExpiredOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "getLastOrderId",
             "mutability": "readonly",
             "inputs": [],
@@ -314,13 +325,8 @@
                     "indexed": true
                 },
                 {
-                    "name": "order",
-                    "type": "Order",
-                    "indexed": true
-                },
-                {
-                    "name": "current_chain_info",
-                    "type": "CurrentChainInfo"
+                    "name": "event_data",
+                    "type": "CreateOrderEvent"
                 }
             ]
         },
@@ -339,6 +345,16 @@
             ]
         },
         {
+            "identifier": "pruneExpiredOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                }
+            ]
+        },
+        {
             "identifier": "pauseContract",
             "inputs": []
         },
@@ -350,6 +366,23 @@
     "esdtAttributes": [],
     "hasCallback": false,
     "types": {
+        "CreateOrderEvent": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "order",
+                    "type": "Order"
+                },
+                {
+                    "name": "duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
         "CurrentChainInfo": {
             "type": "struct",
             "fields": [

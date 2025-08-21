@@ -1,23 +1,34 @@
 use auto_farm::common::chain_info::CurrentChainInfo;
 
-use crate::storage::order::{Order, OrderId};
+use crate::storage::order::{Order, OrderDuration, OrderId};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode)]
 pub struct CreateOrderEvent<'a, M: ManagedTypeApi> {
-    pub caller: &'a ManagedAddress<M>,
-    pub order_id: OrderId,
     pub order: &'a Order<M>,
+    pub duration: OrderDuration,
     pub chain_info: CurrentChainInfo,
 }
 
 #[multiversx_sc::module]
 pub trait EventsModule {
     #[inline]
-    fn emit_create_order_event(&self, order_id: OrderId, order: &Order<Self::Api>) {
-        self.create_order_event(order_id, order, CurrentChainInfo::new::<Self::Api>());
+    fn emit_create_order_event(
+        &self,
+        order_id: OrderId,
+        duration: OrderDuration,
+        order: &Order<Self::Api>,
+    ) {
+        self.create_order_event(
+            order_id,
+            CreateOrderEvent {
+                order,
+                duration,
+                chain_info: CurrentChainInfo::new::<Self::Api>(),
+            },
+        );
     }
 
     #[inline]
@@ -25,12 +36,16 @@ pub trait EventsModule {
         self.cancel_order_event(order_id, CurrentChainInfo::new::<Self::Api>());
     }
 
+    #[inline]
+    fn emit_prune_expired_order_event(&self, order_id: OrderId) {
+        self.prune_expired_order_event(order_id);
+    }
+
     #[event("createOrderEvent")]
     fn create_order_event(
         &self,
         #[indexed] order_id: OrderId,
-        #[indexed] order: &Order<Self::Api>,
-        current_chain_info: CurrentChainInfo,
+        event_data: CreateOrderEvent<Self::Api>,
     );
 
     #[event("cancelOrderEvent")]
@@ -39,4 +54,7 @@ pub trait EventsModule {
         #[indexed] order_id: OrderId,
         current_chain_info: CurrentChainInfo,
     );
+
+    #[event("pruneExpiredOrderEvent")]
+    fn prune_expired_order_event(&self, #[indexed] order_id: OrderId);
 }

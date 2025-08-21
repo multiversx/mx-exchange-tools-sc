@@ -16,7 +16,7 @@ pub enum OrderStatus {
     PartiallyFilled,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
 pub enum OrderDuration {
     Minutes(u8),
     Hours(u8),
@@ -95,6 +95,13 @@ pub trait OrderModule {
 
             to_return
         })
+    }
+
+    fn require_valid_order_id(&self, order_id: OrderId) {
+        require!(
+            !self.orders(order_id).is_empty(),
+            "Order doesn't exist or executed/expired/cancelled already"
+        );
     }
 
     #[view(getOrderInfo)]
