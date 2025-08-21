@@ -298,7 +298,12 @@ where
             })
             .assert_ok();
 
-        let pair_setups = vec![first_pair_setup, second_pair_setup, third_pair_setup];
+        let pair_setups = vec![
+            first_pair_setup,
+            second_pair_setup,
+            third_pair_setup,
+            fourth_pair_setup,
+        ];
 
         ComposableTasksSetup {
             b_mock,
