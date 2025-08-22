@@ -153,6 +153,23 @@
             "outputs": []
         },
         {
+            "name": "executeOrders",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id_token_amount_pairs",
+                    "type": "variadic<multi<u64,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<SwapStatus>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
             "name": "pruneExpiredOrder",
             "mutability": "mutable",
             "inputs": [
@@ -489,6 +506,19 @@
                 },
                 {
                     "name": "PartiallyFilled",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "SwapStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Success",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Fail",
                     "discriminant": 1
                 }
             ]
