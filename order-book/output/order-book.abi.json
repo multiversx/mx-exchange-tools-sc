@@ -1,0 +1,527 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.83.0",
+            "commitHash": "90b35a6239c3d8bdabc530a6a0816f7ff89a0aaf",
+            "commitDate": "2024-11-26",
+            "channel": "Stable",
+            "short": "rustc 1.83.0 (90b35a623 2024-11-26)"
+        },
+        "contractCrate": {
+            "name": "order-book",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.53.0"
+        }
+    },
+    "name": "OrderBook",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "router_address",
+                "type": "Address"
+            },
+            {
+                "name": "treasury_address",
+                "type": "Address"
+            },
+            {
+                "name": "pruning_fee",
+                "type": "u32"
+            },
+            {
+                "name": "p2p_protocol_fee",
+                "type": "u32"
+            },
+            {
+                "name": "admins",
+                "type": "variadic<Address>",
+                "multi_arg": true
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "pause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setRouterAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setTreasuryAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "treasury_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPruningFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "pruning_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setP2pProtocolFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "protocol_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "createOrder",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "min_total_output",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "order_duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "opt_executor_fee",
+                    "type": "optional<u32>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "cancelOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "executeOrders",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id_token_amount_pairs",
+                    "type": "variadic<multi<u64,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<SwapStatus>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "pruneExpiredOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getLastOrderId",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "optional<u64>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOrders",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "start_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "return_data_limit",
+                    "type": "u32"
+                },
+                {
+                    "name": "opt_required_status",
+                    "type": "optional<OrderStatus>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<multi<u64,Order>>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOrderInfo",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Order"
+                }
+            ]
+        },
+        {
+            "name": "getRouterAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getTreasuryAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getP2pProtocolFee",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getPruningFee",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "isAdmin",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "addAdmin",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "removeAdmin",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getAdmins",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Address>",
+                    "multi_result": true
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "createOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "CreateOrderEvent"
+                }
+            ]
+        },
+        {
+            "identifier": "cancelOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        {
+            "identifier": "pruneExpiredOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "pauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "unpauseContract",
+            "inputs": []
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "CreateOrderEvent": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "order",
+                    "type": "Order"
+                },
+                {
+                    "name": "duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "CurrentChainInfo": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "block",
+                    "type": "u64"
+                },
+                {
+                    "name": "epoch",
+                    "type": "u64"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        "Order": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "maker",
+                    "type": "Address"
+                },
+                {
+                    "name": "input_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "initial_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "current_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_total_output",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "executor_fee",
+                    "type": "u32"
+                },
+                {
+                    "name": "status",
+                    "type": "OrderStatus"
+                },
+                {
+                    "name": "creation_timestamp",
+                    "type": "u64"
+                },
+                {
+                    "name": "expiration_timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        "OrderDuration": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Minutes",
+                    "discriminant": 0,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Hours",
+                    "discriminant": 1,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Days",
+                    "discriminant": 2,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                }
+            ]
+        },
+        "OrderStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Pending",
+                    "discriminant": 0
+                },
+                {
+                    "name": "PartiallyFilled",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "SwapStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Success",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Fail",
+                    "discriminant": 1
+                }
+            ]
+        }
+    }
+}
