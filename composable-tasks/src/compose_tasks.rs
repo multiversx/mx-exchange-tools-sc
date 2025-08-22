@@ -16,7 +16,8 @@ multiversx_sc::derive_imports!();
 
 pub type PaymentsVec<M> = ManagedVec<M, EsdtTokenPayment<M>>;
 
-#[derive(TypeAbi, TopEncode, TopDecode, PartialEq, ManagedVecItem)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, PartialEq, ManagedVecItem)]
 pub enum TaskType {
     WrapEGLD,
     UnwrapEGLD,
@@ -125,10 +126,10 @@ pub trait TaskCall:
                 token_out,
                 min_amount_out,
             );
-            let payment_out = returned_payments_by_pair.get(0);
+            let payment_out = returned_payments_by_pair.get(0).clone();
             if returned_payments_by_pair.len() == 2 {
                 let payment_in_leftover = returned_payments_by_pair.get(1);
-                payments_to_return.push(payment_in_leftover);
+                payments_to_return.push(payment_in_leftover.clone());
             }
             payment_out
         };

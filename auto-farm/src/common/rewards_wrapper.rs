@@ -3,7 +3,8 @@ use super::unique_payments::UniquePayments;
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct MergedRewardsWrapper<M: ManagedTypeApi> {
     pub opt_locked_tokens: Option<EsdtTokenPayment<M>>,
     pub other_tokens: UniquePayments<M>,

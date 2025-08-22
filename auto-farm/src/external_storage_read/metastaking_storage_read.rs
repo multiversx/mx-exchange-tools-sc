@@ -1,7 +1,8 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
 pub struct MetastakingConfig<M: ManagedTypeApi> {
     pub dual_yield_token_id: TokenIdentifier<M>,
     pub lp_farm_token_id: TokenIdentifier<M>,

@@ -53,7 +53,7 @@ pub trait FarmInteractionsModule:
         self.claim_and_update_farm_state(farm_address.clone(), &mut farm_state_mapper);
 
         let farm_state = farm_state_mapper.get();
-        let mut enter_farm_payments = ManagedVec::from_single_item(payment);
+        let mut enter_farm_payments = ManagedVec::from_single_item(payment.clone());
 
         let current_farm_position = EsdtTokenPayment::new(
             farm_token_id,
@@ -126,7 +126,7 @@ pub trait FarmInteractionsModule:
         };
         let new_farm_token = self
             .wrapped_farm_token()
-            .nft_create(payment.amount, &new_attributes);
+            .nft_create(payment.amount.clone(), &new_attributes);
         let mut user_payments = ManagedVec::from_single_item(new_farm_token);
         if user_rewards.amount > 0 {
             let wrapper_user_rewards = self.wrap_locked_token(user_rewards);
@@ -174,7 +174,7 @@ pub trait FarmInteractionsModule:
         };
         let unstake_token_payment = self
             .unstake_farm_token()
-            .nft_create(payment.amount, &unstake_attributes);
+            .nft_create(payment.amount.clone(), &unstake_attributes);
 
         let mut user_payments = ManagedVec::from_single_item(unstake_token_payment);
         if user_rewards.amount > 0 {

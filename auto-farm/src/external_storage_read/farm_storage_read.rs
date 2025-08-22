@@ -3,7 +3,8 @@ multiversx_sc::derive_imports!();
 
 use read_external_storage::State;
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug)]
 pub struct FarmConfig<M: ManagedTypeApi> {
     pub state: State,
     pub farm_token_id: TokenIdentifier<M>,

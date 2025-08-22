@@ -18,87 +18,87 @@ hex = "0.4"
 hex-literal = "0.3.4"
 
 [dependencies.multiversx-sc]
-version = "=0.53.0"
+version = "=0.60.0"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
-version = "=0.53.0"
+version = "=0.60.0"
 
 [dependencies.multiversx-sc-scenario]
-version = "=0.53.0"
+version = "=0.60.0"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.simple-lock]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.farm-boosted-yields]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.config]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.locking_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.farm_token]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"
 
 [dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "571dc9d"
+rev = "bff93fc"

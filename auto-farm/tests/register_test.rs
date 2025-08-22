@@ -39,7 +39,6 @@ fn register_test() {
                 FEE_PERCENTAGE,
                 managed_address!(&energy_factory_addr),
                 managed_address!(&energy_factory_addr), // unused here
-                managed_address!(&energy_factory_addr), // unused here
             );
         })
         .assert_ok();

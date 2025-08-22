@@ -31,7 +31,7 @@ pub trait ExitPosEndpointsModule:
         let args = MetastakingExitArgs {
             ms_address: metastaking_address,
             user: caller.clone(),
-            ms_tokens: payment,
+            ms_tokens: payment.clone(),
             first_token_min_amount_out,
             second_token_min_amont_out,
         };
@@ -56,7 +56,7 @@ pub trait ExitPosEndpointsModule:
         let args = FarmExitArgs {
             farm_address,
             user: caller.clone(),
-            farm_tokens: payment,
+            farm_tokens: payment.clone(),
             first_token_min_amount_out,
             second_token_min_amont_out,
         };
@@ -80,7 +80,7 @@ pub trait ExitPosEndpointsModule:
 
         let args = RemoveLiqArgs {
             pair_address,
-            lp_tokens: payment,
+            lp_tokens: payment.clone(),
             first_token_min_amount_out,
             second_token_min_amont_out,
         };

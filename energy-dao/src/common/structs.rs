@@ -3,7 +3,8 @@ multiversx_sc::derive_imports!();
 
 use common_structs::{Epoch, Nonce};
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug)]
 pub struct FarmState<M: ManagedTypeApi> {
     pub farm_staked_value: BigUint<M>,
     pub farm_token_nonce: Nonce,
@@ -13,7 +14,8 @@ pub struct FarmState<M: ManagedTypeApi> {
     pub farm_rps: BigUint<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug)]
 pub struct MetastakingState<M: ManagedTypeApi> {
     pub metastaking_token_supply: BigUint<M>,
     pub dual_yield_amount: BigUint<M>,
@@ -25,27 +27,31 @@ pub struct MetastakingState<M: ManagedTypeApi> {
     pub staking_rps: BigUint<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug, PartialEq)]
 pub struct WrappedFarmTokenAttributes<M: ManagedTypeApi> {
     pub farm_address: ManagedAddress<M>,
     pub token_rps: BigUint<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug, PartialEq)]
 pub struct WrappedMetastakingTokenAttributes<M: ManagedTypeApi> {
     pub metastaking_address: ManagedAddress<M>,
     pub lp_farm_token_rps: BigUint<M>,
     pub staking_token_rps: BigUint<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug, PartialEq)]
 pub struct UnstakeFarmAttributes<M: ManagedTypeApi> {
     pub farm_address: ManagedAddress<M>,
     pub unstake_epoch: Epoch,
     pub token_nonce: Nonce,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Debug, PartialEq)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, Debug, PartialEq)]
 pub struct UnstakeMetastakingAttributes<M: ManagedTypeApi> {
     pub metastaking_address: ManagedAddress<M>,
     pub unbond_token_id: TokenIdentifier<M>,

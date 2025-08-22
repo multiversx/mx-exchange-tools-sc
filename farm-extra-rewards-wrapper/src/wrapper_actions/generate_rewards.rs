@@ -22,7 +22,8 @@ where
     pub storage_cache: StorageCache<'a, C>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct ClaimResult<M: ManagedTypeApi> {
     pub new_wrapped_farm_token: EsdtTokenPayment<M>,
     pub rewards: PaymentsWrapper<M>,

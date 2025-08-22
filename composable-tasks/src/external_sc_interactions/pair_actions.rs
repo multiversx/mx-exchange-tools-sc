@@ -52,7 +52,7 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
             ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
-        let payment_out = back_transfers.esdt_payments.get(0);
+        let payment_out = back_transfers.esdt_payments.get(0).clone();
         require!(
             payment_out.token_identifier == to_token_id,
             ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
@@ -90,7 +90,7 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
             ERROR_BACK_TRANSFERS_WRONG_PAYMENTS_NO
         );
 
-        let payment_out = back_transfers.esdt_payments.get(0);
+        let payment_out = back_transfers.esdt_payments.get(0).clone();
         require!(
             payment_out.token_identifier == to_token_id,
             ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER

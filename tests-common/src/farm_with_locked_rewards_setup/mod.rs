@@ -6,7 +6,6 @@ use std::{cell::RefCell, rc::Rc};
 use config::ConfigModule;
 use multiversx_sc::{
     codec::multi_types::OptionalValue,
-    storage::mappers::StorageTokenWrapper,
     types::{Address, BigInt, EsdtLocalRole, MultiValueEncoded},
 };
 use multiversx_sc_scenario::{
@@ -75,8 +74,6 @@ where
         let rust_zero = rust_biguint!(0);
         let mut b_mock = BlockchainStateWrapper::new();
         let owner = b_mock.create_user_account(&rust_zero);
-
-        // needed for metabonding signatures
 
         // address:user1 from scenarios
         let first_user = Address::from(hex_literal::hex!(

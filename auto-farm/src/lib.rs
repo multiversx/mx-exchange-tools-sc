@@ -22,7 +22,6 @@ pub trait AutoFarm:
     + registration::RegistrationModule
     + user_tokens::user_farm_tokens::UserFarmTokensModule
     + external_sc_interactions::farm_actions::FarmActionsModule
-    + external_sc_interactions::metabonding_actions::MetabondingActionsModule
     + external_sc_interactions::fees_collector_actions::FeesCollectorActionsModule
     + external_sc_interactions::locked_token_merging::LockedTokenMergingModule
     + whitelists::metastaking_whitelist::MetastakingWhitelistModule
@@ -49,7 +48,6 @@ pub trait AutoFarm:
         proxy_claim_address: ManagedAddress,
         fee_percentage: u64,
         energy_factory_address: ManagedAddress,
-        metabonding_sc_address: ManagedAddress,
         fees_collector_sc_address: ManagedAddress,
     ) {
         require!(
@@ -57,15 +55,12 @@ pub trait AutoFarm:
             "Invalid fees percentage"
         );
         self.require_sc_address(&energy_factory_address);
-        self.require_sc_address(&metabonding_sc_address);
         self.require_sc_address(&fees_collector_sc_address);
 
         self.proxy_claim_address().set_if_empty(proxy_claim_address);
         self.fee_percentage().set(fee_percentage);
         self.energy_factory_address()
             .set_if_empty(energy_factory_address);
-        self.metabonding_sc_address()
-            .set_if_empty(metabonding_sc_address);
         self.fees_collector_sc_address()
             .set_if_empty(fees_collector_sc_address);
     }

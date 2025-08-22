@@ -9,10 +9,7 @@ use farm_token::FarmTokenModule;
 use farm_with_locked_rewards::Farm;
 use fees_collector::FeesCollector;
 use locked_token_wrapper::{wrapped_token::WrappedTokenModule, LockedTokenWrapper};
-use multiversx_sc::{
-    storage::mappers::StorageTokenWrapper,
-    types::{Address, EsdtLocalRole, ManagedAddress, MultiValueEncoded},
-};
+use multiversx_sc::types::{Address, EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 use multiversx_sc_modules::pause::PauseModule;
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint, testing_framework::*,

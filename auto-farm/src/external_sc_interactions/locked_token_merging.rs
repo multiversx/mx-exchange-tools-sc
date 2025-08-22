@@ -40,7 +40,7 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
             return None;
         }
         if locked_tokens.len() == 1 {
-            return Some(locked_tokens.get(0));
+            return Some(locked_tokens.get(0).clone());
         }
 
         let energy_factory_address = self.energy_factory_address().get();

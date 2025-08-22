@@ -7,7 +7,8 @@ use mergeable::Mergeable;
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct UnwrapResult<M: ManagedTypeApi> {
     pub farm_tokens: PaymentsWrapper<M>,
     pub rewards: PaymentsWrapper<M>,
@@ -18,7 +19,8 @@ pub struct ExitMultiFarmResult<M: ManagedTypeApi> {
     pub rewards: PaymentsWrapper<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Debug)]
 pub struct UnwrapAndExitResult<M: ManagedTypeApi> {
     pub farming_tokens: PaymentsWrapper<M>,
     pub rewards: PaymentsWrapper<M>,
@@ -89,7 +91,7 @@ pub trait UnwrapFarmTokenModule:
 
         let mut total_supply_lost = BigUint::zero();
         for payment in &payments {
-            total_supply_lost += payment.amount;
+            total_supply_lost += &payment.amount;
         }
 
         claim_result.storage_cache.farm_token_supply -= total_supply_lost;
@@ -107,7 +109,7 @@ pub trait UnwrapFarmTokenModule:
         let mut farming_tokens = PaymentsWrapper::new();
         let mut rewards = PaymentsWrapper::new();
         for farm_token in farm_tokens.iter() {
-            let exit_result = self.exit_farm(user.clone(), farm_token);
+            let exit_result = self.exit_farm(user.clone(), farm_token.clone());
             farming_tokens.push(exit_result.farming_tokens);
             rewards.push(exit_result.rewards);
         }

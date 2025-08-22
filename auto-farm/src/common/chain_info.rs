@@ -5,7 +5,8 @@ multiversx_sc::derive_imports!();
 
 static mut CURRENT_CHAIN_INFO: Option<CurrentChainInfo> = None;
 
-#[derive(TypeAbi, TopEncode, NestedEncode, Copy, Clone)]
+#[type_abi]
+#[derive(TopEncode, NestedEncode, Copy, Clone)]
 pub struct CurrentChainInfo {
     pub block: u64,
     pub epoch: u64,

@@ -8,7 +8,8 @@ multiversx_sc::derive_imports!();
 
 static NOT_IMPLEMENTED_ERR_MSG: &[u8] = b"Not implemented";
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
 pub struct WrappedFarmAttributes<M: ManagedTypeApi> {
     pub farm_token_id: TokenIdentifier<M>,
     pub farm_token_nonce: u64,
@@ -77,6 +78,10 @@ impl<M: ManagedTypeApi> FarmToken<M> for WrappedFarmAttributes<M> {
     }
 
     fn get_initial_farming_tokens(&self) -> BigUint<M> {
+        throw_not_implemented_error::<M>();
+    }
+
+    fn get_original_owner(&self) -> ManagedAddress<M> {
         throw_not_implemented_error::<M>();
     }
 }

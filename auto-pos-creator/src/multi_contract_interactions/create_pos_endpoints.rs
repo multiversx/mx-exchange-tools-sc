@@ -68,8 +68,8 @@ pub trait CreatePosEndpointsModule:
 
         let args = PairAddLiqArgs {
             pair_address,
-            first_tokens: first_token_payment,
-            second_tokens: second_token_payment,
+            first_tokens: first_token_payment.clone(),
+            second_tokens: second_token_payment.clone(),
             first_token_min_amount_out: add_liq_first_token_min_amount_out,
             second_token_min_amount_out: add_liq_second_token_min_amount_out,
         };

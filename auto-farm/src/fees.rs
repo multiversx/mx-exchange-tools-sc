@@ -65,7 +65,7 @@ pub trait FeesModule:
         let other_tokens = rewards_wrapper.other_tokens.clone().into_payments();
         let mut remaining_user_tokens = PaymentsVec::new();
         for i in 0..other_tokens.len() {
-            let mut current_token = other_tokens.get(i);
+            let mut current_token = other_tokens.get(i).clone();
             let fee_tokens = self.deduct_single_fee(&mut current_token, fee_percentage);
             fees_wrapper.other_tokens.add_payment(fee_tokens);
 

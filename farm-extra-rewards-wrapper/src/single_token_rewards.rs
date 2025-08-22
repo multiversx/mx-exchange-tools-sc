@@ -115,7 +115,7 @@ where
         let call_value = sc.call_value().single_esdt();
 
         WrappedFarmAttributes {
-            farm_token_id: call_value.token_identifier,
+            farm_token_id: call_value.token_identifier.clone(),
             farm_token_nonce: call_value.token_nonce,
             reward_per_share: current_reward_per_share,
             creation_block: sc.blockchain().get_block_nonce(),

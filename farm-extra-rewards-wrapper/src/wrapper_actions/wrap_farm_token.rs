@@ -34,7 +34,7 @@ pub trait WrapFarmTokenModule:
         let caller = self.blockchain().get_caller();
         let enter_result = self.enter_farm_base::<BaseFarmLogicWrapper<Self>>(
             caller.clone(),
-            ManagedVec::from_single_item(farm_token),
+            ManagedVec::from_single_item(farm_token.clone()),
         );
 
         let wrapped_token = enter_result.new_farm_token.payment;

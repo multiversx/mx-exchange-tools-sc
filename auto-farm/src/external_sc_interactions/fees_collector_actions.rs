@@ -29,14 +29,14 @@ pub trait FeesCollectorActionsModule:
         }
 
         // locked token rewards, if any, are always in the last position
-        let last_payment = rewards.get(rewards_len - 1);
+        let last_payment = rewards.get(rewards_len - 1).clone();
         if &last_payment.token_identifier == rew_wrapper.get_locked_token_id() {
             rew_wrapper.locked_tokens.add_payment(last_payment);
             rewards.remove(rewards_len - 1);
         }
 
-        for rew in &rewards {
-            rew_wrapper.other_tokens.add_payment(rew);
+        for rew in rewards.iter() {
+            rew_wrapper.other_tokens.add_payment(rew.clone());
         }
     }
 

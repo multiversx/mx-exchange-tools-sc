@@ -15,7 +15,7 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
 
     fn merge_locked_tokens(&self, locked_tokens: PaymentsVec<Self::Api>) -> EsdtTokenPayment {
         if locked_tokens.len() == 1 {
-            return locked_tokens.get(0);
+            return locked_tokens.get(0).clone();
         }
 
         let energy_factory_address = self.energy_factory_address().get();

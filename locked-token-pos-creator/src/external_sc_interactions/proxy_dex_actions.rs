@@ -6,14 +6,16 @@ use proxy_dex::{
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopDecode, TopEncode)]
+#[type_abi]
+#[derive(TopDecode, TopEncode)]
 pub struct AddLiquidityProxyResult<M: ManagedTypeApi> {
     pub wrapped_lp_token: EsdtTokenPayment<M>,
     pub locked_token_leftover: EsdtTokenPayment<M>,
     pub wegld_leftover: EsdtTokenPayment<M>,
 }
 
-#[derive(TypeAbi, TopDecode, TopEncode)]
+#[type_abi]
+#[derive(TopDecode, TopEncode)]
 pub struct EnterFarmProxyResult<M: ManagedTypeApi> {
     pub wrapped_farm_token: EsdtTokenPayment<M>,
     pub rewards: EsdtTokenPayment<M>,
@@ -41,11 +43,13 @@ pub trait ProxyDexActionsModule {
 
         let output_payments_vec = output_payments.to_vec();
 
-        AddLiquidityProxyResult {
-            wrapped_lp_token: output_payments_vec.get(0),
-            locked_token_leftover: output_payments_vec.get(1),
-            wegld_leftover: output_payments_vec.get(2),
-        }
+        let result = AddLiquidityProxyResult {
+            wrapped_lp_token: output_payments_vec.get(0).clone(),
+            locked_token_leftover: output_payments_vec.get(1).clone(),
+            wegld_leftover: output_payments_vec.get(2).clone(),
+        };
+
+        result
     }
 
     fn call_enter_farm_proxy(

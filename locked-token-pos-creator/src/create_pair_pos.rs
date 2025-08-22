@@ -78,8 +78,8 @@ pub trait CreatePairPosModule:
         let pair_address = self.pair_address().get();
 
         let (new_lp_tokens, mut output_payments) = self.create_locked_lp_pos(
-            first_payment,
-            second_payment,
+            first_payment.clone(),
+            second_payment.clone(),
             add_liq_first_token_min_amount,
             add_liq_second_token_min_amount,
             pair_address,
