@@ -6,6 +6,7 @@ multiversx_sc::imports!();
 
 pub mod actors;
 pub mod events;
+pub mod external_sc_interactions;
 pub mod pause;
 pub mod storage;
 
@@ -15,6 +16,7 @@ pub trait OrderBook:
     + actors::maker::MakerModule
     + actors::executor::ExecutorModule
     + actors::pruner::PrunerModule
+    + external_sc_interactions::router::RouterActionsModule
     + storage::order::OrderModule
     + storage::common_storage::CommonStorageModule
     + events::EventsModule
