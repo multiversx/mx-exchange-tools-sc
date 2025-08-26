@@ -20,4 +20,8 @@ pub trait CommonStorageModule {
     #[view(getPruningFee)]
     #[storage_mapper("pruningFee")]
     fn pruning_fee(&self) -> SingleValueMapper<Percent>;
+
+    #[view(getExecutorWhitelist)]
+    #[storage_mapper("executorWhitelist")]
+    fn executor_whitelist(&self) -> UnorderedSetMapper<ManagedAddress>;
 }

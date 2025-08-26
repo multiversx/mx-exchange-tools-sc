@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           22
+// Endpoints:                           25
 // Async Callback (empty):               1
-// Total number of exported functions:  25
+// Total number of exported functions:  28
 
 #![no_std]
 
@@ -26,6 +26,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         setTreasuryAddress => set_treasury_address
         setPruningFee => set_pruning_fee
         setP2pProtocolFee => set_p2p_protocol_fee
+        addExecutorsToWhitelist => add_executors_to_whitelist
+        removeExecutorsFromWhitelist => remove_exectors_from_whitelist
         createOrder => create_order
         cancelOrder => cancel_order
         executeOrders => execute_orders
@@ -37,6 +39,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getTreasuryAddress => treasury_address
         getP2pProtocolFee => p2p_protocol_fee
         getPruningFee => pruning_fee
+        getExecutorWhitelist => executor_whitelist
         isPaused => paused_status
         isAdmin => is_admin
         addAdmin => add_admin

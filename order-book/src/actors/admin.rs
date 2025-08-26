@@ -55,6 +55,25 @@ pub trait AdminModule:
         self.p2p_protocol_fee().set(protocol_fee);
     }
 
+    #[only_admin]
+    #[endpoint(addExecutorsToWhitelist)]
+    fn add_executors_to_whitelist(&self, addresses: MultiValueEncoded<ManagedAddress>) {
+        let mut mapper = self.executor_whitelist();
+        for address in addresses {
+            let _ = mapper.insert(address);
+        }
+    }
+
+    #[only_admin]
+    #[endpoint(removeExecutorsFromWhitelist)]
+    fn remove_exectors_from_whitelist(&self, addresses: MultiValueEncoded<ManagedAddress>) {
+        let mut mapper = self.executor_whitelist();
+        for address in addresses {
+            let removed = mapper.swap_remove(&address);
+            require!(removed, "Address not in whitelist");
+        }
+    }
+
     fn require_valid_percent(&self, percent: Percent) {
         require!(percent <= MAX_PERCENT, "Invalid percent");
     }

@@ -111,6 +111,32 @@
             "outputs": []
         },
         {
+            "name": "addExecutorsToWhitelist",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "addresses",
+                    "type": "variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "removeExecutorsFromWhitelist",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "addresses",
+                    "type": "variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "createOrder",
             "mutability": "mutable",
             "payableInTokens": [
@@ -153,12 +179,15 @@
             "outputs": []
         },
         {
+            "docs": [
+                "args are pairs of (order ID, token amount to swap, vec of SwapOperationType - which will be passed to router when swapping)"
+            ],
             "name": "executeOrders",
             "mutability": "mutable",
             "inputs": [
                 {
-                    "name": "order_id_token_amount_pairs",
-                    "type": "variadic<multi<u64,BigUint>>",
+                    "name": "args",
+                    "type": "variadic<multi<u64,BigUint,List<SwapOperationType>>>",
                     "multi_arg": true
                 }
             ],
@@ -268,6 +297,17 @@
             "outputs": [
                 {
                     "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getExecutorWhitelist",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Address>",
+                    "multi_result": true
                 }
             ]
         },
@@ -510,16 +550,50 @@
                 }
             ]
         },
+        "RouterEndpointName": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "FixedInput",
+                    "discriminant": 0
+                },
+                {
+                    "name": "FixedOutput",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "SwapOperationType": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "endpoint_name",
+                    "type": "RouterEndpointName"
+                },
+                {
+                    "name": "output_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ]
+        },
         "SwapStatus": {
             "type": "enum",
             "variants": [
                 {
-                    "name": "Success",
+                    "name": "InvalidInput",
                     "discriminant": 0
                 },
                 {
                     "name": "Fail",
                     "discriminant": 1
+                },
+                {
+                    "name": "Success",
+                    "discriminant": 2
                 }
             ]
         }
