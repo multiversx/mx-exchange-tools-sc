@@ -9,6 +9,9 @@ use crate::{
 
 multiversx_sc::imports!();
 
+pub type RouterArg<M> =
+    MultiValue4<ManagedAddress<M>, ManagedBuffer<M>, TokenIdentifier<M>, BigUint<M>>;
+
 #[multiversx_sc::module]
 pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModule {
     // TODO: use the new execute on dest which returns status after upgrade
@@ -47,8 +50,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         order: &Order<Self::Api>,
         input_token_amount: &BigUint,
         swap_path: &ManagedVec<SwapOperationType<Self::Api>>,
-    ) -> MultiValueEncoded<MultiValue4<ManagedAddress, ManagedBuffer, TokenIdentifier, BigUint>>
-    {
+    ) -> MultiValueEncoded<RouterArg<Self::Api>> {
         let last_index = swap_path.len() - 1;
         let mut swap_operations = MultiValueEncoded::new();
         for (i, single_path) in swap_path.iter().enumerate() {

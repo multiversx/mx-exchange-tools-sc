@@ -55,11 +55,16 @@ pub trait ExecutorModule:
                 continue;
             }
 
-            let order = self.orders(order_id).get();
+            let mut order = self.orders(order_id).get();
             let opt_tokens_out = self.execute_swap(&order, &input_token_amount, &swap_path);
             match opt_tokens_out {
                 OptionalValue::Some(payment) => {
-                    self.update_order_after_success(order_id, order, &payment, &input_token_amount);
+                    self.update_order_after_success(
+                        order_id,
+                        &mut order,
+                        &payment,
+                        &input_token_amount,
+                    );
                     self.distribute_tokens();
 
                     swap_statuses.push(SwapStatus::Success);
@@ -115,7 +120,7 @@ pub trait ExecutorModule:
     fn update_order_after_success(
         &self,
         order_id: OrderId,
-        mut order: Order<Self::Api>,
+        order: &mut Order<Self::Api>,
         received_payment: &EsdtTokenPayment,
         input_token_amount: &BigUint,
     ) {
