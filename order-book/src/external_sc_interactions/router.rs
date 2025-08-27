@@ -61,7 +61,11 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
             let min_output = if i != last_index {
                 BigUint::from(1u32)
             } else {
-                &order.min_total_output * &order.initial_input_amount / input_token_amount
+                self.calculate_min_maker_amount(
+                    &order.min_total_output,
+                    &order.initial_input_amount,
+                    input_token_amount,
+                )
             };
 
             swap_operations.push(
@@ -76,6 +80,16 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         }
 
         swap_operations
+    }
+
+    #[inline]
+    fn calculate_min_maker_amount(
+        &self,
+        min_total_output: &BigUint,
+        initial_input_amount: &BigUint,
+        current_token_input_amount: &BigUint,
+    ) -> BigUint {
+        min_total_output * initial_input_amount / current_token_input_amount
     }
 
     #[proxy]

@@ -1,4 +1,7 @@
-use crate::storage::order::{Order, OrderId};
+use crate::storage::{
+    common_storage::MAX_PERCENT,
+    order::{Order, OrderId},
+};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -41,9 +44,9 @@ pub trait ExecutorModule:
     ) -> MultiValueEncoded<SwapStatus> {
         self.require_not_paused();
 
-        let caller = self.blockchain().get_caller();
+        let executor = self.blockchain().get_caller();
         require!(
-            self.executor_whitelist().contains(&caller),
+            self.executor_whitelist().contains(&executor),
             "Not in executor whitelist"
         );
 
@@ -67,7 +70,7 @@ pub trait ExecutorModule:
                         &payment,
                         &input_token_amount,
                     );
-                    self.distribute_tokens();
+                    self.distribute_tokens(&order, &input_token_amount, &executor, &payment);
 
                     swap_statuses.push(SwapStatus::Success);
                 }
@@ -136,6 +139,7 @@ pub trait ExecutorModule:
         let remaining_amount = order.current_input_amount.clone();
         if remaining_amount > 0 {
             self.orders(order_id).set(order);
+
             self.emit_order_executed_partly_event(
                 order_id,
                 input_token_amount.clone(),
@@ -148,5 +152,38 @@ pub trait ExecutorModule:
         }
     }
 
-    fn distribute_tokens(&self) {}
+    fn distribute_tokens(
+        &self,
+        order: &Order<Self::Api>,
+        input_token_amount: &BigUint,
+        executor: &ManagedAddress,
+        output_tokens: &EsdtTokenPayment,
+    ) {
+        let min_maker_amount = self.calculate_min_maker_amount(
+            &order.min_total_output,
+            &order.initial_input_amount,
+            input_token_amount,
+        );
+
+        let mut total_executor_amount = &output_tokens.amount * order.executor_fee / MAX_PERCENT;
+        let mut maker_amount = &output_tokens.amount - &total_executor_amount;
+        if maker_amount > min_maker_amount {
+            let surplus = &maker_amount - &min_maker_amount;
+            total_executor_amount += &surplus;
+            maker_amount -= surplus;
+        }
+
+        self.send().direct_non_zero_esdt_payment(
+            &order.maker,
+            &EsdtTokenPayment::new(output_tokens.token_identifier.clone(), 0, maker_amount),
+        );
+        self.send().direct_non_zero_esdt_payment(
+            executor,
+            &EsdtTokenPayment::new(
+                output_tokens.token_identifier.clone(),
+                0,
+                total_executor_amount,
+            ),
+        );
+    }
 }
