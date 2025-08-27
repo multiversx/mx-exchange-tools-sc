@@ -27,12 +27,6 @@ pub trait PauseModule {
         require!(self.not_paused(), "Contract is paused");
     }
 
-    #[event("pauseContract")]
-    fn pause_event(&self);
-
-    #[event("unpauseContract")]
-    fn unpause_event(&self);
-
     #[view(isPaused)]
     #[storage_mapper("pause_module:paused")]
     fn paused_status(&self) -> SingleValueMapper<bool>;

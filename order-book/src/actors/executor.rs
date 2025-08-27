@@ -39,6 +39,8 @@ pub trait ExecutorModule:
             MultiValue3<OrderId, BigUint, ManagedVec<SwapOperationType<Self::Api>>>,
         >,
     ) -> MultiValueEncoded<SwapStatus> {
+        self.require_not_paused();
+
         let caller = self.blockchain().get_caller();
         require!(
             self.executor_whitelist().contains(&caller),
@@ -129,15 +131,20 @@ pub trait ExecutorModule:
             "Invalid token received from router"
         );
 
-        if order.current_input_amount > 0 {
-            order.current_input_amount -= input_token_amount;
-            self.orders(order_id).set(order);
+        order.current_input_amount -= input_token_amount;
 
-            // TODO: event
+        let remaining_amount = order.current_input_amount.clone();
+        if remaining_amount > 0 {
+            self.orders(order_id).set(order);
+            self.emit_order_executed_partly_event(
+                order_id,
+                input_token_amount.clone(),
+                remaining_amount,
+            );
         } else {
             self.orders(order_id).clear();
 
-            // TODO: event
+            self.emit_order_executed_fully_event(order_id, input_token_amount.clone());
         }
     }
 

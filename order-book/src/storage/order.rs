@@ -10,12 +10,6 @@ pub const MINUTE_IN_SECONDS: Timestamp = 60;
 pub const HOUR_IN_SECONDS: Timestamp = 60 * MINUTE_IN_SECONDS;
 pub const DAY_IN_SECONDS: Timestamp = 24 * HOUR_IN_SECONDS;
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
-pub enum OrderStatus {
-    Pending,
-    PartiallyFilled,
-}
-
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub enum OrderDuration {
     Minutes(u8),
@@ -32,7 +26,6 @@ pub struct Order<M: ManagedTypeApi> {
     pub current_input_amount: BigUint<M>,
     pub min_total_output: BigUint<M>,
     pub executor_fee: Percent,
-    pub status: OrderStatus,
     pub creation_timestamp: Timestamp,
     pub expiration_timestamp: Timestamp,
 }
@@ -54,7 +47,6 @@ pub trait OrderModule {
         &self,
         start_id: OrderId,
         return_data_limit: usize,
-        opt_required_status: OptionalValue<OrderStatus>,
     ) -> MultiValueEncoded<MultiValue2<OrderId, Order<Self::Api>>> {
         let mut result = MultiValueEncoded::new();
 
@@ -71,12 +63,6 @@ pub trait OrderModule {
             }
 
             let order = order_mapper.get();
-            if let OptionalValue::Some(required_status) = &opt_required_status {
-                if &order.status != required_status {
-                    continue;
-                }
-            }
-
             result.push((current_id, order).into());
             result_len += 1;
 

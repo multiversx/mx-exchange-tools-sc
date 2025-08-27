@@ -231,11 +231,6 @@
                 {
                     "name": "return_data_limit",
                     "type": "u32"
-                },
-                {
-                    "name": "opt_required_status",
-                    "type": "optional<OrderStatus>",
-                    "multi_arg": true
                 }
             ],
             "outputs": [
@@ -374,6 +369,14 @@
     ],
     "events": [
         {
+            "identifier": "pauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "unpauseContract",
+            "inputs": []
+        },
+        {
             "identifier": "createOrderEvent",
             "inputs": [
                 {
@@ -383,7 +386,7 @@
                 },
                 {
                     "name": "event_data",
-                    "type": "CreateOrderEvent"
+                    "type": "CreateOrderEventData"
                 }
             ]
         },
@@ -408,22 +411,46 @@
                     "name": "order_id",
                     "type": "u64",
                     "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
                 }
             ]
         },
         {
-            "identifier": "pauseContract",
-            "inputs": []
+            "identifier": "orderExecutedPartlyEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "OrderExecutedPartlyEventData"
+                }
+            ]
         },
         {
-            "identifier": "unpauseContract",
-            "inputs": []
+            "identifier": "orderExecutedFullyEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "OrderExecutedFullyEventData"
+                }
+            ]
         }
     ],
     "esdtAttributes": [],
     "hasCallback": false,
     "types": {
-        "CreateOrderEvent": {
+        "CreateOrderEventData": {
             "type": "struct",
             "fields": [
                 {
@@ -489,10 +516,6 @@
                     "type": "u32"
                 },
                 {
-                    "name": "status",
-                    "type": "OrderStatus"
-                },
-                {
                     "name": "creation_timestamp",
                     "type": "u64"
                 },
@@ -537,16 +560,33 @@
                 }
             ]
         },
-        "OrderStatus": {
-            "type": "enum",
-            "variants": [
+        "OrderExecutedFullyEventData": {
+            "type": "struct",
+            "fields": [
                 {
-                    "name": "Pending",
-                    "discriminant": 0
+                    "name": "part_filled",
+                    "type": "BigUint"
                 },
                 {
-                    "name": "PartiallyFilled",
-                    "discriminant": 1
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "OrderExecutedPartlyEventData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "part_filled",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "remaining_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
                 }
             ]
         },

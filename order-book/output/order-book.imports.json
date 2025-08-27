@@ -9,7 +9,6 @@
   "bigIntTDiv",
   "checkNoPayment",
   "cleanReturnData",
-  "getArgumentLength",
   "getBlockEpoch",
   "getBlockNonce",
   "getBlockTimestamp",

@@ -6,6 +6,7 @@ multiversx_sc::imports!();
 pub trait AdminModule:
     crate::storage::common_storage::CommonStorageModule
     + crate::pause::PauseModule
+    + crate::events::EventsModule
     + utils::UtilsModule
     + multiversx_sc_modules::only_admin::OnlyAdminModule
 {

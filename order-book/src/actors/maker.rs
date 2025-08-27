@@ -1,9 +1,6 @@
 use crate::storage::{
     common_storage::{Percent, MAX_PERCENT},
-    order::{
-        Order, OrderDuration, OrderId, OrderStatus, DAY_IN_SECONDS, HOUR_IN_SECONDS,
-        MINUTE_IN_SECONDS,
-    },
+    order::{Order, OrderDuration, OrderId, DAY_IN_SECONDS, HOUR_IN_SECONDS, MINUTE_IN_SECONDS},
 };
 
 multiversx_sc::imports!();
@@ -57,7 +54,6 @@ pub trait MakerModule:
             current_input_amount: amount,
             min_total_output,
             executor_fee,
-            status: OrderStatus::Pending,
             creation_timestamp: current_timestamp,
             expiration_timestamp,
         };
