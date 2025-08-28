@@ -20,7 +20,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         order: &Order<Self::Api>,
         input_token_amount: &BigUint,
         swap_path: &ManagedVec<SwapOperationType<Self::Api>>,
-    ) -> OptionalValue<EsdtTokenPayment> {
+    ) -> Option<EsdtTokenPayment> {
         let router_address = self.router_address().get();
         let router_args = self.convert_to_router_args(order, input_token_amount, swap_path);
         let mut returned_payments: ManagedVec<EsdtTokenPayment> = self
@@ -42,7 +42,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
             self.send().direct_multi(&order.maker, &returned_payments);
         }
 
-        OptionalValue::Some(last_payment)
+        Some(last_payment)
     }
 
     fn convert_to_router_args(

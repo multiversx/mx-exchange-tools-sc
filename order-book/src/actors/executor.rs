@@ -44,12 +44,7 @@ pub trait ExecutorModule:
     ) -> MultiValueEncoded<SwapStatus> {
         self.require_not_paused();
 
-        let executor = self.blockchain().get_caller();
-        require!(
-            self.executor_whitelist().contains(&executor),
-            "Not in executor whitelist"
-        );
-
+        let executor = self.get_executor();
         let mut swap_statuses = MultiValueEncoded::new();
         for arg in args {
             let (order_id, input_token_amount, swap_path) = arg.into_tuple();
@@ -63,24 +58,34 @@ pub trait ExecutorModule:
             let mut order = self.orders(order_id).get();
             let opt_tokens_out = self.execute_swap(&order, &input_token_amount, &swap_path);
             match opt_tokens_out {
-                OptionalValue::Some(payment) => {
+                Some(payment) => {
                     self.update_order_after_success(
                         order_id,
                         &mut order,
                         &payment,
                         &input_token_amount,
                     );
-                    self.distribute_tokens(&order, &input_token_amount, &executor, &payment);
+                    self.distribute_tokens(&order, &executor, &input_token_amount, &payment);
 
                     swap_statuses.push(SwapStatus::Success);
                 }
-                OptionalValue::None => {
+                None => {
                     swap_statuses.push(SwapStatus::Fail);
                 }
             }
         }
 
         swap_statuses
+    }
+
+    fn get_executor(&self) -> ManagedAddress {
+        let executor = self.blockchain().get_caller();
+        require!(
+            self.executor_whitelist().contains(&executor),
+            "Not in executor whitelist"
+        );
+
+        executor
     }
 
     /// returns `true` if input is valid, `false` otherwise
@@ -155,8 +160,8 @@ pub trait ExecutorModule:
     fn distribute_tokens(
         &self,
         order: &Order<Self::Api>,
-        input_token_amount: &BigUint,
         executor: &ManagedAddress,
+        input_token_amount: &BigUint,
         output_tokens: &EsdtTokenPayment,
     ) {
         let min_maker_amount = self.calculate_min_maker_amount(
