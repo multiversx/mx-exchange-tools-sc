@@ -560,12 +560,11 @@ fn test_boost_multiplier_formula() {
 
             assert_eq!(ranking.len(), 3, "Should have exactly 3 ranked tokens");
 
-            // With new shares-based approach:
+            // With boost formula: final_votes = original_votes * (1 + boost_share/2)
             // Each token has 1B boost, total boost = 3B
-            // Each token share = 1B/3B = 1/3
-            // boosted_share = (1/3) * (5×10^11) / 10^12 = (5×10^11) / (3×10^12) = 5/(3×10) = 1/6
-            // Final multiplier = 1 + 1/6 = 7/6
-            // Final votes = 1000 * (7/6) = 1166.67 ≈ 1167
+            // Each token boost_share = 1B/3B = 1/3
+            // token_coef = 1 + (1/3) * (1/2) = 1 + 1/6 = 7/6
+            // Final votes = 1000 * (7/6) = 1166.67 ≈ 1166 (integer division)
             let expected_boosted_votes = managed_biguint!(1166u64); // Floor of 1166.67
 
             for i in 0..ranking.len() {
@@ -646,13 +645,13 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
             let ranking = sc.get_week_ranking(current_week);
             assert_eq!(ranking.len(), 10, "Should have exactly 10 ranked tokens");
 
-            // Expected ranking with shares-based boost formula:
+            // Expected ranking with boost formula: final_votes = original_votes * (1 + boost_share/2)
             // Total boost = 1B + 1B + 2B + 2B + 3B = 9B
-            // TOKEN-02: share = 1B/9B, boost_percentage = (1/9) * 5000/10000 = 0.0556, final = 9000 * (1 + 0.0556) = 9500
-            // TOKEN-04: share = 1B/9B, boost_percentage = (1/9) * 5000/10000 = 0.0556, final = 7000 * (1 + 0.0556) = 7389
-            // TOKEN-06: share = 2B/9B, boost_percentage = (2/9) * 5000/10000 = 0.1111, final = 5000 * (1 + 0.1111) = 5556
-            // TOKEN-08: share = 2B/9B, boost_percentage = (2/9) * 5000/10000 = 0.1111, final = 3000 * (1 + 0.1111) = 3333
-            // TOKEN-10: share = 3B/9B, boost_percentage = (3/9) * 5000/10000 = 0.1667, final = 1000 * (1 + 0.1667) = 1167
+            // TOKEN-02: boost_share = 1B/9B, token_coef = 1 + (1/9) * (1/2) = 19/18, final = 9000 * 19/18 ≈ 9499
+            // TOKEN-04: boost_share = 1B/9B, token_coef = 1 + (1/9) * (1/2) = 19/18, final = 7000 * 19/18 ≈ 7388
+            // TOKEN-06: boost_share = 2B/9B, token_coef = 1 + (2/9) * (1/2) = 10/9, final = 5000 * 10/9 ≈ 5555
+            // TOKEN-08: boost_share = 2B/9B, token_coef = 1 + (2/9) * (1/2) = 10/9, final = 3000 * 10/9 ≈ 3333
+            // TOKEN-10: boost_share = 3B/9B, token_coef = 1 + (3/9) * (1/2) = 7/6, final = 1000 * 7/6 ≈ 1166
             //
             // Final expected order (after boost + sorting):
             // 1. TOKEN-01: 10000 votes (no boost)
