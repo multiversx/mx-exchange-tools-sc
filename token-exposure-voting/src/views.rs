@@ -5,10 +5,9 @@ use week_timekeeping::Week;
 
 use crate::config::{BoostedToken, TokenRanking};
 
-// Constants for boost multiplier calculations
-const PRECISION: u64 = 1_000_000u64;
-const BOOST_FACTOR_NUMERATOR: u64 = PRECISION / 2; // (50% factor)
-const BASE_MULTIPLIER: u64 = PRECISION + PRECISION / 2; // (150% base multiplier)
+// Constants for shares-based boost calculations
+pub const DIVISION_SAFETY_CONSTANT: u64 = 1_000_000_000_000;
+pub const BOOST_COEF: u64 = DIVISION_SAFETY_CONSTANT / 2;
 
 #[derive(TypeAbi, TopEncode)]
 pub struct TokenRankPosition {
@@ -84,85 +83,40 @@ pub trait ViewsModule: crate::config::ConfigModule {
         ranking: &mut ManagedVec<TokenRanking<Self::Api>>,
         week: Week,
     ) {
-        let boosted_tokens = self.collect_boosted_tokens(ranking, week);
+        let total_boosted_amount = self.total_boosted_amount(week).get();
 
-        if boosted_tokens.is_empty() {
+        if total_boosted_amount == 0 {
             return;
         }
 
-        let sorted_boosted_tokens = self.sort_boosted_tokens_by_votes(boosted_tokens, week);
-        self.apply_multipliers_to_ranking(ranking, &sorted_boosted_tokens);
+        self.apply_shares_based_boost(ranking, week, &total_boosted_amount);
     }
 
-    fn collect_boosted_tokens(
-        &self,
-        ranking: &ManagedVec<TokenRanking<Self::Api>>,
-        week: Week,
-    ) -> ManagedVec<BoostedToken<Self::Api>> {
-        let mut boosted_tokens = ManagedVec::<Self::Api, BoostedToken<Self::Api>>::new();
-
-        for token_ranking in ranking.iter() {
-            let boost_amount = self.boosted_amount(&token_ranking.token_id, week).get();
-            if boost_amount == 0 {
-                continue;
-            }
-
-            boosted_tokens.push(BoostedToken {
-                token_id: token_ranking.token_id,
-                boost_amount,
-            });
-        }
-
-        boosted_tokens
-    }
-
-    fn sort_boosted_tokens_by_votes(
-        &self,
-        mut boosted_tokens: ManagedVec<BoostedToken<Self::Api>>,
-        week: Week,
-    ) -> ManagedVec<BoostedToken<Self::Api>> {
-        let boosted_len = boosted_tokens.len();
-        for i in 0..boosted_len {
-            let mut max_idx = i;
-            for j in i + 1..boosted_len {
-                let current_votes = self
-                    .token_votes(&boosted_tokens.get(j).token_id, week)
-                    .get();
-                let max_votes = self
-                    .token_votes(&boosted_tokens.get(max_idx).token_id, week)
-                    .get();
-                if current_votes > max_votes {
-                    max_idx = j;
-                }
-            }
-            self.swap_boosted_tokens(&mut boosted_tokens, i, max_idx);
-        }
-
-        boosted_tokens
-    }
-
-    fn apply_multipliers_to_ranking(
+    fn apply_shares_based_boost(
         &self,
         ranking: &mut ManagedVec<TokenRanking<Self::Api>>,
-        boosted_tokens: &ManagedVec<BoostedToken<Self::Api>>,
+        week: Week,
+        total_boosted_amount: &BigUint,
     ) {
-        let num_boosted = BigUint::from(boosted_tokens.len());
-        let boost_factor_numerator = BigUint::from(BOOST_FACTOR_NUMERATOR);
-        let precision = BigUint::from(PRECISION);
-        let boost_factor = boost_factor_numerator / &num_boosted;
+        let div_safety = BigUint::from(DIVISION_SAFETY_CONSTANT);
+        let boost_coef = BigUint::from(BOOST_COEF);
 
-        for (index, boosted_token) in boosted_tokens.iter().enumerate() {
-            let base_multiplier = BigUint::from(BASE_MULTIPLIER);
-            let reduction = &boost_factor * &BigUint::from(index);
-            let final_multiplier = base_multiplier - reduction;
+        for i in 0..ranking.len() {
+            let mut token_ranking = ranking.get(i);
+            let boosted_amount = self.boosted_amount(&token_ranking.token_id, week).get();
 
-            for i in 0..ranking.len() {
-                let mut token_ranking = ranking.get(i);
-                if token_ranking.token_id == boosted_token.token_id {
-                    token_ranking.votes = &token_ranking.votes * &final_multiplier / &precision;
-                    let _ = ranking.set(i, &token_ranking);
-                    break;
-                }
+            if boosted_amount > 0 {
+                // Calculate token_share scaled by div_safety: (boosted_amount / total_boosted_amount) * div_safety
+                let token_share = &div_safety * &boosted_amount / total_boosted_amount;
+
+                // Apply boost coefficient: token_share * boost_coef / div_safety
+                let boosted_share = &token_share * &boost_coef / &div_safety;
+
+                // Final multiplier: div_safety + boosted_share (both scaled by div_safety)
+                let token_coef = &div_safety + &boosted_share;
+
+                token_ranking.votes = &token_ranking.votes * &token_coef / &div_safety;
+                let _ = ranking.set(i, &token_ranking);
             }
         }
     }
@@ -194,20 +148,6 @@ pub trait ViewsModule: crate::config::ConfigModule {
             let max_item = ranking.get(max_idx);
             let _ = ranking.set(i, &max_item);
             let _ = ranking.set(max_idx, &temp);
-        }
-    }
-
-    fn swap_boosted_tokens(
-        &self,
-        tokens: &mut ManagedVec<BoostedToken<Self::Api>>,
-        i: usize,
-        max_idx: usize,
-    ) {
-        if max_idx != i {
-            let temp = tokens.get(i);
-            let max_item = tokens.get(max_idx);
-            let _ = tokens.set(i, &max_item);
-            let _ = tokens.set(max_idx, &temp);
         }
     }
 }

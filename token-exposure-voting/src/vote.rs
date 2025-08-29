@@ -1,5 +1,7 @@
 multiversx_sc::imports!();
 
+use week_timekeeping::Week;
+
 #[multiversx_sc::module]
 pub trait VoteModule:
     crate::config::ConfigModule
@@ -24,7 +26,7 @@ pub trait VoteModule:
         self.total_votes(current_week).update(|total| {
             *total += &user_energy;
         });
-        self.user_has_voted(current_week).add(&caller);
+        self.user_has_voted(current_week).insert(caller);
     }
 
     #[payable("*")]
@@ -32,13 +34,16 @@ pub trait VoteModule:
     fn boost(&self, token_id: TokenIdentifier) {
         let payment = self.call_value().single_esdt();
         let expected_token = self.voting_token_id().get();
+        let current_week = self.get_current_week();
 
         require!(
             payment.token_identifier == expected_token,
             "Wrong token for boosting"
         );
-
-        let current_week = self.get_current_week();
+        require!(
+            self.token_votes(&token_id, current_week).get() > 0,
+            "Token has no active votes"
+        );
 
         self.boosted_amount(&token_id, current_week)
             .update(|amount| *amount += &payment.amount);
@@ -59,5 +64,14 @@ pub trait VoteModule:
         require!(balance > 0, "No boost funds to withdraw");
 
         self.send().direct_esdt(&caller, &voting_token, 0, &balance);
+    }
+
+    #[only_owner]
+    #[endpoint(clearUserVotes)]
+    fn clear_user_votes(&self, week: Week) {
+        let current_week = self.get_current_week();
+        require!(week < current_week, "Can only clear past weeks");
+
+        self.user_has_voted(week).clear();
     }
 }

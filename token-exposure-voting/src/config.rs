@@ -1,7 +1,7 @@
-use week_timekeeping::Week;
-
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
+
+use week_timekeeping::Week;
 
 #[derive(ManagedVecItem, TopEncode, TopDecode, NestedEncode, NestedDecode, TypeAbi, Clone)]
 pub struct TokenRanking<M: ManagedTypeApi> {
@@ -18,7 +18,7 @@ pub struct BoostedToken<M: ManagedTypeApi> {
 #[multiversx_sc::module]
 pub trait ConfigModule {
     #[storage_mapper("userHasVoted")]
-    fn user_has_voted(&self, week: Week) -> WhitelistMapper<ManagedAddress>;
+    fn user_has_voted(&self, week: Week) -> UnorderedSetMapper<ManagedAddress>;
 
     #[view(getTokenVotes)]
     #[storage_mapper("tokenVotes")]

@@ -1,7 +1,11 @@
 #![allow(deprecated)]
 
 use multiversx_sc_scenario::{managed_biguint, managed_token_id, rust_biguint, DebugApi};
-use token_exposure_voting::{config::ConfigModule, views::ViewsModule, vote::VoteModule};
+use token_exposure_voting::{
+    config::ConfigModule,
+    views::{ViewsModule, DIVISION_SAFETY_CONSTANT},
+    vote::VoteModule,
+};
 use week_timekeeping::WeekTimekeepingModule;
 
 mod setup;
@@ -160,6 +164,12 @@ fn test_boost_single_token() {
     let user = setup.create_user_with_voting_tokens(BOOST_AMOUNT * 10);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to the token before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+
     setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT);
 
     setup
@@ -188,6 +198,13 @@ fn test_boost_multiple_tokens() {
     let user2 = setup.create_user_with_voting_tokens(BOOST_AMOUNT * 5);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to both tokens before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0], TEST_TOKENS[1]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+    setup.set_token_votes(TEST_TOKENS[1], current_week, 2000);
+
     setup.boost_token(&user1, TEST_TOKENS[0], BOOST_AMOUNT);
     setup.boost_token(&user2, TEST_TOKENS[1], BOOST_AMOUNT * 2);
 
@@ -222,6 +239,12 @@ fn test_boost_same_token_multiple_times() {
     let user2 = setup.create_user_with_voting_tokens(BOOST_AMOUNT * 5);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to the token before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+
     setup.boost_token(&user1, TEST_TOKENS[0], BOOST_AMOUNT);
     setup.boost_token(&user2, TEST_TOKENS[0], BOOST_AMOUNT * 2);
 
@@ -251,13 +274,17 @@ fn test_boost_different_weeks() {
 
     // Week 1
     setup.set_current_week(1);
-    setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT);
     let week1 = setup.get_current_week();
+    setup.setup_tokens_for_week(week1, &[TEST_TOKENS[0]]);
+    setup.set_token_votes(TEST_TOKENS[0], week1, 1000);
+    setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT);
 
     // Week 2
     setup.set_current_week(2);
-    setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT * 2);
     let week2 = setup.get_current_week();
+    setup.setup_tokens_for_week(week2, &[TEST_TOKENS[0]]);
+    setup.set_token_votes(TEST_TOKENS[0], week2, 2000);
+    setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT * 2);
 
     // Check both weeks
     setup
@@ -338,6 +365,12 @@ fn test_withdraw_boost_funds_owner_only() {
     let user = setup.create_user_with_voting_tokens(BOOST_AMOUNT);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to the token before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+
     setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT);
 
     setup.check_contract_balance(BOOST_AMOUNT);
@@ -368,6 +401,13 @@ fn test_withdraw_boost_funds_by_owner() {
     let user = setup.create_user_with_voting_tokens(BOOST_AMOUNT * 3);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to both tokens before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0], TEST_TOKENS[1]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+    setup.set_token_votes(TEST_TOKENS[1], current_week, 2000);
+
     setup.boost_token(&user, TEST_TOKENS[0], BOOST_AMOUNT);
     setup.boost_token(&user, TEST_TOKENS[1], BOOST_AMOUNT * 2);
 
@@ -389,11 +429,15 @@ fn test_get_boosted_tokens_for_week() {
     let user2 = setup.create_user_with_voting_tokens(BOOST_AMOUNT * 5);
 
     setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Add votes to both tokens before boosting
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0], TEST_TOKENS[2]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000);
+    setup.set_token_votes(TEST_TOKENS[2], current_week, 3000);
+
     setup.boost_token(&user1, TEST_TOKENS[0], BOOST_AMOUNT);
     setup.boost_token(&user2, TEST_TOKENS[2], BOOST_AMOUNT * 3);
-
-    let current_week = setup.get_current_week();
-    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0], TEST_TOKENS[2]]);
 
     setup
         .blockchain
@@ -516,40 +560,35 @@ fn test_boost_multiplier_formula() {
 
             assert_eq!(ranking.len(), 3, "Should have exactly 3 ranked tokens");
 
-            // With 3 boosted tokens:
-            // Boost factor = 0.5 / 3 = 0.167 (in formula)
-            // 1st token: 1.5x - 0.167 * 0 = 1.5x = 1500
-            // 2nd token: 1.5x - 0.167 * 1 = 1.333x ≈ 1333
-            // 3rd token: 1.5x - 0.167 * 2 = 1.167x ≈ 1167
-            let first_token_votes = ranking.get(0).votes;
-            assert!(
-                first_token_votes > managed_biguint!(1000),
-                "First token should have boosted votes"
-            );
-            assert!(
-                first_token_votes <= managed_biguint!(1500),
-                "First token votes should not exceed max boost"
-            );
+            // With new shares-based approach:
+            // Each token has 1B boost, total boost = 3B
+            // Each token share = 1B/3B = 1/3
+            // boosted_share = (1/3) * (5×10^11) / 10^12 = (5×10^11) / (3×10^12) = 5/(3×10) = 1/6
+            // Final multiplier = 1 + 1/6 = 7/6
+            // Final votes = 1000 * (7/6) = 1166.67 ≈ 1167
+            let expected_boosted_votes = managed_biguint!(1166u64); // Floor of 1166.67
 
-            let second_token_votes = ranking.get(1).votes;
-            assert!(
-                second_token_votes > managed_biguint!(1000),
-                "Second token should have boosted votes"
-            );
-            assert!(
-                second_token_votes < first_token_votes,
-                "Second token should have less votes than first"
-            );
-
-            let third_token_votes = ranking.get(2).votes;
-            assert!(
-                third_token_votes > managed_biguint!(1000),
-                "Third token should have boosted votes"
-            );
-            assert!(
-                third_token_votes < second_token_votes,
-                "Third token should have less votes than second"
-            );
+            for i in 0..ranking.len() {
+                let token_votes = ranking.get(i).votes;
+                assert!(
+                    token_votes > managed_biguint!(1000),
+                    "Token {} should have boosted votes, got: {}",
+                    i,
+                    token_votes.to_u64().unwrap_or(0)
+                );
+                assert!(
+                    token_votes >= expected_boosted_votes,
+                    "Token {} votes should be around expected value, got: {}",
+                    i,
+                    token_votes.to_u64().unwrap_or(0)
+                );
+                assert!(
+                    token_votes < managed_biguint!(1200),
+                    "Token {} votes should not be too high, got: {}",
+                    i,
+                    token_votes.to_u64().unwrap_or(0)
+                );
+            }
         })
         .assert_ok();
 }
@@ -607,71 +646,102 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
             let ranking = sc.get_week_ranking(current_week);
             assert_eq!(ranking.len(), 10, "Should have exactly 10 ranked tokens");
 
-            // Expected ranking with boost formula applied:
-            // Boost multiplier = (1.5 - (0.5 * (position - 1) / total_boosted_tokens))
-            // With 5 boosted tokens: factor = 0.5 / 5 = 0.1
-            // Positions are assigned based on original votes (descending): TOKEN-02, TOKEN-04, TOKEN-06, TOKEN-08, TOKEN-10
-            // TOKEN-02: 9000 * (1.5 - 0.1 * 0) = 9000 * 1.5 = 13500
-            // TOKEN-04: 7000 * (1.5 - 0.1 * 1) = 7000 * 1.4 = 9800
-            // TOKEN-06: 5000 * (1.5 - 0.1 * 2) = 5000 * 1.3 = 6500
-            // TOKEN-08: 3000 * (1.5 - 0.1 * 3) = 3000 * 1.2 = 3600
-            // TOKEN-10: 1000 * (1.5 - 0.1 * 4) = 1000 * 1.1 = 1100
+            // Expected ranking with shares-based boost formula:
+            // Total boost = 1B + 1B + 2B + 2B + 3B = 9B
+            // TOKEN-02: share = 1B/9B, boost_percentage = (1/9) * 5000/10000 = 0.0556, final = 9000 * (1 + 0.0556) = 9500
+            // TOKEN-04: share = 1B/9B, boost_percentage = (1/9) * 5000/10000 = 0.0556, final = 7000 * (1 + 0.0556) = 7389
+            // TOKEN-06: share = 2B/9B, boost_percentage = (2/9) * 5000/10000 = 0.1111, final = 5000 * (1 + 0.1111) = 5556
+            // TOKEN-08: share = 2B/9B, boost_percentage = (2/9) * 5000/10000 = 0.1111, final = 3000 * (1 + 0.1111) = 3333
+            // TOKEN-10: share = 3B/9B, boost_percentage = (3/9) * 5000/10000 = 0.1667, final = 1000 * (1 + 0.1667) = 1167
             //
-            // Final expected order:
-            // 1. TOKEN-02: 13500 votes (boosted from 9000)
-            // 2. TOKEN-01: 10000 votes (no boost)
-            // 3. TOKEN-04: 9800 votes (boosted from 7000)
-            // 4. TOKEN-03: 8000 votes (no boost)
-            // 5. TOKEN-06: 6500 votes (boosted from 5000)
-            // 6. TOKEN-05: 6000 votes (no boost)
+            // Final expected order (after boost + sorting):
+            // 1. TOKEN-01: 10000 votes (no boost)
+            // 2. TOKEN-02: 9500 votes (boosted from 9000)
+            // 3. TOKEN-03: 8000 votes (no boost)
+            // 4. TOKEN-04: 7389 votes (boosted from 7000)
+            // 5. TOKEN-05: 6000 votes (no boost)
+            // 6. TOKEN-06: 5556 votes (boosted from 5000)
             // 7. TOKEN-07: 4000 votes (no boost)
-            // 8. TOKEN-08: 3600 votes (boosted from 3000)
+            // 8. TOKEN-08: 3333 votes (boosted from 3000)
             // 9. TOKEN-09: 2000 votes (no boost)
-            // 10. TOKEN-10: 1100 votes (boosted from 1000)
+            // 10. TOKEN-10: 1167 votes (boosted from 1000)
 
             // Verify top 10 positions
             let rank1_token = ranking.get(0);
             let rank1_bytes = rank1_token.token_id.as_managed_buffer().to_vec();
             assert_eq!(
-                rank1_bytes, TEST_TOKENS[1],
-                "TOKEN-02 should be rank 1 (boosted)"
+                rank1_bytes, TEST_TOKENS[0],
+                "TOKEN-01 should be rank 1 (no boost)"
             );
-            assert_eq!(rank1_token.votes, managed_biguint!(13500));
+            assert_eq!(rank1_token.votes, managed_biguint!(10000));
 
             let rank2_token = ranking.get(1);
             let rank2_bytes = rank2_token.token_id.as_managed_buffer().to_vec();
-            assert_eq!(rank2_bytes, TEST_TOKENS[0], "TOKEN-01 should be rank 2");
-            assert_eq!(rank2_token.votes, managed_biguint!(10000));
+            assert_eq!(
+                rank2_bytes, TEST_TOKENS[1],
+                "TOKEN-02 should be rank 2 (boosted)"
+            );
+            // TOKEN-02: boost = 1B, total = 9B
+            // token_coef = 1 + (1/9) * (1/2) = 1 + 1/18 = 19/18
+            // final_votes = 9000 * 19/18 ≈ 9500 (may be 9499 due to integer arithmetic)
+            let expected_token2 = managed_biguint!(9499u64); // Actual result from BigUint operations
+            assert_eq!(
+                rank2_token.votes, expected_token2,
+                "TOKEN-02 votes calculation"
+            );
 
             let rank3_token = ranking.get(2);
             let rank3_bytes = rank3_token.token_id.as_managed_buffer().to_vec();
             assert_eq!(
-                rank3_bytes, TEST_TOKENS[3],
-                "TOKEN-04 should be rank 3 (boosted)"
+                rank3_bytes, TEST_TOKENS[2],
+                "TOKEN-03 should be rank 3 (no boost)"
             );
-            assert_eq!(rank3_token.votes, managed_biguint!(9800));
+            assert_eq!(rank3_token.votes, managed_biguint!(8000));
 
             let rank4_token = ranking.get(3);
             let rank4_bytes = rank4_token.token_id.as_managed_buffer().to_vec();
-            assert_eq!(rank4_bytes, TEST_TOKENS[2], "TOKEN-03 should be rank 4");
-            assert_eq!(rank4_token.votes, managed_biguint!(8000));
+            assert_eq!(
+                rank4_bytes, TEST_TOKENS[3],
+                "TOKEN-04 should be rank 4 (boosted)"
+            );
+            // TOKEN-04: boost = 1B, total = 9B
+            // token_coef = 1 + (1/9) * (1/2) = 1 + 1/18 = 19/18
+            // final_votes = 7000 * 19/18 = 133000/18 ≈ 7388 (integer division)
+            let expected_token4 = managed_biguint!(7388u64);
+            assert_eq!(
+                rank4_token.votes, expected_token4,
+                "TOKEN-04 votes calculation"
+            );
 
             let rank5_token = ranking.get(4);
             let rank5_bytes = rank5_token.token_id.as_managed_buffer().to_vec();
             assert_eq!(
-                rank5_bytes, TEST_TOKENS[5],
-                "TOKEN-06 should be rank 5 (boosted)"
+                rank5_bytes, TEST_TOKENS[4],
+                "TOKEN-05 should be rank 5 (no boost)"
             );
-            assert_eq!(rank5_token.votes, managed_biguint!(6500));
+            assert_eq!(rank5_token.votes, managed_biguint!(6000));
 
             let rank6_token = ranking.get(5);
             let rank6_bytes = rank6_token.token_id.as_managed_buffer().to_vec();
-            assert_eq!(rank6_bytes, TEST_TOKENS[4], "TOKEN-05 should be rank 6");
-            assert_eq!(rank6_token.votes, managed_biguint!(6000));
+            assert_eq!(
+                rank6_bytes, TEST_TOKENS[5],
+                "TOKEN-06 should be rank 6 (boosted)"
+            );
+            // TOKEN-06: boost = 2B, total = 9B
+            // token_coef = 1 + (2/9) * (1/2) = 1 + 1/9 = 10/9
+            // final_votes = 5000 * 10/9 = 50000/9 ≈ 5555 (integer division)
+            let expected_token6 = managed_biguint!(5555u64);
+            assert_eq!(
+                rank6_token.votes, expected_token6,
+                "TOKEN-06 votes calculation"
+            );
 
             let rank7_token = ranking.get(6);
             let rank7_bytes = rank7_token.token_id.as_managed_buffer().to_vec();
-            assert_eq!(rank7_bytes, TEST_TOKENS[6], "TOKEN-07 should be rank 7");
+            assert_eq!(
+                rank7_bytes, TEST_TOKENS[6],
+                "TOKEN-07 should be rank 7 (no boost)"
+            );
             assert_eq!(rank7_token.votes, managed_biguint!(4000));
 
             let rank8_token = ranking.get(7);
@@ -680,11 +750,21 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
                 rank8_bytes, TEST_TOKENS[7],
                 "TOKEN-08 should be rank 8 (boosted)"
             );
-            assert_eq!(rank8_token.votes, managed_biguint!(3600));
+            // TOKEN-08: boost = 2B, total = 9B
+            // token_coef = 1 + (2/9) * (1/2) = 1 + 1/9 = 10/9
+            // final_votes = 3000 * 10/9 = 30000/9 ≈ 3333 (integer division)
+            let expected_token8 = managed_biguint!(3333u64);
+            assert_eq!(
+                rank8_token.votes, expected_token8,
+                "TOKEN-08 votes calculation"
+            );
 
             let rank9_token = ranking.get(8);
             let rank9_bytes = rank9_token.token_id.as_managed_buffer().to_vec();
-            assert_eq!(rank9_bytes, TEST_TOKENS[8], "TOKEN-09 should be rank 9");
+            assert_eq!(
+                rank9_bytes, TEST_TOKENS[8],
+                "TOKEN-09 should be rank 9 (no boost)"
+            );
             assert_eq!(rank9_token.votes, managed_biguint!(2000));
 
             let rank10_token = ranking.get(9);
@@ -693,7 +773,14 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
                 rank10_bytes, TEST_TOKENS[9],
                 "TOKEN-10 should be rank 10 (boosted)"
             );
-            assert_eq!(rank10_token.votes, managed_biguint!(1100));
+            // TOKEN-10: boost = 3B, total = 9B
+            // token_coef = 1 + (3/9) * (1/2) = 1 + 1/6 = 7/6
+            // final_votes = 1000 * 7/6 = 7000/6 ≈ 1166 (integer division)
+            let expected_token10 = managed_biguint!(1166u64);
+            assert_eq!(
+                rank10_token.votes, expected_token10,
+                "TOKEN-10 votes calculation"
+            );
 
             // Verify all boosted tokens have the expected boost amounts
             let token10_boost = sc
@@ -800,36 +887,36 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
     setup
         .blockchain
         .execute_query(&setup.sc_wrapper, |sc| {
-            // TOKEN-02 should be rank 1 (boosted)
-            let token02_ranking =
-                sc.get_token_ranking(managed_token_id!(TEST_TOKENS[1]), current_week);
-            let pos = token02_ranking.token_position;
-            let total = token02_ranking.total_tokens;
-            assert_eq!(pos, 1, "TOKEN-02 should be rank 1 (boosted)");
-            assert_eq!(total, 10, "Total tokens should be 10");
-
-            // TOKEN-01 should be rank 2 (no boost)
+            // TOKEN-01 should be rank 1 (no boost but highest base votes)
             let token01_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[0]), current_week);
             let pos = token01_ranking.token_position;
             let total = token01_ranking.total_tokens;
-            assert_eq!(pos, 2, "TOKEN-01 should be rank 2");
+            assert_eq!(pos, 1, "TOKEN-01 should be rank 1");
             assert_eq!(total, 10, "Total tokens should be 10");
 
-            // TOKEN-04 should be rank 3 (boosted)
+            // TOKEN-02 should be rank 2 (boosted)
+            let token02_ranking =
+                sc.get_token_ranking(managed_token_id!(TEST_TOKENS[1]), current_week);
+            let pos = token02_ranking.token_position;
+            let total = token02_ranking.total_tokens;
+            assert_eq!(pos, 2, "TOKEN-02 should be rank 2");
+            assert_eq!(total, 10, "Total tokens should be 10");
+
+            // TOKEN-04 should be rank 4 (boosted)
             let token04_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[3]), current_week);
             let pos = token04_ranking.token_position;
             let total = token04_ranking.total_tokens;
-            assert_eq!(pos, 3, "TOKEN-04 should be rank 3 (boosted)");
+            assert_eq!(pos, 4, "TOKEN-04 should be rank 4 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
-            // TOKEN-06 should be rank 5 (boosted)
+            // TOKEN-06 should be rank 6 (boosted)
             let token06_ranking =
                 sc.get_token_ranking(managed_token_id!(TEST_TOKENS[5]), current_week);
             let pos = token06_ranking.token_position;
             let total = token06_ranking.total_tokens;
-            assert_eq!(pos, 5, "TOKEN-06 should be rank 5 (boosted)");
+            assert_eq!(pos, 6, "TOKEN-06 should be rank 6 (boosted)");
             assert_eq!(total, 10, "Total tokens should be 10");
 
             // TOKEN-08 should be rank 8 (boosted)
@@ -850,6 +937,67 @@ fn test_comprehensive_ranking_with_10_tokens_and_5_users() {
                 "TOKEN-10 should be rank 10 (boosted but still last)"
             );
             assert_eq!(total, 10, "Total tokens should be 10");
+        })
+        .assert_ok();
+}
+
+#[test]
+fn test_boost_exceeding_division_safety_constant() {
+    DebugApi::dummy();
+    let mut setup = TokenExposureVotingSetup::new(
+        token_exposure_voting::contract_obj,
+        energy_factory::contract_obj,
+    );
+
+    let div_safety_constant = DIVISION_SAFETY_CONSTANT;
+
+    // Create users with vastly different boost capabilities
+    let small_user = setup.create_user_with_voting_tokens(1); // Only 1 token for boost
+                                                              // Create big user with boost amount > division safety constant
+    let big_boost_amount = div_safety_constant * 10; // 10 times the division safety constant
+    let big_user = setup.create_user_with_voting_tokens(big_boost_amount);
+
+    setup.set_current_week(1);
+    let current_week = setup.get_current_week();
+
+    // Set up two tokens with equal votes to see the boost effect clearly
+    setup.setup_tokens_for_week(current_week, &[TEST_TOKENS[0], TEST_TOKENS[1]]);
+    setup.set_token_votes(TEST_TOKENS[0], current_week, 1000); // Equal base votes
+    setup.set_token_votes(TEST_TOKENS[1], current_week, 1000); // Equal base votes
+
+    // Apply extremely unbalanced boosts:
+    setup.boost_token(&small_user, TEST_TOKENS[0], 1); // 1 token unit boost
+    setup.boost_token(&big_user, TEST_TOKENS[1], big_boost_amount); // Boost > div_safety
+
+    setup
+        .blockchain
+        .execute_query(&setup.sc_wrapper, |sc| {
+            let ranking = sc.get_week_ranking(current_week);
+            assert_eq!(ranking.len(), 2, "Should have exactly 2 ranked tokens");
+
+            for i in 0..ranking.len() {
+                let token_ranking = ranking.get(i);
+                let token_bytes = token_ranking.token_id.as_managed_buffer().to_vec();
+                let final_votes = token_ranking.votes.to_u64().unwrap_or(0);
+
+                let boost = sc.boosted_amount(&token_ranking.token_id, current_week).get();
+                let boost_amount = boost.to_u64().unwrap_or(0);
+
+                if token_bytes == TEST_TOKENS[0] {
+                    assert_eq!(boost_amount, 1, "TOKEN-01 should have a small boost amount");
+                    assert_eq!(final_votes, 1000, "Small boost should result in zero boost effect when dominated by big boost");
+
+                } else if token_bytes == TEST_TOKENS[1] {
+                    // Maximum theoretical boost would be 500
+                    // Here we should have a rounding effect, that brings the final votes slightly below 1500
+                    assert_eq!(boost_amount, big_boost_amount, "TOKEN-02 should have big boost amount");
+                    assert_eq!(final_votes, 1499, "Big boost should get close to maximum boost effect");
+                }
+            }
+
+            let total_boost = sc.total_boosted_amount(current_week).get();
+            let expected_total = 1 + big_boost_amount;
+            assert_eq!(total_boost.to_u64().unwrap(), expected_total, "Total boost should match sum of individual boosts");
         })
         .assert_ok();
 }

@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           16
+// Endpoints:                           17
 // Async Callback (empty):               1
-// Total number of exported functions:  19
+// Total number of exported functions:  20
 
 #![no_std]
 
@@ -29,6 +29,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         vote => vote
         boost => boost
         withdrawBoostFunds => withdraw_boost_funds
+        clearUserVotes => clear_user_votes
         getBoostedTokensForWeek => get_boosted_tokens_for_week
         getTokenRanking => get_token_ranking
         getWeekRanking => get_week_ranking
