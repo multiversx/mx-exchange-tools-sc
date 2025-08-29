@@ -16,6 +16,7 @@ pub trait OrderBook:
     + actors::maker::MakerModule
     + actors::executor::ExecutorModule
     + actors::pruner::PrunerModule
+    + actors::taker::TakerModule
     + external_sc_interactions::router::RouterActionsModule
     + storage::order::OrderModule
     + storage::common_storage::CommonStorageModule

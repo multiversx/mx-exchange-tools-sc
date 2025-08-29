@@ -210,6 +210,24 @@
             "outputs": []
         },
         {
+            "name": "fillOrderP2PByBuyingInput",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "nr_tokens_to_buy",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "getLastOrderId",
             "mutability": "readonly",
             "inputs": [],
