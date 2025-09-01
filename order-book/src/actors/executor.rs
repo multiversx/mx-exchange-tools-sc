@@ -59,11 +59,15 @@ pub trait ExecutorModule:
             let opt_tokens_out = self.execute_swap(&order, &input_token_amount, &swap_path);
             match opt_tokens_out {
                 Some(payment) => {
-                    self.update_order_after_success(
+                    require!(
+                        payment.token_identifier == order.output_token,
+                        "Invalid token received from router"
+                    );
+
+                    self.update_order_and_fire_events(
                         order_id,
                         &mut order,
-                        &payment,
-                        &input_token_amount,
+                        input_token_amount.clone(),
                     );
                     self.distribute_tokens(&order, &executor, &input_token_amount, &payment);
 
@@ -125,36 +129,6 @@ pub trait ExecutorModule:
         }
 
         true
-    }
-
-    fn update_order_after_success(
-        &self,
-        order_id: OrderId,
-        order: &mut Order<Self::Api>,
-        received_payment: &EsdtTokenPayment,
-        input_token_amount: &BigUint,
-    ) {
-        require!(
-            received_payment.token_identifier == order.output_token,
-            "Invalid token received from router"
-        );
-
-        order.current_input_amount -= input_token_amount;
-
-        let remaining_amount = order.current_input_amount.clone();
-        if remaining_amount > 0 {
-            self.orders(order_id).set(order);
-
-            self.emit_order_executed_partly_event(
-                order_id,
-                input_token_amount.clone(),
-                remaining_amount,
-            );
-        } else {
-            self.orders(order_id).clear();
-
-            self.emit_order_executed_fully_event(order_id, input_token_amount.clone());
-        }
     }
 
     fn distribute_tokens(

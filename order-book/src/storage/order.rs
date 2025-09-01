@@ -31,7 +31,7 @@ pub struct Order<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::module]
-pub trait OrderModule {
+pub trait OrderModule: crate::events::EventsModule {
     #[view(getLastOrderId)]
     fn get_last_order_id(&self) -> OptionalValue<OrderId> {
         let next_order_id = self.next_order_id().get();
@@ -72,6 +72,26 @@ pub trait OrderModule {
         }
 
         result
+    }
+
+    fn update_order_and_fire_events(
+        &self,
+        order_id: OrderId,
+        order: &mut Order<Self::Api>,
+        input_token_amount: BigUint,
+    ) {
+        order.current_input_amount -= &input_token_amount;
+
+        let remaining_amount = order.current_input_amount.clone();
+        if remaining_amount > 0 {
+            self.orders(order_id).set(order);
+
+            self.emit_order_executed_partly_event(order_id, input_token_amount, remaining_amount);
+        } else {
+            self.orders(order_id).clear();
+
+            self.emit_order_executed_fully_event(order_id, input_token_amount);
+        }
     }
 
     fn get_and_increment_next_order_id(&self) -> OrderId {
