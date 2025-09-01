@@ -228,6 +228,29 @@
             "outputs": []
         },
         {
+            "docs": [
+                "args are pairs of (order_id and tokens_to_buy)"
+            ],
+            "name": "fillOrdersP2PBatchByBuyingInput",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "args",
+                    "type": "variadic<multi<u64,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<SwapStatus>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
             "name": "fillOrderP2PBySellingOutput",
             "mutability": "mutable",
             "payableInTokens": [

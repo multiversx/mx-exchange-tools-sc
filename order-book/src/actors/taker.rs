@@ -1,6 +1,9 @@
-use crate::storage::{
-    common_storage::MAX_PERCENT,
-    order::{Order, OrderId},
+use crate::{
+    actors::executor::SwapStatus,
+    storage::{
+        common_storage::MAX_PERCENT,
+        order::{Order, OrderId},
+    },
 };
 
 multiversx_sc::imports!();
@@ -57,6 +60,68 @@ pub trait TakerModule:
         });
 
         self.update_order_and_fire_events(order_id, &mut order, tokens_to_buy);
+    }
+
+    /// args are pairs of (order_id and tokens_to_buy)
+    #[payable("*")]
+    #[endpoint(fillOrdersP2PBatchByBuyingInput)]
+    fn fill_orders_p2p_batch_by_buying_input(
+        &self,
+        args: MultiValueEncoded<MultiValue2<OrderId, BigUint>>,
+    ) -> MultiValueEncoded<SwapStatus> {
+        self.require_not_paused();
+
+        let payments = self.call_value().all_esdt_transfers().clone_value();
+        require!(payments.len() == args.len(), "Invalid arguments");
+
+        let mut statuses = MultiValueEncoded::new();
+        for (arg, payment) in args.into_iter().zip(payments.iter()) {
+            let (order_id, tokens_to_buy) = arg.into_tuple();
+            let order_mapper = self.orders(order_id);
+            if order_mapper.is_empty() {
+                statuses.push(SwapStatus::InvalidInput);
+
+                continue;
+            }
+
+            let mut order = order_mapper.get();
+            if payment.token_identifier != order.output_token {
+                statuses.push(SwapStatus::InvalidInput);
+
+                continue;
+            }
+            if tokens_to_buy <= order.current_input_amount {
+                statuses.push(SwapStatus::InvalidInput);
+
+                continue;
+            }
+
+            let min_maker_amount = self.calculate_min_maker_amount(
+                &order.min_total_output,
+                &order.initial_input_amount,
+                &tokens_to_buy,
+            );
+            if payment.amount < min_maker_amount {
+                statuses.push(SwapStatus::InvalidInput);
+
+                continue;
+            }
+
+            let taker = self.blockchain().get_caller();
+            self.process_p2p_fill(ProcessP2pFillArgs {
+                order: &mut order,
+                min_maker_amount: &min_maker_amount,
+                taker: &taker,
+                tokens_to_buy: &tokens_to_buy,
+                taker_payment: &payment,
+            });
+
+            self.update_order_and_fire_events(order_id, &mut order, tokens_to_buy);
+
+            statuses.push(SwapStatus::Success);
+        }
+
+        statuses
     }
 
     #[payable("*")]
