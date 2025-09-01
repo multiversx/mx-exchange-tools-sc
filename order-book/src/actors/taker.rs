@@ -74,40 +74,23 @@ pub trait TakerModule:
         let payments = self.call_value().all_esdt_transfers().clone_value();
         require!(payments.len() == args.len(), "Invalid arguments");
 
+        let taker = self.blockchain().get_caller();
         let mut statuses = MultiValueEncoded::new();
         for (arg, payment) in args.into_iter().zip(payments.iter()) {
             let (order_id, tokens_to_buy) = arg.into_tuple();
-            let order_mapper = self.orders(order_id);
-            if order_mapper.is_empty() {
+            let is_valid = self.validate_batch_input(order_id, &payment, &tokens_to_buy);
+            if !is_valid {
                 statuses.push(SwapStatus::InvalidInput);
 
                 continue;
             }
 
-            let mut order = order_mapper.get();
-            if payment.token_identifier != order.output_token {
-                statuses.push(SwapStatus::InvalidInput);
-
-                continue;
-            }
-            if tokens_to_buy <= order.current_input_amount {
-                statuses.push(SwapStatus::InvalidInput);
-
-                continue;
-            }
-
+            let mut order = self.orders(order_id).get();
             let min_maker_amount = self.calculate_min_maker_amount(
                 &order.min_total_output,
                 &order.initial_input_amount,
                 &tokens_to_buy,
             );
-            if payment.amount < min_maker_amount {
-                statuses.push(SwapStatus::InvalidInput);
-
-                continue;
-            }
-
-            let taker = self.blockchain().get_caller();
             self.process_p2p_fill(ProcessP2pFillArgs {
                 order: &mut order,
                 min_maker_amount: &min_maker_amount,
@@ -154,6 +137,39 @@ pub trait TakerModule:
         });
 
         self.update_order_and_fire_events(order_id, &mut order, tokens_to_buy);
+    }
+
+    /// returns `true` if input is valid, `false` otherwise
+    #[must_use]
+    fn validate_batch_input(
+        &self,
+        order_id: OrderId,
+        payment: &EsdtTokenPayment,
+        tokens_to_buy: &BigUint,
+    ) -> bool {
+        let order_mapper = self.orders(order_id);
+        if order_mapper.is_empty() {
+            return false;
+        }
+
+        let order = order_mapper.get();
+        if payment.token_identifier != order.output_token {
+            return false;
+        }
+        if tokens_to_buy <= &order.current_input_amount {
+            return false;
+        }
+
+        let min_maker_amount = self.calculate_min_maker_amount(
+            &order.min_total_output,
+            &order.initial_input_amount,
+            tokens_to_buy,
+        );
+        if payment.amount < min_maker_amount {
+            return false;
+        }
+
+        true
     }
 
     fn get_tokens_to_buy_and_refund_surplus(
