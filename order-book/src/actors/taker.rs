@@ -5,6 +5,8 @@ use crate::storage::{
 
 multiversx_sc::imports!();
 
+pub static INVALID_TOKEN_SENT_ERR_MSG: &[u8] = b"Invalid token sent";
+
 pub struct ProcessP2pFillArgs<'a, M: ManagedTypeApi> {
     pub order: &'a mut Order<M>,
     pub min_maker_amount: &'a BigUint<M>,
@@ -23,7 +25,7 @@ pub trait TakerModule:
 {
     #[payable("*")]
     #[endpoint(fillOrderP2PByBuyingInput)]
-    fn fill_order_p2p_by_buying_input(&self, order_id: OrderId, nr_tokens_to_buy: BigUint) {
+    fn fill_order_p2p_by_buying_input(&self, order_id: OrderId, tokens_to_buy: BigUint) {
         self.require_not_paused();
         self.require_valid_order_id(order_id);
 
@@ -31,17 +33,17 @@ pub trait TakerModule:
         let payment = self.call_value().single_esdt();
         require!(
             payment.token_identifier == order.output_token,
-            "Invalid token sent"
+            INVALID_TOKEN_SENT_ERR_MSG
         );
         require!(
-            nr_tokens_to_buy <= order.current_input_amount,
+            tokens_to_buy <= order.current_input_amount,
             "Buying too many tokens"
         );
 
         let min_maker_amount = self.calculate_min_maker_amount(
             &order.min_total_output,
             &order.initial_input_amount,
-            &nr_tokens_to_buy,
+            &tokens_to_buy,
         );
         require!(payment.amount >= min_maker_amount, "Sent too few tokens");
 
@@ -50,11 +52,65 @@ pub trait TakerModule:
             order: &mut order,
             min_maker_amount: &min_maker_amount,
             taker: &taker,
-            tokens_to_buy: &nr_tokens_to_buy,
+            tokens_to_buy: &tokens_to_buy,
             taker_payment: &payment,
         });
 
-        self.update_order_and_fire_events(order_id, &mut order, nr_tokens_to_buy);
+        self.update_order_and_fire_events(order_id, &mut order, tokens_to_buy);
+    }
+
+    #[payable("*")]
+    #[endpoint(fillOrderP2PBySellingOutput)]
+    fn fill_order_p2p_by_selling_output(&self, order_id: OrderId) {
+        self.require_not_paused();
+        self.require_valid_order_id(order_id);
+
+        let mut order = self.orders(order_id).get();
+        let payment = self.call_value().single_esdt();
+        require!(
+            payment.token_identifier == order.output_token,
+            INVALID_TOKEN_SENT_ERR_MSG
+        );
+
+        let taker = self.blockchain().get_caller();
+        let tokens_to_buy = self.get_tokens_to_buy_and_refund_surplus(&order, &payment, &taker);
+        let min_maker_amount = self.calculate_min_maker_amount(
+            &order.min_total_output,
+            &order.initial_input_amount,
+            &tokens_to_buy,
+        );
+
+        self.process_p2p_fill(ProcessP2pFillArgs {
+            order: &mut order,
+            min_maker_amount: &min_maker_amount,
+            taker: &taker,
+            tokens_to_buy: &tokens_to_buy,
+            taker_payment: &payment,
+        });
+
+        self.update_order_and_fire_events(order_id, &mut order, tokens_to_buy);
+    }
+
+    fn get_tokens_to_buy_and_refund_surplus(
+        &self,
+        order: &Order<Self::Api>,
+        payment: &EsdtTokenPayment,
+        taker: &ManagedAddress,
+    ) -> BigUint {
+        let tokens_to_buy = &payment.amount * &order.initial_input_amount / &order.min_total_output;
+        if tokens_to_buy <= order.current_input_amount {
+            return tokens_to_buy;
+        }
+
+        // TODO: Check if this is even correct???
+        let surplus_output = &order.current_input_amount - &tokens_to_buy;
+        let surplus_input = surplus_output * &order.initial_input_amount / &order.min_total_output;
+        self.send().direct_non_zero_esdt_payment(
+            taker,
+            &EsdtTokenPayment::new(payment.token_identifier.clone(), 0, surplus_input),
+        );
+
+        order.current_input_amount.clone()
     }
 
     fn process_p2p_fill(&self, args: ProcessP2pFillArgs<Self::Api>) {
