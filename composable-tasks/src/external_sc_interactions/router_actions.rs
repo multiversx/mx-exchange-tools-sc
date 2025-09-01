@@ -9,6 +9,7 @@ use router::{factory::ProxyTrait as _, multi_pair_swap::ProxyTrait as _};
 
 #[multiversx_sc::module]
 pub trait RouterActionsModule {
+    #[allow(deprecated)]
     fn multi_pair_swap(
         &self,
         start_payment: EsdtTokenPayment<Self::Api>,

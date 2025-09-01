@@ -2,6 +2,7 @@ multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait EgldWrapperActionsModule {
+    #[allow(deprecated)]
     fn call_wrap_egld(&self, egld_amount: BigUint) -> EsdtTokenPayment {
         let wrapper_sc_address = self.egld_wrapper_address().get();
         let ((), back_transfers) = self

@@ -25,6 +25,7 @@ pub trait RouterActionsModule {
         );
     }
 
+    #[allow(deprecated)]
     fn call_router_swap(
         &self,
         input_tokens: EsdtTokenPayment,

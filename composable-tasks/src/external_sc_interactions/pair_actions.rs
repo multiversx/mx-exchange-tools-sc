@@ -27,6 +27,7 @@ impl<M: ManagedTypeApi> PairAddressForTokens<M> {
 
 #[multiversx_sc::module]
 pub trait PairActionsModule: router_actions::RouterActionsModule {
+    #[allow(deprecated)]
     fn perform_swap_tokens_fixed_input(
         &self,
         from_tokens: TokenIdentifier,
@@ -61,6 +62,7 @@ pub trait PairActionsModule: router_actions::RouterActionsModule {
         payment_out
     }
 
+    #[allow(deprecated)]
     fn perform_swap_tokens_fixed_output(
         &self,
         from_token_id: TokenIdentifier,

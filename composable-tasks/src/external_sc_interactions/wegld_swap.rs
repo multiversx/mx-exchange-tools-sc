@@ -4,6 +4,7 @@ multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait WegldWrapModule {
+    #[allow(deprecated)]
     fn wrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {
         require!(
             payment.token_identifier.is_egld(),
@@ -28,6 +29,7 @@ pub trait WegldWrapModule {
         EgldOrEsdtTokenPayment::from(wrapped_payment)
     }
 
+    #[allow(deprecated)]
     fn unwrap_egld(&self, payment: EgldOrEsdtTokenPayment) -> EgldOrEsdtTokenPayment {
         let wrap_egld_addr = self.wrap_egld_addr().get();
 
