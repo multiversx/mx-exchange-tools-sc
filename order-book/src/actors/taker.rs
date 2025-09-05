@@ -156,7 +156,7 @@ pub trait TakerModule:
         if payment.token_identifier != order.output_token {
             return false;
         }
-        if tokens_to_buy <= &order.current_input_amount {
+        if tokens_to_buy > &order.current_input_amount {
             return false;
         }
 

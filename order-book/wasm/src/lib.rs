@@ -27,7 +27,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         setPruningFee => set_pruning_fee
         setP2pProtocolFee => set_p2p_protocol_fee
         addExecutorsToWhitelist => add_executors_to_whitelist
-        removeExecutorsFromWhitelist => remove_exectors_from_whitelist
+        removeExecutorsFromWhitelist => remove_executors_from_whitelist
         createOrder => create_order
         cancelOrder => cancel_order
         executeOrders => execute_orders

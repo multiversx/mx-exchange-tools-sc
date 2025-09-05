@@ -43,7 +43,7 @@ where
         self.payments
     }
 
-    pub fn iter(&self) -> ManagedVecRefIterator<M, EsdtTokenPayment<M>> {
+    pub fn iter(&'_ self) -> ManagedVecRefIterator<'_, M, EsdtTokenPayment<M>> {
         self.payments.iter()
     }
 }

@@ -67,7 +67,7 @@ pub trait AdminModule:
 
     #[only_admin]
     #[endpoint(removeExecutorsFromWhitelist)]
-    fn remove_exectors_from_whitelist(&self, addresses: MultiValueEncoded<ManagedAddress>) {
+    fn remove_executors_from_whitelist(&self, addresses: MultiValueEncoded<ManagedAddress>) {
         let mut mapper = self.executor_whitelist();
         for address in addresses {
             let removed = mapper.swap_remove(&address);

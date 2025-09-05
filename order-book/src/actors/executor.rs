@@ -111,7 +111,7 @@ pub trait ExecutorModule:
 
         let order = order_mapper.get();
         let current_time = self.blockchain().get_block_timestamp();
-        if order.expiration_timestamp >= current_time {
+        if order.expiration_timestamp < current_time {
             return false;
         }
         if token_amount > &order.current_input_amount {
