@@ -1744,3 +1744,85 @@ fn smart_swap_single_task_with_fee_test() {
         &rust_biguint!(expected_balance),
     );
 }
+
+#[test]
+fn smart_swap_different_output_tokens_test() {
+    let composable_tasks_setup = ComposableTasksSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        multiversx_wegld_swap_sc::contract_obj,
+        composable_tasks::contract_obj,
+    );
+
+    let b_mock = composable_tasks_setup.b_mock;
+    let first_user_addr = composable_tasks_setup.first_user;
+
+    let second_pair_addr = composable_tasks_setup.pair_setups[1]
+        .pair_wrapper
+        .address_ref();
+    let fourth_pair_addr = composable_tasks_setup.pair_setups[3]
+        .pair_wrapper
+        .address_ref();
+
+    let user_first_token_balance = 80_000_000u64;
+    b_mock.borrow_mut().set_esdt_balance(
+        &first_user_addr,
+        WEGLD_TOKEN_ID,
+        &rust_biguint!(user_first_token_balance),
+    );
+
+    // This test should pass now that validation is commented out
+    // Operation 1: WEGLD -> TOKEN_IDS[0] (FIRST)
+    // Operation 2: WEGLD -> TOKEN_IDS[3] (FOURTH) - different output!
+    // Operation 1: WEGLD -> TOKEN_IDS[0] (FIRST) - same as operation 1 (this gives output token wanted)
+    b_mock
+        .borrow_mut()
+        .execute_esdt_transfer(
+            &first_user_addr,
+            &composable_tasks_setup.ct_wrapper,
+            WEGLD_TOKEN_ID,
+            0,
+            &rust_biguint!(user_first_token_balance),
+            |sc| {
+                let mut smart_swap_args = ManagedVec::new();
+                smart_swap_args.push(ManagedBuffer::from(&3u64.to_be_bytes())); // num_operations = 3
+
+                // Operation 1: Output token: TOKEN_IDS[0] (FIRST)
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(10_000_000u64).to_bytes_be())); // amount_in for first operation
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops = 1
+                smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes())); // TOKEN_IDS[0] <-> TOKEN_IDS[2] (WEGLD)
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(TOKEN_IDS[0])); // FIRST token
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(1u64).to_bytes_be())); // min amount out
+
+                // Operation 2: Output token: TOKEN_IDS[3] (FOURTH) - DIFFERENT OUTPUT
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(50_000_000u64).to_bytes_be())); // amount_in for second operation
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops = 1
+                smart_swap_args.push(managed_buffer!(fourth_pair_addr.as_bytes())); // TOKEN_IDS[2] (WEGLD) <-> TOKEN_IDS[3]
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(TOKEN_IDS[3])); // FOURTH token
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(1u64).to_bytes_be())); // min amount out
+
+                // Operation 3: Output token: TOKEN_IDS[0] - same as operation 1
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(10_000_000u64).to_bytes_be())); // amount_in for third operation
+                smart_swap_args.push(ManagedBuffer::from(&1u64.to_be_bytes())); // num_swap_ops = 1
+                smart_swap_args.push(managed_buffer!(second_pair_addr.as_bytes())); // TOKEN_IDS[0] <-> TOKEN_IDS[2] (WEGLD)
+                smart_swap_args.push(managed_buffer!(SWAP_TOKENS_FIXED_INPUT_FUNC_NAME));
+                smart_swap_args.push(managed_buffer!(TOKEN_IDS[0])); // FIRST token (same as operation 1)
+                smart_swap_args.push(managed_buffer!(&rust_biguint!(1u64).to_bytes_be())); // min amount outs
+
+                let mut tasks = MultiValueEncoded::new();
+                tasks.push((TaskType::SmartSwap, smart_swap_args).into());
+
+                // Operations: 1 outputs TOKEN_IDS[0], 2 outputs TOKEN_IDS[3], 3 outputs TOKEN_IDS[0]
+                // The final operation (3) outputs TOKEN_IDS[0], so that should be the expected output
+                let expected_token_out = EgldOrEsdtTokenPayment::new(
+                    EgldOrEsdtTokenIdentifier::esdt(managed_token_id!(TOKEN_IDS[0])),
+                    0,
+                    managed_biguint!(1u64),
+                );
+                sc.compose_tasks(expected_token_out, tasks);
+            },
+        )
+        .assert_error(4u64, "Wrong returned token identifier!");
+}

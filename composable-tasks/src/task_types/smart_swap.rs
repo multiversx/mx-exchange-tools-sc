@@ -8,7 +8,8 @@ use crate::{
         ERROR_INVALID_NUMBER_SWAP_OPS, ERROR_INVALID_TOKEN_ID, ERROR_MISSING_AMOUNT,
         ERROR_MISSING_AMOUNT_IN, ERROR_MISSING_FUNCTION_NAME, ERROR_MISSING_NUMBER_SWAP_OPS,
         ERROR_MISSING_PAIR_ADDR, ERROR_MISSING_TOKEN_ID, ERROR_SMART_SWAP_ARGUMENTS,
-        ERROR_SMART_SWAP_TOO_MANY_OPERATIONS, ERROR_ZERO_AMOUNT,
+        ERROR_SMART_SWAP_TOO_MANY_OPERATIONS, ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER,
+        ERROR_ZERO_AMOUNT,
     },
     events, external_sc_interactions,
 };
@@ -99,6 +100,7 @@ pub trait SmartSwapModule:
 
         let smart_swap_process_operation = self.process_smart_swap_operations(
             &smart_swap_input.payment_in,
+            &smart_swap_input.token_out.clone().unwrap_esdt(),
             smart_swap_input.num_operations,
             &mut args_iter,
             payments_to_return,
@@ -215,6 +217,7 @@ pub trait SmartSwapModule:
     fn process_smart_swap_operations(
         &self,
         payment_in: &EsdtTokenPayment<Self::Api>,
+        expected_token_out: &TokenIdentifier<Self::Api>,
         num_operations: u64,
         args_iter: &mut ManagedVecOwnedIterator<ManagedBuffer<Self::Api>>,
         payments_to_return: &mut PaymentsVec<Self::Api>,
@@ -243,6 +246,12 @@ pub trait SmartSwapModule:
 
             let mut operation_result = self.multi_pair_swap(operation_payment, operation_swap_args);
             let partial_payment_out = operation_result.take(operation_result.len() - 1);
+
+            require!(
+                &partial_payment_out.token_identifier == expected_token_out,
+                ERROR_WRONG_RETURNED_TOKEN_IDENTIFIER
+            );
+
             amount_out += partial_payment_out.amount;
             payments_to_return.append_vec(operation_result);
         }
