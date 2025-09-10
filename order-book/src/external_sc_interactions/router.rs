@@ -35,7 +35,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         );
 
         let last_payment_index = returned_payments.len() - 1;
-        let last_payment = returned_payments.get(last_payment_index);
+        let last_payment = (returned_payments.get(last_payment_index)).clone();
         returned_payments.remove(last_payment_index);
 
         if !returned_payments.is_empty() {
@@ -70,9 +70,9 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
 
             swap_operations.push(
                 (
-                    single_path.pair_address,
+                    single_path.pair_address.clone(),
                     ManagedBuffer::from(endpoint_name),
-                    single_path.output_token_id,
+                    single_path.output_token_id.clone(),
                     min_output,
                 )
                     .into(),

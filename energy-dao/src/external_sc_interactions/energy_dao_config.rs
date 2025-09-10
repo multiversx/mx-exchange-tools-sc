@@ -30,9 +30,9 @@ pub trait EnergyDAOConfigModule:
         token_ticker: ManagedBuffer,
         num_decimals: usize,
     ) {
-        let payment_amount = self.call_value().egld_value();
+        let payment_amount = self.call_value().egld();
         self.wrapped_farm_token().issue_and_set_all_roles(
-            EsdtTokenType::Meta,
+            EsdtTokenType::MetaFungible,
             payment_amount.clone_value(),
             token_display_name,
             token_ticker,
@@ -50,9 +50,9 @@ pub trait EnergyDAOConfigModule:
         token_ticker: ManagedBuffer,
         num_decimals: usize,
     ) {
-        let payment_amount = self.call_value().egld_value();
+        let payment_amount = self.call_value().egld();
         self.unstake_farm_token().issue_and_set_all_roles(
-            EsdtTokenType::Meta,
+            EsdtTokenType::MetaFungible,
             payment_amount.clone_value(),
             token_display_name,
             token_ticker,
@@ -70,9 +70,9 @@ pub trait EnergyDAOConfigModule:
         token_ticker: ManagedBuffer,
         num_decimals: usize,
     ) {
-        let payment_amount = self.call_value().egld_value();
+        let payment_amount = self.call_value().egld();
         self.wrapped_metastaking_token().issue_and_set_all_roles(
-            EsdtTokenType::Meta,
+            EsdtTokenType::MetaFungible,
             payment_amount.clone_value(),
             token_display_name,
             token_ticker,
@@ -90,9 +90,9 @@ pub trait EnergyDAOConfigModule:
         token_ticker: ManagedBuffer,
         num_decimals: usize,
     ) {
-        let payment_amount = self.call_value().egld_value();
+        let payment_amount = self.call_value().egld();
         self.unstake_metastaking_token().issue_and_set_all_roles(
-            EsdtTokenType::Meta,
+            EsdtTokenType::MetaFungible,
             payment_amount.clone_value(),
             token_display_name,
             token_ticker,

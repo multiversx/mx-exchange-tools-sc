@@ -20,15 +20,15 @@ pub trait WithdrawTokensModule {
             require!(opt_index.is_some(), "Invalid token to withdraw");
 
             let index = unsafe { opt_index.unwrap_unchecked() };
-            let mut full_token = all_tokens.get(index);
+            let mut full_token = all_tokens.get(index).clone();
             require!(
                 ttw.amount <= full_token.amount,
                 "Not enough balance to withdraw"
             );
 
-            full_token.amount -= ttw.amount;
+            full_token.amount -= &ttw.amount;
             if full_token.amount > 0 {
-                let _ = all_tokens.set(index, &full_token);
+                let _ = all_tokens.set(index, full_token);
             } else {
                 all_tokens.remove(index);
             }

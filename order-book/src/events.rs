@@ -5,21 +5,24 @@ use crate::storage::order::{Order, OrderDuration, OrderId};
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
 pub struct CreateOrderEventData<M: ManagedTypeApi> {
     pub order: Order<M>,
     pub duration: OrderDuration,
     pub chain_info: CurrentChainInfo,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
 pub struct OrderExecutedPartlyEventData<M: ManagedTypeApi> {
     pub part_filled: BigUint<M>,
     pub remaining_amount: BigUint<M>,
     pub chain_info: CurrentChainInfo,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
 pub struct OrderExecutedFullyEventData<M: ManagedTypeApi> {
     pub part_filled: BigUint<M>,
     pub chain_info: CurrentChainInfo,

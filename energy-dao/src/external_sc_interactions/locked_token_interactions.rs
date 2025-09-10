@@ -32,7 +32,7 @@ pub trait LockedTokenInteractionsModule:
             ERROR_BAD_PAYMENT_TOKENS
         );
 
-        let new_locked_tokens = self.lock_tokens(payment, lock_epoch);
+        let new_locked_tokens = self.lock_tokens(payment.clone(), lock_epoch);
         self.internal_locked_tokens()
             .update(|locked_tokens| locked_tokens.push(new_locked_tokens));
     }
@@ -56,10 +56,10 @@ pub trait LockedTokenInteractionsModule:
         let mut new_locked_tokens = ManagedVec::new();
         for locked_token in initial_locked_tokens.iter() {
             if locked_token.token_nonce == nonce_to_update || nonce_to_update == 0u64 {
-                let new_token = self.lock_tokens(locked_token, lock_epoch);
+                let new_token = self.lock_tokens(locked_token.clone(), lock_epoch);
                 new_locked_tokens.push(new_token);
             } else {
-                new_locked_tokens.push(locked_token);
+                new_locked_tokens.push(locked_token.clone());
             }
         }
 

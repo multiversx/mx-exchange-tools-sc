@@ -6,20 +6,23 @@ use crate::storage::{
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
 pub enum SwapStatus {
     InvalidInput,
     Fail,
     Success,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
 pub enum RouterEndpointName {
     FixedInput,
     FixedOutput,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
 pub struct SwapOperationType<M: ManagedTypeApi> {
     pub pair_address: ManagedAddress<M>,
     pub endpoint_name: RouterEndpointName,

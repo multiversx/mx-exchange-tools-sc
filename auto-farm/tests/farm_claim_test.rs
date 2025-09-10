@@ -169,7 +169,6 @@ fn claim_rewards_through_auto_farm() {
                 FEE_PERCENTAGE,
                 managed_address!(&energy_factory_addr),
                 managed_address!(&energy_factory_addr), // unused here
-                managed_address!(&energy_factory_addr), // unused here
             );
 
             let mut args = MultiValueEncoded::new();
@@ -376,7 +375,6 @@ fn withdraw_specific_farm_tokens_test() {
                 managed_address!(&proxy_address),
                 FEE_PERCENTAGE,
                 managed_address!(&energy_factory_addr),
-                managed_address!(&energy_factory_addr), // unused here
                 managed_address!(&energy_factory_addr), // unused here
             );
 

@@ -59,7 +59,7 @@ pub trait MetastakingInteractionsModule:
 
         // We need to enter the farm for the user, in order to have the Energy DAO contract as the original_owner of the position
         // This is needed later on, in order to be able to merge farm positions when adding extra position
-        let enter_farm_payment = ManagedVec::from_single_item(payment);
+        let enter_farm_payment = ManagedVec::from_single_item(payment.clone());
         let enter_farm_result = self.call_enter_farm(farm_address, enter_farm_payment);
         let (new_farm_token, _) = enter_farm_result.into_tuple();
 
@@ -302,7 +302,7 @@ pub trait MetastakingInteractionsModule:
         };
         let new_metastaking_token = self
             .wrapped_metastaking_token()
-            .nft_create(payment.amount, &new_attributes);
+            .nft_create(payment.amount.clone(), &new_attributes);
         let mut user_payments = ManagedVec::from_single_item(new_metastaking_token);
         if claim_result.lp_farm_rewards.amount > 0 {
             let wrapper_lp_farm_rewards = self.wrap_locked_token(claim_result.lp_farm_rewards);

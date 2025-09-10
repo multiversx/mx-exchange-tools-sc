@@ -41,22 +41,22 @@ pub trait FarmActionsModule:
         }
 
         let mut new_user_farm_tokens = PaymentsVec::new();
-        for farm_token in &user_farm_tokens {
+        for farm_token in user_farm_tokens.iter() {
             let farm_id = self.farm_for_farm_token(&farm_token.token_identifier).get();
             let opt_farm_addr = farms_mapper.get_address(farm_id);
             if opt_farm_addr.is_none() {
-                new_user_farm_tokens.push(farm_token);
+                new_user_farm_tokens.push(farm_token.clone());
                 continue;
             }
 
             let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
             let farm_state = self.get_farm_state(farm_addr.clone());
             if farm_state != State::Active {
-                new_user_farm_tokens.push(farm_token);
+                new_user_farm_tokens.push(farm_token.clone());
                 continue;
             }
 
-            let claim_result = self.call_farm_claim(farm_addr, user.clone(), farm_token);
+            let claim_result = self.call_farm_claim(farm_addr, user.clone(), farm_token.clone());
             new_user_farm_tokens.push(claim_result.new_farm_token);
 
             rew_wrapper.add_tokens(claim_result.rewards);
@@ -92,14 +92,14 @@ pub trait FarmActionsModule:
 
         let existing_farm_index = unsafe { opt_existing_farm_index.unwrap_unchecked() };
         let farm_addr = unsafe { opt_farm_addr.unwrap_unchecked() };
-        let existing_farm_pos = user_farm_tokens.get(existing_farm_index);
+        let existing_farm_pos = user_farm_tokens.get(existing_farm_index).clone();
         let new_farm_token = self.call_enter_farm_staking_with_additional_tokens(
             farm_addr,
             user.clone(),
             existing_farm_pos,
             new_tokens,
         );
-        let _ = user_farm_tokens.set(existing_farm_index, &new_farm_token);
+        let _ = user_farm_tokens.set(existing_farm_index, new_farm_token);
 
         Result::Ok(())
     }

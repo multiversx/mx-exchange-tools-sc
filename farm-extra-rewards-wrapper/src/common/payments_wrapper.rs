@@ -6,7 +6,8 @@ use multiversx_sc::api::{SendApi, SendApiImpl};
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
 pub struct PaymentsWrapper<M: ManagedTypeApi> {
     payments: PaymentsVec<M>,
 }
@@ -57,7 +58,7 @@ where
             return;
         }
 
-        let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
+        M::send_api_impl().multi_transfer_esdt_nft_execute(
             address.get_handle().get_raw_handle(),
             self.payments.get_handle().get_raw_handle(),
             0,

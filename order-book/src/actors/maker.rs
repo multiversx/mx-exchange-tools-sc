@@ -49,10 +49,10 @@ pub trait MakerModule:
         let order_id = self.get_and_increment_next_order_id();
         let order = Order {
             maker: caller,
-            input_token: token_id,
+            input_token: token_id.clone(),
             output_token,
             initial_input_amount: amount.clone(),
-            current_input_amount: amount,
+            current_input_amount: amount.clone(),
             min_total_output,
             executor_fee,
             creation_timestamp: current_timestamp,

@@ -25,6 +25,7 @@ pub trait RouterActionsModule {
         );
     }
 
+    #[allow(deprecated)]
     fn call_router_swap(
         &self,
         input_tokens: EsdtTokenPayment,
@@ -43,7 +44,9 @@ pub trait RouterActionsModule {
             "Wrong number of output tokens. Use only fixed input swaps"
         );
 
-        back_transfers.esdt_payments.get(0)
+        let output_payment = back_transfers.esdt_payments.get(0).clone();
+
+        output_payment
     }
 
     #[proxy]
