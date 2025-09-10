@@ -4,7 +4,8 @@ use mergeable::Mergeable;
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, PartialEq, Debug)]
 pub struct UniquePayments<M: ManagedTypeApi> {
     payments: PaymentsVec<M>,
 }
@@ -31,8 +32,8 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
 
     pub fn new_from_payments(payments: PaymentsVec<M>) -> Self {
         let mut merged_payments = Self::new();
-        for p in &payments {
-            merged_payments.add_payment(p);
+        for p in payments.iter() {
+            merged_payments.add_payment(p.clone());
         }
 
         merged_payments
@@ -45,13 +46,13 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
 
         let len = self.payments.len();
         for i in 0..len {
-            let mut current_payment = self.payments.get(i);
+            let mut current_payment = self.payments.get(i).clone();
             if !current_payment.can_merge_with(&new_payment) {
                 continue;
             }
 
             current_payment.amount += new_payment.amount;
-            let _ = self.payments.set(i, &current_payment);
+            let _ = self.payments.set(i, current_payment);
 
             return;
         }
@@ -66,7 +67,7 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
 
         let len = self.payments.len();
         for i in 0..len {
-            let mut current_payment = self.payments.get(i);
+            let mut current_payment = self.payments.get(i).clone();
             if !current_payment.can_merge_with(payment) {
                 continue;
             }
@@ -76,7 +77,7 @@ impl<M: ManagedTypeApi> UniquePayments<M> {
             }
 
             current_payment.amount -= &payment.amount;
-            let _ = self.payments.set(i, &current_payment);
+            let _ = self.payments.set(i, current_payment);
 
             return Result::Ok(());
         }
@@ -110,15 +111,15 @@ impl<M: ManagedTypeApi> Mergeable<M> for UniquePayments<M> {
         let first_len = self.payments.len();
         let mut second_len = other.payments.len();
         for i in 0..first_len {
-            let mut current_payment = self.payments.get(i);
+            let mut current_payment = self.payments.get(i).clone();
             for j in 0..second_len {
-                let other_payment = other.payments.get(j);
+                let other_payment = other.payments.get(j).clone();
                 if !current_payment.can_merge_with(&other_payment) {
                     continue;
                 }
 
                 current_payment.amount += other_payment.amount;
-                let _ = self.payments.set(i, &current_payment);
+                let _ = self.payments.set(i, current_payment);
 
                 other.payments.remove(j);
                 second_len -= 1;

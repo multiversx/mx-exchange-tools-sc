@@ -5,25 +5,29 @@ use crate::common::{chain_info::CurrentChainInfo, rewards_wrapper::MergedRewards
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct TokenDepositEvent<'a, M: ManagedTypeApi> {
     pub tokens: &'a PaymentsVec<M>,
     pub chain_info: CurrentChainInfo,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub enum DepositType {
     FarmTokens,
     MetastakingTokens,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct TokenWithdrawalEvent<'a, M: ManagedTypeApi> {
     pub tokens: &'a PaymentsVec<M>,
     pub chain_info: CurrentChainInfo,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub enum WithdrawType {
     FarmTokens,
     MetastakingTokens,
@@ -31,7 +35,8 @@ pub enum WithdrawType {
     AllTokens,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct ProxyClaimEvent<'a, M: ManagedTypeApi> {
     pub available_rewards: &'a MergedRewardsWrapper<M>,
     pub updated_user_tokens: &'a PaymentsVec<M>,

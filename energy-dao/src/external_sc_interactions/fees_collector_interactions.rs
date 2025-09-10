@@ -38,7 +38,7 @@ pub trait FeesCollectorInteractionsModule:
         };
 
         // locked token rewards, if any, are always in the last position
-        let last_payment = rewards.get(rewards_len - 1);
+        let last_payment = rewards.get(rewards_len - 1).clone();
         if &last_payment.token_identifier == new_collected_fees.get_locked_token_id() {
             let mut fees_payments = new_collected_fees.locked_tokens.into_payments();
             fees_payments.push(last_payment);
@@ -49,7 +49,7 @@ pub trait FeesCollectorInteractionsModule:
         }
 
         for rew in &rewards {
-            new_collected_fees.add_tokens(rew);
+            new_collected_fees.add_tokens(rew.clone());
         }
         collected_fees_mapper.set(new_collected_fees);
     }

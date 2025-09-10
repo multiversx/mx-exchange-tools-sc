@@ -26,7 +26,8 @@ pub const NUM_OPERATIONS_ARG: usize = 1;
 pub const MIN_SMART_SWAP_ARGS: usize = 4;
 pub const FIXED_SMART_SWAP_ARGS_PER_OPERATION: usize = 2; // amount_in + num_swap_ops
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct SmartSwapEvent<M: ManagedTypeApi> {
     caller: ManagedAddress<M>,
     token_in: TokenIdentifier<M>,
@@ -39,7 +40,8 @@ pub struct SmartSwapEvent<M: ManagedTypeApi> {
     timestamp: u64,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[type_abi]
+#[derive(TopEncode)]
 pub struct SmartSwapInput<M: ManagedTypeApi> {
     payment_in: EsdtTokenPayment<M>,
     token_out: EgldOrEsdtTokenIdentifier<M>,

@@ -21,13 +21,13 @@ pub trait UserMetastakingTokensModule:
         let user_id = self.user_ids().get_id_or_insert(&caller);
 
         self.user_metastaking_tokens(user_id).update(|tokens| {
-            for payment in &payments {
+            for payment in payments.iter() {
                 let ms_id = self
                     .metastaking_for_dual_yield_token(&payment.token_identifier)
                     .get();
                 require!(ms_id != NULL_ID, "Invalid token");
 
-                tokens.push(payment);
+                tokens.push(payment.clone());
             }
         });
 

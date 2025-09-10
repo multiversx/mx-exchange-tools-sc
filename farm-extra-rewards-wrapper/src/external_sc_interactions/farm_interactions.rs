@@ -19,7 +19,7 @@ pub trait FarmInteractionsModule:
         user: ManagedAddress,
         farm_tokens: PaymentsVec<Self::Api>,
     ) -> ClaimRewardsResultWrapper<Self::Api> {
-        let first_farm_token = farm_tokens.get(0);
+        let first_farm_token = farm_tokens.get(0).clone();
         let farm_addr = self.get_farm_address(&first_farm_token.token_identifier);
 
         let raw_results: ClaimRewardsResultType<Self::Api> = self

@@ -5,9 +5,8 @@ multiversx_sc::derive_imports!();
 
 use multiversx_sc::storage::StorageKey;
 
-#[derive(
-    TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Copy, Clone, Debug,
-)]
+#[type_abi]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq, Copy, Clone, Debug)]
 pub enum State {
     Inactive,
     Active,
