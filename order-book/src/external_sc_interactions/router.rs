@@ -1,9 +1,10 @@
 use router::multi_pair_swap::{
-    ProxyTrait as _, SWAP_TOKENS_FIXED_INPUT_FUNC_NAME, SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME,
+    SWAP_TOKENS_FIXED_INPUT_FUNC_NAME, SWAP_TOKENS_FIXED_OUTPUT_FUNC_NAME,
 };
 
 use crate::{
     actors::executor::{RouterEndpointName, SwapOperationType},
+    external_sc_interactions::proxies::router_proxy,
     storage::order::Order,
 };
 
@@ -14,7 +15,6 @@ pub type RouterArg<M> =
 
 #[multiversx_sc::module]
 pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModule {
-    // TODO: use the new execute on dest which returns status after upgrade
     fn execute_swap(
         &self,
         order: &Order<Self::Api>,
@@ -23,12 +23,19 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
     ) -> Option<EsdtTokenPayment> {
         let router_address = self.router_address().get();
         let router_args = self.convert_to_router_args(order, input_token_amount, swap_path);
-        let mut returned_payments: ManagedVec<EsdtTokenPayment> = self
-            .router_proxy(router_address)
+        let result = self
+            .tx()
+            .to(router_address)
+            .typed(router_proxy::RouterProxy)
             .multi_pair_swap(router_args)
             .single_esdt(&order.input_token, 0, input_token_amount)
-            .execute_on_dest_context();
+            .returns(ReturnsHandledOrError::new().returns(ReturnsResult))
+            .sync_call_fallible();
 
+        let mut returned_payments = match result {
+            Result::Ok(returned_payments) => returned_payments,
+            Result::Err(_) => return Option::None,
+        };
         require!(
             !returned_payments.is_empty(),
             "No payments received from router"
@@ -91,7 +98,4 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
     ) -> BigUint {
         min_total_output * initial_input_amount / current_token_input_amount
     }
-
-    #[proxy]
-    fn router_proxy(&self, sc_address: ManagedAddress) -> router::Proxy<Self::Api>;
 }
