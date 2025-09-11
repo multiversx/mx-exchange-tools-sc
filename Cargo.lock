@@ -1303,6 +1303,8 @@ dependencies = [
  "multiversx-sc-modules",
  "multiversx-sc-scenario",
  "num-bigint",
+ "pair",
+ "pausable",
  "router",
  "utils",
 ]

@@ -562,6 +562,7 @@ dependencies = [
  "auto-farm",
  "multiversx-sc",
  "multiversx-sc-modules",
+ "pair",
  "router",
  "utils",
 ]

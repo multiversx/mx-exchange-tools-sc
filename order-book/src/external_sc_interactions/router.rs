@@ -34,7 +34,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
 
         let mut returned_payments = match result {
             Result::Ok(returned_payments) => returned_payments,
-            Result::Err(_) => return Option::None,
+            Result::Err(_) => return None,
         };
         require!(
             !returned_payments.is_empty(),
