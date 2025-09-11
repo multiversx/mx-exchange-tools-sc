@@ -7,17 +7,29 @@ use crate::router_setup::RouterSetup;
 
 use multiversx_sc::types::{Address, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    imports::BlockchainStateWrapper, managed_address, managed_biguint, rust_biguint,
-    testing_framework::ContractObjWrapper, DebugApi,
+    imports::{BlockchainStateWrapper, TxResult},
+    managed_address, managed_biguint, managed_token_id, rust_biguint,
+    testing_framework::ContractObjWrapper,
+    DebugApi,
 };
 
-use order_book::OrderBook;
+use order_book::{
+    actors::maker::MakerModule,
+    pause::PauseModule,
+    storage::{
+        common_storage::{CommonStorageModule, Percent},
+        order::{OrderDuration, OrderId},
+    },
+    OrderBook,
+};
 use pair::safe_price::SafePriceModule;
 
 pub static TOKEN_IDS: &[&[u8]] = &[b"FIRST-123456", b"SECOND-123456", b"THIRD-123456"];
 pub static LP_TOKEN_IDS: &[&[u8]] = &[b"LPFIRST-123456", b"LPSECOND-123456", b"LPTHIRD-123456"];
 pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
+
+pub const USER_BALANCE: u64 = 100_000;
 
 pub struct OrderBookSetup<PairBuilder, RouterBuilder, OrderBookBuilder>
 where
@@ -122,6 +134,16 @@ where
             &rust_biguint!(third_token_total_amount),
         );
 
+        b_mock
+            .borrow_mut()
+            .set_esdt_balance(&user, TOKEN_IDS[0], &rust_biguint!(USER_BALANCE));
+        b_mock
+            .borrow_mut()
+            .set_esdt_balance(&user, TOKEN_IDS[1], &rust_biguint!(USER_BALANCE));
+        b_mock
+            .borrow_mut()
+            .set_esdt_balance(&user, TOKEN_IDS[2], &rust_biguint!(USER_BALANCE));
+
         let mut block_round: u64 = 1;
         b_mock.borrow_mut().set_block_round(block_round);
 
@@ -225,6 +247,10 @@ where
                     2_000, // 20%
                     admins,
                 );
+
+                sc.paused_status().set(false);
+
+                let _ = sc.executor_whitelist().insert(managed_address!(&owner));
             })
             .assert_ok();
 
@@ -239,5 +265,34 @@ where
             router_setup,
             order_book_wrapper,
         }
+    }
+
+    pub fn call_create_order(
+        &self,
+        payment_token: &[u8],
+        payment_amount: u64,
+        output_token: &[u8],
+        min_total_output: u64,
+        duration: OrderDuration,
+        opt_executor_fee: Option<Percent>,
+    ) -> (TxResult, OrderId) {
+        let mut order_id = 0;
+        let tx_result = self.b_mock.borrow_mut().execute_esdt_transfer(
+            &self.user,
+            &self.order_book_wrapper,
+            payment_token,
+            0,
+            &rust_biguint!(payment_amount),
+            |sc| {
+                order_id = sc.create_order(
+                    managed_token_id!(output_token),
+                    managed_biguint!(min_total_output),
+                    duration,
+                    opt_executor_fee.into(),
+                );
+            },
+        );
+
+        (tx_result, order_id)
     }
 }
