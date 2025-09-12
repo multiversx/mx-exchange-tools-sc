@@ -44,7 +44,7 @@ where
         self.payments
     }
 
-    pub fn iter(&self) -> ManagedVecRefIterator<M, EsdtTokenPayment<M>> {
+    pub fn iter(&'_ self) -> ManagedVecRefIterator<'_, M, EsdtTokenPayment<M>> {
         self.payments.iter()
     }
 }
@@ -58,7 +58,7 @@ where
             return;
         }
 
-        let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
+        M::send_api_impl().multi_transfer_esdt_nft_execute(
             address.get_handle().get_raw_handle(),
             self.payments.get_handle().get_raw_handle(),
             0,

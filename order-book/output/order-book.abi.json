@@ -1,0 +1,696 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.86.0",
+            "commitHash": "05f9846f893b09a1be1fc8560e33fc3c815cfecb",
+            "commitDate": "2025-03-31",
+            "channel": "Stable",
+            "short": "rustc 1.86.0 (05f9846f8 2025-03-31)"
+        },
+        "contractCrate": {
+            "name": "order-book",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.60.0"
+        }
+    },
+    "name": "OrderBook",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "router_address",
+                "type": "Address"
+            },
+            {
+                "name": "treasury_address",
+                "type": "Address"
+            },
+            {
+                "name": "pruning_fee",
+                "type": "u32"
+            },
+            {
+                "name": "p2p_protocol_fee",
+                "type": "u32"
+            },
+            {
+                "name": "admins",
+                "type": "variadic<Address>",
+                "multi_arg": true
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "pause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setRouterAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setTreasuryAddress",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "treasury_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPruningFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "pruning_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setP2pProtocolFee",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "protocol_fee",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "addExecutorsToWhitelist",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "addresses",
+                    "type": "variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "removeExecutorsFromWhitelist",
+            "onlyAdmin": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "addresses",
+                    "type": "variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "createOrder",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "min_total_output",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "order_duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "opt_executor_fee",
+                    "type": "optional<u32>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "cancelOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "args are pairs of (order ID, token amount to swap, vec of SwapOperationType - which will be passed to router when swapping)"
+            ],
+            "name": "executeOrders",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "args",
+                    "type": "variadic<multi<u64,BigUint,List<SwapOperationType>>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<SwapStatus>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "pruneExpiredOrder",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "fillOrderP2PByBuyingInput",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "tokens_to_buy",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "args are pairs of (order_id and tokens_to_buy)"
+            ],
+            "name": "fillOrdersP2PBatchByBuyingInput",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "args",
+                    "type": "variadic<multi<u64,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<SwapStatus>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "fillOrderP2PBySellingOutput",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getLastOrderId",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "optional<u64>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOrders",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "start_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "return_data_limit",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<multi<u64,Order>>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOrderInfo",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Order"
+                }
+            ]
+        },
+        {
+            "name": "getRouterAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getTreasuryAddress",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getP2pProtocolFee",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getPruningFee",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getExecutorWhitelist",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Address>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "isAdmin",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "addAdmin",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "removeAdmin",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getAdmins",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Address>",
+                    "multi_result": true
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "pauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "unpauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "createOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "CreateOrderEventData"
+                }
+            ]
+        },
+        {
+            "identifier": "cancelOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        {
+            "identifier": "pruneExpiredOrderEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "current_chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        {
+            "identifier": "orderExecutedPartlyEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "OrderExecutedPartlyEventData"
+                }
+            ]
+        },
+        {
+            "identifier": "orderExecutedFullyEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "OrderExecutedFullyEventData"
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "CreateOrderEventData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "order",
+                    "type": "Order"
+                },
+                {
+                    "name": "duration",
+                    "type": "OrderDuration"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "CurrentChainInfo": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "block",
+                    "type": "u64"
+                },
+                {
+                    "name": "epoch",
+                    "type": "u64"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        "Order": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "maker",
+                    "type": "Address"
+                },
+                {
+                    "name": "input_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "output_token",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "initial_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "current_input_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_total_output",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "executor_fee",
+                    "type": "u32"
+                },
+                {
+                    "name": "creation_timestamp",
+                    "type": "u64"
+                },
+                {
+                    "name": "expiration_timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        "OrderDuration": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Minutes",
+                    "discriminant": 0,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Hours",
+                    "discriminant": 1,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Days",
+                    "discriminant": 2,
+                    "fields": [
+                        {
+                            "name": "0",
+                            "type": "u8"
+                        }
+                    ]
+                }
+            ]
+        },
+        "OrderExecutedFullyEventData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "part_filled",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "OrderExecutedPartlyEventData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "part_filled",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "remaining_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "RouterEndpointName": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "FixedInput",
+                    "discriminant": 0
+                },
+                {
+                    "name": "FixedOutput",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "SwapOperationType": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "endpoint_name",
+                    "type": "RouterEndpointName"
+                },
+                {
+                    "name": "output_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ]
+        },
+        "SwapStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "InvalidInput",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Fail",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Success",
+                    "discriminant": 2
+                }
+            ]
+        }
+    }
+}
