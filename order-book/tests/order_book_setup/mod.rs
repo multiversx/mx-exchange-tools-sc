@@ -5,7 +5,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::pair_setup::PairSetup;
 use crate::router_setup::RouterSetup;
 
-use multiversx_sc::types::{Address, MultiValueEncoded};
+use multiversx_sc::types::{Address, ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::{
     imports::{BlockchainStateWrapper, TxResult},
     managed_address, managed_biguint, managed_token_id, rust_biguint,
@@ -14,7 +14,10 @@ use multiversx_sc_scenario::{
 };
 
 use order_book::{
-    actors::maker::MakerModule,
+    actors::{
+        executor::{ExecutorModule, RouterEndpointName, SwapOperationType, SwapStatus},
+        maker::MakerModule,
+    },
     pause::PauseModule,
     storage::{
         common_storage::{CommonStorageModule, Percent},
@@ -30,6 +33,18 @@ pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 
 pub const USER_BALANCE: u64 = 100_000;
+
+pub struct UnmanagedSwapOperationType {
+    pub pair_address: Address,
+    pub endpoint_name: RouterEndpointName,
+    pub output_token_id: Vec<u8>,
+}
+
+pub struct ExecuteOrdersArg {
+    pub order_id: OrderId,
+    pub amount_to_swap: u64,
+    pub swap_args: Vec<UnmanagedSwapOperationType>,
+}
 
 pub struct OrderBookSetup<PairBuilder, RouterBuilder, OrderBookBuilder>
 where
@@ -294,5 +309,57 @@ where
         );
 
         (tx_result, order_id)
+    }
+
+    pub fn call_cancel_order(&self, order_id: OrderId) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.user,
+            &self.order_book_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.cancel_order(order_id);
+            },
+        )
+    }
+
+    pub fn call_execute_orders(&self, args: &[ExecuteOrdersArg]) -> Vec<SwapStatus> {
+        let mut return_value = Vec::new();
+
+        self.b_mock
+            .borrow_mut()
+            .execute_tx(
+                &self.owner,
+                &self.order_book_wrapper,
+                &rust_biguint!(0),
+                |sc| {
+                    let mut managed_args = MultiValueEncoded::new();
+                    for arg in args {
+                        let mut managed_swap_args = ManagedVec::new();
+                        for swap_arg in &arg.swap_args {
+                            let managed_swap_arg = SwapOperationType {
+                                pair_address: managed_address!(&swap_arg.pair_address),
+                                output_token_id: managed_token_id!(swap_arg
+                                    .output_token_id
+                                    .clone()),
+                                endpoint_name: swap_arg.endpoint_name,
+                            };
+
+                            managed_swap_args.push(managed_swap_arg);
+                        }
+
+                        managed_args.push(
+                            (arg.order_id, arg.amount_to_swap.into(), managed_swap_args).into(),
+                        );
+                    }
+
+                    let managed_return = sc.execute_orders(managed_args);
+                    for value in managed_return {
+                        return_value.push(value);
+                    }
+                },
+            )
+            .assert_ok();
+
+        return_value
     }
 }

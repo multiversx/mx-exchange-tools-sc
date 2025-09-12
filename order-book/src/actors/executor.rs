@@ -15,7 +15,7 @@ pub enum SwapStatus {
 }
 
 #[type_abi]
-#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem, Debug, Clone, Copy)]
 pub enum RouterEndpointName {
     FixedInput,
     FixedOutput,
