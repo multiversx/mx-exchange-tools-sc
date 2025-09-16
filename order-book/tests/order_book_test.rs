@@ -171,4 +171,54 @@ fn execute_order_part_test() {
         TOKEN_IDS[0],
         &rust_biguint!(1_000 - 250),
     );
+
+    // execute remaining part of order
+    setup.call_execute_orders(&[ExecuteOrdersArg {
+        order_id,
+        amount_to_swap: 750,
+        swap_args: vec![UnmanagedSwapOperationType {
+            pair_address: setup.pair_setups[0].pair_wrapper.address_ref().clone(),
+            endpoint_name: RouterEndpointName::FixedInput,
+            output_token_id: TOKEN_IDS[1].to_vec(),
+        }],
+    }]);
+
+    // First pair is A:B with 1:2 ratio
+    // 750 input to 1_500 output -> Total = 374 + 1_125 = 1_499 ~= 1_500 (minus pair fees)
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.owner, TOKEN_IDS[1], &rust_biguint!(124 + 374));
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 375 + 1_125),
+    );
+    setup.b_mock.borrow().check_esdt_balance(
+        setup.order_book_wrapper.address_ref(),
+        TOKEN_IDS[1],
+        &rust_biguint!(0),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[0],
+        &rust_biguint!(USER_BALANCE - 1_000),
+    );
+
+    // check internal order structure - should be cleared after full order executed
+    setup
+        .b_mock
+        .borrow_mut()
+        .execute_query(&setup.order_book_wrapper, |sc| {
+            assert!(sc.orders(0).is_empty());
+        })
+        .assert_ok();
+
+    // check SC balance is now 0
+    setup.b_mock.borrow().check_esdt_balance(
+        setup.order_book_wrapper.address_ref(),
+        TOKEN_IDS[0],
+        &rust_biguint!(0),
+    );
 }
