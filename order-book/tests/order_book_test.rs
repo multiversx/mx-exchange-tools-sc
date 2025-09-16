@@ -109,7 +109,7 @@ fn execute_order_part_test() {
     tx_result.assert_ok();
     assert_eq!(order_id, 0);
 
-    setup.call_execute_orders(&vec![ExecuteOrdersArg {
+    setup.call_execute_orders(&[ExecuteOrdersArg {
         order_id,
         amount_to_swap: 250,
         swap_args: vec![UnmanagedSwapOperationType {
