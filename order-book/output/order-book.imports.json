@@ -34,7 +34,7 @@
   "mBufferToBigIntUnsigned",
   "mBufferToSmallIntUnsigned",
   "managedCaller",
-  "managedExecuteOnDestContextWithErrorReturn",
+  "managedExecuteOnDestContext",
   "managedGetMultiESDTCallValue",
   "managedMultiTransferESDTNFTExecute",
   "managedOwnerAddress",

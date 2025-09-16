@@ -20,22 +20,34 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         order: &Order<Self::Api>,
         input_token_amount: &BigUint,
         swap_path: &ManagedVec<SwapOperationType<Self::Api>>,
-    ) -> Option<EsdtTokenPayment> {
+    ) -> Result<EsdtTokenPayment, ()> {
         let router_address = self.router_address().get();
         let router_args = self.convert_to_router_args(order, input_token_amount, swap_path);
-        let result = self
+
+        // TODO: Use this again when it's available in the testing framework
+
+        // let result = self
+        //     .tx()
+        //     .to(router_address)
+        //     .typed(router_proxy::RouterProxy)
+        //     .multi_pair_swap(router_args)
+        //     .single_esdt(&order.input_token, 0, input_token_amount)
+        //     .returns(ReturnsHandledOrError::new().returns(ReturnsResult))
+        //     .sync_call_fallible();
+
+        let mut returned_payments = self
             .tx()
             .to(router_address)
             .typed(router_proxy::RouterProxy)
             .multi_pair_swap(router_args)
             .single_esdt(&order.input_token, 0, input_token_amount)
-            .returns(ReturnsHandledOrError::new().returns(ReturnsResult))
-            .sync_call_fallible();
+            .returns(ReturnsResult)
+            .sync_call();
 
-        let mut returned_payments = match result {
-            Result::Ok(returned_payments) => returned_payments,
-            Result::Err(_) => return None,
-        };
+        // let mut returned_payments = match result {
+        //     Result::Ok(returned_payments) => returned_payments,
+        //     Result::Err(_) => return None,
+        // };
         require!(
             !returned_payments.is_empty(),
             "No payments received from router"
@@ -49,7 +61,7 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
             self.send().direct_multi(&order.maker, &returned_payments);
         }
 
-        Some(last_payment)
+        Result::Ok(last_payment)
     }
 
     fn convert_to_router_args(
@@ -96,6 +108,6 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         initial_input_amount: &BigUint,
         current_token_input_amount: &BigUint,
     ) -> BigUint {
-        min_total_output * initial_input_amount / current_token_input_amount
+        min_total_output * current_token_input_amount / initial_input_amount
     }
 }

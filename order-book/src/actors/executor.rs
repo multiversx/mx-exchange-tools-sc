@@ -61,7 +61,7 @@ pub trait ExecutorModule:
             let mut order = self.orders(order_id).get();
             let opt_tokens_out = self.execute_swap(&order, &input_token_amount, &swap_path);
             match opt_tokens_out {
-                Some(payment) => {
+                Ok(payment) => {
                     require!(
                         payment.token_identifier == order.output_token,
                         "Invalid token received from router"
@@ -76,7 +76,7 @@ pub trait ExecutorModule:
 
                     swap_statuses.push(SwapStatus::Success);
                 }
-                None => {
+                Err(_) => {
                     swap_statuses.push(SwapStatus::Fail);
                 }
             }
