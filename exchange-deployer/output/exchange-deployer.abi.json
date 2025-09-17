@@ -1,0 +1,740 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.76.0-nightly",
+            "commitHash": "d86d65bbc19b928387f68427fcc3a0da498d8a19",
+            "commitDate": "2023-12-10",
+            "channel": "Nightly",
+            "short": "rustc 1.76.0-nightly (d86d65bbc 2023-12-10)"
+        },
+        "contractCrate": {
+            "name": "exchange-deployer",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.46.1"
+        }
+    },
+    "name": "ExchangeDeployer",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "default_action_fee",
+                "type": "BigUint"
+            },
+            {
+                "name": "pair_source_address",
+                "type": "Address"
+            },
+            {
+                "name": "simple_lock_source_address",
+                "type": "Address"
+            },
+            {
+                "name": "proxy_dex_source_address",
+                "type": "Address"
+            },
+            {
+                "name": "farm_source_address",
+                "type": "Address"
+            },
+            {
+                "name": "farm_staking_source_address",
+                "type": "Address"
+            },
+            {
+                "name": "metastaking_source_address",
+                "type": "Address"
+            }
+        ],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "upgrade",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setActionFee",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "type_amount_pairs",
+                    "type": "variadic<multi<DeployActionType,BigUint>>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setDefaultActionFee",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "default_action_fee",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "claimFees",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "getActionFee",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "action_type",
+                    "type": "DeployActionType"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getFeeToken",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "TokenIdentifier"
+                }
+            ]
+        },
+        {
+            "name": "setRouterAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setRouterOwnerAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "router_owner_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPairSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "pair_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployLiquidityPool",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "total_fee_percent",
+                    "type": "u64"
+                },
+                {
+                    "name": "special_fee_percent",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setSimpleLockSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deploySimpleLock",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockIssueFarmProxyToken",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Add a farm to the whitelist.",
+                "Currently, two types of farms are supported, denoted by the `farm_type` argument:",
+                "`0` - SimpleFarm - rewards are fungible tokens",
+                "`1` - FarmWithLockedRewards - rewards are META ESDT locked tokens"
+            ],
+            "name": "simpleLockAddFarmToWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farm_type",
+                    "type": "FarmType"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockRemoveFarmFromWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farm_type",
+                    "type": "FarmType"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockIssueLpProxyToken",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Add a liquidity pool to the whitelist.",
+                "If the token pair does not have an associated pool, users may not add liquidity.",
+                "",
+                "`first_token_id` and `second_token_id` MUST match the LP's order,",
+                "otherwise all attempts at adding liquidity will fail",
+                "",
+                "May not add pools for both pairs, i.e. (first, second) and (second, first)"
+            ],
+            "name": "simpleLockAddLpToWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "lp_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "simpleLockRemoveLpFromWhitelist",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "simple_lock_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "lp_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setProxyDexSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployProxyDex",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "old_locked_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "old_factory_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "energy_factory_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRegisterProxyPair",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexSetTransferRoleWrappedLpToken",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRegisterProxyFarm",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "token_display_name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "token_ticker",
+                    "type": "bytes"
+                },
+                {
+                    "name": "num_decimals",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexSetTransferRoleWrappedFarmToken",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexAddPairToIntermediate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRemoveIntermediatedPair",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexAddFarmToIntermediate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "proxyDexRemoveIntermediatedFarm",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proxy_dex_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "farm_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setFarmSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "farm_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployFarm",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "reward_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "division_safety_constant",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "pair_contract_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setFarmStakingSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "farm_staking_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployFarmStaking",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "farming_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "division_safety_constant",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "max_apr",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_unbond_epochs",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMetastakingSourceAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "metastaking_source",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setEnergyFactoryAddress",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "energy_factory_address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployMetastaking",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "lp_farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "staking_farm_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "pair_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "staking_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "lp_farm_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "staking_farm_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "lp_token_id",
+                    "type": "TokenIdentifier"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "pause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "DeployActionType": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "None",
+                    "discriminant": 0
+                },
+                {
+                    "name": "LiquidityPool",
+                    "discriminant": 1
+                },
+                {
+                    "name": "SimpleLock",
+                    "discriminant": 2
+                },
+                {
+                    "name": "ProxyDex",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Farm",
+                    "discriminant": 4
+                },
+                {
+                    "name": "FarmStaking",
+                    "discriminant": 5
+                },
+                {
+                    "name": "Metastaking",
+                    "discriminant": 6
+                }
+            ]
+        },
+        "FarmType": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "SimpleFarm",
+                    "discriminant": 0
+                },
+                {
+                    "name": "FarmWithLockedRewards",
+                    "discriminant": 1
+                }
+            ]
+        }
+    }
+}
