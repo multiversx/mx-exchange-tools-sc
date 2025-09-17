@@ -291,3 +291,135 @@ fn execute_order_full_test() {
         &rust_biguint!(0),
     );
 }
+
+#[test]
+fn pruner_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    let user_addr = setup.user.clone();
+    setup
+        .b_mock
+        .borrow_mut()
+        .execute_query(&setup.order_book_wrapper, |sc| {
+            let actual_order = sc.orders(0).get();
+            let expected_order = Order {
+                maker: managed_address!(&user_addr),
+                input_token: managed_token_id!(TOKEN_IDS[0]),
+                output_token: managed_token_id!(TOKEN_IDS[1]),
+                initial_input_amount: managed_biguint!(1_000),
+                current_input_amount: managed_biguint!(1_000),
+                min_total_output: managed_biguint!(1_500),
+                executor_fee: 1_000,
+                creation_timestamp: 0,
+                expiration_timestamp: 10 * 60,
+            };
+
+            assert_eq!(actual_order, expected_order);
+        })
+        .assert_ok();
+
+    // try prune too early
+    setup
+        .call_prune_expired_order(0)
+        .assert_user_error("Order not expired yet");
+
+    setup.b_mock.borrow_mut().set_block_timestamp(5_000_000);
+
+    // prune order ok
+    setup.call_prune_expired_order(0).assert_ok();
+
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.owner, TOKEN_IDS[0], &rust_biguint!(100));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[0],
+        &rust_biguint!(USER_BALANCE - 100),
+    );
+}
+
+#[test]
+fn prune_partly_executed_order_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    setup.call_execute_orders(&[ExecuteOrdersArg {
+        order_id,
+        amount_to_swap: 250,
+        swap_args: vec![UnmanagedSwapOperationType {
+            pair_address: setup.pair_setups[0].pair_wrapper.address_ref().clone(),
+            endpoint_name: RouterEndpointName::FixedInput,
+            output_token_id: TOKEN_IDS[1].to_vec(),
+        }],
+    }]);
+
+    // First pair is A:B with 1:2 ratio
+    // 250 input to 500 output -> Total = 124 + 375 = 499 ~= 500 (minus pair fees)
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.owner, TOKEN_IDS[1], &rust_biguint!(124));
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 375),
+    );
+    setup.b_mock.borrow().check_esdt_balance(
+        setup.order_book_wrapper.address_ref(),
+        TOKEN_IDS[1],
+        &rust_biguint!(0),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[0],
+        &rust_biguint!(USER_BALANCE - 1_000),
+    );
+
+    setup.b_mock.borrow_mut().set_block_timestamp(5_000_000);
+
+    // prune order ok - total tokens remaining: 750
+    setup.call_prune_expired_order(0).assert_ok();
+
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.owner, TOKEN_IDS[0], &rust_biguint!(75));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[0],
+        &rust_biguint!(USER_BALANCE - 250 - 75),
+    );
+}

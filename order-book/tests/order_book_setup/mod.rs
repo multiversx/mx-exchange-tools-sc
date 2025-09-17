@@ -17,6 +17,7 @@ use order_book::{
     actors::{
         executor::{ExecutorModule, RouterEndpointName, SwapOperationType, SwapStatus},
         maker::MakerModule,
+        pruner::PrunerModule,
     },
     pause::PauseModule,
     storage::{
@@ -33,6 +34,8 @@ pub static WEGLD_TOKEN_ID: &[u8] = b"WEGLD-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 
 pub const USER_BALANCE: u64 = 100_000;
+pub const PRUNING_FEE_PERCENT: Percent = 1_000; // 10%
+pub const P2P_PROTOCOL_FEE_PERCENT: Percent = 2_000; // 20%
 
 pub struct UnmanagedSwapOperationType {
     pub pair_address: Address,
@@ -258,8 +261,8 @@ where
                 sc.init(
                     managed_address!(router_setup.router_wrapper.address_ref()),
                     managed_address!(&treasury),
-                    1_000, // 10%
-                    2_000, // 20%
+                    PRUNING_FEE_PERCENT,
+                    P2P_PROTOCOL_FEE_PERCENT,
                     admins,
                 );
 
@@ -361,5 +364,16 @@ where
             .assert_ok();
 
         return_value
+    }
+
+    pub fn call_prune_expired_order(&self, order_id: OrderId) -> TxResult {
+        self.b_mock.borrow_mut().execute_tx(
+            &self.owner,
+            &self.order_book_wrapper,
+            &rust_biguint!(0),
+            |sc| {
+                sc.prune_expired_order(order_id);
+            },
+        )
     }
 }
