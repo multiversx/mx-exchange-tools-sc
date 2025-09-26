@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           28
+// Endpoints:                           30
 // Async Callback (empty):               1
-// Total number of exported functions:  31
+// Total number of exported functions:  33
 
 #![no_std]
 
@@ -35,6 +35,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         fillOrderP2PByBuyingInput => fill_order_p2p_by_buying_input
         fillOrdersP2PBatchByBuyingInput => fill_orders_p2p_batch_by_buying_input
         fillOrderP2PBySellingOutput => fill_order_p2p_by_selling_output
+        getTokensNeededForP2pBuyInput => get_tokens_needed_for_p2p_buy_input
+        getTokensNeededForP2pSellInput => get_tokens_needed_for_p2p_sell_input
         getLastOrderId => get_last_order_id
         getOrders => get_orders
         getOrderInfo => orders

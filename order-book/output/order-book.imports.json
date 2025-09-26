@@ -1,6 +1,7 @@
 [
   "bigIntAdd",
   "bigIntCmp",
+  "bigIntFinishUnsigned",
   "bigIntGetUnsignedArgument",
   "bigIntMul",
   "bigIntSetInt64",

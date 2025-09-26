@@ -423,3 +423,40 @@ fn prune_partly_executed_order_test() {
         &rust_biguint!(USER_BALANCE - 250 - 75),
     );
 }
+
+#[test]
+fn taker_fill_order_buying_input_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    // send too few tokens
+    setup
+        .call_fill_order_p2p_by_buying_input(0, 1_000, TOKEN_IDS[1], 500)
+        .assert_user_error("Sent too few tokens");
+
+    // buy part of the tokens
+    // "Payment: 1406"
+    // "Min maker: 1125"
+    let tokens_needed_for_p2p_buy_input = setup.call_get_tokens_needed_for_p2p_buy_input(0, 750);
+    setup
+        .call_fill_order_p2p_by_buying_input(0, 750, TOKEN_IDS[1], tokens_needed_for_p2p_buy_input)
+        .assert_ok();
+
+    // check balances
+
+    // check stored order
+}

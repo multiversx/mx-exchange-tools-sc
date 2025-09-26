@@ -106,8 +106,8 @@ pub trait RouterActionsModule: crate::storage::common_storage::CommonStorageModu
         &self,
         min_total_output: &BigUint,
         initial_input_amount: &BigUint,
-        current_token_input_amount: &BigUint,
+        tokens_to_buy: &BigUint,
     ) -> BigUint {
-        min_total_output * current_token_input_amount / initial_input_amount
+        min_total_output * tokens_to_buy / initial_input_amount
     }
 }

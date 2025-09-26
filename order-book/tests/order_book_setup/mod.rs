@@ -18,6 +18,7 @@ use order_book::{
         executor::{ExecutorModule, RouterEndpointName, SwapOperationType, SwapStatus},
         maker::MakerModule,
         pruner::PrunerModule,
+        taker::TakerModule,
     },
     pause::PauseModule,
     storage::{
@@ -58,6 +59,7 @@ where
     pub b_mock: Rc<RefCell<BlockchainStateWrapper>>,
     pub owner: Address,
     pub user: Address,
+    pub taker: Address,
     pub treasury: Address,
     pub pair_setups: Vec<PairSetup<PairBuilder>>,
     pub router_setup: RouterSetup<RouterBuilder>,
@@ -98,6 +100,7 @@ where
 
         let owner = b_mock.borrow_mut().create_user_account(&rust_zero);
         let user = b_mock.borrow_mut().create_user_account(&rust_zero);
+        let taker = b_mock.borrow_mut().create_user_account(&rust_zero);
         let treasury = b_mock.borrow_mut().create_user_account(&rust_zero);
         let mut first_pair_setup = PairSetup::new(
             b_mock.clone(),
@@ -161,6 +164,10 @@ where
         b_mock
             .borrow_mut()
             .set_esdt_balance(&user, TOKEN_IDS[2], &rust_biguint!(USER_BALANCE));
+
+        b_mock
+            .borrow_mut()
+            .set_esdt_balance(&taker, TOKEN_IDS[1], &rust_biguint!(USER_BALANCE));
 
         let mut block_round: u64 = 1;
         b_mock.borrow_mut().set_block_round(block_round);
@@ -278,6 +285,7 @@ where
             b_mock,
             owner,
             user,
+            taker,
             treasury,
             pair_setups,
             router_setup,
@@ -373,6 +381,46 @@ where
             &rust_biguint!(0),
             |sc| {
                 sc.prune_expired_order(order_id);
+            },
+        )
+    }
+
+    pub fn call_get_tokens_needed_for_p2p_buy_input(
+        &self,
+        order_id: OrderId,
+        tokens_to_buy: u64,
+    ) -> u64 {
+        let mut result = 0;
+
+        self.b_mock
+            .borrow_mut()
+            .execute_query(&self.order_book_wrapper, |sc| {
+                let biguint = sc.get_tokens_needed_for_p2p_buy_input(
+                    order_id,
+                    &managed_biguint!(tokens_to_buy),
+                );
+                result = biguint.to_u64().unwrap();
+            })
+            .assert_ok();
+
+        result
+    }
+
+    pub fn call_fill_order_p2p_by_buying_input(
+        &self,
+        order_id: OrderId,
+        tokens_to_buy: u64,
+        payment_token: &[u8],
+        payment_amount: u64,
+    ) -> TxResult {
+        self.b_mock.borrow_mut().execute_esdt_transfer(
+            &self.taker,
+            &self.order_book_wrapper,
+            payment_token,
+            0,
+            &rust_biguint!(payment_amount),
+            |sc| {
+                sc.fill_order_p2p_by_buying_input(order_id, managed_biguint!(tokens_to_buy));
             },
         )
     }
