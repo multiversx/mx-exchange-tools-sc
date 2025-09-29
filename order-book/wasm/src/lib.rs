@@ -36,7 +36,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         fillOrdersP2PBatchByBuyingInput => fill_orders_p2p_batch_by_buying_input
         fillOrderP2PBySellingOutput => fill_order_p2p_by_selling_output
         getTokensNeededForP2pBuyInput => get_tokens_needed_for_p2p_buy_input
-        getTokensNeededForP2pSellInput => get_tokens_needed_for_p2p_sell_input
+        getTokensBoughtByP2pSellOutput => get_tokens_bought_by_p2p_sell_output
         getLastOrderId => get_last_order_id
         getOrders => get_orders
         getOrderInfo => orders

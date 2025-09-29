@@ -284,7 +284,7 @@
             ]
         },
         {
-            "name": "getTokensNeededForP2pSellInput",
+            "name": "getTokensBoughtByP2pSellOutput",
             "mutability": "readonly",
             "inputs": [
                 {

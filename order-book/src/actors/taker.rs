@@ -169,7 +169,7 @@ pub trait TakerModule:
     fn get_tokens_needed_for_p2p_buy_input(
         &self,
         order_id: OrderId,
-        tokens_to_buy: &BigUint,
+        tokens_to_buy: BigUint,
     ) -> BigUint {
         let order = self.orders(order_id).get();
         let protocol_fee_percent = self.p2p_protocol_fee().get();
@@ -179,18 +179,14 @@ pub trait TakerModule:
         payment_amount_needed * MAX_PERCENT / (MAX_PERCENT - protocol_fee_percent)
     }
 
-    // TODO: Use this function somewhere?
-    #[view(getTokensNeededForP2pSellInput)]
-    fn get_tokens_needed_for_p2p_sell_input(
+    #[view(getTokensBoughtByP2pSellOutput)]
+    fn get_tokens_bought_by_p2p_sell_output(
         &self,
         order_id: OrderId,
-        payment_amount: &BigUint,
+        payment_amount: BigUint,
     ) -> BigUint {
         let order = self.orders(order_id).get();
-        let protocol_fee_percent = self.p2p_protocol_fee().get();
-        let tokens_to_buy = payment_amount * &order.initial_input_amount / &order.min_total_output;
-
-        tokens_to_buy * MAX_PERCENT / (MAX_PERCENT - protocol_fee_percent)
+        self.get_tokens_bought_by_p2p_sell_output_internal(&order, &payment_amount)
     }
 
     /// returns `true` if input is valid, `false` otherwise
@@ -232,18 +228,13 @@ pub trait TakerModule:
         payment: &EsdtTokenPayment,
         taker: &ManagedAddress,
     ) -> BigUint {
-        let protocol_fee_percent = self.p2p_protocol_fee().get();
-        let total_fees = &payment.amount * protocol_fee_percent / MAX_PERCENT;
-        let remaining_payment_amount = &payment.amount - &total_fees;
-
         let tokens_to_buy =
-            &remaining_payment_amount * &order.initial_input_amount / &order.min_total_output;
+            self.get_tokens_bought_by_p2p_sell_output_internal(order, &payment.amount);
         if tokens_to_buy <= order.current_input_amount {
             return tokens_to_buy;
         }
 
-        // TODO: Check if this is even correct???
-        let surplus_output = &order.current_input_amount - &tokens_to_buy;
+        let surplus_output = &tokens_to_buy - &order.current_input_amount;
         let surplus_input = surplus_output * &order.initial_input_amount / &order.min_total_output;
         self.send().direct_non_zero_esdt_payment(
             taker,
@@ -251,6 +242,18 @@ pub trait TakerModule:
         );
 
         order.current_input_amount.clone()
+    }
+
+    fn get_tokens_bought_by_p2p_sell_output_internal(
+        &self,
+        order: &Order<Self::Api>,
+        payment_amount: &BigUint,
+    ) -> BigUint {
+        let protocol_fee_percent = self.p2p_protocol_fee().get();
+        let total_protocol_fee = payment_amount * protocol_fee_percent / MAX_PERCENT;
+        let remaining_tokens_taker = payment_amount - &total_protocol_fee;
+
+        remaining_tokens_taker * &order.initial_input_amount / &order.min_total_output
     }
 
     #[must_use]

@@ -395,10 +395,8 @@ where
         self.b_mock
             .borrow_mut()
             .execute_query(&self.order_book_wrapper, |sc| {
-                let biguint = sc.get_tokens_needed_for_p2p_buy_input(
-                    order_id,
-                    &managed_biguint!(tokens_to_buy),
-                );
+                let biguint = sc
+                    .get_tokens_needed_for_p2p_buy_input(order_id, managed_biguint!(tokens_to_buy));
                 result = biguint.to_u64().unwrap();
             })
             .assert_ok();
@@ -421,6 +419,24 @@ where
             &rust_biguint!(payment_amount),
             |sc| {
                 sc.fill_order_p2p_by_buying_input(order_id, managed_biguint!(tokens_to_buy));
+            },
+        )
+    }
+
+    pub fn call_fill_order_p2p_by_selling_output(
+        &self,
+        order_id: OrderId,
+        payment_token: &[u8],
+        payment_amount: u64,
+    ) -> TxResult {
+        self.b_mock.borrow_mut().execute_esdt_transfer(
+            &self.taker,
+            &self.order_book_wrapper,
+            payment_token,
+            0,
+            &rust_biguint!(payment_amount),
+            |sc| {
+                sc.fill_order_p2p_by_selling_output(order_id);
             },
         )
     }

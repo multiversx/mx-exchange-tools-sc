@@ -565,3 +565,72 @@ fn taker_send_extra_tokens_fill_order_buy_input_test() {
         &rust_biguint!(tokens_to_buy),
     );
 }
+
+#[test]
+fn taker_fill_order_by_selling_output_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    // Payment 1_406
+    // Min maker: 1_125
+    // Fees: 1_406 - 1_125 = 281
+    let tokens_to_buy = 750;
+    setup
+        .call_fill_order_p2p_by_selling_output(0, TOKEN_IDS[1], 1_406)
+        .assert_ok();
+
+    // check balances
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.treasury, TOKEN_IDS[1], &rust_biguint!(281));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 1_125),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[0],
+        &rust_biguint!(tokens_to_buy),
+    );
+
+    // check stored order
+    let user_addr = setup.user.clone();
+    setup
+        .b_mock
+        .borrow_mut()
+        .execute_query(&setup.order_book_wrapper, |sc| {
+            let actual_order = sc.orders(0).get();
+            let expected_order = Order {
+                maker: managed_address!(&user_addr),
+                input_token: managed_token_id!(TOKEN_IDS[0]),
+                output_token: managed_token_id!(TOKEN_IDS[1]),
+                initial_input_amount: managed_biguint!(1_000),
+                current_input_amount: managed_biguint!(1_000 - 750),
+                min_total_output: managed_biguint!(1_500),
+                executor_fee: 1_000,
+                creation_timestamp: 0,
+                expiration_timestamp: 10 * 60,
+            };
+
+            assert_eq!(actual_order, expected_order);
+        })
+        .assert_ok();
+}
