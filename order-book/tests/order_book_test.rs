@@ -452,9 +452,16 @@ fn taker_fill_order_buying_input_test() {
     // Payment 1_406
     // Min maker: 1_125
     // Fees: 1_406 - 1_125 = 281
-    let tokens_needed_for_p2p_buy_input = setup.call_get_tokens_needed_for_p2p_buy_input(0, 750);
+    let tokens_to_buy = 750;
+    let tokens_needed_for_p2p_buy_input =
+        setup.call_get_tokens_needed_for_p2p_buy_input(0, tokens_to_buy);
     setup
-        .call_fill_order_p2p_by_buying_input(0, 750, TOKEN_IDS[1], tokens_needed_for_p2p_buy_input)
+        .call_fill_order_p2p_by_buying_input(
+            0,
+            tokens_to_buy,
+            TOKEN_IDS[1],
+            tokens_needed_for_p2p_buy_input,
+        )
         .assert_ok();
 
     // check balances
@@ -469,10 +476,11 @@ fn taker_fill_order_buying_input_test() {
         &rust_biguint!(USER_BALANCE + 1_125),
     );
 
-    setup
-        .b_mock
-        .borrow()
-        .check_esdt_balance(&setup.taker, TOKEN_IDS[0], &rust_biguint!(750));
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[0],
+        &rust_biguint!(tokens_to_buy),
+    );
 
     // check stored order
     let user_addr = setup.user.clone();
@@ -496,4 +504,64 @@ fn taker_fill_order_buying_input_test() {
             assert_eq!(actual_order, expected_order);
         })
         .assert_ok();
+}
+
+#[test]
+fn taker_send_extra_tokens_fill_order_buy_input_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    // send too few tokens
+    setup
+        .call_fill_order_p2p_by_buying_input(0, 1_000, TOKEN_IDS[1], 500)
+        .assert_user_error("Sent too few tokens");
+
+    // buy part of the tokens
+    // Payment 1_406 + 1_000
+    // Min maker: 1_125
+    // Fees: 1_406 + 1_000 - 1_125 = 1_281
+    let tokens_to_buy = 750;
+    let tokens_needed_for_p2p_buy_input =
+        setup.call_get_tokens_needed_for_p2p_buy_input(0, tokens_to_buy) + 1_000;
+    setup
+        .call_fill_order_p2p_by_buying_input(
+            0,
+            tokens_to_buy,
+            TOKEN_IDS[1],
+            tokens_needed_for_p2p_buy_input,
+        )
+        .assert_ok();
+
+    // check balances
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.treasury,
+        TOKEN_IDS[1],
+        &rust_biguint!(281 + 1_000),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 1_125),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[0],
+        &rust_biguint!(tokens_to_buy),
+    );
 }
