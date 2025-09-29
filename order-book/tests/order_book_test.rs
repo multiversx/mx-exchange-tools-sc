@@ -449,14 +449,51 @@ fn taker_fill_order_buying_input_test() {
         .assert_user_error("Sent too few tokens");
 
     // buy part of the tokens
-    // "Payment: 1406"
-    // "Min maker: 1125"
+    // Payment 1_406
+    // Min maker: 1_125
+    // Fees: 1_406 - 1_125 = 281
     let tokens_needed_for_p2p_buy_input = setup.call_get_tokens_needed_for_p2p_buy_input(0, 750);
     setup
         .call_fill_order_p2p_by_buying_input(0, 750, TOKEN_IDS[1], tokens_needed_for_p2p_buy_input)
         .assert_ok();
 
     // check balances
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.treasury, TOKEN_IDS[1], &rust_biguint!(281));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 1_125),
+    );
+
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.taker, TOKEN_IDS[0], &rust_biguint!(750));
 
     // check stored order
+    let user_addr = setup.user.clone();
+    setup
+        .b_mock
+        .borrow_mut()
+        .execute_query(&setup.order_book_wrapper, |sc| {
+            let actual_order = sc.orders(0).get();
+            let expected_order = Order {
+                maker: managed_address!(&user_addr),
+                input_token: managed_token_id!(TOKEN_IDS[0]),
+                output_token: managed_token_id!(TOKEN_IDS[1]),
+                initial_input_amount: managed_biguint!(1_000),
+                current_input_amount: managed_biguint!(1_000 - 750),
+                min_total_output: managed_biguint!(1_500),
+                executor_fee: 1_000,
+                creation_timestamp: 0,
+                expiration_timestamp: 10 * 60,
+            };
+
+            assert_eq!(actual_order, expected_order);
+        })
+        .assert_ok();
 }

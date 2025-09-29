@@ -275,7 +275,7 @@ pub trait TakerModule:
         );
 
         self.send().direct_non_zero_esdt_payment(
-            &args.maker,
+            args.maker,
             &EsdtTokenPayment::new(
                 args.taker_payment.token_identifier.clone(),
                 0,
