@@ -687,3 +687,92 @@ fn taker_send_extra_tokens_fill_order_by_selling_output_test() {
         &rust_biguint!(USER_BALANCE - 1_800),
     );
 }
+
+#[test]
+fn fill_order_by_batch_buying_input_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    // send too few tokens
+    setup
+        .call_fill_order_p2p_by_buying_input(0, 1_000, TOKEN_IDS[1], 500)
+        .assert_user_error("Sent too few tokens");
+
+    let tokens_to_buy_1 = 250;
+    let tokens_to_buy_2 = 500;
+    let tokens_needed_for_p2p_buy_input_1 =
+        setup.call_get_tokens_needed_for_p2p_buy_input(0, tokens_to_buy_1);
+    let tokens_needed_for_p2p_buy_input_2 =
+        setup.call_get_tokens_needed_for_p2p_buy_input(0, tokens_to_buy_2);
+    setup
+        .call_fill_batch_order(vec![
+            (
+                0,
+                tokens_to_buy_1,
+                TOKEN_IDS[1],
+                tokens_needed_for_p2p_buy_input_1,
+            ),
+            (
+                0,
+                tokens_to_buy_2,
+                TOKEN_IDS[1],
+                tokens_needed_for_p2p_buy_input_2,
+            ),
+        ])
+        .assert_ok();
+
+    // check balances
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.treasury, TOKEN_IDS[1], &rust_biguint!(280));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 1_125),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[0],
+        &rust_biguint!(tokens_to_buy_1 + tokens_to_buy_2),
+    );
+
+    // check stored order
+    let user_addr = setup.user.clone();
+    setup
+        .b_mock
+        .borrow_mut()
+        .execute_query(&setup.order_book_wrapper, |sc| {
+            let actual_order = sc.orders(0).get();
+            let expected_order = Order {
+                maker: managed_address!(&user_addr),
+                input_token: managed_token_id!(TOKEN_IDS[0]),
+                output_token: managed_token_id!(TOKEN_IDS[1]),
+                initial_input_amount: managed_biguint!(1_000),
+                current_input_amount: managed_biguint!(1_000 - 750),
+                min_total_output: managed_biguint!(1_500),
+                executor_fee: 1_000,
+                creation_timestamp: 0,
+                expiration_timestamp: 10 * 60,
+            };
+
+            assert_eq!(actual_order, expected_order);
+        })
+        .assert_ok();
+}

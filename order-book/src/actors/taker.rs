@@ -12,6 +12,8 @@ multiversx_sc::derive_imports!();
 pub static INVALID_TOKEN_SENT_ERR_MSG: &[u8] = b"Invalid token sent";
 pub static SENT_TOO_FEW_TOKENS_ERR_MSG: &[u8] = b"Sent too few tokens";
 
+// TODO: Split file, it's too big
+
 pub struct ProcessP2pFillArgs<'a, M: ManagedTypeApi> {
     pub maker: &'a ManagedAddress<M>,
     pub input_token: TokenIdentifier<M>,

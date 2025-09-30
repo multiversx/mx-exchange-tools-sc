@@ -7,7 +7,7 @@ use crate::router_setup::RouterSetup;
 
 use multiversx_sc::types::{Address, ManagedVec, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    imports::{BlockchainStateWrapper, TxResult},
+    imports::{BlockchainStateWrapper, TxResult, TxTokenTransfer},
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::ContractObjWrapper,
     DebugApi,
@@ -437,6 +437,44 @@ where
             &rust_biguint!(payment_amount),
             |sc| {
                 sc.fill_order_p2p_by_selling_output(order_id);
+            },
+        )
+    }
+
+    /// Args are pairs of:
+    ///
+    /// order_id: OrderId,
+    /// tokens_to_buy: u64,
+    /// payment_token: &[[u8]],
+    /// payment_amount: u64,
+    pub fn call_fill_batch_order(&self, args: Vec<(OrderId, u64, &[u8], u64)>) -> TxResult {
+        let mut payments = Vec::new();
+        let mut raw_args = Vec::new();
+        for arg in args {
+            let (order_id, tokens_to_buy, payment_token, payment_amount) = arg;
+            payments.push(TxTokenTransfer {
+                token_identifier: payment_token.to_vec(),
+                nonce: 0,
+                value: rust_biguint!(payment_amount),
+            });
+            raw_args.push((order_id, tokens_to_buy));
+        }
+
+        self.b_mock.borrow_mut().execute_esdt_multi_transfer(
+            &self.taker,
+            &self.order_book_wrapper,
+            &payments,
+            |sc| {
+                let mut managed_args = MultiValueEncoded::new();
+                for raw_arg in raw_args {
+                    let (order_id, tokens_to_buy) = raw_arg;
+                    managed_args.push((order_id, managed_biguint!(tokens_to_buy)).into());
+                }
+
+                let statuses = sc.fill_orders_p2p_batch_by_buying_input(managed_args);
+                for status in statuses {
+                    assert!(matches!(status, SwapStatus::Success));
+                }
             },
         )
     }
