@@ -634,3 +634,56 @@ fn taker_fill_order_by_selling_output_test() {
         })
         .assert_ok();
 }
+
+#[test]
+fn taker_send_extra_tokens_fill_order_by_selling_output_test() {
+    let setup = OrderBookSetup::new(
+        pair::contract_obj,
+        router::contract_obj,
+        order_book::contract_obj,
+    );
+
+    let (tx_result, order_id) = setup.call_create_order(
+        TOKEN_IDS[0],
+        1_000,
+        TOKEN_IDS[1],
+        1_500,
+        OrderDuration::Minutes(10),
+        Some(1_000), // 10%
+    );
+    tx_result.assert_ok();
+    assert_eq!(order_id, 0);
+
+    // Payment: 1_500 + 20% * 1_500 = 1_500 + 300 = 1_800. Extra 1_000 tokens => 2_800 payment
+    // Min maker: 1_500
+    // Fees: 300
+    let tokens_to_buy = 1_000;
+    setup
+        .call_fill_order_p2p_by_selling_output(0, TOKEN_IDS[1], 2_800)
+        .assert_ok();
+
+    // check balances
+    setup
+        .b_mock
+        .borrow()
+        .check_esdt_balance(&setup.treasury, TOKEN_IDS[1], &rust_biguint!(300));
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.user,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE + 1_500),
+    );
+
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[0],
+        &rust_biguint!(tokens_to_buy),
+    );
+
+    // tokens were refunded properly, only 1_800 charged
+    setup.b_mock.borrow().check_esdt_balance(
+        &setup.taker,
+        TOKEN_IDS[1],
+        &rust_biguint!(USER_BALANCE - 1_800),
+    );
+}
