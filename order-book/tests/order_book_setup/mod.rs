@@ -18,7 +18,7 @@ use order_book::{
         executor::{ExecutorModule, RouterEndpointName, SwapOperationType, SwapStatus},
         maker::MakerModule,
         pruner::PrunerModule,
-        taker::TakerModule,
+        taker::{endpoints::EndpointsModule, views::ViewsModule},
     },
     pause::PauseModule,
     storage::{

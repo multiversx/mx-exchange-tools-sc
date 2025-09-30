@@ -210,6 +210,44 @@
             "outputs": []
         },
         {
+            "name": "getTokensNeededForP2pBuyInput",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "tokens_to_buy",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getTokensBoughtByP2pSellOutput",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "payment_amount",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "GetTokensBoughtP2pResultType"
+                }
+            ]
+        },
+        {
             "name": "fillOrderP2PByBuyingInput",
             "mutability": "mutable",
             "payableInTokens": [
@@ -263,44 +301,6 @@
                 }
             ],
             "outputs": []
-        },
-        {
-            "name": "getTokensNeededForP2pBuyInput",
-            "mutability": "readonly",
-            "inputs": [
-                {
-                    "name": "order_id",
-                    "type": "u64"
-                },
-                {
-                    "name": "tokens_to_buy",
-                    "type": "BigUint"
-                }
-            ],
-            "outputs": [
-                {
-                    "type": "BigUint"
-                }
-            ]
-        },
-        {
-            "name": "getTokensBoughtByP2pSellOutput",
-            "mutability": "readonly",
-            "inputs": [
-                {
-                    "name": "order_id",
-                    "type": "u64"
-                },
-                {
-                    "name": "payment_amount",
-                    "type": "BigUint"
-                }
-            ],
-            "outputs": [
-                {
-                    "type": "GetTokensBoughtP2pResultType"
-                }
-            ]
         },
         {
             "name": "getLastOrderId",
