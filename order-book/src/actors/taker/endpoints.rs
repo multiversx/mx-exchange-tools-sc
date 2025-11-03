@@ -28,6 +28,8 @@ pub trait EndpointsModule:
         self.require_valid_order_id(order_id);
 
         let mut order = self.orders(order_id).get();
+        self.require_order_not_expired(&order);
+
         let payment = self.call_value().single_esdt();
         require!(
             payment.token_identifier == order.output_token,
@@ -92,6 +94,12 @@ pub trait EndpointsModule:
             }
 
             let mut order = self.orders(order_id).get();
+            if self.is_expired(&order) {
+                statuses.push(SwapStatus::InvalidInput);
+
+                continue;
+            }
+
             let min_maker_amount = self.calculate_min_maker_amount(
                 &order.min_total_output,
                 &order.initial_input_amount,
@@ -129,6 +137,8 @@ pub trait EndpointsModule:
         self.require_valid_order_id(order_id);
 
         let mut order = self.orders(order_id).get();
+        self.require_order_not_expired(&order);
+
         let payment = self.call_value().single_esdt();
         require!(
             payment.token_identifier == order.output_token,

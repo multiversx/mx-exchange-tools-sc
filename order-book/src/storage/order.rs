@@ -105,6 +105,16 @@ pub trait OrderModule: crate::events::EventsModule {
         })
     }
 
+    fn is_expired(&self, order: &Order<Self::Api>) -> bool {
+        let current_time = self.blockchain().get_block_timestamp();
+
+        order.expiration_timestamp <= current_time
+    }
+
+    fn require_order_not_expired(&self, order: &Order<Self::Api>) {
+        require!(!self.is_expired(order), "Order is expired");
+    }
+
     fn require_valid_order_id(&self, order_id: OrderId) {
         require!(
             !self.orders(order_id).is_empty(),
