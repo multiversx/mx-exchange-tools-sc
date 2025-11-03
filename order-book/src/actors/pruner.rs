@@ -1,6 +1,11 @@
-use crate::storage::{common_storage::MAX_PERCENT, order::OrderId};
+use crate::storage::{
+    common_storage::MAX_PERCENT,
+    order::{OrderId, Timestamp},
+};
 
 multiversx_sc::imports!();
+
+pub const MIN_PRUNER_DELAY: Timestamp = 5 * 60; // 5 minutes
 
 #[multiversx_sc::module]
 pub trait PrunerModule:
@@ -19,6 +24,10 @@ pub trait PrunerModule:
         require!(
             order.expiration_timestamp <= current_time,
             "Order not expired yet"
+        );
+        require!(
+            order.expiration_timestamp + MIN_PRUNER_DELAY <= current_time,
+            "Pruner delay not fulfilled"
         );
 
         let pruner_fee_percent = self.pruning_fee().get();
