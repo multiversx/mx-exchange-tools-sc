@@ -108,9 +108,9 @@ pub trait InternalModule:
 
         let surplus = &remaining_tokens_maker - &args.min_maker_amount;
         let total_treasury_amount = total_protocol_fee + surplus;
-        let treasury_addresss = self.treasury_address().get();
+        let treasury_address = self.treasury_address().get();
         self.send().direct_non_zero_esdt_payment(
-            &treasury_addresss,
+            &treasury_address,
             &EsdtTokenPayment::new(
                 args.taker_payment.token_identifier.clone(),
                 0,
