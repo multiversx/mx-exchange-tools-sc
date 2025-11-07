@@ -333,9 +333,7 @@ where
         )
     }
 
-    pub fn call_execute_orders(&self, args: &[ExecuteOrdersArg]) -> Vec<SwapStatus> {
-        let mut return_value = Vec::new();
-
+    pub fn call_execute_orders(&self, args: &[ExecuteOrdersArg]) {
         self.b_mock
             .borrow_mut()
             .execute_tx(
@@ -363,15 +361,10 @@ where
                         );
                     }
 
-                    let managed_return = sc.execute_orders(managed_args);
-                    for value in managed_return {
-                        return_value.push(value);
-                    }
+                    sc.execute_orders(managed_args);
                 },
             )
             .assert_ok();
-
-        return_value
     }
 
     pub fn call_prune_expired_order(&self, order_id: OrderId) -> TxResult {

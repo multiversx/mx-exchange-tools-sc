@@ -191,12 +191,7 @@
                     "multi_arg": true
                 }
             ],
-            "outputs": [
-                {
-                    "type": "variadic<SwapStatus>",
-                    "multi_result": true
-                }
-            ]
+            "outputs": []
         },
         {
             "name": "pruneExpiredOrder",
@@ -724,6 +719,10 @@
                 {
                     "name": "part_tried_to_fill",
                     "type": "BigUint"
+                },
+                {
+                    "name": "swap_status",
+                    "type": "SwapStatus"
                 },
                 {
                     "name": "chain_info",

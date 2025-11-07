@@ -7,7 +7,7 @@ multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 #[type_abi]
-#[derive(TopEncode, TopDecode)]
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub enum SwapStatus {
     InvalidInput,
     Fail,
@@ -44,16 +44,19 @@ pub trait ExecutorModule:
         args: MultiValueEncoded<
             MultiValue3<OrderId, BigUint, ManagedVec<SwapOperationType<Self::Api>>>,
         >,
-    ) -> MultiValueEncoded<SwapStatus> {
+    ) {
         self.require_not_paused();
 
         let executor = self.get_executor();
-        let mut swap_statuses = MultiValueEncoded::new();
         for arg in args {
             let (order_id, input_token_amount, swap_path) = arg.into_tuple();
             let is_valid = self.validate_input(order_id, &input_token_amount, &swap_path);
             if !is_valid {
-                swap_statuses.push(SwapStatus::InvalidInput);
+                self.emit_order_execution_failed_event(
+                    order_id,
+                    input_token_amount,
+                    SwapStatus::InvalidInput,
+                );
 
                 continue;
             }
@@ -73,18 +76,16 @@ pub trait ExecutorModule:
                         input_token_amount.clone(),
                     );
                     self.distribute_tokens(&order, &executor, &input_token_amount, &payment);
-
-                    swap_statuses.push(SwapStatus::Success);
                 }
                 Err(_) => {
-                    self.emite_order_execution_failed_event(order_id, input_token_amount);
-
-                    swap_statuses.push(SwapStatus::Fail);
+                    self.emit_order_execution_failed_event(
+                        order_id,
+                        input_token_amount,
+                        SwapStatus::Fail,
+                    );
                 }
             }
         }
-
-        swap_statuses
     }
 
     fn get_executor(&self) -> ManagedAddress {

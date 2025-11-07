@@ -1,6 +1,9 @@
 use auto_farm::common::chain_info::CurrentChainInfo;
 
-use crate::storage::order::{Order, OrderDuration, OrderId};
+use crate::{
+    actors::executor::SwapStatus,
+    storage::order::{Order, OrderDuration, OrderId},
+};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -32,6 +35,7 @@ pub struct OrderExecutedFullyEventData<M: ManagedTypeApi> {
 #[derive(TopEncode, TopDecode)]
 pub struct OrderExecutionFailedEventData<M: ManagedTypeApi> {
     pub part_tried_to_fill: BigUint<M>,
+    pub swap_status: SwapStatus,
     pub chain_info: CurrentChainInfo,
 }
 
@@ -93,11 +97,17 @@ pub trait EventsModule {
     }
 
     #[inline]
-    fn emite_order_execution_failed_event(&self, order_id: OrderId, part_tried_to_fill: BigUint) {
+    fn emit_order_execution_failed_event(
+        &self,
+        order_id: OrderId,
+        part_tried_to_fill: BigUint,
+        swap_status: SwapStatus,
+    ) {
         self.order_execution_failed_event(
             order_id,
             OrderExecutionFailedEventData {
                 part_tried_to_fill,
+                swap_status,
                 chain_info: CurrentChainInfo::new::<Self::Api>(),
             },
         )
