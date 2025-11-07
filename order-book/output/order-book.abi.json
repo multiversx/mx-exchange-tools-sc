@@ -538,6 +538,20 @@
                     "type": "OrderExecutedFullyEventData"
                 }
             ]
+        },
+        {
+            "identifier": "orderExecutionFailedEvent",
+            "inputs": [
+                {
+                    "name": "order_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "event_data",
+                    "type": "OrderExecutionFailedEventData"
+                }
+            ]
         }
     ],
     "esdtAttributes": [],
@@ -696,6 +710,19 @@
                 },
                 {
                     "name": "remaining_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "chain_info",
+                    "type": "CurrentChainInfo"
+                }
+            ]
+        },
+        "OrderExecutionFailedEventData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "part_tried_to_fill",
                     "type": "BigUint"
                 },
                 {

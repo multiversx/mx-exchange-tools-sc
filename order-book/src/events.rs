@@ -28,6 +28,13 @@ pub struct OrderExecutedFullyEventData<M: ManagedTypeApi> {
     pub chain_info: CurrentChainInfo,
 }
 
+#[type_abi]
+#[derive(TopEncode, TopDecode)]
+pub struct OrderExecutionFailedEventData<M: ManagedTypeApi> {
+    pub part_tried_to_fill: BigUint<M>,
+    pub chain_info: CurrentChainInfo,
+}
+
 #[multiversx_sc::module]
 pub trait EventsModule {
     #[inline]
@@ -85,6 +92,17 @@ pub trait EventsModule {
         );
     }
 
+    #[inline]
+    fn emite_order_execution_failed_event(&self, order_id: OrderId, part_tried_to_fill: BigUint) {
+        self.order_execution_failed_event(
+            order_id,
+            OrderExecutionFailedEventData {
+                part_tried_to_fill,
+                chain_info: CurrentChainInfo::new::<Self::Api>(),
+            },
+        )
+    }
+
     #[event("pauseContract")]
     fn pause_event(&self);
 
@@ -124,5 +142,12 @@ pub trait EventsModule {
         &self,
         #[indexed] order_id: OrderId,
         event_data: OrderExecutedFullyEventData<Self::Api>,
+    );
+
+    #[event("orderExecutionFailedEvent")]
+    fn order_execution_failed_event(
+        &self,
+        #[indexed] order_id: OrderId,
+        event_data: OrderExecutionFailedEventData<Self::Api>,
     );
 }

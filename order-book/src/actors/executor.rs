@@ -77,6 +77,8 @@ pub trait ExecutorModule:
                     swap_statuses.push(SwapStatus::Success);
                 }
                 Err(_) => {
+                    self.emite_order_execution_failed_event(order_id, input_token_amount);
+
                     swap_statuses.push(SwapStatus::Fail);
                 }
             }

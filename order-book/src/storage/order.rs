@@ -10,6 +10,8 @@ pub const MINUTE_IN_SECONDS: Timestamp = 60;
 pub const HOUR_IN_SECONDS: Timestamp = 60 * MINUTE_IN_SECONDS;
 pub const DAY_IN_SECONDS: Timestamp = 24 * HOUR_IN_SECONDS;
 
+pub const MAX_DAYS_DURATION: u8 = 30;
+
 #[type_abi]
 #[derive(TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub enum OrderDuration {

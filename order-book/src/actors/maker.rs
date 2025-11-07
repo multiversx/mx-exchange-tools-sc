@@ -1,6 +1,9 @@
 use crate::storage::{
     common_storage::{Percent, MAX_PERCENT},
-    order::{Order, OrderDuration, OrderId, DAY_IN_SECONDS, HOUR_IN_SECONDS, MINUTE_IN_SECONDS},
+    order::{
+        Order, OrderDuration, OrderId, Timestamp, DAY_IN_SECONDS, HOUR_IN_SECONDS,
+        MAX_DAYS_DURATION, MINUTE_IN_SECONDS,
+    },
 };
 
 multiversx_sc::imports!();
@@ -34,10 +37,19 @@ pub trait MakerModule:
         let current_timestamp = self.blockchain().get_block_timestamp();
         let mut expiration_timestamp = current_timestamp;
         expiration_timestamp += match &order_duration {
-            OrderDuration::Minutes(minutes) => *minutes as u64 * MINUTE_IN_SECONDS,
-            OrderDuration::Hours(hours) => *hours as u64 * HOUR_IN_SECONDS,
-            OrderDuration::Days(days) => *days as u64 * DAY_IN_SECONDS,
+            OrderDuration::Minutes(minutes) => *minutes as Timestamp * MINUTE_IN_SECONDS,
+            OrderDuration::Hours(hours) => *hours as Timestamp * HOUR_IN_SECONDS,
+            OrderDuration::Days(days) => {
+                require!(
+                    *days <= MAX_DAYS_DURATION,
+                    "Too many days for order duration"
+                );
+
+                *days as Timestamp * DAY_IN_SECONDS
+            }
         };
+
+        // i.e. you can't give 0 as duration
         require!(
             current_timestamp < expiration_timestamp,
             "Invalid expiration timestamp"
