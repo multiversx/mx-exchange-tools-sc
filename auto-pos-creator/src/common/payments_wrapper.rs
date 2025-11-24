@@ -36,7 +36,7 @@ impl<M: SendApi> PaymentsWrapper<M> {
             return self.payments;
         }
 
-        let _ = M::send_api_impl().multi_transfer_esdt_nft_execute(
+        M::send_api_impl().multi_transfer_esdt_nft_execute(
             to.get_handle().get_raw_handle(),
             self.payments.get_handle().get_raw_handle(),
             0,

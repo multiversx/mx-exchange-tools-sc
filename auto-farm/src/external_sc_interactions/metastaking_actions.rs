@@ -48,7 +48,8 @@ pub trait MetastakingActionsModule:
             }
 
             let ms_addr = unsafe { opt_ms_addr.unwrap_unchecked() };
-            let claim_result = self.call_metastaking_claim(ms_addr, user.clone(), dual_yield_token.clone());
+            let claim_result =
+                self.call_metastaking_claim(ms_addr, user.clone(), dual_yield_token.clone());
             new_user_dual_yield_tokens.push(claim_result.new_dual_yield_tokens);
 
             rew_wrapper.add_tokens(claim_result.lp_farm_rewards);
