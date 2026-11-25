@@ -61,3 +61,12 @@ In case of metaStaking - the user will have an unstaked position in the staking 
 The end of the week in terms of boosted rewards happens always on Friday at epoch change. We should run the service Friday morning when there are not many transactions.
 ### claimRewardsForUsers do not need any params - as all the logic is in the contract.
 
+## Release and reproducible builds
+
+Contracts are built reproducibly with the `reproducible-build.yml` workflow from [mx-sc-actions](https://github.com/multiversx/mx-sc-actions), inside the Docker image `multiversx/sdk-rust-contract-builder` (the tag is set in [release.yml](.github/workflows/release.yml)).
+
+1. Create the release on GitHub, usually as a pre-release, and press **Generate release notes**.
+2. In Actions → **Release** → **Run workflow**, pick the release tag in "Use workflow from" and set `contract_name`: one contract or a list separated by commas (e.g. `auto-farm,order-book`); empty builds all contracts.
+3. The workflow attaches the `.wasm`, `.abi.json`, `.source.json` and `artifacts.json` files to the release and adds the Docker image and the codehashes after the existing notes.
+
+To check a release locally, from a clean clone of the tag: `sc-meta reproducible-build build --docker-image multiversx/sdk-rust-contract-builder:v12.0.0 --contract <name>`.
