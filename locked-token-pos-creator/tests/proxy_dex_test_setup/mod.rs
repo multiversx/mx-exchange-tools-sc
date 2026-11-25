@@ -367,7 +367,7 @@ where
             let farm_token_id = managed_token_id!(FARM_LOCKED_TOKEN_ID);
             sc.farm_token().set_token_id(farm_token_id);
 
-            sc.per_block_reward_amount()
+            sc.per_second_reward_amount()
                 .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
             sc.state().set(State::Active);

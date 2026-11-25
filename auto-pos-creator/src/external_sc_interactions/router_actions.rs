@@ -17,7 +17,8 @@ pub trait RouterActionsModule {
         let router_pair_address: ManagedAddress = self
             .router_proxy(router_address)
             .get_pair(first_token_id, second_token_id)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         require!(
             pair_address == router_pair_address,

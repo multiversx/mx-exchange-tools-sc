@@ -20,7 +20,10 @@ pub trait PrunerModule:
         self.require_valid_order_id(order_id);
 
         let order = self.orders(order_id).take();
-        let current_time = self.blockchain().get_block_timestamp();
+        let current_time = self
+            .blockchain()
+            .get_block_timestamp_seconds()
+            .as_u64_seconds();
         require!(
             order.expiration_timestamp <= current_time,
             "Order not expired yet"

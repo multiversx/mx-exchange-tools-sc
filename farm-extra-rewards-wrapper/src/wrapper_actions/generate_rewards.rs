@@ -124,8 +124,8 @@ pub trait GenerateRewardsModule:
 
         storage_cache.reward_per_share = max_new_rps;
 
-        let block_nonce = self.blockchain().get_block_nonce();
-        self.last_reward_block_nonce().set(block_nonce);
+        let current_timestamp = self.blockchain().get_block_timestamp_seconds();
+        self.last_reward_timestamp().set(current_timestamp);
 
         InternalClaimResult {
             rewards,

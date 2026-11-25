@@ -116,7 +116,10 @@ pub trait ExecutorModule:
         }
 
         let order = order_mapper.get();
-        let current_time = self.blockchain().get_block_timestamp();
+        let current_time = self
+            .blockchain()
+            .get_block_timestamp_seconds()
+            .as_u64_seconds();
         if order.expiration_timestamp < current_time {
             return false;
         }

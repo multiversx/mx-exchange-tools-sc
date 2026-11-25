@@ -32,7 +32,8 @@ pub trait MetastakingActionsModule:
         self.metastaking_proxy(metastaking_address)
             .stake_farm_tokens(OptionalValue::<ManagedAddress>::None)
             .with_multi_token_transfer(lp_farm_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_exit_metastaking(
@@ -47,7 +48,8 @@ pub trait MetastakingActionsModule:
                 OptionalValue::<ManagedAddress>::None,
             )
             .with_esdt_transfer(full_dual_yield_position)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_unbond_metastaking(
@@ -59,7 +61,8 @@ pub trait MetastakingActionsModule:
         self.farm_staking_proxy(staking_farm_address)
             .unbond_farm()
             .with_esdt_transfer(unbond_position)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_metastaking_claim(
@@ -70,7 +73,8 @@ pub trait MetastakingActionsModule:
         self.metastaking_proxy(metastaking_address)
             .claim_dual_yield_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(dual_yield_token)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn update_metastaking_after_claim(

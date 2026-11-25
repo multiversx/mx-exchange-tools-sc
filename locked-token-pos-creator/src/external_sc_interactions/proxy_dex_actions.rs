@@ -39,7 +39,8 @@ pub trait ProxyDexActionsModule {
                 second_token_amount_min,
             )
             .with_multi_token_transfer(payments)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         let output_payments_vec = output_payments.to_vec();
 
@@ -63,7 +64,8 @@ pub trait ProxyDexActionsModule {
             .proxy_dex_proxy(proxy_dex_address)
             .enter_farm_proxy_endpoint(farm_address, OptionalValue::Some(user))
             .with_multi_token_transfer(payments)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         let (wrapped_farm_token, rewards) = result.into_tuple();
 

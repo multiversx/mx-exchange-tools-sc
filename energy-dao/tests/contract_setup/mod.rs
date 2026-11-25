@@ -9,6 +9,7 @@ use farm_token::FarmTokenModule;
 use farm_with_locked_rewards::Farm;
 use fees_collector::FeesCollector;
 use locked_token_wrapper::{wrapped_token::WrappedTokenModule, LockedTokenWrapper};
+use multiversx_sc::imports::OptionalValue;
 use multiversx_sc::types::{Address, EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 use multiversx_sc_modules::pause::PauseModule;
 use multiversx_sc_scenario::{
@@ -24,6 +25,7 @@ use energy_query::EnergyQueryModule;
 use farm_boosted_yields::boosted_yields_factors::BoostedYieldsFactorsModule;
 use locking_module::lock_with_energy_module::LockWithEnergyModule;
 use pausable::{PausableModule, State};
+use router::Router;
 use sc_whitelist_module::SCWhitelistModule;
 use simple_lock::locked_token::LockedTokenModule;
 
@@ -45,7 +47,7 @@ pub static OTHER_FARM_STAKING_TOKEN_ID: &[u8] = b"WEGLD-123456";
 pub static STAKING_FARM_TOKEN_ID: &[u8] = b"SUTK-123456";
 pub static DUAL_YIELD_TOKEN_ID: &[u8] = b"DUALYIELD-123456";
 pub const PENALTY_PERCENTAGE: u64 = 300;
-pub const MAX_APR_PERCENTAGE: u64 = 2_500;
+pub const MAX_APR_PERCENTAGE: u64 = 15_000;
 pub const UNBOND_PERIOD: u64 = 10;
 pub const EPOCHS_IN_YEAR: u64 = 360;
 pub const USER_BALANCE: u64 = 1_000_000;
@@ -360,9 +362,14 @@ where
 
     b_mock
         .execute_tx(owner, &fees_collector_wrapper, &rust_zero, |sc| {
+            let mut admins = MultiValueEncoded::new();
+            admins.push(managed_address!(owner));
+
             sc.init(
-                managed_token_id!(LOCKED_TOKEN_ID),
                 managed_address!(energy_factory_address),
+                managed_address!(energy_factory_address), // router, unused
+                0,
+                admins,
             );
             sc.set_paused(false);
         })
@@ -431,12 +438,21 @@ where
     let rust_zero = rust_biguint!(0u64);
     let pair_wrapper = b_mock.create_sc_account(&rust_zero, Some(owner), pair_builder, "pair");
 
+    let router_wrapper =
+        b_mock.create_sc_account(&rust_zero, Some(owner), router::contract_obj, "router");
+    b_mock
+        .execute_tx(owner, &router_wrapper, &rust_zero, |sc| {
+            sc.init(OptionalValue::None);
+        })
+        .assert_ok();
+    let router_address = router_wrapper.address_ref().clone();
+
     b_mock
         .execute_tx(owner, &pair_wrapper, &rust_zero, |sc| {
             sc.init(
                 managed_token_id!(BASE_FARM_STAKING_TOKEN_ID),
                 managed_token_id!(OTHER_FARM_STAKING_TOKEN_ID),
-                managed_address!(owner),
+                managed_address!(&router_address),
                 managed_address!(owner),
                 0,
                 0,
@@ -495,7 +511,7 @@ where
             sc.set_lock_epochs(*LOCK_OPTIONS.last().unwrap());
             sc.set_minimum_farming_epochs(UNBOND_PERIOD);
 
-            sc.per_block_reward_amount()
+            sc.per_second_reward_amount()
                 .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
             sc.state().set(State::Active);
@@ -570,7 +586,7 @@ where
             sc.farm_token()
                 .set_token_id(managed_token_id!(STAKING_FARM_TOKEN_ID));
 
-            sc.per_block_reward_amount()
+            sc.per_second_reward_amount()
                 .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
             sc.state().set(State::Active);

@@ -76,6 +76,8 @@ where
                 sc.resume();
                 sc.farm_token()
                     .set_token_id(managed_token_id!(WRAPPED_FARM_TOKEN_ID));
+                sc.reward_token_id()
+                    .set(managed_token_id!(WRAPPED_FARM_TOKEN_ID));
             },
         )
         .assert_ok();
@@ -138,6 +140,8 @@ fn enter_farm_test() {
 
     b_mock.borrow_mut().set_block_nonce(10);
 
+    b_mock.borrow_mut().set_block_timestamp(10);
+
     b_mock
         .borrow_mut()
         .execute_esdt_transfer(
@@ -153,6 +157,8 @@ fn enter_farm_test() {
         .assert_ok();
 
     b_mock.borrow_mut().set_block_nonce(20);
+
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     b_mock
         .borrow_mut()
@@ -208,6 +214,7 @@ fn deposit_rewards_test() {
 
     let b_mock = farm_setup.b_mock;
     b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     b_mock
         .borrow_mut()
@@ -251,6 +258,7 @@ fn claim_rewards_test() {
 
     let b_mock = farm_setup.b_mock;
     b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     // deposit first token rewards
     b_mock
@@ -290,7 +298,7 @@ fn claim_rewards_test() {
             &extra_rew_setup.sc_wrapper,
             &rust_biguint!(0),
             |sc| {
-                sc.per_block_reward_amount()
+                sc.per_second_reward_amount()
                     .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
                 sc.state().set(State::Active);
@@ -330,6 +338,8 @@ fn claim_rewards_test() {
         .assert_ok();
 
     b_mock.borrow_mut().set_block_nonce(20);
+
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     // claim rewards
     b_mock
@@ -428,6 +438,7 @@ fn claim_rewards_half_test() {
 
     let b_mock = farm_setup.b_mock;
     b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(10);
 
     // deposit first token rewards
     b_mock
@@ -467,7 +478,7 @@ fn claim_rewards_half_test() {
             &extra_rew_setup.sc_wrapper,
             &rust_biguint!(0),
             |sc| {
-                sc.per_block_reward_amount()
+                sc.per_second_reward_amount()
                     .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
                 sc.state().set(State::Active);
@@ -507,6 +518,8 @@ fn claim_rewards_half_test() {
         .assert_ok();
 
     b_mock.borrow_mut().set_block_nonce(20);
+
+    b_mock.borrow_mut().set_block_timestamp(20);
 
     // claim rewards
     b_mock

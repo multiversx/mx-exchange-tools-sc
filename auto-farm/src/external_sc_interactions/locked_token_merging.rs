@@ -48,7 +48,8 @@ pub trait LockedTokenMergingModule: energy_query::EnergyQueryModule {
             .energy_factory_proxy(energy_factory_address)
             .merge_tokens_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(locked_tokens)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         Some(new_token)
     }

@@ -23,7 +23,7 @@ impl CurrentChainInfo {
                     let cci = CurrentChainInfo {
                         block: api.get_block_nonce(),
                         epoch: api.get_block_epoch(),
-                        timestamp: api.get_block_timestamp(),
+                        timestamp: api.get_block_timestamp_seconds().as_u64_seconds(),
                     };
                     CURRENT_CHAIN_INFO = Some(cci);
 

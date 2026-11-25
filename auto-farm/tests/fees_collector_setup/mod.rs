@@ -9,7 +9,7 @@ use fees_collector::{
 use locking_module::lock_with_energy_module::LockWithEnergyModule;
 use multiversx_sc::types::{Address, EsdtLocalRole, MultiValueEncoded};
 use multiversx_sc_scenario::{
-    managed_address, managed_token_id, managed_token_id_wrapped, rust_biguint,
+    managed_address, managed_token_id_wrapped, rust_biguint,
     testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
     DebugApi,
 };
@@ -80,21 +80,19 @@ where
 
     b_mock
         .execute_tx(&owner_address, &fc_wrapper, &rust_zero, |sc| {
+            let mut admins = MultiValueEncoded::new();
+            admins.push(managed_address!(&owner_address));
+
             sc.init(
-                managed_token_id!(LOCKED_TOKEN_ID),
                 managed_address!(energy_factory_address),
+                managed_address!(energy_factory_address), // router, unused
+                0,
+                admins,
             );
 
             let _ = sc
                 .known_contracts()
                 .insert(managed_address!(&depositor_address));
-
-            let mut tokens = MultiValueEncoded::new();
-            tokens.push(managed_token_id!(FIRST_TOKEN_ID));
-            tokens.push(managed_token_id!(SECOND_TOKEN_ID));
-            tokens.push(managed_token_id!(LOCKED_TOKEN_ID));
-
-            sc.add_known_tokens(tokens);
 
             sc.set_energy_factory_address(managed_address!(energy_factory_address));
             sc.set_locking_sc_address(managed_address!(energy_factory_address));

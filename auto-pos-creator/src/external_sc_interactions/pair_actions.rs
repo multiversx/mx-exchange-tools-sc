@@ -45,7 +45,8 @@ pub trait PairActionsModule:
         self.pair_proxy(pair_address)
             .swap_tokens_fixed_input(requested_token_id, BigUint::from(SWAP_MIN_AMOUNT))
             .with_esdt_transfer(input_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_pair_add_liquidity(
@@ -62,7 +63,8 @@ pub trait PairActionsModule:
             )
             .with_esdt_transfer(args.first_tokens)
             .with_esdt_transfer(args.second_tokens)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         let (lp_tokens, first_tokens_used, second_tokens_used) = raw_results.into_tuple();
         let first_tokens_remaining_amount = first_token_full_amount - first_tokens_used.amount;
@@ -97,7 +99,8 @@ pub trait PairActionsModule:
             .pair_proxy(pair_address)
             .remove_liquidity(first_token_min_amount_out, second_token_min_amount_out)
             .with_esdt_transfer(lp_tokens)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
         let (first_tokens, second_tokens) = raw_results.into_tuple();
 
         PairRemoveLiqResult {

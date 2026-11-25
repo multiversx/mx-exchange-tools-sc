@@ -15,7 +15,8 @@ pub trait FarmStakingActionsModule: read_external_storage::ReadExternalStorageMo
         self.farm_staking_proxy(sc_address)
             .stake_farm_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn get_farm_staking_farming_token_id(&self, sc_address: ManagedAddress) -> TokenIdentifier {

@@ -170,6 +170,7 @@ where
 
         let mut block_round: u64 = 1;
         b_mock.borrow_mut().set_block_round(block_round);
+        b_mock.borrow_mut().set_block_timestamp(block_round);
 
         // whitelist pairs in router
         router_setup.whitelist_pair(
@@ -199,6 +200,7 @@ where
         for _i in 1usize..=20 {
             block_round += 1;
             b_mock.borrow_mut().set_block_round(block_round);
+            b_mock.borrow_mut().set_block_timestamp(block_round);
 
             b_mock
                 .borrow_mut()

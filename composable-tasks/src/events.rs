@@ -26,7 +26,10 @@ pub trait EventsModule {
     ) {
         let block = self.blockchain().get_block_nonce();
         let epoch = self.blockchain().get_block_epoch();
-        let timestamp = self.blockchain().get_block_timestamp();
+        let timestamp = self
+            .blockchain()
+            .get_block_timestamp_seconds()
+            .as_u64_seconds();
 
         self.smart_swap_event(
             caller.clone(),

@@ -22,7 +22,8 @@ pub trait EnergyFactoryActionsModule: energy_query::EnergyQueryModule {
                 own_address,
                 user,
             )
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         self.send()
             .esdt_local_burn(&payment.token_identifier, 0, &payment.amount);

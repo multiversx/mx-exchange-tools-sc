@@ -120,19 +120,18 @@ pub trait CreatePosModule:
     }
 
     fn split_first_payment(&self) -> (EgldOrEsdtTokenPayment, PaymentsVec<Self::Api>) {
-        let raw_payments = self.call_value().any_payment();
-        match raw_payments {
-            EgldOrMultiEsdtPayment::Egld(egld_amount) => (
+        let mut esdt_payments = self.call_value().all_esdt_transfers().clone_value();
+        if esdt_payments.is_empty() {
+            let egld_amount = self.call_value().egld_direct_non_strict().clone();
+            return (
                 EgldOrEsdtTokenPayment::new(EgldOrEsdtTokenIdentifier::egld(), 0, egld_amount),
                 ManagedVec::new(),
-            ),
-            EgldOrMultiEsdtPayment::MultiEsdt(mut esdt_payments) => {
-                require!(!esdt_payments.is_empty(), "Invalid payments");
-                let first_payment = self.pop_first_payment(&mut esdt_payments);
-
-                (EgldOrEsdtTokenPayment::from(first_payment), esdt_payments)
-            }
+            );
         }
+
+        let first_payment = self.pop_first_payment(&mut esdt_payments);
+
+        (EgldOrEsdtTokenPayment::from(first_payment), esdt_payments)
     }
 
     fn split_first_two_payments(

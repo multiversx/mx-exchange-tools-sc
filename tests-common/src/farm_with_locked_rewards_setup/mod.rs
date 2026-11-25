@@ -163,7 +163,7 @@ where
                     sc.add_sc_address_to_whitelist(managed_address!(&second_user));
                     sc.add_sc_address_to_whitelist(managed_address!(&third_user));
 
-                    sc.per_block_reward_amount()
+                    sc.per_second_reward_amount()
                         .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
                     sc.state().set(State::Active);

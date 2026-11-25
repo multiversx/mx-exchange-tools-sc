@@ -194,9 +194,13 @@ fn energy_dao_multiple_users_with_claim_test() {
         );
 
     energy_dao_setup.b_mock.set_block_nonce(10u64);
+
+    energy_dao_setup.b_mock.set_block_timestamp(10u64);
     energy_dao_setup.claim_user_rewards(&user1, WRAPPED_FARM_TOKEN_ID, 1, user1_farm_amount);
 
     energy_dao_setup.b_mock.set_block_nonce(20u64);
+
+    energy_dao_setup.b_mock.set_block_timestamp(20u64);
     energy_dao_setup.claim_user_rewards(&user2, WRAPPED_FARM_TOKEN_ID, 2, user2_farm_amount);
 
     energy_dao_setup
