@@ -67,7 +67,8 @@ pub trait RouterActionsModule {
 
         self.router_proxy(router_addr)
             .get_pair(first_token_id, second_token_id)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     #[proxy]

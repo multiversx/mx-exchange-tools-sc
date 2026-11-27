@@ -52,7 +52,7 @@ where
             sc.farm_token()
                 .set_token_id(managed_token_id!(STAKING_FARM_TOKEN_ID));
 
-            sc.per_block_reward_amount()
+            sc.per_second_reward_amount()
                 .set(&managed_biguint!(PER_BLOCK_REWARD_AMOUNT));
 
             sc.state().set(State::Active);

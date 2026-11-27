@@ -23,7 +23,8 @@ pub trait FarmActionsModule {
             .farm_proxy(farm_address)
             .enter_farm_endpoint(OptionalValue::Some(user))
             .with_multi_token_transfer(tokens)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         let (new_farm_token, rewards) = raw_results.into_tuple();
         EnterFarmResultWrapper {
@@ -42,7 +43,8 @@ pub trait FarmActionsModule {
             .farm_proxy(farm_address)
             .exit_farm_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_tokens)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
         let (farming_tokens, rewards) = raw_results.into_tuple();
 
         ExitFarmResultWrapper {

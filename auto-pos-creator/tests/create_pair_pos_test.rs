@@ -6,12 +6,13 @@ use auto_pos_creator::{
         create_pos_endpoints::CreatePosEndpointsModule, exit_pos_endpoints::ExitPosEndpointsModule,
     },
 };
+use config::ConfigModule;
 use farm::exit_penalty::ExitPenaltyModule;
 use farm_staking::token_attributes::{StakingFarmTokenAttributes, UnbondSftAttributes};
 use multiversx_sc::{
     codec::Empty,
     imports::ContractBase,
-    types::{BigUint, ManagedAddress, ManagedBuffer, MultiValueEncoded},
+    types::{BigUint, ManagedAddress, ManagedBuffer, MultiValueEncoded, TimestampSeconds},
 };
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
@@ -1064,6 +1065,18 @@ fn create_pos_with_farm_boosted_rewards_test() {
     pos_creator_setup
         .farm_setup
         .set_user_energy(&user_addr, 1_000, 2, 1);
+
+    b_mock
+        .borrow_mut()
+        .execute_tx(
+            &pos_creator_setup.farm_setup.owner,
+            &pos_creator_setup.farm_setup.farm_wrappers[0],
+            &rust_biguint!(0),
+            |sc| {
+                sc.last_reward_timestamp().set(TimestampSeconds::new(21));
+            },
+        )
+        .assert_ok();
     // User creates farm pos with farming token directly
     b_mock
         .borrow_mut()
@@ -1086,6 +1099,7 @@ fn create_pos_with_farm_boosted_rewards_test() {
 
     // second user enter farm
     b_mock.borrow_mut().set_block_nonce(10);
+    b_mock.borrow_mut().set_block_timestamp(21 + 10);
 
     // random tx on end of week 1, to cummulate rewards
     b_mock.borrow_mut().set_block_epoch(6);

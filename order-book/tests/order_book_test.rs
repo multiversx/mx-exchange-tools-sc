@@ -1,3 +1,4 @@
+use multiversx_sc::types::TimestampSeconds;
 use multiversx_sc_scenario::{managed_address, managed_biguint, managed_token_id, rust_biguint};
 use order_book::{
     actors::executor::RouterEndpointName,
@@ -338,7 +339,10 @@ fn pruner_test() {
         .call_prune_expired_order(0)
         .assert_user_error("Order not expired yet");
 
-    setup.b_mock.borrow_mut().set_block_timestamp(5_000_000);
+    setup
+        .b_mock
+        .borrow_mut()
+        .set_block_timestamp_seconds(TimestampSeconds::new(5_000_000));
 
     // prune order ok
     setup.call_prune_expired_order(0).assert_ok();
@@ -407,7 +411,10 @@ fn prune_partly_executed_order_test() {
         &rust_biguint!(USER_BALANCE - 1_000),
     );
 
-    setup.b_mock.borrow_mut().set_block_timestamp(5_000_000);
+    setup
+        .b_mock
+        .borrow_mut()
+        .set_block_timestamp_seconds(TimestampSeconds::new(5_000_000));
 
     // prune order ok - total tokens remaining: 750
     setup.call_prune_expired_order(0).assert_ok();

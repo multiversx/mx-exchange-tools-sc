@@ -116,7 +116,8 @@ pub trait FarmActionsModule:
             .stake_farm_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(new_tokens)
             .with_esdt_transfer(farm_token)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
 
         // since we already claimed, there are no boosted rewards
         let (new_farm_token, _) = raw_results.into_tuple();
@@ -133,7 +134,8 @@ pub trait FarmActionsModule:
             .farm_proxy(farm_addr)
             .claim_rewards_endpoint(OptionalValue::Some(user))
             .with_esdt_transfer(farm_token)
-            .execute_on_dest_context();
+            .returns(ReturnsResult)
+            .sync_call();
         let (new_farm_token, rewards) = raw_results.into_tuple();
 
         ClaimRewardsResultWrapper {

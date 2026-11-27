@@ -3,6 +3,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use multiversx_sc::imports::OptionalValue;
 use multiversx_sc::types::{Address, EsdtLocalRole, ManagedAddress, MultiValueEncoded};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
@@ -13,6 +14,7 @@ use multiversx_sc_scenario::{
 use pair::{config::ConfigModule, fee::FeeModule, pair_actions::add_liq::AddLiquidityModule};
 use pair::{pair_actions::swap::SwapModule, *};
 use pausable::{PausableModule, State};
+use router::Router;
 
 pub struct PairSetup<PairObjBuilder>
 where
@@ -44,13 +46,27 @@ where
                 .borrow_mut()
                 .create_sc_account(&rust_zero, Some(owner), pair_builder, "pair");
 
+        let router_wrapper = b_mock.borrow_mut().create_sc_account(
+            &rust_zero,
+            Some(owner),
+            router::contract_obj,
+            "router",
+        );
+        b_mock
+            .borrow_mut()
+            .execute_tx(owner, &router_wrapper, &rust_zero, |sc| {
+                sc.init(OptionalValue::None);
+            })
+            .assert_ok();
+        let router_address = router_wrapper.address_ref().clone();
+
         b_mock
             .borrow_mut()
             .execute_tx(owner, &pair_wrapper, &rust_zero, |sc| {
                 sc.init(
                     managed_token_id!(first_token_id),
                     managed_token_id!(second_token_id),
-                    managed_address!(owner),
+                    managed_address!(&router_address),
                     managed_address!(owner),
                     0,
                     0,

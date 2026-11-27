@@ -18,7 +18,8 @@ pub trait MetastakingActionsModule {
         self.metastaking_proxy(sc_address)
             .stake_farm_tokens(OptionalValue::Some(user))
             .with_multi_token_transfer(payments)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_metastaking_unstake(
@@ -32,7 +33,8 @@ pub trait MetastakingActionsModule {
                 OptionalValue::Some(args.user),
             )
             .with_esdt_transfer(args.ms_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     #[proxy]

@@ -8,7 +8,8 @@ use crate::{
 };
 
 use composable_tasks::{config::ConfigModule, ComposableTasksContract};
-use multiversx_sc::{hex_literal, types::Address};
+use hex_literal::hex;
+use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_token_id, rust_biguint,
     testing_framework::{BlockchainStateWrapper, ContractObjWrapper},
@@ -77,7 +78,7 @@ where
         let b_mock = b_mock_rc;
 
         let owner = b_mock.borrow_mut().create_user_account(&rust_zero);
-        let first_user = Address::from(hex_literal::hex!(
+        let first_user = Address::from(hex!(
             "75736572315F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
         ));
         b_mock
@@ -85,7 +86,7 @@ where
             .create_user_account_fixed_address(&first_user, &rust_zero);
 
         // address:user2 from scenarios
-        let second_user = Address::from(hex_literal::hex!(
+        let second_user = Address::from(hex!(
             "75736572325F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F"
         ));
         b_mock

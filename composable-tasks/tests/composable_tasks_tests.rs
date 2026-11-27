@@ -554,7 +554,7 @@ fn swap_unwrap_multiple_input_tokens_test() {
                 sc.compose_tasks(expected_token_out, tasks);
             },
         )
-        .assert_error(4, "incorrect number of ESDT transfers");
+        .assert_error(4, "incorrect number of transfers");
 }
 
 #[test]

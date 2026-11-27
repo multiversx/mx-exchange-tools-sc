@@ -4,6 +4,8 @@ use crate::common::rewards_wrapper::RewardsWrapper;
 
 multiversx_sc::imports!();
 
+use fees_collector::claim::ProxyTrait as _;
+
 #[multiversx_sc::module]
 pub trait FeesCollectorActionsModule:
     crate::common::common_storage::CommonStorageModule
@@ -44,7 +46,8 @@ pub trait FeesCollectorActionsModule:
         let sc_address = self.fees_collector_sc_address().get();
         self.fees_collector_proxy(sc_address)
             .claim_rewards_endpoint(OptionalValue::Some(user))
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     #[proxy]

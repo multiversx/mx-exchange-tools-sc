@@ -34,7 +34,10 @@ pub trait MakerModule:
         };
         require!(executor_fee <= MAX_PERCENT, "Invalid executor fee");
 
-        let current_timestamp = self.blockchain().get_block_timestamp();
+        let current_timestamp = self
+            .blockchain()
+            .get_block_timestamp_seconds()
+            .as_u64_seconds();
         let mut expiration_timestamp = current_timestamp;
         expiration_timestamp += match &order_duration {
             OrderDuration::Minutes(minutes) => *minutes as Timestamp * MINUTE_IN_SECONDS,

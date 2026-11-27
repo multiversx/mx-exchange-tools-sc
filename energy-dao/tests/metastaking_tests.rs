@@ -25,6 +25,7 @@ fn energy_dao_metastaking_test() {
     // necessary to initialize the liquidity pool
     energy_dao_setup.b_mock.set_block_nonce(1);
     energy_dao_setup.b_mock.set_block_round(1);
+    energy_dao_setup.b_mock.set_block_timestamp(1);
 
     let farm_address = energy_dao_setup.farm_wrapper.address_ref().clone();
     let farm_staking_proxy_address = energy_dao_setup
@@ -83,6 +84,7 @@ fn energy_dao_metastaking_test() {
     // Users enter liquidity on multiple blocks for LP safe price computation
     energy_dao_setup.b_mock.set_block_nonce(5);
     energy_dao_setup.b_mock.set_block_round(5);
+    energy_dao_setup.b_mock.set_block_timestamp(5);
 
     let user1_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user1,
@@ -94,6 +96,7 @@ fn energy_dao_metastaking_test() {
 
     energy_dao_setup.b_mock.set_block_nonce(10);
     energy_dao_setup.b_mock.set_block_round(10);
+    energy_dao_setup.b_mock.set_block_timestamp(10);
 
     let user2_lp_amount = energy_dao_setup.call_pair_add_liquidity(
         &user2,
@@ -139,6 +142,7 @@ fn energy_dao_metastaking_test() {
     energy_dao_setup.b_mock.set_block_epoch(10u64);
     energy_dao_setup.b_mock.set_block_nonce(110u64);
     energy_dao_setup.b_mock.set_block_round(110u64);
+    energy_dao_setup.b_mock.set_block_timestamp(110u64);
 
     energy_dao_setup.claim_user_metastaking_rewards(
         &user1,
@@ -267,6 +271,7 @@ fn energy_dao_metastaking_test() {
     // user 2 exits the contract after some more blocks
     energy_dao_setup.b_mock.set_block_nonce(210u64);
     energy_dao_setup.b_mock.set_block_round(210u64);
+    energy_dao_setup.b_mock.set_block_timestamp(210u64);
 
     energy_dao_setup.unstake_metastaking(
         &user2,

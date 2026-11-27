@@ -10,7 +10,8 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
         self.energy_factory_proxy(energy_factory_address)
             .lock_tokens_endpoint(epoch, OptionalValue::<ManagedAddress>::None)
             .with_egld_or_single_esdt_transfer(payment)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn merge_locked_tokens(&self, locked_tokens: PaymentsVec<Self::Api>) -> EsdtTokenPayment {
@@ -22,7 +23,8 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
         self.energy_factory_proxy(energy_factory_address)
             .merge_tokens_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_multi_token_transfer(locked_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn wrap_locked_token(&self, payment: EsdtTokenPayment<Self::Api>) -> EsdtTokenPayment {
@@ -30,7 +32,8 @@ pub trait LockedTokenModule: energy_query::EnergyQueryModule {
         self.locked_token_wrapper_proxy(sc_address)
             .wrap_locked_token_endpoint()
             .with_esdt_transfer(payment)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     #[proxy]

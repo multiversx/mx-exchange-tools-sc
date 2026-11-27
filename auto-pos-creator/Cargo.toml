@@ -9,69 +9,69 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "=0.60.0"
+version = "=0.66.3"
 features = ["esdt-token-payment-legacy-decode"]
 
 [dependencies.multiversx-sc-modules]
-version = "=0.60.0"
+version = "=0.66.3"
 
 [dependencies.multiversx-wegld-swap-sc]
-version = "=0.60.0"
+version = "=0.66.3"
 
 [dependencies.read_external_storage]
 path = "../common/modules/read_external_storage"
 
 [dependencies.farm]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.farm-with-locked-rewards]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.farm-staking]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.farm-staking-proxy]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.pair]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.router]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.energy-factory]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.common_structs]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.mergeable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.utils]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.energy-query]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.legacy_token_decode_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dependencies.lkmex-transfer]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
@@ -79,8 +79,12 @@ num-traits = "0.2"
 hex = "0.4"
 hex-literal = "0.4.1"
 
+[dev-dependencies.config]
+git = "https://github.com/multiversx/mx-exchange-sc"
+rev = "3b5b2b7"
+
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.60.0"
+version = "=0.66.3"
 
 [dev-dependencies.tests-common]
 path = "../tests-common"
@@ -88,8 +92,8 @@ features = ["enable-tests-common"]
 
 [dev-dependencies.pausable]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"
 
 [dev-dependencies.sc_whitelist_module]
 git = "https://github.com/multiversx/mx-exchange-sc"
-rev = "bff93fc"
+rev = "3b5b2b7"

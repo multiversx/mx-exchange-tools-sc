@@ -35,7 +35,8 @@ pub trait FarmActionsModule:
         self.farm_proxy(farm_address)
             .enter_farm_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_multi_token_transfer(farming_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_exit_farm(
@@ -46,7 +47,8 @@ pub trait FarmActionsModule:
         self.farm_proxy(farm_address)
             .exit_farm_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(farm_tokens)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn call_farm_claim(
@@ -57,7 +59,8 @@ pub trait FarmActionsModule:
         self.farm_proxy(farm_addr)
             .claim_rewards_endpoint(OptionalValue::<ManagedAddress>::None)
             .with_esdt_transfer(farm_token)
-            .execute_on_dest_context()
+            .returns(ReturnsResult)
+            .sync_call()
     }
 
     fn claim_and_update_farm_state(

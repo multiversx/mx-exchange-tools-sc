@@ -108,7 +108,10 @@ pub trait OrderModule: crate::events::EventsModule {
     }
 
     fn is_expired(&self, order: &Order<Self::Api>) -> bool {
-        let current_time = self.blockchain().get_block_timestamp();
+        let current_time = self
+            .blockchain()
+            .get_block_timestamp_seconds()
+            .as_u64_seconds();
 
         order.expiration_timestamp <= current_time
     }
